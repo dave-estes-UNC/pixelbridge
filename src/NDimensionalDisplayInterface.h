@@ -5,14 +5,14 @@
 #include "CostModel.h"
 
 namespace nddi {
-    
+
     /**
      * When specifying coefficient matrices for purposes of updating the coefficient plane, the NDDI client
      * can use this value for one or more of the elements in the matrix if they would like the element in the
      * same location of the destination coefficient matrix to remain unchanged.
      */
     #define COFFICIENT_UNCHANGED INT_MAX
-    
+
     /**
      * Struct representing an RGBA 32-bit pixel.
      */
@@ -25,7 +25,7 @@ namespace nddi {
         };
         unsigned int packed;
     } Pixel;
-    
+
     /**
      * This abstract class serves as a software interface to an n-Dimensional Display Interface (NDDI) compliant
      * display device. Implementations of this interface may work with a simulated display that writes
@@ -34,14 +34,14 @@ namespace nddi {
      *
      */
     class NDimensionalDisplayInterface  {
-        
+
     public:
-        
+
         /**
          * Required default constructor for abstract class NDimensionalDisplayInterface
          */
         NDimensionalDisplayInterface() {}
-        
+
         /**
          * Each NDimensionalDisplayInterface is configured during construction.
          *
@@ -68,21 +68,21 @@ namespace nddi {
         NDimensionalDisplayInterface(std::vector<unsigned int> frameVolumeDimensionalSizes,
                                      int displayWidth, int displayHeight,
                                      int inputVectorSize) {}
-        
+
         /**
          * Used to query the display width.
          *
          * @return The width of the display.
          */
         virtual int DisplayWidth() = 0;
-        
+
         /**
          * Used to query the display height.
          *
          * @return The height of the display.
          */
         virtual int DisplayHeight() = 0;
-        
+
         /**
          * Copies the provided pixel to the specified location.
          *
@@ -92,7 +92,7 @@ namespace nddi {
          *         measurements based on the display implementation
          */
         virtual void PutPixel(Pixel p, std::vector<unsigned int> location) = 0;
-        
+
         /**
          * Copies the one dimensional array of pixels along a particular dimension in the frame volume. In a
          * two-dimensional frame volume, this can be thought of as a way to copy along a row or along a column, but
@@ -106,10 +106,10 @@ namespace nddi {
          *         measurements based on the display implementation
          */
         virtual void CopyPixelStrip(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end) = 0;
-        
+
         /**
          * Copies the array of pixels into the designated region of the frame volume. The data must be
-         * arranged in the array with strides for each dimension of the area. So to copy pixes into a 
+         * arranged in the array with strides for each dimension of the area. So to copy pixes into a
          * 2 x 2 x 2 region in the frame volume, the array must be arranged accordingly:
          * (0,0,0) (1,0,0) (0,1,0) (1,1,0) (0,0,1) (1,0,1) (0,1,1) (1,1,1)
          *
@@ -121,7 +121,7 @@ namespace nddi {
          *         measurements based on the display implementation
          */
         virtual void CopyPixels(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end) = 0;
-        
+
         /**
          * Fills the frame volume with the specified pixel. It can fill in multiple
          * dimensions by starting at the start pixel and filling in each dimension until
@@ -134,9 +134,9 @@ namespace nddi {
          *         measurements based on the display implementation
          */
         virtual void FillPixel(Pixel p, std::vector<unsigned int> start, std::vector<unsigned int> end) = 0;
-        
+
         virtual void CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest) = 0;
-        
+
         /**
          * Used to update the input vector with the extra values in the input vector.
          *
@@ -148,7 +148,7 @@ namespace nddi {
          *         measurements based on the display implementation
          */
         virtual void UpdateInputVector(std::vector<int> input) = 0;
-        
+
         /**
          * Used to copy the specified coefficientMatrix into the specified location of the coefficient
          * plane.
@@ -162,7 +162,7 @@ namespace nddi {
          *         measurements based on the display implementation
          */
         virtual void PutCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix, std::vector<unsigned int> location) = 0;
-        
+
         /**
          * Used to copy the specified coefficientMatrix into a range of locations in the coefficient plane.
          *
@@ -177,7 +177,7 @@ namespace nddi {
          *         measurements based on the display implementation
          */
         virtual void FillCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix, std::vector<unsigned int> start, std::vector<unsigned int> end) = 0;
-        
+
         /**
          * Used to copy the specified single coefficient value from a matrix into a range of locations in the coefficient plane.
          *
@@ -193,7 +193,7 @@ namespace nddi {
          *         measurements based on the display implementation
          */
         virtual void FillCoefficient(int coefficient, int row, int col, std::vector<unsigned int> start, std::vector<unsigned int> end) = 0;
-        
+
         /**
          * Returns the CostModel for this display. The CostModel can be queried by the
          * host application to understand the cost of operations after they complete.
@@ -202,7 +202,7 @@ namespace nddi {
          */
         virtual CostModel* GetCostModel() = 0;
     };
-    
+
 } // namespace nddi {
 
 #endif // N_DIMENSIONAL_DISPLAY_INTERFACE_H

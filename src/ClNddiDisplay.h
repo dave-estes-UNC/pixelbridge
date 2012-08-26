@@ -1,7 +1,13 @@
 #ifndef CL_NDDI_DISPLAY_H
 #define CL_NDDI_DISPLAY_H
 
+
+#ifdef __APPLE__
 #include <OpenCL/opencl.h>
+#else
+#include <CL/cl.h>
+#include <CL/cl_gl.h>
+#endif
 
 #include "GlNddiDisplay.h"
 #include "ClInputVector.h"
@@ -13,7 +19,7 @@
  * NDDI components and will do the rendering with OpenCL kernels.
  */
 class ClNddiDisplay : public GlNddiDisplay {
-    
+
 public:
     ClNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSizes,
                   int inputVectorSize);
@@ -30,19 +36,20 @@ public:
     void PutCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix, std::vector<unsigned int> location);
     void FillCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix, std::vector<unsigned int> start, std::vector<unsigned int> end);
     void FillCoefficient(int coefficient, int row, int col, std::vector<unsigned int> start, std::vector<unsigned int> end);
-    
+
 private:
     void Render();
 
     void InitializeGl();
     void InitializeCl();
-    
+
     void Cleanup(bool shouldExit);
-    
+
     ClInputVector       * clInputVector_;
     ClCoefficientPlane  * clCoefficientPlane_;
     ClFrameVolume       * clFrameVolume_;
-    
+
+    cl_platform_id    clPlatformId_;
     cl_device_id      clDeviceId_;
     cl_context        clContext_;
     cl_command_queue  clQueue_;

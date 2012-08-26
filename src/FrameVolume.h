@@ -9,6 +9,7 @@
 #ifndef pixelbridge_FrameVolume_h
 #define pixelbridge_FrameVolume_h
 
+#include <cstdlib>
 #include <vector>
 #include <cassert>
 
@@ -17,7 +18,7 @@
 using namespace std;
 
 namespace nddi {
-    
+
     class FrameVolume {
 
     protected:
@@ -25,13 +26,13 @@ namespace nddi {
         vector<unsigned int>    dimensionalSizes_;
         unsigned int            size_;
         Pixel                 * pixels_;
-        
+
     public:
-        
+
         FrameVolume(CostModel* costModel,
                     vector<unsigned int> frameVolumeDimensionalSizes)
         : costModel_(costModel), dimensionalSizes_(NULL), size_(1), pixels_(NULL) {
-            
+
             dimensionalSizes_ = frameVolumeDimensionalSizes;
             for (int i = 0; i < dimensionalSizes_.size(); i++) {
                 size_ *= dimensionalSizes_[i];
@@ -39,9 +40,9 @@ namespace nddi {
             pixels_ = (Pixel *)malloc(sizeof(Pixel) * size_);
             memset(pixels_, 0x00, sizeof(Pixel) * size_);
         }
-        
+
         ~FrameVolume() {
-            
+
             if (!dimensionalSizes_.empty()) {
                 dimensionalSizes_.clear();
             }
@@ -49,12 +50,12 @@ namespace nddi {
                 free(pixels_);
             }
         }
-        
+
         unsigned int getSize() {
-            
+
             return size_;
         }
-        
+
         void PutPixel(Pixel p, std::vector<unsigned int> location) {
             setPixel(location, p);
         }
@@ -62,7 +63,7 @@ namespace nddi {
         void CopyPixelStrip(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
             int dimensionToCopyAlong;
             bool dimensionFound = false;
-            
+
             // Find the dimension to copy along
             for (int i = 0; !dimensionFound && (i < dimensionalSizes_.size()); i++) {
                 if (start[i] != end[i]) {
@@ -70,7 +71,7 @@ namespace nddi {
                     dimensionFound = true;
                 }
             }
-            
+
             std::vector<unsigned int> position = start;
             for (int j = 0; j <= end[dimensionToCopyAlong] - start[dimensionToCopyAlong]; j++) {
                 setPixel(position, p[j]);
@@ -79,17 +80,17 @@ namespace nddi {
         }
 
         void CopyPixels(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
-            
+
             std::vector<unsigned int> position = start;
             bool copyFinished = false;
             int pixelsCopied = 0;
-            
+
             // Move from start to end, filling in each location with the provided pixel
             do {
                 // Set pixel in frame volume at position
                 setPixel(position, p[pixelsCopied]);
                 pixelsCopied++;
-                
+
                 // Move to the next position
                 int fvDim = 0;
                 bool overflow;
@@ -104,22 +105,22 @@ namespace nddi {
                             copyFinished = true;
                     }
                 } while (overflow && !copyFinished);
-                
+
             } while (!copyFinished);
         }
-        
+
         void FillPixel(Pixel p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
 
             std::vector<unsigned int> position = start;
             bool fillFinished = false;
             int pixelsFilled = 0;
-            
+
             // Move from start to end, filling in each location with the provided pixel
             do {
                 // Set pixel in frame volume at position
                 setPixel(position, p);
                 pixelsFilled++;
-                
+
                 // Move to the next position
                 int fvDim = 0;
                 bool overflow;
@@ -134,7 +135,7 @@ namespace nddi {
                             fillFinished = true;
                     }
                 } while (overflow && !fillFinished);
-                
+
             } while (!fillFinished);
         }
 
@@ -150,7 +151,7 @@ namespace nddi {
                 // Set pixel in frame volume at position
                 setPixel(positionFrom, getPixel(positionTo));
                 pixelsCopied++;
-                
+
                 // Move to the next position
                 int fvDim = 0;
                 bool overflow;
@@ -167,15 +168,15 @@ namespace nddi {
                             copyFinished = true;
                     }
                 } while (overflow && !copyFinished);
-                
+
             } while (!copyFinished);
         }
-        
+
         void setPixel(vector<unsigned int> location, Pixel pixel) {
-            
+
             unsigned int  offset = 0;
             unsigned int  multiplier = 1;
-            
+
             assert(dimensionalSizes_.size() == location.size());
 
             for (int i = 0; i < location.size(); i++) {
@@ -184,36 +185,36 @@ namespace nddi {
                 offset += location[i] * multiplier;
                 multiplier *= dimensionalSizes_[i];
             }
-            
+
             pixels_[offset].packed = pixel.packed;
-            
+
             costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, pixels_ + offset, 4);
         }
-        
+
         Pixel getPixel(vector<unsigned int> location) {
- 
+
             Pixel         pixel;
             unsigned int  offset = 0;
             unsigned int  multiplier = 1;
-            
+
             assert(dimensionalSizes_.size() == location.size());
-            
+
             for (int i = 0; i < location.size(); i++) {
                 assert(location[i] < dimensionalSizes_[i]);
-                
+
                 offset += location[i] * multiplier;
                 multiplier *= dimensionalSizes_[i];
             }
-            
+
             pixel.packed = pixels_[offset].packed;
-            
+
             costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, READ_ACCESS, pixels_ + offset, 4);
 
             return pixel;
         }
-        
+
         Pixel * data() {
-            
+
             return pixels_;
         }
     };

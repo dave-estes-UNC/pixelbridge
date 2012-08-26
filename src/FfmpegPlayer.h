@@ -32,7 +32,7 @@ public:
 	FfmpegPlayer(const char* fileName);
 
 	~FfmpegPlayer();
-	
+
 	/**
 	 * Returns the width of the video.
 	 *
@@ -46,24 +46,24 @@ public:
 	 * @returns The height of the video
 	 */
 	size_t height();
-	
+
 	/**
 	 * Decodes a frame.
 	 *
 	 * @returns A pointer to the decoded frame.
 	 */
 	uint8_t* decodeFrame();
-	
+
 private:
 	const char* fileName_;
 	size_t width_;
 	size_t height_;
-	
+
 	AVFormatContext* pFormatCtx_;
 	int              videoStream_;
 	AVCodecContext*  pCodecCtx_;
 	AVCodec*         pCodec_;
-	AVFrame*         pFrame_; 
+	AVFrame*         pFrame_;
 	AVFrame*         pFrameRGB_;
 	int              numBytes_;
 	uint8_t*         buffer_;

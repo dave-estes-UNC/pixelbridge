@@ -5,6 +5,7 @@ CPP=g++
 
 CCFLAGS=-I$(IDIR)
 CPPFLAGS=-I$(IDIR)
+#LDFLAGS=--static
 LDFLAGS=
 
 ifeq ($(NO_OMP), 1)
@@ -22,6 +23,7 @@ else
 	ifeq ($(shell uname),Darwin)
 		LDFLAGS+=-framework Carbon -framework OpenGL -framework GLUT
 	else
+		CPPFLAGS+=-DGL_GLEXT_PROTOTYPES
 		LDFLAGS+=-lGL -lglut -lGLU
 	endif
 endif
@@ -37,8 +39,9 @@ else
 	endif
 endif
 
-#LDFLAGS+=-lavformat.52.84.0 -lavcodec.52.93.0
-LDFLAGS+=-lavformat -lavcodec
+CPPFLAGS+=-D__STDC_CONSTANT_MACROS
+
+LDFLAGS+=-lz -lavutil -lavformat -lavcodec -lswscale
 
 ifeq ($(DEBUG), 1)
 	CCFLAGS+=-g -DDEBUG
@@ -48,14 +51,38 @@ else
 	OBJDIR=objdir-release
 endif
 
-_DEPS =	NDimensionalDisplayInterface.h \
+_DEPS =	GlNddiDisplay.h \
+	InputVector.h \
+	NDimensionalDisplayInterfaceExtended.h \
+	NDimensionalDisplayInterface.h \
+	Rewinder.h \
+	Tiler.h \
 	BaseNddiDisplay.h \
-	GlNddiDisplay.h
+	BlendingGlNddiDisplay.h \
+	CachedTiler.h \
+	ClCoefficientPlane.h \
+	ClFrameVolume.h \
+	ClInputVector.h \
+	ClNddiDisplay.h \
+	CoefficientMatrix.h \
+	CoefficientPlane.h \
+	CostModel.h \
+	FfmpegPlayer.h \
+	FlatTiler.h \
+	FrameVolume.h \
+	CostModel.h
 
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ =	BaseNddiDisplay.o \
-	GlNddiDisplay.o
+_OBJ =	GlNddiDisplay.o \
+	PixelBridgeMain.o \
+	Rewinder.o \
+	BaseNddiDisplay.o \
+	BlendingGlNddiDisplay.o \
+	CachedTiler.o \
+	ClNddiDisplay.o \
+	FfmpegPlayer.o \
+	FlatTiler.o
 
 OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
 
@@ -71,7 +98,7 @@ $(OBJDIR)/%.o: %.c $(DEPS)
 all:	pixelbridge
 
 pixelbridge: $(OBJDIR)/PixelBridgeMain.o $(OBJ)
-	$(CPP) $(LDFLAGS) -o $(OBJDIR)/$@ $^ $(CPPFLAGS)
+	$(CPP) -o $(OBJDIR)/$@ $^ $(CPPFLAGS) $(LDFLAGS) 
 
 .PHONY: clean
 

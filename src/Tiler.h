@@ -1,6 +1,8 @@
 #ifndef TILER_H
 #define TILER_H
 
+#include <stdint.h>
+
 /*
  *  Tiler.h
  *  pixelbridge
@@ -16,18 +18,18 @@
  * will break up each frame into tiles and update the tiles that are changed.
  */
 class Tiler {
-	
+
 public:
-    
+
     /**
      * Intializes the Coefficient Plane for this tiler.
      */
     virtual void InitializeCoefficientPlane() = 0;
-    
+
 	/**
 	 * Update the tile_map, tilecache, and then the NDDI display based on the frame that's passed in.
 	 */
 	virtual void UpdateDisplay(uint8_t* buffer, size_t width, size_t height) = 0;
-	
+
 };
 #endif // TILER_H
