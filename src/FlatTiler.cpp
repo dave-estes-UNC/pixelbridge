@@ -1,0 +1,215 @@
+/*
+ *  FlatTiler.cpp
+ *  pixelbridge
+ *
+ *  Created by Dave Estes on 11/26/10.
+ *  Copyright 2010 Dave Estes. All rights reserved.
+ *
+ */
+
+#include <iostream>
+#include <zlib.h>
+
+#include "FlatTiler.h"
+
+
+/**
+ * The FlatTiler is created based on the dimensions of the NDDI display that's passed in. If those
+ * dimensions change, then the FlatTiler should be destroyed and re-created.
+ */
+FlatTiler::FlatTiler (GlNddiDisplay* display, size_t tile_width, size_t tile_height, size_t bits, bool quiet)
+: display_(display),
+  tile_width_(tile_width),
+  tile_height_(tile_height),
+  bits_(bits),
+  quiet_(quiet)
+{
+	
+	// Compute tile_map width
+	tile_map_width_ = display_->DisplayWidth() / tile_width;
+	if ((tile_map_width_ * tile_width) < display_->DisplayWidth()) { tile_map_width_++; }
+	
+	// Compute tile_map height
+	tile_map_height_ = display_->DisplayHeight() / tile_height;
+	if ((tile_map_height_ * tile_height) < display_->DisplayHeight()) { tile_map_height_++; }
+	
+	// Set up the tile map, one column at a time with a checksum of zero.
+	tile_map_.resize(tile_map_width_);
+	for (int i = 0; i < tile_map_width_; i++) {
+		for (int j = 0; j < tile_map_height_; j++) {
+			tile_map_[i].push_back(0L);
+		}
+	}
+	
+	// Set tile update count to zero
+	unchanged_tiles_ = tile_updates_ = 0;
+}
+
+/**
+ * Intializes the Coefficient Plane for this tiler.
+ *
+ * @return The cost of this operation, including all of the NDDI operations
+ */
+void FlatTiler::InitializeCoefficientPlane() {
+
+#ifdef FLAT_TILED_3D
+    // Setup the coefficient matrix to complete 3x3 identity initially
+	std::vector< std::vector<int> > coeffs;
+    coeffs.resize(3);
+    coeffs[0].push_back(1); coeffs[0].push_back(0); coeffs[0].push_back(0);
+    coeffs[1].push_back(0); coeffs[1].push_back(1); coeffs[1].push_back(0);
+    coeffs[2].push_back(0); coeffs[2].push_back(0); coeffs[2].push_back(0);
+    
+	// Setup start and end points to (0,0) initially
+	std::vector<unsigned int> start, end;
+	start.push_back(0); start.push_back(0);
+	end.push_back(0); end.push_back(0);
+    
+	for (int j = 0; j < tile_map_height_; j++) {
+		for (int i = 0; i < tile_map_width_; i++) {
+			coeffs[2][0] = -i * tile_width_;
+			coeffs[2][1] = -j * tile_height_;
+            coeffs[2][2] = i + j * tile_map_width_;
+			start[0] = i * tile_width_; start[1] = j * tile_height_;
+			end[0] = (i + 1) * tile_width_ - 1; end[1] = (j + 1) * tile_height_ - 1;
+			if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
+			if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
+			display_->FillCoefficientMatrix(coeffs, start, end);
+		}
+	}
+#else
+    vector< vector<int> > coeffs;
+    coeffs.resize(2);
+    coeffs[0].push_back(1); coeffs[0].push_back(0);
+    coeffs[1].push_back(0); coeffs[1].push_back(1);
+    
+	std::vector<unsigned int> start, end;
+    start.push_back(0); start.push_back(0);
+    end.push_back(display_->DisplayWidth() - 1); end.push_back(display_->DisplayHeight() - 1);
+    
+    display_->FillCoefficientMatrix(coeffs, start, end);
+#endif
+}
+
+/**
+ * Update the tile_map, tilecache, and then the NDDI display based on the frame that's passed in. The
+ * frame is returned from the ffmpeg player as an RGB buffer. There is not Alpha channel.
+ * 
+ * @param buffer Pointer to an RGB buffer
+ * @param width The width of the RGB buffer
+ * @param height The height of the RGB buffer
+ */
+void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
+{
+	int unchanged = 0, updates = 0;
+	unsigned char mask = 0xff << (8 - bits_);
+	
+	// Break up the passed in buffer into one tile at a time
+#ifndef NO_OMP
+#pragma omp parallel for ordered
+#endif // !NO_OMP
+	for (int j_tile_map = 0; j_tile_map < tile_map_height_; j_tile_map++) {
+
+#ifndef NO_OMP
+#pragma omp ordered
+#endif
+        {
+            for (int i_tile_map = 0; i_tile_map < tile_map_width_; i_tile_map++) {
+                // Initialize a tile's checksum
+                unsigned long tile_checksum = 0L;
+                
+                // Use locals for this tile's width and height in case they need to be adjust at the edges
+                int tw = tile_width_, th = tile_height_;
+                if (i_tile_map == (tile_map_width_ - 1)) {
+                    tw -= tile_map_width_ * tile_width_ - width;
+                }
+                if (j_tile_map == (tile_map_height_ - 1)) {
+                    th -= tile_map_height_ * tile_height_ - height;
+                }
+                
+                // Build the tile's pixel array while computing the checksum in an alternative tile which only
+                // holds the significant bits
+                nddi::Pixel* tile_pixels = (nddi::Pixel*)malloc(tw * th * sizeof(nddi::Pixel));
+                nddi::Pixel* tile_pixels_sig_bits = (nddi::Pixel*)malloc(tw * th * sizeof(nddi::Pixel));
+                
+                for (int j_tile = 0; j_tile < th; j_tile++) {
+                    // Compute the offset into the RGB buffer for this row in this tile
+                    int bufferOffset = 3 * ((j_tile_map * tile_height_ + j_tile) * width + (i_tile_map * tile_width_));
+                    
+                    for (int i_tile = 0; i_tile < tw; i_tile++) {
+                        nddi::Pixel p, psb;
+                        
+                        p.r = buffer[bufferOffset++];
+                        p.g = buffer[bufferOffset++];
+                        p.b = buffer[bufferOffset++];
+                        p.a = 0xff;
+                        tile_pixels[j_tile * tw + i_tile].packed = p.packed;
+
+                        psb.r = p.r & mask;
+                        psb.g = p.g & mask;
+                        psb.b = p.b & mask;
+                        psb.a = p.a & mask;
+                        tile_pixels_sig_bits[j_tile * tw + i_tile].packed = psb.packed;
+                    }
+                }
+                
+                unsigned long crc = crc32(0L, Z_NULL, 0);
+                tile_checksum = crc32(crc, (unsigned char*)tile_pixels_sig_bits, tw * th * sizeof(nddi::Pixel));
+                //tile_checksum = adler32(crc, (unsigned char*)tile_pixels_sig_bits, tw * th * sizeof(nddi::Pixel));
+                
+                // If the checksum in the tile map doesn't match, then update the frame volume
+                if (tile_map_[i_tile_map][j_tile_map] != tile_checksum) {
+                    tile_map_[i_tile_map][j_tile_map] = tile_checksum;
+                    UpdateFrameVolume(tile_pixels, i_tile_map, j_tile_map);
+#ifndef NO_OMP
+#pragma omp atomic
+#endif
+                    updates++;
+                } else {
+#ifndef NO_OMP
+#pragma omp atomic
+#endif
+                    unchanged++;
+                }
+                    
+                // Free tile
+                free(tile_pixels);
+                free(tile_pixels_sig_bits);
+            }
+        }
+    }
+
+	// Report update statistics
+	unchanged_tiles_ += unchanged;
+	tile_updates_ += updates;
+	if (!quiet_) {
+		std::cout << "Flat Tiling Statistics:" << endl << "  unchanged tiles: " << unchanged_tiles_ << " tiles updated: " << tile_updates_ << std::endl;
+	}
+}
+
+/**
+ * Updates region of the Frame Volume corresponding to the tile's
+ * zIndex.
+ *
+ * @param pixels The array of pixels to use in the update.
+ */
+void FlatTiler::UpdateFrameVolume(nddi::Pixel* pixels, int i_map, int j_map) {
+	
+#ifdef FLAT_TILED_3D
+	// Setup start and end points
+	std::vector<unsigned int> start, end;
+	start.push_back(0);               start.push_back(0);                start.push_back(i_map + j_map * tile_map_width_);
+	  end.push_back(tile_width_ - 1);   end.push_back(tile_height_ - 1);   end.push_back(i_map + j_map * tile_map_width_);
+    
+    display_->CopyPixels(pixels, start, end);
+#else
+	// Setup start and end points
+	std::vector<unsigned int> start, end;
+	start.push_back(i_map * tile_width_); start.push_back(j_map * tile_height_);
+	end.push_back(i_map * tile_width_ + tile_width_ - 1); end.push_back(j_map * tile_height_ + tile_height_ - 1);
+	if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
+	if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
+    
+    display_->CopyPixels(pixels, start, end);
+#endif
+}

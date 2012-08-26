@@ -1,0 +1,105 @@
+\hypertarget{class_cached_tiler}{
+\section{CachedTiler Class Reference}
+\label{class_cached_tiler}\index{CachedTiler@{CachedTiler}}
+}
+
+
+This tiler will split provided frames into tiles and update the NDDI display.  
+
+
+
+
+{\ttfamily \#include $<$CachedTiler.h$>$}
+
+Inheritance diagram for CachedTiler:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_cached_tiler}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_cached_tiler_ac191ac814d922b44401356537e9c4368}{CachedTiler} (\hyperlink{class_gl_nddi_display}{GlNddiDisplay} $\ast$display, size\_\-t tile\_\-width, size\_\-t tile\_\-height, size\_\-t max\_\-tiles, size\_\-t bits)
+\begin{DoxyCompactList}\small\item\em The \hyperlink{class_cached_tiler}{CachedTiler} is created based on the dimensions of the NDDI display that's passed in. \item\end{DoxyCompactList}\item 
+double \hyperlink{class_cached_tiler_a9926f3bafa7ec9e65242bab8368f8b43}{UpdateDisplay} (uint8\_\-t $\ast$buffer, size\_\-t width, size\_\-t height)
+\begin{DoxyCompactList}\small\item\em Update the tile\_\-map, tilecache, and then the NDDI display based on the frame that's passed in. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This tiler will split provided frames into tiles and update the NDDI display. It organizes the display into dimensions matching the tile size in the x and y directions and then the cache size in the z direction. It will then update the coefficient plane so that a region of the display maps to the appropriate tile in the cache. 
+
+Definition at line 32 of file CachedTiler.h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{class_cached_tiler_ac191ac814d922b44401356537e9c4368}{
+\index{CachedTiler@{CachedTiler}!CachedTiler@{CachedTiler}}
+\index{CachedTiler@{CachedTiler}!CachedTiler@{CachedTiler}}
+\subsubsection[{CachedTiler}]{\setlength{\rightskip}{0pt plus 5cm}CachedTiler::CachedTiler (
+\begin{DoxyParamCaption}
+\item[{{\bf GlNddiDisplay} $\ast$}]{ display, }
+\item[{size\_\-t}]{ tile\_\-width, }
+\item[{size\_\-t}]{ tile\_\-height, }
+\item[{size\_\-t}]{ max\_\-tiles, }
+\item[{size\_\-t}]{ bits}
+\end{DoxyParamCaption}
+)}}
+\label{class_cached_tiler_ac191ac814d922b44401356537e9c4368}
+
+
+The \hyperlink{class_cached_tiler}{CachedTiler} is created based on the dimensions of the NDDI display that's passed in. 
+
+If those dimensions change, then the \hyperlink{class_cached_tiler}{CachedTiler} should be destroyed and re-\/created.
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em display}]A pointer to the NDDI display \item[{\em tile\_\-width}]The width of the tiles \item[{\em tile\_\-height}]The height of the tiles \item[{\em max\_\-tiles}]The maximum number of tiles in the cache \item[{\em bits}]The number of most significant bits to use when computing checksums for a tile match\end{DoxyParams}
+If those dimensions change, then the \hyperlink{class_cached_tiler}{CachedTiler} should be destroyed and re-\/created. 
+
+Definition at line 20 of file CachedTiler.cpp.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_cached_tiler_a9926f3bafa7ec9e65242bab8368f8b43}{
+\index{CachedTiler@{CachedTiler}!UpdateDisplay@{UpdateDisplay}}
+\index{UpdateDisplay@{UpdateDisplay}!CachedTiler@{CachedTiler}}
+\subsubsection[{UpdateDisplay}]{\setlength{\rightskip}{0pt plus 5cm}double CachedTiler::UpdateDisplay (
+\begin{DoxyParamCaption}
+\item[{uint8\_\-t $\ast$}]{ buffer, }
+\item[{size\_\-t}]{ width, }
+\item[{size\_\-t}]{ height}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}virtual\mbox{]}}}}
+\label{class_cached_tiler_a9926f3bafa7ec9e65242bab8368f8b43}
+
+
+Update the tile\_\-map, tilecache, and then the NDDI display based on the frame that's passed in. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em buffer}]Pointer to the return frame buffer \item[{\em width}]The width of that frame buffer \item[{\em height}]The height of that frame buffer \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of this operation, including all of the NDDI operations
+\end{DoxyReturn}
+The frame is returned from the ffmpeg player as an RGB buffer. There is not Alpha channel.
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em buffer}]Pointer to an RGB buffer \item[{\em width}]The width of the RGB buffer \item[{\em height}]The height of the RGB buffer \end{DoxyParams}
+
+
+Reimplemented from \hyperlink{class_tiler_a1eba24ca0a905dbdad566d99b753fc39}{Tiler}.
+
+
+
+Definition at line 65 of file CachedTiler.cpp.
+
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+src/CachedTiler.h\item 
+src/CachedTiler.cpp\end{DoxyCompactItemize}

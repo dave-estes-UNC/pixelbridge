@@ -1,0 +1,10 @@
+Blending
+--------
+When using one of the three blending techniques, a 50% black frame is rendered over the video frame.
+
+Temporal Blending - Flips back and forth between black frame and video frame.
+
+Frame Volume Blending - Moves a decoded video frame to a plane of the Frame Volume. Then it uses a frame volume copy command to copy (w/ blend) the 50% black frame over it.
+
+Coefficient Plane Blending - Uses two coefficient planes and the result is blended 50/50.
+

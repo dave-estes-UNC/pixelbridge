@@ -1,0 +1,315 @@
+\hypertarget{classnddi_1_1_n_dimensional_display_interface}{
+\section{nddi::NDimensionalDisplayInterface Class Reference}
+\label{classnddi_1_1_n_dimensional_display_interface}\index{nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}}
+}
+
+
+This abstract class serves as a software interface to an n-\/Dimensional Display Interface (NDDI) compliant display device.  
+
+
+
+
+{\ttfamily \#include $<$NDimensionalDisplayInterface.h$>$}
+
+Inheritance diagram for nddi::NDimensionalDisplayInterface:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classnddi_1_1_n_dimensional_display_interface}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classnddi_1_1_n_dimensional_display_interface_a64e42dc6ed54e068a6a41b4600396579}{NDimensionalDisplayInterface} ()
+\begin{DoxyCompactList}\small\item\em Required default constructor for abstract class \hyperlink{classnddi_1_1_n_dimensional_display_interface}{NDimensionalDisplayInterface}. \item\end{DoxyCompactList}\item 
+\hyperlink{classnddi_1_1_n_dimensional_display_interface_a75c736d5303f062ee9e2c1552352e8be}{NDimensionalDisplayInterface} (std::vector$<$ int $>$ frameVolumeDimensionalSizes, int inputVectorSize)
+\begin{DoxyCompactList}\small\item\em Each \hyperlink{classnddi_1_1_n_dimensional_display_interface}{NDimensionalDisplayInterface} is configured during construction. \item\end{DoxyCompactList}\item 
+\hyperlink{classnddi_1_1_n_dimensional_display_interface_affffd4fb4dbef87259fcc9cf1a170dbc}{NDimensionalDisplayInterface} (std::vector$<$ int $>$ frameVolumeDimensionalSizes, int displayWidth, int displayHeight, int inputVectorSize)
+\begin{DoxyCompactList}\small\item\em Each \hyperlink{classnddi_1_1_n_dimensional_display_interface}{NDimensionalDisplayInterface} is configured during contruction. \item\end{DoxyCompactList}\item 
+virtual int \hyperlink{classnddi_1_1_n_dimensional_display_interface_a0bb9a854f2b5efc26ed8bbd79833502e}{DisplayWidth} ()=0
+\begin{DoxyCompactList}\small\item\em Used to query the display width. \item\end{DoxyCompactList}\item 
+virtual int \hyperlink{classnddi_1_1_n_dimensional_display_interface_a7c05ce89a99f5902d1efac37f28d670f}{DisplayHeight} ()=0
+\begin{DoxyCompactList}\small\item\em Used to query the display height. \item\end{DoxyCompactList}\item 
+virtual double \hyperlink{classnddi_1_1_n_dimensional_display_interface_a93606fb46a02eff9ad8fb556d965b0f8}{PutPixel} (\hyperlink{unionnddi_1_1_pixel}{Pixel} p, std::vector$<$ int $>$ location)=0
+\begin{DoxyCompactList}\small\item\em Copies the provided pixel to the specified location. \item\end{DoxyCompactList}\item 
+virtual double \hyperlink{classnddi_1_1_n_dimensional_display_interface_a070d19f4f735b739fe1f39a5db2d3ec3}{CopyPixels} (\hyperlink{unionnddi_1_1_pixel}{Pixel} $\ast$p, std::vector$<$ int $>$ start, std::vector$<$ int $>$ end)=0
+\begin{DoxyCompactList}\small\item\em Copies the one dimensional array of pixels along a particular dimension in the frame volume. \item\end{DoxyCompactList}\item 
+virtual double \hyperlink{classnddi_1_1_n_dimensional_display_interface_afda2b784a44f4b34ad911dfcdec98fe6}{FillPixel} (\hyperlink{unionnddi_1_1_pixel}{Pixel} p, std::vector$<$ int $>$ start, std::vector$<$ int $>$ end)=0
+\begin{DoxyCompactList}\small\item\em Fills the frame volume with the specified pixel. \item\end{DoxyCompactList}\item 
+virtual double \hyperlink{classnddi_1_1_n_dimensional_display_interface_ad7ce868f6a77d5c75eb64a8a4f4244c0}{UpdateInputVector} (std::vector$<$ int $>$ input)=0
+\begin{DoxyCompactList}\small\item\em Used to update the input vector with the extra values in the input vector. \item\end{DoxyCompactList}\item 
+virtual double \hyperlink{classnddi_1_1_n_dimensional_display_interface_a61a20de40073a399e335d35fb0adb0cb}{PutCoefficientMatrix} (std::vector$<$ std::vector$<$ int $>$ $>$ coefficientMatrix, std::vector$<$ int $>$ location)=0
+\begin{DoxyCompactList}\small\item\em Used to copy the specified coefficientMatrix into the specified location of the coefficient plane. \item\end{DoxyCompactList}\item 
+virtual double \hyperlink{classnddi_1_1_n_dimensional_display_interface_a7fee85de61ffbb9e442ef18c52ab7633}{FillCoefficientMatrix} (std::vector$<$ std::vector$<$ int $>$ $>$ coefficientMatrix, std::vector$<$ int $>$ start, std::vector$<$ int $>$ end)=0
+\begin{DoxyCompactList}\small\item\em Used to copy the specified coefficientMatrix into a range of locations in the coefficient plane. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This abstract class serves as a software interface to an n-\/Dimensional Display Interface (NDDI) compliant display device. Implementations of this interface may work with a simulated display that writes to a system framebuffer, an embedded display that works with a device driver, or a remote display connected via an IP-\/based socket and communicating with an NDDI specific protocol. 
+
+Definition at line 35 of file NDimensionalDisplayInterface.h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classnddi_1_1_n_dimensional_display_interface_a64e42dc6ed54e068a6a41b4600396579}{
+\index{nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}!NDimensionalDisplayInterface@{NDimensionalDisplayInterface}}
+\index{NDimensionalDisplayInterface@{NDimensionalDisplayInterface}!nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}}
+\subsubsection[{NDimensionalDisplayInterface}]{\setlength{\rightskip}{0pt plus 5cm}nddi::NDimensionalDisplayInterface::NDimensionalDisplayInterface (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classnddi_1_1_n_dimensional_display_interface_a64e42dc6ed54e068a6a41b4600396579}
+
+
+Required default constructor for abstract class \hyperlink{classnddi_1_1_n_dimensional_display_interface}{NDimensionalDisplayInterface}. 
+
+
+
+Definition at line 42 of file NDimensionalDisplayInterface.h.
+
+\hypertarget{classnddi_1_1_n_dimensional_display_interface_a75c736d5303f062ee9e2c1552352e8be}{
+\index{nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}!NDimensionalDisplayInterface@{NDimensionalDisplayInterface}}
+\index{NDimensionalDisplayInterface@{NDimensionalDisplayInterface}!nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}}
+\subsubsection[{NDimensionalDisplayInterface}]{\setlength{\rightskip}{0pt plus 5cm}nddi::NDimensionalDisplayInterface::NDimensionalDisplayInterface (
+\begin{DoxyParamCaption}
+\item[{std::vector$<$ int $>$}]{ frameVolumeDimensionalSizes, }
+\item[{int}]{ inputVectorSize}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classnddi_1_1_n_dimensional_display_interface_a75c736d5303f062ee9e2c1552352e8be}
+
+
+Each \hyperlink{classnddi_1_1_n_dimensional_display_interface}{NDimensionalDisplayInterface} is configured during construction. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em frameVolumeDimensionalSizes}]This vector is used to configure the frame volume. Each element in the vector represents a dimension and that element's value represents the size of that dimension. e.g. a simple 4x4 2D frame volume will be configured with a two-\/element vector with 4 and 4 in it. \item[{\em inputVectorSize}]Used to configure the size of the input vector. It must be greater than or equal to two. \end{DoxyParams}
+
+
+Definition at line 53 of file NDimensionalDisplayInterface.h.
+
+\hypertarget{classnddi_1_1_n_dimensional_display_interface_affffd4fb4dbef87259fcc9cf1a170dbc}{
+\index{nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}!NDimensionalDisplayInterface@{NDimensionalDisplayInterface}}
+\index{NDimensionalDisplayInterface@{NDimensionalDisplayInterface}!nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}}
+\subsubsection[{NDimensionalDisplayInterface}]{\setlength{\rightskip}{0pt plus 5cm}nddi::NDimensionalDisplayInterface::NDimensionalDisplayInterface (
+\begin{DoxyParamCaption}
+\item[{std::vector$<$ int $>$}]{ frameVolumeDimensionalSizes, }
+\item[{int}]{ displayWidth, }
+\item[{int}]{ displayHeight, }
+\item[{int}]{ inputVectorSize}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}
+\label{classnddi_1_1_n_dimensional_display_interface_affffd4fb4dbef87259fcc9cf1a170dbc}
+
+
+Each \hyperlink{classnddi_1_1_n_dimensional_display_interface}{NDimensionalDisplayInterface} is configured during contruction. 
+
+This contructor allows the NDDI client to reduce the size of the displayable area.
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em frameVolumeDimensionalSizes}]This vector is used to configure the frame volume. Each element in the vector represents a dimension and that element's value represents the size of that dimension. e.g. a simple 4x4 2D frame volume will be configured with a two-\/element vector with 4 and 4 in it. \item[{\em displayWidth}]Used to configure the width of the diplay if it is less than the display device. \item[{\em displayHeight}]Used to configure the width of the diplay if it is less than the display device. \item[{\em inputVectorSize}]Used to configure the size of the input vector. It must be greater than or equal to two. \end{DoxyParams}
+
+
+Definition at line 67 of file NDimensionalDisplayInterface.h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classnddi_1_1_n_dimensional_display_interface_a070d19f4f735b739fe1f39a5db2d3ec3}{
+\index{nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}!CopyPixels@{CopyPixels}}
+\index{CopyPixels@{CopyPixels}!nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}}
+\subsubsection[{CopyPixels}]{\setlength{\rightskip}{0pt plus 5cm}virtual double nddi::NDimensionalDisplayInterface::CopyPixels (
+\begin{DoxyParamCaption}
+\item[{{\bf Pixel} $\ast$}]{ p, }
+\item[{std::vector$<$ int $>$}]{ start, }
+\item[{std::vector$<$ int $>$}]{ end}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}pure virtual\mbox{]}}}}
+\label{classnddi_1_1_n_dimensional_display_interface_a070d19f4f735b739fe1f39a5db2d3ec3}
+
+
+Copies the one dimensional array of pixels along a particular dimension in the frame volume. 
+
+In a two-\/dimensional frame volume, this can be thought of as a way to copy along a row or along a column, but not both since the input pixels are only one-\/dimensional.
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em p}]The pointer to the pixel values to be copied. \item[{\em start}]The first pixel in the frame volume to be filled. \item[{\em end}]The last pixel in the frame volume to be filled. All but one of the values in values in this last pixel should be identical to the start pixel. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{classnddi_1_1_base_nddi_display_a911540bae3ce34a1fd24b42345735aa4}{nddi::BaseNddiDisplay}.
+
+\hypertarget{classnddi_1_1_n_dimensional_display_interface_a7c05ce89a99f5902d1efac37f28d670f}{
+\index{nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}!DisplayHeight@{DisplayHeight}}
+\index{DisplayHeight@{DisplayHeight}!nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}}
+\subsubsection[{DisplayHeight}]{\setlength{\rightskip}{0pt plus 5cm}virtual int nddi::NDimensionalDisplayInterface::DisplayHeight (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}pure virtual\mbox{]}}}}
+\label{classnddi_1_1_n_dimensional_display_interface_a7c05ce89a99f5902d1efac37f28d670f}
+
+
+Used to query the display height. 
+
+\begin{DoxyReturn}{Returns}
+The height of the display. 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{classnddi_1_1_base_nddi_display_a655f0d8e4ff09524ec3980f68197841e}{nddi::BaseNddiDisplay}.
+
+\hypertarget{classnddi_1_1_n_dimensional_display_interface_a0bb9a854f2b5efc26ed8bbd79833502e}{
+\index{nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}!DisplayWidth@{DisplayWidth}}
+\index{DisplayWidth@{DisplayWidth}!nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}}
+\subsubsection[{DisplayWidth}]{\setlength{\rightskip}{0pt plus 5cm}virtual int nddi::NDimensionalDisplayInterface::DisplayWidth (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}pure virtual\mbox{]}}}}
+\label{classnddi_1_1_n_dimensional_display_interface_a0bb9a854f2b5efc26ed8bbd79833502e}
+
+
+Used to query the display width. 
+
+\begin{DoxyReturn}{Returns}
+The width of the display. 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{classnddi_1_1_base_nddi_display_a26851df678bf1509a00de1b6bf494934}{nddi::BaseNddiDisplay}.
+
+\hypertarget{classnddi_1_1_n_dimensional_display_interface_a7fee85de61ffbb9e442ef18c52ab7633}{
+\index{nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}!FillCoefficientMatrix@{FillCoefficientMatrix}}
+\index{FillCoefficientMatrix@{FillCoefficientMatrix}!nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}}
+\subsubsection[{FillCoefficientMatrix}]{\setlength{\rightskip}{0pt plus 5cm}virtual double nddi::NDimensionalDisplayInterface::FillCoefficientMatrix (
+\begin{DoxyParamCaption}
+\item[{std::vector$<$ std::vector$<$ int $>$ $>$}]{ coefficientMatrix, }
+\item[{std::vector$<$ int $>$}]{ start, }
+\item[{std::vector$<$ int $>$}]{ end}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}pure virtual\mbox{]}}}}
+\label{classnddi_1_1_n_dimensional_display_interface_a7fee85de61ffbb9e442ef18c52ab7633}
+
+
+Used to copy the specified coefficientMatrix into a range of locations in the coefficient plane. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em coefficientMatrix}]This two-\/dimensional vector holds the matrix to be copied. It's size must match the configuration of the coefficient matrices exactly. Can use COFFICIENT\_\-UNCHANGED for one or more elements. \item[{\em start}]This two-\/element vector specifies the location in the coefficient plane where the first coefficient matrix will be copied to. \item[{\em end}]This two-\/element vector specifies the location in the coefficient plane where the last coefficient matrix will be copied to. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{classnddi_1_1_base_nddi_display_aca8202a5a0af0d88e1fece2172a0cd0f}{nddi::BaseNddiDisplay}, and \hyperlink{class_gl_nddi_display_aeab9eda24d273e29bf51e3099e00a73a}{GlNddiDisplay}.
+
+\hypertarget{classnddi_1_1_n_dimensional_display_interface_afda2b784a44f4b34ad911dfcdec98fe6}{
+\index{nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}!FillPixel@{FillPixel}}
+\index{FillPixel@{FillPixel}!nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}}
+\subsubsection[{FillPixel}]{\setlength{\rightskip}{0pt plus 5cm}virtual double nddi::NDimensionalDisplayInterface::FillPixel (
+\begin{DoxyParamCaption}
+\item[{{\bf Pixel}}]{ p, }
+\item[{std::vector$<$ int $>$}]{ start, }
+\item[{std::vector$<$ int $>$}]{ end}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}pure virtual\mbox{]}}}}
+\label{classnddi_1_1_n_dimensional_display_interface_afda2b784a44f4b34ad911dfcdec98fe6}
+
+
+Fills the frame volume with the specified pixel. 
+
+It can fill in multiple dimensions by starting at the start pixel and filling in each dimension until the end pixel value is reached.
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em p}]The pixel value to be filled. \item[{\em start}]The first pixel in the frame volume to be filled. \item[{\em end}]The last pixel in the frame volume to be filled. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{classnddi_1_1_base_nddi_display_a5037ac944566351b8dbf11486be40bc5}{nddi::BaseNddiDisplay}.
+
+\hypertarget{classnddi_1_1_n_dimensional_display_interface_a61a20de40073a399e335d35fb0adb0cb}{
+\index{nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}!PutCoefficientMatrix@{PutCoefficientMatrix}}
+\index{PutCoefficientMatrix@{PutCoefficientMatrix}!nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}}
+\subsubsection[{PutCoefficientMatrix}]{\setlength{\rightskip}{0pt plus 5cm}virtual double nddi::NDimensionalDisplayInterface::PutCoefficientMatrix (
+\begin{DoxyParamCaption}
+\item[{std::vector$<$ std::vector$<$ int $>$ $>$}]{ coefficientMatrix, }
+\item[{std::vector$<$ int $>$}]{ location}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}pure virtual\mbox{]}}}}
+\label{classnddi_1_1_n_dimensional_display_interface_a61a20de40073a399e335d35fb0adb0cb}
+
+
+Used to copy the specified coefficientMatrix into the specified location of the coefficient plane. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em coefficientMatrix}]This two-\/dimensional vector holds the matrix to be copied. It's size must match the configuration of the coefficient matrices exactly. Can use COFFICIENT\_\-UNCHANGED for one or more elements. \item[{\em location}]This two-\/element vector specifies the location in the coefficient plane where the provided coefficient matrix will be copied. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{classnddi_1_1_base_nddi_display_acd6e5f8767c04dbcd1c3006eb6af3685}{nddi::BaseNddiDisplay}, and \hyperlink{class_gl_nddi_display_a94aecd7c31084a690b42617d76b77e8b}{GlNddiDisplay}.
+
+\hypertarget{classnddi_1_1_n_dimensional_display_interface_a93606fb46a02eff9ad8fb556d965b0f8}{
+\index{nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}!PutPixel@{PutPixel}}
+\index{PutPixel@{PutPixel}!nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}}
+\subsubsection[{PutPixel}]{\setlength{\rightskip}{0pt plus 5cm}virtual double nddi::NDimensionalDisplayInterface::PutPixel (
+\begin{DoxyParamCaption}
+\item[{{\bf Pixel}}]{ p, }
+\item[{std::vector$<$ int $>$}]{ location}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}pure virtual\mbox{]}}}}
+\label{classnddi_1_1_n_dimensional_display_interface_a93606fb46a02eff9ad8fb556d965b0f8}
+
+
+Copies the provided pixel to the specified location. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em p}]The pixel value to be copied. \item[{\em location}]The location within the frame volume where the pixel will be copied to. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{classnddi_1_1_base_nddi_display_ab1f32fd60cdf81ac01130cefd1d48f0e}{nddi::BaseNddiDisplay}.
+
+\hypertarget{classnddi_1_1_n_dimensional_display_interface_ad7ce868f6a77d5c75eb64a8a4f4244c0}{
+\index{nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}!UpdateInputVector@{UpdateInputVector}}
+\index{UpdateInputVector@{UpdateInputVector}!nddi::NDimensionalDisplayInterface@{nddi::NDimensionalDisplayInterface}}
+\subsubsection[{UpdateInputVector}]{\setlength{\rightskip}{0pt plus 5cm}virtual double nddi::NDimensionalDisplayInterface::UpdateInputVector (
+\begin{DoxyParamCaption}
+\item[{std::vector$<$ int $>$}]{ input}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}pure virtual\mbox{]}}}}
+\label{classnddi_1_1_n_dimensional_display_interface_ad7ce868f6a77d5c75eb64a8a4f4244c0}
+
+
+Used to update the input vector with the extra values in the input vector. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em input}]The values to use for the update. The length of this vector must equal the size of the actual input vector minus two, since the first two values in the input vector cannot be changed. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Implemented in \hyperlink{classnddi_1_1_base_nddi_display_ad6e5385ce6ea17f11e3ea404a123d1d7}{nddi::BaseNddiDisplay}, and \hyperlink{class_gl_nddi_display_ac6ed1d3cbad4ad321d3f5649a358717f}{GlNddiDisplay}.
+
+
+
+The documentation for this class was generated from the following file:\begin{DoxyCompactItemize}
+\item 
+src/NDimensionalDisplayInterface.h\end{DoxyCompactItemize}

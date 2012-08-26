@@ -1,0 +1,162 @@
+\hypertarget{class_gl_nddi_display}{
+\section{GlNddiDisplay Class Reference}
+\label{class_gl_nddi_display}\index{GlNddiDisplay@{GlNddiDisplay}}
+}
+
+
+This class adds a public method that returns a reference to the frame buffer so that a GLUT-\/based application can render it to the window.  
+
+
+
+
+{\ttfamily \#include $<$GlNddiDisplay.h$>$}
+
+Inheritance diagram for GlNddiDisplay:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_gl_nddi_display}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_gl_nddi_display_ab07d2c7d2009a330eaee9618e476d626}{
+{\bfseries GlNddiDisplay} (std::vector$<$ int $>$ frameVolumeDimensionalSizes, int inputVectorSize)}
+\label{class_gl_nddi_display_ab07d2c7d2009a330eaee9618e476d626}
+
+\item 
+\hypertarget{class_gl_nddi_display_abc739aab574293bdfb25e1ea545d013f}{
+{\bfseries GlNddiDisplay} (std::vector$<$ int $>$ frameVolumeDimensionalSizes, int displayWidth, int displayHeight, int inputVectorSize)}
+\label{class_gl_nddi_display_abc739aab574293bdfb25e1ea545d013f}
+
+\item 
+double \hyperlink{class_gl_nddi_display_ac6ed1d3cbad4ad321d3f5649a358717f}{UpdateInputVector} (std::vector$<$ int $>$ input)
+\begin{DoxyCompactList}\small\item\em Used to update the input vector with the extra values in the input vector. \item\end{DoxyCompactList}\item 
+double \hyperlink{class_gl_nddi_display_a94aecd7c31084a690b42617d76b77e8b}{PutCoefficientMatrix} (std::vector$<$ std::vector$<$ int $>$ $>$ coefficientMatrix, std::vector$<$ int $>$ location)
+\begin{DoxyCompactList}\small\item\em Used to copy the specified coefficientMatrix into the specified location of the coefficient plane. \item\end{DoxyCompactList}\item 
+double \hyperlink{class_gl_nddi_display_aeab9eda24d273e29bf51e3099e00a73a}{FillCoefficientMatrix} (std::vector$<$ std::vector$<$ int $>$ $>$ coefficientMatrix, std::vector$<$ int $>$ start, std::vector$<$ int $>$ end)
+\begin{DoxyCompactList}\small\item\em Used to copy the specified coefficientMatrix into a range of locations in the coefficient plane. \item\end{DoxyCompactList}\item 
+\hyperlink{unionnddi_1_1_pixel}{nddi::Pixel} $\ast$ \hyperlink{class_gl_nddi_display_a953c243969b0708d919be48b406d8e83}{GetFrameBuffer} ()
+\begin{DoxyCompactList}\small\item\em Used by GLUT-\/based to get access to the frame buffer in order to display it. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class adds a public method that returns a reference to the frame buffer so that a GLUT-\/based application can render it to the window. 
+
+Definition at line 14 of file GlNddiDisplay.h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_gl_nddi_display_aeab9eda24d273e29bf51e3099e00a73a}{
+\index{GlNddiDisplay@{GlNddiDisplay}!FillCoefficientMatrix@{FillCoefficientMatrix}}
+\index{FillCoefficientMatrix@{FillCoefficientMatrix}!GlNddiDisplay@{GlNddiDisplay}}
+\subsubsection[{FillCoefficientMatrix}]{\setlength{\rightskip}{0pt plus 5cm}double GlNddiDisplay::FillCoefficientMatrix (
+\begin{DoxyParamCaption}
+\item[{std::vector$<$ std::vector$<$ int $>$ $>$}]{ coefficientMatrix, }
+\item[{std::vector$<$ int $>$}]{ start, }
+\item[{std::vector$<$ int $>$}]{ end}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}virtual\mbox{]}}}}
+\label{class_gl_nddi_display_aeab9eda24d273e29bf51e3099e00a73a}
+
+
+Used to copy the specified coefficientMatrix into a range of locations in the coefficient plane. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em coefficientMatrix}]This two-\/dimensional vector holds the matrix to be copied. It's size must match the configuration of the coefficient matrices exactly. Can use COFFICIENT\_\-UNCHANGED for one or more elements. \item[{\em start}]This two-\/element vector specifies the location in the coefficient plane where the first coefficient matrix will be copied to. \item[{\em end}]This two-\/element vector specifies the location in the coefficient plane where the last coefficient matrix will be copied to. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{classnddi_1_1_base_nddi_display_aca8202a5a0af0d88e1fece2172a0cd0f}{nddi::BaseNddiDisplay}.
+
+
+
+Definition at line 107 of file GlNddiDisplay.cpp.
+
+\hypertarget{class_gl_nddi_display_a953c243969b0708d919be48b406d8e83}{
+\index{GlNddiDisplay@{GlNddiDisplay}!GetFrameBuffer@{GetFrameBuffer}}
+\index{GetFrameBuffer@{GetFrameBuffer}!GlNddiDisplay@{GlNddiDisplay}}
+\subsubsection[{GetFrameBuffer}]{\setlength{\rightskip}{0pt plus 5cm}{\bf nddi::Pixel} $\ast$ GlNddiDisplay::GetFrameBuffer (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}
+\label{class_gl_nddi_display_a953c243969b0708d919be48b406d8e83}
+
+
+Used by GLUT-\/based to get access to the frame buffer in order to display it. 
+
+In the future, this might be modified to return a GL texture.
+
+\begin{DoxyReturn}{Returns}
+Pointer to frame buffer. 
+\end{DoxyReturn}
+
+
+Definition at line 399 of file GlNddiDisplay.cpp.
+
+\hypertarget{class_gl_nddi_display_a94aecd7c31084a690b42617d76b77e8b}{
+\index{GlNddiDisplay@{GlNddiDisplay}!PutCoefficientMatrix@{PutCoefficientMatrix}}
+\index{PutCoefficientMatrix@{PutCoefficientMatrix}!GlNddiDisplay@{GlNddiDisplay}}
+\subsubsection[{PutCoefficientMatrix}]{\setlength{\rightskip}{0pt plus 5cm}double GlNddiDisplay::PutCoefficientMatrix (
+\begin{DoxyParamCaption}
+\item[{std::vector$<$ std::vector$<$ int $>$ $>$}]{ coefficientMatrix, }
+\item[{std::vector$<$ int $>$}]{ location}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}virtual\mbox{]}}}}
+\label{class_gl_nddi_display_a94aecd7c31084a690b42617d76b77e8b}
+
+
+Used to copy the specified coefficientMatrix into the specified location of the coefficient plane. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em coefficientMatrix}]This two-\/dimensional vector holds the matrix to be copied. It's size must match the configuration of the coefficient matrices exactly. Can use COFFICIENT\_\-UNCHANGED for one or more elements. \item[{\em location}]This two-\/element vector specifies the location in the coefficient plane where the provided coefficient matrix will be copied. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{classnddi_1_1_base_nddi_display_acd6e5f8767c04dbcd1c3006eb6af3685}{nddi::BaseNddiDisplay}.
+
+
+
+Definition at line 95 of file GlNddiDisplay.cpp.
+
+\hypertarget{class_gl_nddi_display_ac6ed1d3cbad4ad321d3f5649a358717f}{
+\index{GlNddiDisplay@{GlNddiDisplay}!UpdateInputVector@{UpdateInputVector}}
+\index{UpdateInputVector@{UpdateInputVector}!GlNddiDisplay@{GlNddiDisplay}}
+\subsubsection[{UpdateInputVector}]{\setlength{\rightskip}{0pt plus 5cm}double GlNddiDisplay::UpdateInputVector (
+\begin{DoxyParamCaption}
+\item[{std::vector$<$ int $>$}]{ input}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}virtual\mbox{]}}}}
+\label{class_gl_nddi_display_ac6ed1d3cbad4ad321d3f5649a358717f}
+
+
+Used to update the input vector with the extra values in the input vector. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em input}]The values to use for the update. The length of this vector must equal the size of the actual input vector minus two, since the first two values in the input vector cannot be changed. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{classnddi_1_1_base_nddi_display_ad6e5385ce6ea17f11e3ea404a123d1d7}{nddi::BaseNddiDisplay}.
+
+
+
+Definition at line 71 of file GlNddiDisplay.cpp.
+
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+src/GlNddiDisplay.h\item 
+src/GlNddiDisplay.cpp\end{DoxyCompactItemize}

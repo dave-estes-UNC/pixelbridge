@@ -1,0 +1,104 @@
+\hypertarget{class_flat_tiler}{
+\section{FlatTiler Class Reference}
+\label{class_flat_tiler}\index{FlatTiler@{FlatTiler}}
+}
+
+
+This tiler will split provided frames into tiles and update the NDDI display.  
+
+
+
+
+{\ttfamily \#include $<$FlatTiler.h$>$}
+
+Inheritance diagram for FlatTiler:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_flat_tiler}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_flat_tiler_a2781a873e04ae4a8fa5cd8187b7588bc}{FlatTiler} (\hyperlink{class_gl_nddi_display}{GlNddiDisplay} $\ast$display, size\_\-t tile\_\-width, size\_\-t tile\_\-height, size\_\-t bits)
+\begin{DoxyCompactList}\small\item\em The \hyperlink{class_flat_tiler}{FlatTiler} is created based on the dimensions of the NDDI display that's passed in. \item\end{DoxyCompactList}\item 
+double \hyperlink{class_flat_tiler_a6e0bdcd30a8faad5b366e3b9d6ff89cd}{UpdateDisplay} (uint8\_\-t $\ast$buffer, size\_\-t width, size\_\-t height)
+\begin{DoxyCompactList}\small\item\em Update the tile\_\-map, tilecache, and then the NDDI display based on the frame that's passed in. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This tiler will split provided frames into tiles and update the NDDI display. It organizes the display into dimensions matching the tile size in the x and y directions. If a tile changes, then it is updated in the frame volume. 
+
+Definition at line 21 of file FlatTiler.h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{class_flat_tiler_a2781a873e04ae4a8fa5cd8187b7588bc}{
+\index{FlatTiler@{FlatTiler}!FlatTiler@{FlatTiler}}
+\index{FlatTiler@{FlatTiler}!FlatTiler@{FlatTiler}}
+\subsubsection[{FlatTiler}]{\setlength{\rightskip}{0pt plus 5cm}FlatTiler::FlatTiler (
+\begin{DoxyParamCaption}
+\item[{{\bf GlNddiDisplay} $\ast$}]{ display, }
+\item[{size\_\-t}]{ tile\_\-width, }
+\item[{size\_\-t}]{ tile\_\-height, }
+\item[{size\_\-t}]{ bits}
+\end{DoxyParamCaption}
+)}}
+\label{class_flat_tiler_a2781a873e04ae4a8fa5cd8187b7588bc}
+
+
+The \hyperlink{class_flat_tiler}{FlatTiler} is created based on the dimensions of the NDDI display that's passed in. 
+
+If those dimensions change, then the \hyperlink{class_cached_tiler}{CachedTiler} should be destroyed and re-\/created.
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em display}]A pointer to the NDDI display \item[{\em tile\_\-width}]The width of the tiles \item[{\em tile\_\-height}]The height of the tiles \item[{\em bits}]The number of most significant bits to use when computing checksums for a tile match\end{DoxyParams}
+If those dimensions change, then the \hyperlink{class_flat_tiler}{FlatTiler} should be destroyed and re-\/created. 
+
+Definition at line 20 of file FlatTiler.cpp.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_flat_tiler_a6e0bdcd30a8faad5b366e3b9d6ff89cd}{
+\index{FlatTiler@{FlatTiler}!UpdateDisplay@{UpdateDisplay}}
+\index{UpdateDisplay@{UpdateDisplay}!FlatTiler@{FlatTiler}}
+\subsubsection[{UpdateDisplay}]{\setlength{\rightskip}{0pt plus 5cm}double FlatTiler::UpdateDisplay (
+\begin{DoxyParamCaption}
+\item[{uint8\_\-t $\ast$}]{ buffer, }
+\item[{size\_\-t}]{ width, }
+\item[{size\_\-t}]{ height}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}virtual\mbox{]}}}}
+\label{class_flat_tiler_a6e0bdcd30a8faad5b366e3b9d6ff89cd}
+
+
+Update the tile\_\-map, tilecache, and then the NDDI display based on the frame that's passed in. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em buffer}]Pointer to the return frame buffer \item[{\em width}]The width of that frame buffer \item[{\em height}]The height of that frame buffer \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of this operation, including all of the NDDI operations
+\end{DoxyReturn}
+The frame is returned from the ffmpeg player as an RGB buffer. There is not Alpha channel.
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em buffer}]Pointer to an RGB buffer \item[{\em width}]The width of the RGB buffer \item[{\em height}]The height of the RGB buffer \end{DoxyParams}
+
+
+Reimplemented from \hyperlink{class_tiler_a1eba24ca0a905dbdad566d99b753fc39}{Tiler}.
+
+
+
+Definition at line 55 of file FlatTiler.cpp.
+
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+src/FlatTiler.h\item 
+src/FlatTiler.cpp\end{DoxyCompactItemize}

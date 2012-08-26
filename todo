@@ -1,0 +1,33 @@
+Must Do
+- Get ClNddiDisplay working.
+  - Create ClInputVector, ClCoefficientPlane, and ClFrameVolume
+    - Update Coefficient Plane on-demand, removing the temporary hack for SIMPLE and FIXED modes
+    - Update Input Vector on-demand
+    - Update Frame Volume on-demand, removing temporary hack for SIMPLE
+  - Stop using floats when creating the Framebuffer image and in the computePixel() kernel
+  - Consider setting up coefficient plane as a 3D buffer with the Coefficients arranged along the third dimension. This might help get them down to individual workgroup memory better.
+- Add back PSNR calculation. Should likely be done in the CachedTiler.
+
+
+Errors
+- 
+
+
+Performance Improvements
+- For CachedTiler::UpdateDisplay(), figure out how to parallelize the outter loop so that the crcs are checked in
+  parallel like with the FlatTiler. This might involve pipelining some of the steps in there, but hopefully not all.
+- Parallelize tiling and rendering:
+  - Create NddiLink class that spawns its own thread and listens for NDDI commands.
+  - PixelBridge will then use an NddiLinkProxy to send those commands.
+  - That proxy is itself an implementation of the NDDI API.
+  - NddiLink will buffer incoming commands and handle them one at a time.
+  - If the buffer fills, then the NddiLinkProxy API blocks until the buffer frees up.
+  - Should use signals here to avoid polling.
+
+
+Nice-To-Have
+- Clean up blending support, but creating MultiCoefficientPlane and BlendingFrameVolume that each extend their corresponding base classes.
+
+
+Future Work
+- Add fixed point math support

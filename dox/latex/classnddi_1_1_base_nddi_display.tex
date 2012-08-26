@@ -1,0 +1,462 @@
+\hypertarget{classnddi_1_1_base_nddi_display}{
+\section{nddi::BaseNddiDisplay Class Reference}
+\label{classnddi_1_1_base_nddi_display}\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+}
+
+
+This base class implements the \hyperlink{classnddi_1_1_n_dimensional_display_interface}{NDimensionalDisplayInterface} API and is meant, to be extended by various other forms of an NDDI Display, such as a test display and an OpenGL display that will display the framebuffer in a window.  
+
+
+
+
+{\ttfamily \#include $<$BaseNddiDisplay.h$>$}
+
+Inheritance diagram for nddi::BaseNddiDisplay:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classnddi_1_1_base_nddi_display}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classnddi_1_1_base_nddi_display_a9818417dc2fe9124a0e8701502a1f50b}{
+{\bfseries BaseNddiDisplay} (std::vector$<$ int $>$ frameVolumeDimensionalSizes, int inputVectorSize)}
+\label{classnddi_1_1_base_nddi_display_a9818417dc2fe9124a0e8701502a1f50b}
+
+\item 
+\hypertarget{classnddi_1_1_base_nddi_display_a111a6f33a9c64ea8a2919164d8aa314a}{
+{\bfseries BaseNddiDisplay} (std::vector$<$ int $>$ frameVolumeDimensionalSizes, int displayWidth, int displayHeight, int inputVectorSize)}
+\label{classnddi_1_1_base_nddi_display_a111a6f33a9c64ea8a2919164d8aa314a}
+
+\item 
+int \hyperlink{classnddi_1_1_base_nddi_display_a26851df678bf1509a00de1b6bf494934}{DisplayWidth} ()
+\begin{DoxyCompactList}\small\item\em Used to query the display width. \item\end{DoxyCompactList}\item 
+int \hyperlink{classnddi_1_1_base_nddi_display_a655f0d8e4ff09524ec3980f68197841e}{DisplayHeight} ()
+\begin{DoxyCompactList}\small\item\em Used to query the display height. \item\end{DoxyCompactList}\item 
+double \hyperlink{classnddi_1_1_base_nddi_display_ab1f32fd60cdf81ac01130cefd1d48f0e}{PutPixel} (\hyperlink{unionnddi_1_1_pixel}{Pixel} p, std::vector$<$ int $>$ location)
+\begin{DoxyCompactList}\small\item\em Copies the provided pixel to the specified location. \item\end{DoxyCompactList}\item 
+double \hyperlink{classnddi_1_1_base_nddi_display_a911540bae3ce34a1fd24b42345735aa4}{CopyPixels} (\hyperlink{unionnddi_1_1_pixel}{Pixel} $\ast$p, std::vector$<$ int $>$ start, std::vector$<$ int $>$ end)
+\begin{DoxyCompactList}\small\item\em Copies the one dimensional array of pixels along a particular dimension in the frame volume. \item\end{DoxyCompactList}\item 
+double \hyperlink{classnddi_1_1_base_nddi_display_a5037ac944566351b8dbf11486be40bc5}{FillPixel} (\hyperlink{unionnddi_1_1_pixel}{Pixel} p, std::vector$<$ int $>$ start, std::vector$<$ int $>$ end)
+\begin{DoxyCompactList}\small\item\em Fills the frame volume with the specified pixel. \item\end{DoxyCompactList}\item 
+double \hyperlink{classnddi_1_1_base_nddi_display_ad6e5385ce6ea17f11e3ea404a123d1d7}{UpdateInputVector} (std::vector$<$ int $>$ input)
+\begin{DoxyCompactList}\small\item\em Used to update the input vector with the extra values in the input vector. \item\end{DoxyCompactList}\item 
+double \hyperlink{classnddi_1_1_base_nddi_display_acd6e5f8767c04dbcd1c3006eb6af3685}{PutCoefficientMatrix} (std::vector$<$ std::vector$<$ int $>$ $>$ coefficientMatrix, std::vector$<$ int $>$ location)
+\begin{DoxyCompactList}\small\item\em Used to copy the specified coefficientMatrix into the specified location of the coefficient plane. \item\end{DoxyCompactList}\item 
+double \hyperlink{classnddi_1_1_base_nddi_display_aca8202a5a0af0d88e1fece2172a0cd0f}{FillCoefficientMatrix} (std::vector$<$ std::vector$<$ int $>$ $>$ coefficientMatrix, std::vector$<$ int $>$ start, std::vector$<$ int $>$ end)
+\begin{DoxyCompactList}\small\item\em Used to copy the specified coefficientMatrix into a range of locations in the coefficient plane. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void \hyperlink{classnddi_1_1_base_nddi_display_a63a6029aa172d733c4c39ebf0268d968}{Render} ()=0
+\begin{DoxyCompactList}\small\item\em Renders each pixel of the frame buffer by setting the x, y in the input vector and computing which frame volume pixel to use. \item\end{DoxyCompactList}\item 
+void \hyperlink{classnddi_1_1_base_nddi_display_a327145e412aad872f0f0b3d0cef790d4}{UpdateCoefficientMatrix} (std::vector$<$ std::vector$<$ int $>$ $>$ coefficientMatrix, std::vector$<$ int $>$ location)
+\begin{DoxyCompactList}\small\item\em Helper function that will update a coefficient matrix at a given position in the coefficient plane. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{classnddi_1_1_base_nddi_display_ad9b1e0726fddd57b58f37624a72c7fe5}{displayWidth\_\-}
+\begin{DoxyCompactList}\small\item\em Holds the Display Width. \item\end{DoxyCompactList}\item 
+int \hyperlink{classnddi_1_1_base_nddi_display_a462ed74e3bd5ee923079badb352f7e97}{displayHeight\_\-}
+\begin{DoxyCompactList}\small\item\em Holds the Display Height. \item\end{DoxyCompactList}\item 
+int \hyperlink{classnddi_1_1_base_nddi_display_a8ea6b8a02ce1680040cb828facb98c5a}{inputVectorSize\_\-}
+\begin{DoxyCompactList}\small\item\em Size of the input vector. \item\end{DoxyCompactList}\item 
+int $\ast$ \hyperlink{classnddi_1_1_base_nddi_display_aca1b4dd9f1a11e85e96bb0eb1f143dc8}{inputVector\_\-}
+\begin{DoxyCompactList}\small\item\em The input vector is represented as an int array. \item\end{DoxyCompactList}\item 
+std::vector$<$ int $>$ \hyperlink{classnddi_1_1_base_nddi_display_a1a20c4ed32c3a9e218d8183204bc2afe}{frameVolumeDimensionalSizes\_\-}
+\begin{DoxyCompactList}\small\item\em Holds the sizes of each dimenion of the Frame Volume. \item\end{DoxyCompactList}\item 
+\hyperlink{unionnddi_1_1_pixel}{Pixel} $\ast$ \hyperlink{classnddi_1_1_base_nddi_display_aa5bb1202a2b39b4c7c0f6647e3a01a82}{frameVolume\_\-}
+\begin{DoxyCompactList}\small\item\em The frameVolume\_\- is physcially a flat buffer of Pixels, but it logically managed based on the configured dimensions in the constructor. \item\end{DoxyCompactList}\item 
+int $\ast$ \hyperlink{classnddi_1_1_base_nddi_display_a5051893514762833454e85ea5ab7647d}{coefficientPlane\_\-}
+\begin{DoxyCompactList}\small\item\em The coefficientPlane\_\- is a flat buffer of coefficient matrices that are logically arranged into rows and columns maching the dimenions of the display. \item\end{DoxyCompactList}\item 
+\hyperlink{unionnddi_1_1_pixel}{Pixel} $\ast$ \hyperlink{classnddi_1_1_base_nddi_display_adacb4f49d53e9ac1ee88f438554d4a5c}{frameBuffer\_\-}
+\begin{DoxyCompactList}\small\item\em The frameBuffer\_\- holds the rendered pixels. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This base class implements the \hyperlink{classnddi_1_1_n_dimensional_display_interface}{NDimensionalDisplayInterface} API and is meant, to be extended by various other forms of an NDDI Display, such as a test display and an OpenGL display that will display the framebuffer in a window. 
+
+Definition at line 18 of file BaseNddiDisplay.h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classnddi_1_1_base_nddi_display_a911540bae3ce34a1fd24b42345735aa4}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!CopyPixels@{CopyPixels}}
+\index{CopyPixels@{CopyPixels}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{CopyPixels}]{\setlength{\rightskip}{0pt plus 5cm}double BaseNddiDisplay::CopyPixels (
+\begin{DoxyParamCaption}
+\item[{{\bf Pixel} $\ast$}]{ p, }
+\item[{std::vector$<$ int $>$}]{ start, }
+\item[{std::vector$<$ int $>$}]{ end}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}virtual\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_a911540bae3ce34a1fd24b42345735aa4}
+
+
+Copies the one dimensional array of pixels along a particular dimension in the frame volume. 
+
+In a two-\/dimensional frame volume, this can be thought of as a way to copy along a row or along a column, but not both since the input pixels are only one-\/dimensional.
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em p}]The pointer to the pixel values to be copied. \item[{\em start}]The first pixel in the frame volume to be filled. \item[{\em end}]The last pixel in the frame volume to be filled. All but one of the values in values in this last pixel should be identical to the start pixel. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classnddi_1_1_n_dimensional_display_interface_a070d19f4f735b739fe1f39a5db2d3ec3}{nddi::NDimensionalDisplayInterface}.
+
+
+
+Definition at line 44 of file BaseNddiDisplay.cpp.
+
+\hypertarget{classnddi_1_1_base_nddi_display_a655f0d8e4ff09524ec3980f68197841e}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!DisplayHeight@{DisplayHeight}}
+\index{DisplayHeight@{DisplayHeight}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{DisplayHeight}]{\setlength{\rightskip}{0pt plus 5cm}int BaseNddiDisplay::DisplayHeight (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}virtual\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_a655f0d8e4ff09524ec3980f68197841e}
+
+
+Used to query the display height. 
+
+\begin{DoxyReturn}{Returns}
+The height of the display. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classnddi_1_1_n_dimensional_display_interface_a7c05ce89a99f5902d1efac37f28d670f}{nddi::NDimensionalDisplayInterface}.
+
+
+
+Definition at line 20 of file BaseNddiDisplay.cpp.
+
+\hypertarget{classnddi_1_1_base_nddi_display_a26851df678bf1509a00de1b6bf494934}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!DisplayWidth@{DisplayWidth}}
+\index{DisplayWidth@{DisplayWidth}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{DisplayWidth}]{\setlength{\rightskip}{0pt plus 5cm}int BaseNddiDisplay::DisplayWidth (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}virtual\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_a26851df678bf1509a00de1b6bf494934}
+
+
+Used to query the display width. 
+
+\begin{DoxyReturn}{Returns}
+The width of the display. 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classnddi_1_1_n_dimensional_display_interface_a0bb9a854f2b5efc26ed8bbd79833502e}{nddi::NDimensionalDisplayInterface}.
+
+
+
+Definition at line 16 of file BaseNddiDisplay.cpp.
+
+\hypertarget{classnddi_1_1_base_nddi_display_aca8202a5a0af0d88e1fece2172a0cd0f}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!FillCoefficientMatrix@{FillCoefficientMatrix}}
+\index{FillCoefficientMatrix@{FillCoefficientMatrix}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{FillCoefficientMatrix}]{\setlength{\rightskip}{0pt plus 5cm}double BaseNddiDisplay::FillCoefficientMatrix (
+\begin{DoxyParamCaption}
+\item[{std::vector$<$ std::vector$<$ int $>$ $>$}]{ coefficientMatrix, }
+\item[{std::vector$<$ int $>$}]{ start, }
+\item[{std::vector$<$ int $>$}]{ end}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}virtual\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_aca8202a5a0af0d88e1fece2172a0cd0f}
+
+
+Used to copy the specified coefficientMatrix into a range of locations in the coefficient plane. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em coefficientMatrix}]This two-\/dimensional vector holds the matrix to be copied. It's size must match the configuration of the coefficient matrices exactly. Can use COFFICIENT\_\-UNCHANGED for one or more elements. \item[{\em start}]This two-\/element vector specifies the location in the coefficient plane where the first coefficient matrix will be copied to. \item[{\em end}]This two-\/element vector specifies the location in the coefficient plane where the last coefficient matrix will be copied to. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classnddi_1_1_n_dimensional_display_interface_a7fee85de61ffbb9e442ef18c52ab7633}{nddi::NDimensionalDisplayInterface}.
+
+
+
+Reimplemented in \hyperlink{class_gl_nddi_display_aeab9eda24d273e29bf51e3099e00a73a}{GlNddiDisplay}.
+
+
+
+Definition at line 146 of file BaseNddiDisplay.cpp.
+
+\hypertarget{classnddi_1_1_base_nddi_display_a5037ac944566351b8dbf11486be40bc5}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!FillPixel@{FillPixel}}
+\index{FillPixel@{FillPixel}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{FillPixel}]{\setlength{\rightskip}{0pt plus 5cm}double BaseNddiDisplay::FillPixel (
+\begin{DoxyParamCaption}
+\item[{{\bf Pixel}}]{ p, }
+\item[{std::vector$<$ int $>$}]{ start, }
+\item[{std::vector$<$ int $>$}]{ end}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}virtual\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_a5037ac944566351b8dbf11486be40bc5}
+
+
+Fills the frame volume with the specified pixel. 
+
+It can fill in multiple dimensions by starting at the start pixel and filling in each dimension until the end pixel value is reached.
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em p}]The pixel value to be filled. \item[{\em start}]The first pixel in the frame volume to be filled. \item[{\em end}]The last pixel in the frame volume to be filled. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classnddi_1_1_n_dimensional_display_interface_afda2b784a44f4b34ad911dfcdec98fe6}{nddi::NDimensionalDisplayInterface}.
+
+
+
+Definition at line 77 of file BaseNddiDisplay.cpp.
+
+\hypertarget{classnddi_1_1_base_nddi_display_acd6e5f8767c04dbcd1c3006eb6af3685}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!PutCoefficientMatrix@{PutCoefficientMatrix}}
+\index{PutCoefficientMatrix@{PutCoefficientMatrix}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{PutCoefficientMatrix}]{\setlength{\rightskip}{0pt plus 5cm}double BaseNddiDisplay::PutCoefficientMatrix (
+\begin{DoxyParamCaption}
+\item[{std::vector$<$ std::vector$<$ int $>$ $>$}]{ coefficientMatrix, }
+\item[{std::vector$<$ int $>$}]{ location}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}virtual\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_acd6e5f8767c04dbcd1c3006eb6af3685}
+
+
+Used to copy the specified coefficientMatrix into the specified location of the coefficient plane. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em coefficientMatrix}]This two-\/dimensional vector holds the matrix to be copied. It's size must match the configuration of the coefficient matrices exactly. Can use COFFICIENT\_\-UNCHANGED for one or more elements. \item[{\em location}]This two-\/element vector specifies the location in the coefficient plane where the provided coefficient matrix will be copied. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classnddi_1_1_n_dimensional_display_interface_a61a20de40073a399e335d35fb0adb0cb}{nddi::NDimensionalDisplayInterface}.
+
+
+
+Reimplemented in \hyperlink{class_gl_nddi_display_a94aecd7c31084a690b42617d76b77e8b}{GlNddiDisplay}.
+
+
+
+Definition at line 134 of file BaseNddiDisplay.cpp.
+
+\hypertarget{classnddi_1_1_base_nddi_display_ab1f32fd60cdf81ac01130cefd1d48f0e}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!PutPixel@{PutPixel}}
+\index{PutPixel@{PutPixel}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{PutPixel}]{\setlength{\rightskip}{0pt plus 5cm}double BaseNddiDisplay::PutPixel (
+\begin{DoxyParamCaption}
+\item[{{\bf Pixel}}]{ p, }
+\item[{std::vector$<$ int $>$}]{ location}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}virtual\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_ab1f32fd60cdf81ac01130cefd1d48f0e}
+
+
+Copies the provided pixel to the specified location. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em p}]The pixel value to be copied. \item[{\em location}]The location within the frame volume where the pixel will be copied to. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classnddi_1_1_n_dimensional_display_interface_a93606fb46a02eff9ad8fb556d965b0f8}{nddi::NDimensionalDisplayInterface}.
+
+
+
+Definition at line 24 of file BaseNddiDisplay.cpp.
+
+\hypertarget{classnddi_1_1_base_nddi_display_a63a6029aa172d733c4c39ebf0268d968}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!Render@{Render}}
+\index{Render@{Render}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{Render}]{\setlength{\rightskip}{0pt plus 5cm}virtual void nddi::BaseNddiDisplay::Render (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}protected, pure virtual\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_a63a6029aa172d733c4c39ebf0268d968}
+
+
+Renders each pixel of the frame buffer by setting the x, y in the input vector and computing which frame volume pixel to use. 
+
+\hypertarget{classnddi_1_1_base_nddi_display_a327145e412aad872f0f0b3d0cef790d4}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!UpdateCoefficientMatrix@{UpdateCoefficientMatrix}}
+\index{UpdateCoefficientMatrix@{UpdateCoefficientMatrix}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{UpdateCoefficientMatrix}]{\setlength{\rightskip}{0pt plus 5cm}void BaseNddiDisplay::UpdateCoefficientMatrix (
+\begin{DoxyParamCaption}
+\item[{std::vector$<$ std::vector$<$ int $>$ $>$}]{ coefficientMatrix, }
+\item[{std::vector$<$ int $>$}]{ location}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}protected\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_a327145e412aad872f0f0b3d0cef790d4}
+
+
+Helper function that will update a coefficient matrix at a given position in the coefficient plane. 
+
+
+
+Definition at line 176 of file BaseNddiDisplay.cpp.
+
+\hypertarget{classnddi_1_1_base_nddi_display_ad6e5385ce6ea17f11e3ea404a123d1d7}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!UpdateInputVector@{UpdateInputVector}}
+\index{UpdateInputVector@{UpdateInputVector}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{UpdateInputVector}]{\setlength{\rightskip}{0pt plus 5cm}double BaseNddiDisplay::UpdateInputVector (
+\begin{DoxyParamCaption}
+\item[{std::vector$<$ int $>$}]{ input}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}virtual\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_ad6e5385ce6ea17f11e3ea404a123d1d7}
+
+
+Used to update the input vector with the extra values in the input vector. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em input}]The values to use for the update. The length of this vector must equal the size of the actual input vector minus two, since the first two values in the input vector cannot be changed. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cost of the operation. Can be measured in time, byte-\/count, or another measurements based on the display implementation 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classnddi_1_1_n_dimensional_display_interface_ad7ce868f6a77d5c75eb64a8a4f4244c0}{nddi::NDimensionalDisplayInterface}.
+
+
+
+Reimplemented in \hyperlink{class_gl_nddi_display_ac6ed1d3cbad4ad321d3f5649a358717f}{GlNddiDisplay}.
+
+
+
+Definition at line 120 of file BaseNddiDisplay.cpp.
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classnddi_1_1_base_nddi_display_a5051893514762833454e85ea5ab7647d}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!coefficientPlane\_\-@{coefficientPlane\_\-}}
+\index{coefficientPlane\_\-@{coefficientPlane\_\-}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{coefficientPlane\_\-}]{\setlength{\rightskip}{0pt plus 5cm}int$\ast$ {\bf nddi::BaseNddiDisplay::coefficientPlane\_\-}\hspace{0.3cm}{\ttfamily  \mbox{[}protected\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_a5051893514762833454e85ea5ab7647d}
+
+
+The coefficientPlane\_\- is a flat buffer of coefficient matrices that are logically arranged into rows and columns maching the dimenions of the display. 
+
+
+
+Definition at line 86 of file BaseNddiDisplay.h.
+
+\hypertarget{classnddi_1_1_base_nddi_display_a462ed74e3bd5ee923079badb352f7e97}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!displayHeight\_\-@{displayHeight\_\-}}
+\index{displayHeight\_\-@{displayHeight\_\-}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{displayHeight\_\-}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf nddi::BaseNddiDisplay::displayHeight\_\-}\hspace{0.3cm}{\ttfamily  \mbox{[}protected\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_a462ed74e3bd5ee923079badb352f7e97}
+
+
+Holds the Display Height. 
+
+
+
+Definition at line 59 of file BaseNddiDisplay.h.
+
+\hypertarget{classnddi_1_1_base_nddi_display_ad9b1e0726fddd57b58f37624a72c7fe5}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!displayWidth\_\-@{displayWidth\_\-}}
+\index{displayWidth\_\-@{displayWidth\_\-}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{displayWidth\_\-}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf nddi::BaseNddiDisplay::displayWidth\_\-}\hspace{0.3cm}{\ttfamily  \mbox{[}protected\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_ad9b1e0726fddd57b58f37624a72c7fe5}
+
+
+Holds the Display Width. 
+
+
+
+Definition at line 54 of file BaseNddiDisplay.h.
+
+\hypertarget{classnddi_1_1_base_nddi_display_adacb4f49d53e9ac1ee88f438554d4a5c}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!frameBuffer\_\-@{frameBuffer\_\-}}
+\index{frameBuffer\_\-@{frameBuffer\_\-}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{frameBuffer\_\-}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Pixel}$\ast$ {\bf nddi::BaseNddiDisplay::frameBuffer\_\-}\hspace{0.3cm}{\ttfamily  \mbox{[}protected\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_adacb4f49d53e9ac1ee88f438554d4a5c}
+
+
+The frameBuffer\_\- holds the rendered pixels. 
+
+
+
+Definition at line 91 of file BaseNddiDisplay.h.
+
+\hypertarget{classnddi_1_1_base_nddi_display_aa5bb1202a2b39b4c7c0f6647e3a01a82}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!frameVolume\_\-@{frameVolume\_\-}}
+\index{frameVolume\_\-@{frameVolume\_\-}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{frameVolume\_\-}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Pixel}$\ast$ {\bf nddi::BaseNddiDisplay::frameVolume\_\-}\hspace{0.3cm}{\ttfamily  \mbox{[}protected\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_aa5bb1202a2b39b4c7c0f6647e3a01a82}
+
+
+The frameVolume\_\- is physcially a flat buffer of Pixels, but it logically managed based on the configured dimensions in the constructor. 
+
+
+
+Definition at line 80 of file BaseNddiDisplay.h.
+
+\hypertarget{classnddi_1_1_base_nddi_display_a1a20c4ed32c3a9e218d8183204bc2afe}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!frameVolumeDimensionalSizes\_\-@{frameVolumeDimensionalSizes\_\-}}
+\index{frameVolumeDimensionalSizes\_\-@{frameVolumeDimensionalSizes\_\-}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{frameVolumeDimensionalSizes\_\-}]{\setlength{\rightskip}{0pt plus 5cm}std::vector$<$int$>$ {\bf nddi::BaseNddiDisplay::frameVolumeDimensionalSizes\_\-}\hspace{0.3cm}{\ttfamily  \mbox{[}protected\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_a1a20c4ed32c3a9e218d8183204bc2afe}
+
+
+Holds the sizes of each dimenion of the Frame Volume. 
+
+
+
+Definition at line 74 of file BaseNddiDisplay.h.
+
+\hypertarget{classnddi_1_1_base_nddi_display_aca1b4dd9f1a11e85e96bb0eb1f143dc8}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!inputVector\_\-@{inputVector\_\-}}
+\index{inputVector\_\-@{inputVector\_\-}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{inputVector\_\-}]{\setlength{\rightskip}{0pt plus 5cm}int$\ast$ {\bf nddi::BaseNddiDisplay::inputVector\_\-}\hspace{0.3cm}{\ttfamily  \mbox{[}protected\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_aca1b4dd9f1a11e85e96bb0eb1f143dc8}
+
+
+The input vector is represented as an int array. 
+
+
+
+Definition at line 69 of file BaseNddiDisplay.h.
+
+\hypertarget{classnddi_1_1_base_nddi_display_a8ea6b8a02ce1680040cb828facb98c5a}{
+\index{nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}!inputVectorSize\_\-@{inputVectorSize\_\-}}
+\index{inputVectorSize\_\-@{inputVectorSize\_\-}!nddi::BaseNddiDisplay@{nddi::BaseNddiDisplay}}
+\subsubsection[{inputVectorSize\_\-}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf nddi::BaseNddiDisplay::inputVectorSize\_\-}\hspace{0.3cm}{\ttfamily  \mbox{[}protected\mbox{]}}}}
+\label{classnddi_1_1_base_nddi_display_a8ea6b8a02ce1680040cb828facb98c5a}
+
+
+Size of the input vector. 
+
+
+
+Definition at line 64 of file BaseNddiDisplay.h.
+
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+src/BaseNddiDisplay.h\item 
+src/BaseNddiDisplay.cpp\end{DoxyCompactItemize}

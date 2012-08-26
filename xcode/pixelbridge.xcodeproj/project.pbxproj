@@ -1,0 +1,374 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C61B1A8A1514D0B500B63372 /* ClNddiDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C61B1A881514D0B500B63372 /* ClNddiDisplay.cpp */; };
+		C62E9145127BA5AA004FF5C9 /* CachedTiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C62E9144127BA5AA004FF5C9 /* CachedTiler.cpp */; };
+		C633734914E21B460017B819 /* BlendingGlNddiDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C633734714E21B460017B819 /* BlendingGlNddiDisplay.cpp */; };
+		C67EB570140F1B8B0036B1E6 /* Rewinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C67EB56E140F1B8B0036B1E6 /* Rewinder.cpp */; };
+		C68F372414128562000D2DD0 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F372314128562000D2DD0 /* GLUT.framework */; };
+		C68F37261412856C000D2DD0 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F37251412856C000D2DD0 /* OpenGL.framework */; };
+		C68F37281412858C000D2DD0 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F37271412858C000D2DD0 /* OpenCL.framework */; };
+		C68F372A141285DC000D2DD0 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F3729141285DC000D2DD0 /* libz.dylib */; };
+		C68F372C141285EC000D2DD0 /* libavcodec.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F372B141285EC000D2DD0 /* libavcodec.dylib */; };
+		C68F372E141285FB000D2DD0 /* libavformat.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F372D141285FB000D2DD0 /* libavformat.dylib */; };
+		C68F373014128608000D2DD0 /* libavutil.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F372F14128608000D2DD0 /* libavutil.dylib */; };
+		C68F373214128617000D2DD0 /* libswscale.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F373114128617000D2DD0 /* libswscale.dylib */; };
+		C6B93E771339842D001397CD /* FlatTiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6CE21F812A061DF00778BD8 /* FlatTiler.cpp */; };
+		C6B93E781339842E001397CD /* GlNddiDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6C28C1D127346D000919942 /* GlNddiDisplay.cpp */; };
+		C6B93E791339842F001397CD /* PixelBridgeMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C628F708126FD5AF0084C796 /* PixelBridgeMain.cpp */; };
+		C6C28C20127346D000919942 /* BaseNddiDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6C28C1B127346D000919942 /* BaseNddiDisplay.cpp */; };
+		C6C28D5A1273ADEB00919942 /* FfmpegPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6C28D591273ADEB00919942 /* FfmpegPlayer.cpp */; };
+		C6F90DB6151ABEC900BEB286 /* computePixel.cl in Sources */ = {isa = PBXBuildFile; fileRef = C6F90DB5151ABEC900BEB286 /* computePixel.cl */; };
+		C6F90DB8151ABFAC00BEB286 /* computePixel.cl in Copy Files */ = {isa = PBXBuildFile; fileRef = C6F90DB5151ABEC900BEB286 /* computePixel.cl */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8DD76F690486A84900D96B5E /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = cl;
+			dstSubfolderSpec = 16;
+			files = (
+				C6F90DB8151ABFAC00BEB286 /* computePixel.cl in Copy Files */,
+			);
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		8DD76F6C0486A84900D96B5E /* pixelbridge */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pixelbridge; sourceTree = BUILT_PRODUCTS_DIR; };
+		C60F19FB129DE1790050044F /* Tiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tiler.h; path = ../src/Tiler.h; sourceTree = SOURCE_ROOT; };
+		C614D0C9152893A00063F103 /* ClFrameVolume.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClFrameVolume.h; path = ../src/ClFrameVolume.h; sourceTree = "<group>"; };
+		C614D0CA15289D2F0063F103 /* ClCoefficientPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClCoefficientPlane.h; path = ../src/ClCoefficientPlane.h; sourceTree = "<group>"; };
+		C61B1A881514D0B500B63372 /* ClNddiDisplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ClNddiDisplay.cpp; path = ../src/ClNddiDisplay.cpp; sourceTree = "<group>"; };
+		C61B1A891514D0B500B63372 /* ClNddiDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClNddiDisplay.h; path = ../src/ClNddiDisplay.h; sourceTree = "<group>"; };
+		C628F708126FD5AF0084C796 /* PixelBridgeMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PixelBridgeMain.cpp; path = ../src/PixelBridgeMain.cpp; sourceTree = SOURCE_ROOT; };
+		C62E913F127A68F4004FF5C9 /* CachedTiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CachedTiler.h; path = ../src/CachedTiler.h; sourceTree = SOURCE_ROOT; };
+		C62E9144127BA5AA004FF5C9 /* CachedTiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CachedTiler.cpp; path = ../src/CachedTiler.cpp; sourceTree = SOURCE_ROOT; };
+		C633734714E21B460017B819 /* BlendingGlNddiDisplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BlendingGlNddiDisplay.cpp; path = ../src/BlendingGlNddiDisplay.cpp; sourceTree = "<group>"; };
+		C633734814E21B460017B819 /* BlendingGlNddiDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlendingGlNddiDisplay.h; path = ../src/BlendingGlNddiDisplay.h; sourceTree = "<group>"; };
+		C633734D14E21CEA0017B819 /* NDimensionalDisplayInterfaceExtended.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NDimensionalDisplayInterfaceExtended.h; path = ../src/NDimensionalDisplayInterfaceExtended.h; sourceTree = "<group>"; };
+		C658921B14D8CD5800D315EC /* readme */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme; sourceTree = "<group>"; };
+		C671B20C152140BA00199EDB /* ClInputVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClInputVector.h; path = ../src/ClInputVector.h; sourceTree = "<group>"; };
+		C67EB56E140F1B8B0036B1E6 /* Rewinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Rewinder.cpp; path = ../src/Rewinder.cpp; sourceTree = "<group>"; };
+		C67EB56F140F1B8B0036B1E6 /* Rewinder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Rewinder.h; path = ../src/Rewinder.h; sourceTree = "<group>"; };
+		C6859E8B029090EE04C91782 /* pixelbridge.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = pixelbridge.1; sourceTree = "<group>"; };
+		C68F372314128562000D2DD0 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		C68F37251412856C000D2DD0 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		C68F37271412858C000D2DD0 /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
+		C68F3729141285DC000D2DD0 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		C68F372B141285EC000D2DD0 /* libavcodec.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavcodec.dylib; path = usr/local/lib/libavcodec.dylib; sourceTree = SDKROOT; };
+		C68F372D141285FB000D2DD0 /* libavformat.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavformat.dylib; path = usr/local/lib/libavformat.dylib; sourceTree = SDKROOT; };
+		C68F372F14128608000D2DD0 /* libavutil.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavutil.dylib; path = usr/local/lib/libavutil.dylib; sourceTree = SDKROOT; };
+		C68F373114128617000D2DD0 /* libswscale.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libswscale.dylib; path = usr/local/lib/libswscale.dylib; sourceTree = SDKROOT; };
+		C6AEAD0412B3180000EC5840 /* Doxyfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Doxyfile; path = ../Doxyfile; sourceTree = SOURCE_ROOT; };
+		C6AEAD0512B31AD000EC5840 /* mainpage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mainpage.h; path = ../src/mainpage.h; sourceTree = SOURCE_ROOT; };
+		C6C28C1B127346D000919942 /* BaseNddiDisplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BaseNddiDisplay.cpp; path = ../src/BaseNddiDisplay.cpp; sourceTree = SOURCE_ROOT; };
+		C6C28C1C127346D000919942 /* BaseNddiDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseNddiDisplay.h; path = ../src/BaseNddiDisplay.h; sourceTree = SOURCE_ROOT; };
+		C6C28C1D127346D000919942 /* GlNddiDisplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlNddiDisplay.cpp; path = ../src/GlNddiDisplay.cpp; sourceTree = SOURCE_ROOT; };
+		C6C28C1E127346D000919942 /* GlNddiDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlNddiDisplay.h; path = ../src/GlNddiDisplay.h; sourceTree = SOURCE_ROOT; };
+		C6C28C1F127346D000919942 /* NDimensionalDisplayInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NDimensionalDisplayInterface.h; path = ../src/NDimensionalDisplayInterface.h; sourceTree = SOURCE_ROOT; };
+		C6C28D571273844D00919942 /* todo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = todo; path = ../todo; sourceTree = SOURCE_ROOT; };
+		C6C28D581273AC4D00919942 /* FfmpegPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FfmpegPlayer.h; path = ../src/FfmpegPlayer.h; sourceTree = SOURCE_ROOT; };
+		C6C28D591273ADEB00919942 /* FfmpegPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FfmpegPlayer.cpp; path = ../src/FfmpegPlayer.cpp; sourceTree = SOURCE_ROOT; };
+		C6CE21F712A061DF00778BD8 /* FlatTiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FlatTiler.h; path = ../src/FlatTiler.h; sourceTree = SOURCE_ROOT; };
+		C6CE21F812A061DF00778BD8 /* FlatTiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FlatTiler.cpp; path = ../src/FlatTiler.cpp; sourceTree = SOURCE_ROOT; };
+		C6F90DB5151ABEC900BEB286 /* computePixel.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; name = computePixel.cl; path = ../src/computePixel.cl; sourceTree = "<group>"; };
+		C6FFB63B14FF010C00B12215 /* InputVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InputVector.h; path = ../src/InputVector.h; sourceTree = "<group>"; };
+		C6FFB63C14FF09BC00B12215 /* CoefficientMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoefficientMatrix.h; path = ../src/CoefficientMatrix.h; sourceTree = "<group>"; };
+		C6FFB63D14FF0F2A00B12215 /* CoefficientPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoefficientPlane.h; path = ../src/CoefficientPlane.h; sourceTree = "<group>"; };
+		C6FFB63E14FF132A00B12215 /* FrameVolume.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FrameVolume.h; path = ../src/FrameVolume.h; sourceTree = "<group>"; };
+		C6FFB6431508397700B12215 /* CostModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CostModel.h; path = ../src/CostModel.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8DD76F660486A84900D96B5E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C68F373214128617000D2DD0 /* libswscale.dylib in Frameworks */,
+				C68F373014128608000D2DD0 /* libavutil.dylib in Frameworks */,
+				C68F372E141285FB000D2DD0 /* libavformat.dylib in Frameworks */,
+				C68F372C141285EC000D2DD0 /* libavcodec.dylib in Frameworks */,
+				C68F372A141285DC000D2DD0 /* libz.dylib in Frameworks */,
+				C68F37281412858C000D2DD0 /* OpenCL.framework in Frameworks */,
+				C68F37261412856C000D2DD0 /* OpenGL.framework in Frameworks */,
+				C68F372414128562000D2DD0 /* GLUT.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08FB7794FE84155DC02AAC07 /* pixelbridge */ = {
+			isa = PBXGroup;
+			children = (
+				C68F373114128617000D2DD0 /* libswscale.dylib */,
+				C68F372F14128608000D2DD0 /* libavutil.dylib */,
+				C68F372D141285FB000D2DD0 /* libavformat.dylib */,
+				C68F372B141285EC000D2DD0 /* libavcodec.dylib */,
+				C68F3729141285DC000D2DD0 /* libz.dylib */,
+				C68F37271412858C000D2DD0 /* OpenCL.framework */,
+				C68F37251412856C000D2DD0 /* OpenGL.framework */,
+				C68F372314128562000D2DD0 /* GLUT.framework */,
+				C6AEAD0412B3180000EC5840 /* Doxyfile */,
+				08FB7795FE84155DC02AAC07 /* Source */,
+				C6859E8C029090F304C91782 /* Documentation */,
+				1AB674ADFE9D54B511CA2CBB /* Products */,
+			);
+			name = pixelbridge;
+			sourceTree = "<group>";
+		};
+		08FB7795FE84155DC02AAC07 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				C6FFB6431508397700B12215 /* CostModel.h */,
+				C67EB56E140F1B8B0036B1E6 /* Rewinder.cpp */,
+				C67EB56F140F1B8B0036B1E6 /* Rewinder.h */,
+				C6C28D571273844D00919942 /* todo */,
+				C62E913F127A68F4004FF5C9 /* CachedTiler.h */,
+				C62E9144127BA5AA004FF5C9 /* CachedTiler.cpp */,
+				C6CE21F712A061DF00778BD8 /* FlatTiler.h */,
+				C6CE21F812A061DF00778BD8 /* FlatTiler.cpp */,
+				C60F19FB129DE1790050044F /* Tiler.h */,
+				C6C28D581273AC4D00919942 /* FfmpegPlayer.h */,
+				C6C28D591273ADEB00919942 /* FfmpegPlayer.cpp */,
+				C6C28C1F127346D000919942 /* NDimensionalDisplayInterface.h */,
+				C633734D14E21CEA0017B819 /* NDimensionalDisplayInterfaceExtended.h */,
+				C6C28C1C127346D000919942 /* BaseNddiDisplay.h */,
+				C6C28C1B127346D000919942 /* BaseNddiDisplay.cpp */,
+				C6C28C1E127346D000919942 /* GlNddiDisplay.h */,
+				C6C28C1D127346D000919942 /* GlNddiDisplay.cpp */,
+				C633734814E21B460017B819 /* BlendingGlNddiDisplay.h */,
+				C633734714E21B460017B819 /* BlendingGlNddiDisplay.cpp */,
+				C61B1A891514D0B500B63372 /* ClNddiDisplay.h */,
+				C61B1A881514D0B500B63372 /* ClNddiDisplay.cpp */,
+				C6F90DB5151ABEC900BEB286 /* computePixel.cl */,
+				C6AEAD0512B31AD000EC5840 /* mainpage.h */,
+				C628F708126FD5AF0084C796 /* PixelBridgeMain.cpp */,
+				C658921B14D8CD5800D315EC /* readme */,
+				C6FFB63B14FF010C00B12215 /* InputVector.h */,
+				C671B20C152140BA00199EDB /* ClInputVector.h */,
+				C6FFB63C14FF09BC00B12215 /* CoefficientMatrix.h */,
+				C6FFB63D14FF0F2A00B12215 /* CoefficientPlane.h */,
+				C614D0CA15289D2F0063F103 /* ClCoefficientPlane.h */,
+				C6FFB63E14FF132A00B12215 /* FrameVolume.h */,
+				C614D0C9152893A00063F103 /* ClFrameVolume.h */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		1AB674ADFE9D54B511CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8DD76F6C0486A84900D96B5E /* pixelbridge */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C6859E8C029090F304C91782 /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+				C6859E8B029090EE04C91782 /* pixelbridge.1 */,
+			);
+			name = Documentation;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8DD76F620486A84900D96B5E /* pixelbridge */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "pixelbridge" */;
+			buildPhases = (
+				8DD76F640486A84900D96B5E /* Sources */,
+				8DD76F660486A84900D96B5E /* Frameworks */,
+				8DD76F690486A84900D96B5E /* Copy Files */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = pixelbridge;
+			productInstallPath = "$(HOME)/bin";
+			productName = pixelbridge;
+			productReference = 8DD76F6C0486A84900D96B5E /* pixelbridge */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0410;
+				ORGANIZATIONNAME = "Dave Estes";
+			};
+			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "pixelbridge" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 08FB7794FE84155DC02AAC07 /* pixelbridge */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8DD76F620486A84900D96B5E /* pixelbridge */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8DD76F640486A84900D96B5E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C6C28C20127346D000919942 /* BaseNddiDisplay.cpp in Sources */,
+				C6C28D5A1273ADEB00919942 /* FfmpegPlayer.cpp in Sources */,
+				C62E9145127BA5AA004FF5C9 /* CachedTiler.cpp in Sources */,
+				C6B93E771339842D001397CD /* FlatTiler.cpp in Sources */,
+				C6B93E781339842E001397CD /* GlNddiDisplay.cpp in Sources */,
+				C6B93E791339842F001397CD /* PixelBridgeMain.cpp in Sources */,
+				C67EB570140F1B8B0036B1E6 /* Rewinder.cpp in Sources */,
+				C633734914E21B460017B819 /* BlendingGlNddiDisplay.cpp in Sources */,
+				C61B1A8A1514D0B500B63372 /* ClNddiDisplay.cpp in Sources */,
+				C6F90DB6151ABEC900BEB286 /* computePixel.cl in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB923208733DC60010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "/opt/local/lib//**";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					FLAT_TILED_3D,
+					SUPRESS_EXCESS_RENDERING,
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
+					FLAT_TILED_3D,
+					SUPRESS_EXCESS_RENDERING,
+				);
+				HEADER_SEARCH_PATHS = "/opt/local/include//**";
+				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"/opt/local/lib//**",
+					/opt/local/lib,
+				);
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
+				PRODUCT_NAME = pixelbridge;
+				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
+				USER_HEADER_SEARCH_PATHS = "/usr/include /usr/local/include";
+			};
+			name = Debug;
+		};
+		1DEB923308733DC60010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = "/opt/local/lib//**";
+				GCC_MODEL_TUNING = G5;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					FLAT_TILED_3D,
+					SUPRESS_EXCESS_RENDERING,
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
+					FLAT_TILED_3D,
+					SUPRESS_EXCESS_RENDERING,
+				);
+				HEADER_SEARCH_PATHS = "/opt/local/include//**";
+				INSTALL_PATH = /usr/local/bin;
+				LIBRARY_SEARCH_PATHS = (
+					"/opt/local/lib//**",
+					/opt/local/lib,
+				);
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
+				PRODUCT_NAME = pixelbridge;
+				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
+				USER_HEADER_SEARCH_PATHS = "/usr/include /usr/local/include";
+			};
+			name = Release;
+		};
+		1DEB923608733DC60010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ENABLE_OPENMP_SUPPORT = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = "";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
+				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = /usr/local/include;
+			};
+			name = Debug;
+		};
+		1DEB923708733DC60010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ENABLE_OPENMP_SUPPORT = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = "";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
+				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = /usr/local/include;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "pixelbridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB923208733DC60010E9CD /* Debug */,
+				1DEB923308733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "pixelbridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB923608733DC60010E9CD /* Debug */,
+				1DEB923708733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}

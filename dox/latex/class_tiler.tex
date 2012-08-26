@@ -1,0 +1,62 @@
+\hypertarget{class_tiler}{
+\section{Tiler Class Reference}
+\label{class_tiler}\index{Tiler@{Tiler}}
+}
+
+
+The \hyperlink{class_tiler}{Tiler} base class is used to update an attached NDDI display.  
+
+
+
+
+{\ttfamily \#include $<$Tiler.h$>$}
+
+Inheritance diagram for Tiler:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_tiler}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual double \hyperlink{class_tiler_a1eba24ca0a905dbdad566d99b753fc39}{UpdateDisplay} (uint8\_\-t $\ast$buffer, size\_\-t width, size\_\-t height)
+\begin{DoxyCompactList}\small\item\em Update the tile\_\-map, tilecache, and then the NDDI display based on the frame that's passed in. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The \hyperlink{class_tiler}{Tiler} base class is used to update an attached NDDI display. It's derivative classes will break up each frame into tiles and update the tiles that are changed. 
+
+Definition at line 18 of file Tiler.h.
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_tiler_a1eba24ca0a905dbdad566d99b753fc39}{
+\index{Tiler@{Tiler}!UpdateDisplay@{UpdateDisplay}}
+\index{UpdateDisplay@{UpdateDisplay}!Tiler@{Tiler}}
+\subsubsection[{UpdateDisplay}]{\setlength{\rightskip}{0pt plus 5cm}virtual double Tiler::UpdateDisplay (
+\begin{DoxyParamCaption}
+\item[{uint8\_\-t $\ast$}]{ buffer, }
+\item[{size\_\-t}]{ width, }
+\item[{size\_\-t}]{ height}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, virtual\mbox{]}}}}
+\label{class_tiler_a1eba24ca0a905dbdad566d99b753fc39}
+
+
+Update the tile\_\-map, tilecache, and then the NDDI display based on the frame that's passed in. 
+
+
+
+Reimplemented in \hyperlink{class_cached_tiler_a9926f3bafa7ec9e65242bab8368f8b43}{CachedTiler}, and \hyperlink{class_flat_tiler_a6e0bdcd30a8faad5b366e3b9d6ff89cd}{FlatTiler}.
+
+
+
+Definition at line 24 of file Tiler.h.
+
+
+
+The documentation for this class was generated from the following file:\begin{DoxyCompactItemize}
+\item 
+src/Tiler.h\end{DoxyCompactItemize}
