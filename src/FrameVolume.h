@@ -31,7 +31,7 @@ namespace nddi {
 
         FrameVolume(CostModel* costModel,
                     vector<unsigned int> frameVolumeDimensionalSizes)
-        : costModel_(costModel), dimensionalSizes_(NULL), size_(1), pixels_(NULL) {
+        : costModel_(costModel), size_(1), pixels_(NULL) {
 
             dimensionalSizes_ = frameVolumeDimensionalSizes;
             for (int i = 0; i < dimensionalSizes_.size(); i++) {

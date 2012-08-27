@@ -158,7 +158,7 @@ uint8_t* FfmpegPlayer::decodeFrame() {
                 av_free_packet(&packet);
 
             // Read new packet
-            if (av_read_packet(pFormatCtx_, &packet) < 0)
+            if (av_read_frame(pFormatCtx_, &packet) < 0)
                 goto loop_exit;
         } while(packet.stream_index != videoStream_);
 

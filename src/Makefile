@@ -46,9 +46,9 @@ LDFLAGS+=-lz -lavutil -lavformat -lavcodec -lswscale
 ifeq ($(DEBUG), 1)
 	CCFLAGS+=-g -DDEBUG
 	CPPFLAGS+=-g -DDEBUG
-	OBJDIR=objdir-debug
+	OBJDIR=../build/objdir-debug
 else
-	OBJDIR=objdir-release
+	OBJDIR=../build/objdir-release
 endif
 
 _DEPS =	GlNddiDisplay.h \
@@ -103,7 +103,7 @@ pixelbridge: $(OBJDIR)/PixelBridgeMain.o $(OBJ)
 .PHONY: clean
 
 clean:
-	rm -Rf objdir-* *~ core $(INCDIR)/*~ 
+	rm -Rf ../build *~ core $(INCDIR)/*~ 
 
 debug:
 	$(MAKE) $(MAKEFILE) DEBUG=1
