@@ -74,15 +74,20 @@ _DEPS =	GlNddiDisplay.h \
 
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ =	GlNddiDisplay.o \
-	PixelBridgeMain.o \
-	Rewinder.o \
+_OBJ = \
 	BaseNddiDisplay.o \
 	BlendingGlNddiDisplay.o \
 	CachedTiler.o \
-	ClNddiDisplay.o \
 	FfmpegPlayer.o \
-	FlatTiler.o
+	FlatTiler.o \
+	GlNddiDisplay.o \
+	PixelBridgeMain.o \
+	Rewinder.o
+
+ifneq ($(NO_CL), 1)
+_OBJ += \
+	ClNddiDisplay.o
+endif
 
 OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
 
@@ -103,7 +108,7 @@ pixelbridge: $(OBJDIR)/PixelBridgeMain.o $(OBJ)
 .PHONY: clean
 
 clean:
-	rm -Rf ../build *~ core $(INCDIR)/*~ 
+	rm -Rf ../build *~ core
 
 debug:
 	$(MAKE) $(MAKEFILE) DEBUG=1
