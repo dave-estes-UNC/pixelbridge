@@ -28,9 +28,9 @@ __kernel void computePixel(__global int* inputVector,
             mult *= frameVolumeDims[cmj];
         }
         uchar4 colori = as_uchar4(frameVolume[fvOffset]);
-        float4 colorf = { (float)colori[0]/255.0f,
-                          (float)colori[1]/255.0f,
-                          (float)colori[2]/255.0f,
+        float4 colorf = { (float)colori.s0/255.0f,
+                          (float)colori.s1/255.0f,
+                          (float)colori.s2/255.0f,
                           1.0f};
         write_imagef( frameBuffer, coord, colorf );
     }

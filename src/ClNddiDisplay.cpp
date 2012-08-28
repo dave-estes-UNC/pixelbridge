@@ -133,7 +133,7 @@ void ClNddiDisplay::InitializeCl() {
     err = clGetPlatformIDs(1, &clPlatformId_, &numPlatforms);
 
     // Get an ID for the device
-    err = clGetDeviceIDs(NULL, CL_DEVICE_TYPE_GPU, 1, &clDeviceId_, NULL);
+    err = clGetDeviceIDs(clPlatformId_, CL_DEVICE_TYPE_GPU, 1, &clDeviceId_, NULL);
     //err = clGetDeviceIDs(NULL, CL_DEVICE_TYPE_CPU, 1, &clDeviceId_, NULL);
     if (err != CL_SUCCESS) {
         std::cout << "Failed to get device IDs." << std::endl;
@@ -180,14 +180,17 @@ void ClNddiDisplay::InitializeCl() {
     }
 
     // Read program file
-    const char* kernelFileName = "cl/computePixel.cl";
+    char kernelFileName[] = "/home/cdestes/Work/pixelbridge/src/computePixel.cl";
     std::ifstream kernelFile;
     kernelFile.open(kernelFileName, std::ifstream::in);
     // TODO(CDE): Figure this crap out! Why does getenv("PWD") fail when running release version in xcode?
-    if (!kernelFile.is_open()) { kernelFile.open("/Users/cdestes/School/UNC/Research/pixelbridge/xcode/DerivedData/pixelbridge/Build/Products/Release/cl/computePixel.cl", std::ios::in); }
+    //if (!kernelFile.is_open()) { kernelFile.open("/Users/cdestes/School/UNC/Research/pixelbridge/xcode/DerivedData/pixelbridge/Build/Products/Release/cl/computePixel.cl", std::ios::in); }
+    if (!kernelFile.is_open()) {
+    	kernelFile.open(kernelFileName, std::ios::in);
+    }
     if (!kernelFile.is_open())
     {
-        std::cerr << "Failed to open program file: " << getenv("PWD") << kernelFileName << "." << std::endl;
+        std::cerr << "Failed to open program file: " << kernelFileName << "." << std::endl;
         Cleanup(true);
     }
     std::ostringstream oss;
@@ -277,7 +280,7 @@ void ClNddiDisplay::InitializeCl() {
     }
 
     // Ignoring query above and hard coding workgroup size based on experimental data
-    local[0]=128; local[1]=4;
+    //local[0]=128; local[1]=4;
 
     // Adjust global based on the new workgroup size in local
     global[0] = displayWidth_ / local[0] * local[0];
@@ -310,7 +313,7 @@ void ClNddiDisplay::Render() {
     glFinish();
     err = clEnqueueAcquireGLObjects(clQueue_, 1, &clFrameBuffer_, 0, NULL, NULL);
     if (err) {
-        std::cout << "Failed to enqueue acquire GL Objects command." << std::endl;
+        std::cout << "Failed to enqueue acquire GL Objects command " << err << std::endl;
         Cleanup(true);
     }
 
@@ -318,14 +321,14 @@ void ClNddiDisplay::Render() {
     err = clEnqueueNDRangeKernel(clQueue_, clKernel_, 2, NULL, global, local,
                                  0, NULL, NULL);
     if (err) {
-        std::cout << "Failed to enqueue ND range kernel command." << std::endl;
+        std::cout << "Failed to enqueue ND range kernel command " << err << std::endl;
         Cleanup(true);
     }
 
     // Release the GL Object and wait for CL command queue to empty
     err = clEnqueueReleaseGLObjects(clQueue_, 1, &clFrameBuffer_, 0, NULL, NULL);
     if (err) {
-        std::cout << "Failed to enqueue release GL Objects command." << std::endl;
+        std::cout << "Failed to enqueue release GL Objects command " << err << std::endl;
         Cleanup(true);
     }
     clFinish(clQueue_);

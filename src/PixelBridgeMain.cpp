@@ -1074,6 +1074,8 @@ int main(int argc, char *argv[]) {
 		
 		// Setup the GlNddiDisplay and Tiler if required
 		setupDisplay();
+	} else {
+		costModel = new CostModel();
 	}
 	
 	// Take the start time stamp
