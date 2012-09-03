@@ -1,4 +1,5 @@
-IDIR =.
+SRCDIR=./src
+IDIR=./src
 
 CC=gcc
 CPP=g++
@@ -51,9 +52,9 @@ LDFLAGS+=-lz -lavutil -lavformat -lavcodec -lswscale
 ifeq ($(DEBUG), 1)
 	CCFLAGS+=-g -DDEBUG
 	CPPFLAGS+=-g -DDEBUG
-	OBJDIR=../build/objdir-debug
+	OBJDIR=build/objdir-debug
 else
-	OBJDIR=../build/objdir-release
+	OBJDIR=build/objdir-release
 endif
 
 _DEPS =	GlNddiDisplay.h \
@@ -97,11 +98,11 @@ endif
 OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
 
 
-$(OBJDIR)/%.o: %.cpp $(DEPS)
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(DEPS)
 	mkdir -p $(dir $@)
 	$(CPP) -c -o $@ $< $(CPPFLAGS)
 
-$(OBJDIR)/%.o: %.c $(DEPS)
+$(OBJDIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 	mkdir -p $(dir $@)
 	$(CC) -c -o $@ $< $(CCFLAGS)
 
@@ -113,7 +114,7 @@ pixelbridge: $(OBJDIR)/PixelBridgeMain.o $(OBJ)
 .PHONY: clean
 
 clean:
-	rm -Rf ../build *~ core
+	rm -Rf build *~ core
 
 debug:
 	$(MAKE) $(MAKEFILE) DEBUG=1
