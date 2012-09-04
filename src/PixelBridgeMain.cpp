@@ -269,40 +269,6 @@ void setupDisplay() {
     // Flat-Tiled
 	} else if (config == FLAT) {
 
-#ifdef FLAT_TILED_3D
-		// 3 dimensional tile dimensions in x and y then enough planes in z for the entire display
-		std::vector<unsigned int> fvDimensions;
-		
-		fvDimensions.push_back(configTileWidth);
-		fvDimensions.push_back(configTileHeight);
-        fvDimensions.push_back(((displayWidth + configTileWidth - 1) / configTileWidth) * ((displayHeight + configTileHeight - 1) / configTileHeight));
-        
-#ifndef NO_CL
-		myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
-									  displayWidth, displayHeight, // display size
-									  3); 						   // input vector size (x, y, and z)
-#else
-		myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
-									  displayWidth, displayHeight, // display size
-									  3); 						   // input vector size (x, y, and z)
-#endif
-        // Grab the cost model
-        costModel = myDisplay->GetCostModel();
-        
-		// Initialize Input Vector
-		std::vector<int> iv;
-		iv.push_back(1);
-		myDisplay->UpdateInputVector(iv);
-		
-		// Initialize Frame Volume
-		nddi::Pixel p;
-		p.r = p.g = p.b = p.a = 0xff;
-		std::vector<unsigned int> start, end;
-		start.push_back(0); start.push_back(0); start.push_back(0);
-		end.push_back(configTileWidth); end.push_back(configTileHeight); end.push_back(configMaxTiles);
-		myDisplay->FillPixel(p, start, end);
-		
-#else
 		// 2 dimensional matching the Video Width x Height
 		std::vector<unsigned int> fvDimensions;
 		
@@ -329,7 +295,6 @@ void setupDisplay() {
 		end.push_back(displayWidth - 1); end.push_back(displayHeight - 1);
 		myDisplay->FillPixel(p, start, end);
 		
-#endif
         // Set up Flat Tiler and initialize Coefficient plane`
         myTiler = new FlatTiler(myDisplay,
                                 configTileWidth, configTileHeight, configSigBits,

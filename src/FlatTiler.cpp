@@ -52,32 +52,6 @@ FlatTiler::FlatTiler (GlNddiDisplay* display, size_t tile_width, size_t tile_hei
  */
 void FlatTiler::InitializeCoefficientPlane() {
 
-#ifdef FLAT_TILED_3D
-    // Setup the coefficient matrix to complete 3x3 identity initially
-	std::vector< std::vector<int> > coeffs;
-    coeffs.resize(3);
-    coeffs[0].push_back(1); coeffs[0].push_back(0); coeffs[0].push_back(0);
-    coeffs[1].push_back(0); coeffs[1].push_back(1); coeffs[1].push_back(0);
-    coeffs[2].push_back(0); coeffs[2].push_back(0); coeffs[2].push_back(0);
-    
-	// Setup start and end points to (0,0) initially
-	std::vector<unsigned int> start, end;
-	start.push_back(0); start.push_back(0);
-	end.push_back(0); end.push_back(0);
-    
-	for (int j = 0; j < tile_map_height_; j++) {
-		for (int i = 0; i < tile_map_width_; i++) {
-			coeffs[2][0] = -i * tile_width_;
-			coeffs[2][1] = -j * tile_height_;
-            coeffs[2][2] = i + j * tile_map_width_;
-			start[0] = i * tile_width_; start[1] = j * tile_height_;
-			end[0] = (i + 1) * tile_width_ - 1; end[1] = (j + 1) * tile_height_ - 1;
-			if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
-			if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
-			display_->FillCoefficientMatrix(coeffs, start, end);
-		}
-	}
-#else
     vector< vector<int> > coeffs;
     coeffs.resize(2);
     coeffs[0].push_back(1); coeffs[0].push_back(0);
@@ -88,7 +62,6 @@ void FlatTiler::InitializeCoefficientPlane() {
     end.push_back(display_->DisplayWidth() - 1); end.push_back(display_->DisplayHeight() - 1);
     
     display_->FillCoefficientMatrix(coeffs, start, end);
-#endif
 }
 
 /**
@@ -195,14 +168,6 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
  */
 void FlatTiler::UpdateFrameVolume(nddi::Pixel* pixels, int i_map, int j_map) {
 	
-#ifdef FLAT_TILED_3D
-	// Setup start and end points
-	std::vector<unsigned int> start, end;
-	start.push_back(0);               start.push_back(0);                start.push_back(i_map + j_map * tile_map_width_);
-	  end.push_back(tile_width_ - 1);   end.push_back(tile_height_ - 1);   end.push_back(i_map + j_map * tile_map_width_);
-    
-    display_->CopyPixels(pixels, start, end);
-#else
 	// Setup start and end points
 	std::vector<unsigned int> start, end;
 	start.push_back(i_map * tile_width_); start.push_back(j_map * tile_height_);
@@ -211,5 +176,4 @@ void FlatTiler::UpdateFrameVolume(nddi::Pixel* pixels, int i_map, int j_map) {
 	if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
     
     display_->CopyPixels(pixels, start, end);
-#endif
 }

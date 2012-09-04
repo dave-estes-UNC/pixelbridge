@@ -172,23 +172,13 @@ public:
                 break;
         }
 
-#ifdef __APPLE__
-#define RECT_BROKEN
-#endif
-
-        // Copy 3D volumes at a time (2D for Mac OS X)
+        // Copy 3D volumes at a time
         do {
             // First copy into pixels array
             void* startPixel = (unsigned char *)pixels_ + buffer_origin[2] * fv_slice_pitch_ + buffer_origin[1] * fv_row_pitch_ + buffer_origin[0];
             memcpy(startPixel, p, region[2] * region[1] * region[0]);
             // Enqueue CL command
             if (clQueue_ && clBuffer_) {
-#ifdef RECT_BROKEN
-                int err = clEnqueueWriteBuffer(clQueue_, clBuffer_, CL_FALSE,
-                                               buffer_origin[2] * fv_slice_pitch_ + buffer_origin[1] * fv_row_pitch_ + buffer_origin[0],
-                                               region[2] * region[1] * region[0],
-                                               startPixel, 0, NULL, NULL);
-#else
                 int err = clEnqueueWriteBufferRect(clQueue_, clBuffer_, CL_TRUE,
                                                    buffer_origin,
                                                    host_origin,
@@ -196,7 +186,6 @@ public:
                                                    fv_row_pitch_, fv_slice_pitch_,
                                                    p_row_pitch, p_slice_pitch,
                                                    p, 0, NULL, NULL);
-#endif
                 if (err != CL_SUCCESS) {
                     std::cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << err << std::endl;
                 }
@@ -212,11 +201,7 @@ public:
                 copyFinished = true;
             } else {
                 // Move to the next position
-#ifdef RECT_BROKEN
-                int fvDim = 2; // Starting at 3rd dimension since we're copying just xy planes at a time
-#else
                 int fvDim = 3; // Starting at 4th dimension since we're copying full xyz volumes at a time
-#endif
                 bool overflow;
                 do {
                     overflow = false;
