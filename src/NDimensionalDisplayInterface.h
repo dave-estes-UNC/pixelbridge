@@ -109,7 +109,7 @@ namespace nddi {
 
         /**
          * Copies the array of pixels into the designated region of the frame volume. The data must be
-         * arranged in the array with strides for each dimension of the area. So to copy pixes into a
+         * arranged in the array with strides for each dimension of the area. So to copy pixels into a
          * 2 x 2 x 2 region in the frame volume, the array must be arranged accordingly:
          * (0,0,0) (1,0,0) (0,1,0) (1,1,0) (0,0,1) (1,0,1) (0,1,1) (1,1,1)
          *

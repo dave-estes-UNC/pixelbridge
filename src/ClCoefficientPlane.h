@@ -119,11 +119,8 @@ public:
             }
         }
 
-        // TODO(CDE): DIRTY DIRTY DIRTY. Get rid of this ASAP! For now, it saves us from
-        //            all those individual writes when initializing the coefficient plane.
-        //            This WILL BREAK cached tiled mode.
-#define WRITE_ONLY_ON_LAST_TILE
-#ifdef WRITE_ONLY_ON_LAST_TILE
+#ifdef FLAT_TILED_3D
+        // Only enqueues CL write when the last matrix of a tile is written. Dirty trick.
         if (end[0] == width_ - 1 && end[1] == height_ - 1) {
             int err = clEnqueueWriteBuffer(clQueue_, clBuffer_, CL_TRUE, 0, matrixSize_ * width_ * height_, coefficients_, 0, NULL, NULL);
             if (err != CL_SUCCESS) {
@@ -134,10 +131,7 @@ public:
         // Update Cost Model
         costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, READ_ACCESS, coefficients_ + calcOffset(start), matrixSize_* width_ * height_);
         costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, coefficients_ + calcOffset(start), matrixSize_* width_ * height_);
-
-        return;
-#endif
-
+#else
         // TODO(CDE): Change this to one single copy rect of the entire region of coefficients
         // If the stride matches the entire x dimension of the coefficient plane, then...
         if (stride == width_) {
@@ -161,6 +155,7 @@ public:
         // Update Cost Model
         costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, READ_ACCESS, coefficients_ + calcOffset(start), matrixSize_* stride * rowCount);
         costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, coefficients_ + calcOffset(start), matrixSize_* stride * rowCount);
+#endif
     }
 
     void FillCoefficient(int coefficient,

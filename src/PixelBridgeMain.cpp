@@ -268,7 +268,7 @@ void setupDisplay() {
         
     // Flat-Tiled
 	} else if (config == FLAT) {
-		
+
 #ifdef FLAT_TILED_3D
 		// 3 dimensional tile dimensions in x and y then enough planes in z for the entire display
 		std::vector<unsigned int> fvDimensions;
@@ -308,9 +308,15 @@ void setupDisplay() {
 		
 		fvDimensions.push_back(displayWidth);
 		fvDimensions.push_back(displayHeight);
+#ifndef NO_CL
+		myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
+                                      displayWidth, displayHeight, // display size
+                                      2); 						   // input vector size (x and y only)
+#else
 		myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
-									  displayWidth, displayHeight, // display size
-									  2); 						   // input vector size (x and y only)
+                                      displayWidth, displayHeight, // display size
+                                      2); 						   // input vector size (x and y only)
+#endif
 
         // Grab the cost model
         costModel = myDisplay->GetCostModel();
@@ -625,6 +631,20 @@ void outputStats(bool exitNow) {
     << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << "\t" << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << "\t"
     << costModel->getPixelsMapped() << "\t" << costModel->getPixelsBlended() << endl;
     
+    // Warnings about Configuration
+#if defined(SUPRESS_EXCESS_RENDERING) || defined(NO_CL) || defined(NO_GL)
+    cout << endl << "CONFIGURATION WARNINGS:" << endl;
+#ifdef SUPRESS_EXCESS_RENDERING
+    cout << "- Was compiled with SUPRESS_EXCESS_RENDERING, and so the numbers may be off. Recompile with make NO_HACKS=1." << endl;
+#endif
+#ifdef NO_CL
+    cout << - "Was compiled without OpenCL." << endl;
+#endif
+#ifdef NO_GL
+    cout << - "Was compiled without OpenGL." << endl;
+#endif
+#endif
+
     // Clean up
     if (exitNow) {
         delete myDisplay;
