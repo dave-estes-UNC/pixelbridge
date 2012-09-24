@@ -50,11 +50,15 @@ ClNddiDisplay::ClNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSiz
     // TODO(CDE): NULL this out
     frameVolume_ = (FrameVolume*)clFrameVolume_;
 
-    // We won't be using the reference components or frameBuffer_, so make them null.
+    // We won't be using the base components or frameBuffer_, so make them null.
     //inputVector_ = NULL;
     //coefficientPlane_ = NULL;
     //frameVolume_ = NULL;
     frameBuffer_ = NULL;
+
+    // Set the maximum command packet size based on a 3D frame volume and enough 8x8 tiles to fill the display
+    // TODO(CDE): Revisit this maximum when I start using the command packet to update the coefficient plane
+    maxCommandPacketSize_ = (4 * 2) + (displayWidth_ / 8 + 1) * (displayHeight / 8 + 1) * (4 * (8 * 8 + 3));
 
     // Initialize GL Texture
     InitializeGl();
@@ -80,8 +84,8 @@ void ClNddiDisplay::Cleanup(bool shouldExit)
     if (clKernel_ != 0)
         clReleaseKernel(clKernel_);
 
-    if (clProgram_ != 0)
-        clReleaseProgram(clProgram_);
+    if (clProgramComputePixel_ != 0)
+        clReleaseProgram(clProgramComputePixel_);
 
     if (clContext_ != 0)
         clReleaseContext(clContext_);
@@ -94,6 +98,9 @@ void ClNddiDisplay::Cleanup(bool shouldExit)
 
     if (clFrameBuffer_ != 0)
         clReleaseMemObject(clFrameBuffer_);
+
+    if (clCommandPacket_ != 0)
+    	clReleaseMemObject(clCommandPacket_);
 
     if( texture_ != 0 )
     {
@@ -199,27 +206,27 @@ void ClNddiDisplay::InitializeCl() {
     const char *srcStr = srcStdStr.c_str();
 
     // Create the compute program from the source buffer
-    clProgram_ = clCreateProgramWithSource(clContext_, 1, (const char **)&srcStr, NULL, &err);
-    if (!clProgram_) {
+    clProgramComputePixel_ = clCreateProgramWithSource(clContext_, 1, (const char **)&srcStr, NULL, &err);
+    if (!clProgramComputePixel_) {
         std::cout << "Failed to create program." << std::endl;
         Cleanup(true);
     }
 
     // Build the program executable
-    err = clBuildProgram(clProgram_, 0, NULL, NULL, NULL, NULL);
+    err = clBuildProgram(clProgramComputePixel_, 0, NULL, NULL, NULL, NULL);
     if (err != CL_SUCCESS) {
         size_t len;
         char buffer[2048];
 
         std::cout << "Error: Failed to build program executable\n" << std::endl;
-        clGetProgramBuildInfo(clProgram_, clDeviceId_, CL_PROGRAM_BUILD_LOG,
+        clGetProgramBuildInfo(clProgramComputePixel_, clDeviceId_, CL_PROGRAM_BUILD_LOG,
                               sizeof(buffer), buffer, &len);
         printf("%s\n", buffer);
         Cleanup(true);
     }
 
     // Create the compute kernel in the program we wish to run
-    clKernel_ = clCreateKernel(clProgram_, "computePixel", &err);
+    clKernel_ = clCreateKernel(clProgramComputePixel_, "computePixel", &err);
     if (!clKernel_ || err != CL_SUCCESS) {
         std::cout << "Failed to create compute kernel." << std::endl;
         Cleanup(true);
@@ -248,6 +255,11 @@ void ClNddiDisplay::InitializeCl() {
         std::cout << "Failed to create input/output memory arrays." << std::endl;
         Cleanup(true);
     }
+
+    // Create the command packet buffer
+    clCommandPacket_ = clCreateBuffer(clContext_, CL_MEM_READ_ONLY,
+    		                          maxCommandPacketSize_, NULL, NULL);
+    clFrameVolume_->setCommandPacket(&clCommandPacket_, maxCommandPacketSize_);
 
     cl_uint cm_dims[2] = { CM_WIDTH, CM_HEIGHT };
     cl_uint display_dims[2] = { displayWidth_, displayHeight_ };
@@ -394,6 +406,32 @@ void ClNddiDisplay::CopyPixels(Pixel* p, std::vector<unsigned int> start, std::v
 
     // Copy pixels
     clFrameVolume_->CopyPixels(p, start, end);
+
+#ifndef SUPRESS_EXCESS_RENDERING
+    Render();
+#endif
+}
+
+void ClNddiDisplay::CopyPixelTiles(Pixel* p, std::vector<std::vector<unsigned int> > starts, std::vector<unsigned int> size) {
+
+	// We're copying tiles, so the size of each tile must be two dimensional.
+	assert(size.size() == 2);
+	// The starts should each be a vector matching the dimensionality of the frame volume
+	assert(starts[0].size() == frameVolumeDimensionalSizes_.size());
+
+	// Register transmission cost first
+    int pixelsToCopy = 1;
+    for (int i = 0; i < size.size(); i++) {
+        pixelsToCopy *= size[i];
+    }
+    pixelsToCopy *= starts.size();
+    costModel->registerTransmissionCharge(4 * (pixelsToCopy + starts.size() * frameVolumeDimensionalSizes_.size()));
+
+	// Copy pixels (copies to host array, sets up packet and sends it to the device
+	clFrameVolume_->CopyPixelTiles(p, starts, size);
+
+    // Run the copyPixelTiles kernel
+	// TODO(CDE): Do it.
 
 #ifndef SUPRESS_EXCESS_RENDERING
     Render();

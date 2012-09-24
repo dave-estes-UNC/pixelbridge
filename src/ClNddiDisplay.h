@@ -10,6 +10,7 @@
 #endif
 
 #include "GlNddiDisplay.h"
+#include "NDimensionalDisplayInterfaceExtended.h"
 #include "ClInputVector.h"
 #include "ClCoefficientPlane.h"
 #include "ClFrameVolume.h"
@@ -18,7 +19,7 @@
  * This is a version of the GlNddiDisplay that will use special OpenCL-aware
  * NDDI components and will do the rendering with OpenCL kernels.
  */
-class ClNddiDisplay : public GlNddiDisplay {
+class ClNddiDisplay : public GlNddiDisplay, public NDimensionalDisplayInterfaceExtended {
 
 public:
     ClNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSizes,
@@ -37,6 +38,10 @@ public:
     void FillCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix, std::vector<unsigned int> start, std::vector<unsigned int> end);
     void FillCoefficient(int coefficient, int row, int col, std::vector<unsigned int> start, std::vector<unsigned int> end);
 
+    // To satisfy the NDimensionalDisplayInterfaceExtended interface
+    void CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest, bool blend) {};
+    void CopyPixelTiles(Pixel* p, std::vector<std::vector<unsigned int> > starts, std::vector<unsigned int> size);
+
 private:
     void Render();
 
@@ -53,13 +58,16 @@ private:
     cl_device_id      clDeviceId_;
     cl_context        clContext_;
     cl_command_queue  clQueue_;
-    cl_program        clProgram_;
+    cl_program        clProgramComputePixel_;
     cl_kernel         clKernel_;
     cl_mem            clFrameVolumeDims_;
     cl_mem            clFrameBuffer_;
+    cl_mem            clCommandPacket_;
 
     size_t global[2];
 	size_t local[2];
+
+	size_t            maxCommandPacketSize_;
 };
 
 #endif // CL_NDDI_DISPLAY_H

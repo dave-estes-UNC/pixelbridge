@@ -17,7 +17,7 @@ using namespace nddi;
 /**
  * Blending version of a GL NDDI Display.
  */
-class BlendingGlNddiDisplay : public GlNddiDisplay, public nddi::NDimensionalDisplayInterfaceExtended {
+class BlendingGlNddiDisplay : public GlNddiDisplay, public NDimensionalDisplayInterfaceExtended {
     
 public:
     BlendingGlNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSizes,
@@ -38,6 +38,8 @@ public:
     
     // To satisfy the NDimensionalDisplayInterfaceExtended interface
     void CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest, bool blend);
+    void CopyPixelTiles(Pixel* p, std::vector<std::vector<unsigned int> > starts, std::vector<unsigned int> size) {};
+
     nddi::Pixel* GetFrameBuffer();
     
 private:

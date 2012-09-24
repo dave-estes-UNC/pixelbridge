@@ -21,7 +21,20 @@ namespace nddi {
          * @return The cost of the operation. Can be measured in time, byte-count, or another
          *         measurements based on the display implementation
          */
-        virtual void CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest, bool blend) = 0;
+    	virtual void CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest, bool blend) = 0;
+
+        /**
+         * Copies the array of pixels into the designated tile regions of the frame volume. The data must be
+         * arranged in the array with strides for each dimension of the area. Tiles are not necessarily two-
+         * dimensional and can have any dimensionality at most the dimensionality of the frame volume.
+         *
+         * @param p The pointer to the pixel values to be copied.
+         * @param starts Vector holding series of first pixel for each destination tile in the frame volume.
+         * @param size The size of each tile. Dimensionality should match that of the individual start vectors.
+         * @return The cost of the operation. Can be measured in time, byte-count, or another
+         *         measurements based on the display implementation
+         */
+        virtual void CopyPixelTiles(Pixel* p, std::vector<std::vector<unsigned int> > starts, std::vector<unsigned int> size) = 0;
     };
     
 } // namespace nddi {

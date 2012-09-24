@@ -23,7 +23,11 @@ private:
     cl_mem            clBuffer_;
     cl_context        clContext_;
     cl_command_queue  clQueue_;
+    cl_mem *          clCommandPacket_;
+
     size_t            fv_row_pitch_, fv_slice_pitch_;
+    unsigned char *   packet_;
+    size_t            maxPacketSize_;
     
     inline unsigned int calcOffset(std::vector<unsigned int> location) {
         unsigned int  offset = 0;
@@ -45,7 +49,10 @@ public:
     
     ClFrameVolume(CostModel* costModel,
                 vector<unsigned int> frameVolumeDimensionalSizes)
-    : FrameVolume(costModel, frameVolumeDimensionalSizes), clBuffer_(NULL), clContext_(NULL), clQueue_(NULL) {
+    : FrameVolume(costModel, frameVolumeDimensionalSizes),
+      clBuffer_(NULL),
+      clContext_(NULL), clQueue_(NULL),
+      clCommandPacket_(NULL) {
         
         fv_row_pitch_ = fv_slice_pitch_ = 0;
         switch (dimensionalSizes_.size()) {
@@ -59,6 +66,9 @@ public:
             default:
                 break;
         }
+
+        maxPacketSize_ = 0;
+        packet_ = NULL;
     }
     
     ~ClFrameVolume() {
@@ -68,6 +78,9 @@ public:
         }
         if (pixels_) {
             free(pixels_);
+        }
+        if (packet_) {
+        	free(packet_);
         }
         
         // Release CL mem buffer
@@ -224,7 +237,57 @@ public:
         // Register memory charge
         costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * pixelsCopied);
     }
-    
+
+    void CopyPixelTiles(Pixel* p, std::vector<std::vector<unsigned int> > starts, std::vector<unsigned int> size) {
+
+    	unsigned int *             packetPtr = (unsigned int *)packet_;
+    	size_t                     packetWordCount = 0;
+        size_t                     tileSize = size[0] * size[1];
+    	size_t                     pixelsCopied = 0;
+
+        // Copy the tile size to the packet
+        packetPtr[packetWordCount++] = size[0];
+        packetPtr[packetWordCount++] = size[1];
+
+        // Then for each tile...
+        for (size_t i = 0; i < starts.size(); i++) {
+        	// Copy the start into the packet
+        	for (size_t d = 0; d < dimensionalSizes_.size(); d++) {
+        		packetPtr[packetWordCount++] = starts[i][d];
+        	}
+
+        	// Copy the pixels into the packet
+        	memcpy(&packetPtr[packetWordCount], p + tileSize * i, tileSize * sizeof(Pixel));
+        	packetWordCount += tileSize;
+
+        	// We package up each tile, even if they overflow. So we pay the
+        	// transmission cost (applied in ClNddiDisplay), but the kernel will clamp
+        	// and not attempt to write the excess bytes. Therefore should not count the
+        	// overlap when registering a memory charge.
+        	size_t w = (starts[i][0] + size[0] < dimensionalSizes_[0]) ? size[0] : dimensionalSizes_[0] - starts[i][0];
+        	size_t h = (starts[i][1] + size[1] < dimensionalSizes_[1]) ? size[1] : dimensionalSizes_[1] - starts[i][1];
+        	pixelsCopied += w * h;
+        }
+
+        // Enqueue CL command
+        if (clQueue_ && clBuffer_) {
+            int err = clEnqueueWriteBuffer(clQueue_, clBuffer_, CL_TRUE,
+                                           0, packetWordCount * sizeof(unsigned int), packet_,
+                                           0, NULL, NULL);
+            if (err != CL_SUCCESS) {
+                std::cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << err << std::endl;
+            }
+
+        } else {
+            std::cout << __FUNCTION__ << " - Still null?." << std::endl;
+        }
+
+        // Does not run the kernel The CL nddi display does that in an effort to keep that code intact.
+
+        // Register memory charge
+        costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * pixelsCopied);
+    }
+
     // TODO(CDE): Implement for CL
     void FillPixel(Pixel p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
         
@@ -301,17 +364,24 @@ public:
         clQueue_ = queue;
         
         // Create CL mem buffer
-        clBuffer_ = clCreateBuffer(clContext_, CL_MEM_READ_ONLY,
+        //   It will be read/write to allow for the copyPixelTiles kernel to update it too.
+        //   Later, the CL verison of the blending display will also require it.
+        clBuffer_ = clCreateBuffer(clContext_, CL_MEM_READ_WRITE,
                                    sizeof(unsigned int) * getSize(), NULL, NULL);
 
         return &clBuffer_;
     }
 
-    // TODO(CDE): Remove this garbage
     cl_mem* getClBuffer() {
         return &clBuffer_;
     }
-    
+
+    void setCommandPacket(cl_mem* packet, size_t size) {
+    	clCommandPacket_ = packet;
+    	maxPacketSize_ = size;
+    	packet_ = (unsigned char*)malloc(maxPacketSize_);
+    }
+
 };
 
 #endif

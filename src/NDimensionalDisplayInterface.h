@@ -115,8 +115,7 @@ namespace nddi {
          *
          * @param p The pointer to the pixel values to be copied.
          * @param start The first pixel in the frame volume to be filled.
-         * @param end The last pixel in the frame volume to be filled. All but one of the values in
-         *            values in this last pixel should be identical to the start pixel.
+         * @param end The last pixel in the frame volume to be filled.
          * @return The cost of the operation. Can be measured in time, byte-count, or another
          *         measurements based on the display implementation
          */
