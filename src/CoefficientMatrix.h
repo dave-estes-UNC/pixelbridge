@@ -83,7 +83,7 @@ namespace nddi {
                 for (int x = 0; x < width_; x++) {
                     if (coefficientVector[x][y] != COFFICIENT_UNCHANGED) {
                         coefficients_[y * width_ + x] = coefficientVector[x][y];
-                        costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, &coefficients_[y * width_ + x], 4);
+                        costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, &coefficients_[y * width_ + x], 4, 0);
                     }
                 }
             }
@@ -94,7 +94,7 @@ namespace nddi {
             assert(x < width_);
             assert(y < height_);
 
-            costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, READ_ACCESS, &coefficients_[y * width_ + x], 4);
+            costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, READ_ACCESS, &coefficients_[y * width_ + x], 4, 0);
 
             return coefficients_[y * width_ + x];
         }

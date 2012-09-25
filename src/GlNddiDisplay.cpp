@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 
+#include "PixelBridgeFeatures.h"
 #include "GlNddiDisplay.h"
 
 using namespace nddi;

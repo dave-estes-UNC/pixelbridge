@@ -13,6 +13,7 @@
 #undef DisplayHeight
 #endif
 
+#include "PixelBridgeFeatures.h"
 #include "ClNddiDisplay.h"
 
 using namespace nddi;
@@ -180,7 +181,11 @@ void ClNddiDisplay::InitializeCl() {
     }
 
     // Create a command queue
+#ifdef CL_PROFILING_ENABLED
+    clQueue_ = clCreateCommandQueue(clContext_, clDeviceId_, CL_QUEUE_PROFILING_ENABLE, &err);
+#else
     clQueue_ = clCreateCommandQueue(clContext_, clDeviceId_, 0, &err);
+#endif
     if (!clQueue_) {
         std::cout << "Failed to create command queue." << std::endl;
         Cleanup(true);

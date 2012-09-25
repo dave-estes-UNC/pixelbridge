@@ -45,14 +45,15 @@ namespace nddi {
         component_t      component;
         memory_access_t  access;
         void*            address;
-        long             numBytes;
+        unsigned long    numBytes;
+        unsigned long    time;
     } memory_charge_t;
 
     /**
      * Represents the number of bytes sent over the NDDI Link.
      */
     typedef struct {
-        long             numBytes;
+        unsigned long    numBytes;
     } link_charge_t;
 
     /**
@@ -60,7 +61,7 @@ namespace nddi {
      * blends two pixels.
      */
     typedef struct {
-        long             numBlends;
+        unsigned long     numBlends;
     } pixel_blend_charge_t;
 
     /**
@@ -68,7 +69,7 @@ namespace nddi {
      * a matrix multiplication.
      */
     typedef struct {
-        long             numMappings;
+        unsigned long     numMappings;
     } pixel_mapping_charge_t;
 
     /**
@@ -94,33 +95,64 @@ namespace nddi {
         
     private:
 
-        long linkCommandsSent;
-        long linkBytesSent;
-        
-        long pixelsBlended;
-        long pixelsMapped;
-        
-        long inputVectorReads;
-        long inputVectorWrites;
-        long inputVectorBytesRead;
-        long inputVectorBytesWritten;
+        unsigned long linkCommandsSent;
+        unsigned long linkBytesSent;
 
-        long coefficientPlaneReads;
-        long coefficientPlaneWrites;
-        long coefficientPlaneBytesRead;
-        long coefficientPlaneBytesWritten;
+        unsigned long pixelsBlended;
+        unsigned long pixelBlendingTime;
+        
+        unsigned long pixelsMapped;
+        unsigned long pixelMappingTime;
+        
+        unsigned long inputVectorReads;
+        unsigned long inputVectorWrites;
+        unsigned long inputVectorBytesRead;
+        unsigned long inputVectorBytesWritten;
+        unsigned long inputVectorTime;
 
-        long frameVolumeReads;
-        long frameVolumeWrites;
-        long frameVolumeBytesRead;
-        long frameVolumeBytesWritten;
+        unsigned long coefficientPlaneReads;
+        unsigned long coefficientPlaneWrites;
+        unsigned long coefficientPlaneBytesRead;
+        unsigned long coefficientPlaneBytesWritten;
+        unsigned long coefficientPlaneTime;
+
+        unsigned long frameVolumeReads;
+        unsigned long frameVolumeWrites;
+        unsigned long frameVolumeBytesRead;
+        unsigned long frameVolumeBytesWritten;
+        unsigned long frameVolumeTime;
 
     public:
         
-        CostModel() {
+        CostModel()
+        : linkCommandsSent(0),
+          linkBytesSent(0),
+          pixelsBlended(0),
+          pixelBlendingTime(0),
+          pixelsMapped(0),
+          pixelMappingTime(0),
+          inputVectorReads(0),
+          inputVectorWrites(0),
+          inputVectorBytesRead(0),
+          inputVectorBytesWritten(0),
+          inputVectorTime(0),
+          coefficientPlaneReads(0),
+          coefficientPlaneWrites(0),
+          coefficientPlaneBytesRead(0),
+          coefficientPlaneBytesWritten(0),
+          coefficientPlaneTime(0),
+          frameVolumeReads(0),
+          frameVolumeWrites(0),
+          frameVolumeBytesRead(0),
+          frameVolumeBytesWritten(0),
+          frameVolumeTime(0) {
         }
         
-        void registerMemoryCharge(component_t component, memory_access_t access, void* address, long numBytes) {
+        void registerMemoryCharge(component_t component,
+                                  memory_access_t access,
+                                  void* address,
+                          	      unsigned long numBytes,
+                                  unsigned long time) {
 
             switch (component) {
                 case INPUT_VECTOR_COMPONENT:
@@ -134,6 +166,8 @@ namespace nddi {
                         inputVectorWrites++;
 #pragma omp atomic
                         inputVectorBytesWritten += numBytes;
+#pragma omp atomic
+                        inputVectorTime += time;
                     }
                     break;
                 case COEFFICIENT_PLANE_COMPONENT:
@@ -148,6 +182,8 @@ namespace nddi {
 #pragma omp atomic
                         coefficientPlaneBytesWritten += numBytes;
                     }
+#pragma omp atomic
+                    coefficientPlaneTime += time;
                     break;
                 case FRAME_VOLUME_COMPONENT:
                     if (access == READ_ACCESS) {
@@ -161,6 +197,8 @@ namespace nddi {
 #pragma omp atomic
                         frameVolumeBytesWritten += numBytes;
                     }
+#pragma omp atomic
+                    frameVolumeTime += time;
                     break;
                 default:
                     break;
@@ -254,6 +292,7 @@ namespace nddi {
                     break;
                 case FRAME_VOLUME_COMPONENT:
                     count = frameVolumeReads;
+                    break;
                 default:
                     break;
             }
@@ -273,6 +312,7 @@ namespace nddi {
                     break;
                 case FRAME_VOLUME_COMPONENT:
                     count = frameVolumeWrites;
+                    break;
                 default:
                     break;
             }
@@ -292,6 +332,7 @@ namespace nddi {
                     break;
                 case FRAME_VOLUME_COMPONENT:
                     count = frameVolumeBytesRead;
+                    break;
                 default:
                     break;
             }
@@ -311,6 +352,27 @@ namespace nddi {
                     break;
                 case FRAME_VOLUME_COMPONENT:
                     count = frameVolumeBytesWritten;
+                    break;
+                default:
+                    break;
+            }
+            return count;
+        }
+
+        long getTime(component_t component) {
+
+            long count = 0;
+
+            switch (component) {
+                case INPUT_VECTOR_COMPONENT:
+                    count = inputVectorTime;
+                    break;
+                case COEFFICIENT_PLANE_COMPONENT:
+                    count = coefficientPlaneTime;
+                    break;
+                case FRAME_VOLUME_COMPONENT:
+                    count = frameVolumeTime;
+                    break;
                 default:
                     break;
             }

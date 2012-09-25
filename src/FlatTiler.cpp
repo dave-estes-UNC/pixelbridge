@@ -10,6 +10,7 @@
 #include <iostream>
 #include <zlib.h>
 
+#include "PixelBridgeFeatures.h"
 #include "FlatTiler.h"
 
 

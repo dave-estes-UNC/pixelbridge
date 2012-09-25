@@ -98,7 +98,7 @@ public:
             std::cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << std::endl;
         }
         
-        costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4);
+        costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4, 0);
     }
     
     // TODO(CDE): move to buffer writes in 3 dimensions. Consider not even supporting strips in any other dimensions
@@ -149,14 +149,17 @@ public:
         }
 
         // Register memory charge
-        costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * stripLength);
+        costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * stripLength, 0);
     }
     
     void CopyPixels(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
         
-        std::vector<unsigned int> position = start;
-        bool copyFinished = false;
-        int pixelsCopied = 0;
+        std::vector<unsigned int>  position = start;
+        bool                       copyFinished = false;
+        int                        pixelsCopied = 0;
+    	unsigned long              time = 0;
+    	cl_event *                 pEvent = NULL;
+
 
         size_t buffer_origin[3] = { 0, 0, 0 };
         size_t host_origin[3] = { 0, 0, 0 };
@@ -192,17 +195,43 @@ public:
             memcpy(startPixel, p, region[2] * region[1] * region[0]);
             // Enqueue CL command
             if (clQueue_ && clBuffer_) {
-                int err = clEnqueueWriteBufferRect(clQueue_, clBuffer_, CL_TRUE,
+
+#ifdef CL_PROFILING_ENABLED
+            	cl_event event;
+            	cl_ulong startTime, endTime;
+
+            	pEvent = &event;
+#endif
+
+            	int err = clEnqueueWriteBufferRect(clQueue_, clBuffer_, CL_TRUE,
                                                    buffer_origin,
                                                    host_origin,
                                                    region,
                                                    fv_row_pitch_, fv_slice_pitch_,
                                                    p_row_pitch, p_slice_pitch,
-                                                   p, 0, NULL, NULL);
+                                                   p, 0, NULL, pEvent);
                 if (err != CL_SUCCESS) {
                     std::cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << err << std::endl;
                 }
                 
+#ifdef CL_PROFILING_ENABLED
+                // TODO(CDE): Consider no calling clFinish() here and instead just track each individual even for every command
+                //            we send for a frame update. Then after clFinish() is called for rendering, go back and fetch the
+                //            profile information for each event.
+                clFinish(clQueue_);
+                clGetEventProfilingInfo(event,
+                                        CL_PROFILING_COMMAND_START,
+                                        sizeof(cl_ulong),
+                                        &startTime,
+                                        NULL);
+                clGetEventProfilingInfo(event,
+                                        CL_PROFILING_COMMAND_END,
+                                        sizeof(cl_ulong),
+                                        &endTime,
+                                        NULL);
+                time += (unsigned long)(endTime - startTime);
+#endif
+
             } else {
                 std::cout << __FUNCTION__ << " - Still null?." << std::endl;
             }
@@ -235,7 +264,7 @@ public:
         } while (!copyFinished);
         
         // Register memory charge
-        costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * pixelsCopied);
+        costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * pixelsCopied, time);
     }
 
     void CopyPixelTiles(Pixel* p, std::vector<std::vector<unsigned int> > starts, std::vector<unsigned int> size) {
@@ -285,7 +314,7 @@ public:
         // Does not run the kernel The CL nddi display does that in an effort to keep that code intact.
 
         // Register memory charge
-        costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * pixelsCopied);
+        costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * pixelsCopied, 0);
     }
 
     // TODO(CDE): Implement for CL

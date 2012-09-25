@@ -11,6 +11,7 @@
 #include <GL/glut.h>
 #endif
 
+#include "PixelBridgeFeatures.h"
 #include "CostModel.h"
 #include "GlNddiDisplay.h"
 #include "ClNddiDisplay.h"
@@ -585,7 +586,7 @@ void outputStats(bool exitNow) {
     // CSV
     //
     cout << "CSV" << endl;
-    cout << "Commands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written\tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tPixels Mapped\tPixels Blended" << endl;
+    cout << "Commands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written\tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended" << endl;
     cout
     << costModel->getLinkCommandsSent() << "\t" << costModel->getLinkBytesTransmitted() << "\t"
     << costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) << "\t" << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << "\t"
@@ -594,13 +595,14 @@ void outputStats(bool exitNow) {
     << costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << "\t" << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << "\t"
     << costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) << "\t" << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << "\t"
     << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << "\t" << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << "\t"
+    << costModel->getTime(FRAME_VOLUME_COMPONENT) << "\t"
     << costModel->getPixelsMapped() << "\t" << costModel->getPixelsBlended() << endl;
     
     // Warnings about Configuration
 #if defined(SUPRESS_EXCESS_RENDERING) || defined(NO_CL) || defined(NO_GL)
     cout << endl << "CONFIGURATION WARNINGS:" << endl;
 #ifdef SUPRESS_EXCESS_RENDERING
-    cout << "- Was compiled with SUPRESS_EXCESS_RENDERING, and so the numbers may be off. Recompile with make NO_HACKS=1." << endl;
+    cout << "- Was compiled with SUPRESS_EXCESS_RENDERING, and so the numbers may be off. Recompile with \"make NO_HACKS=1\"." << endl;
 #endif
 #ifdef NO_CL
     cout << - "Was compiled without OpenCL." << endl;

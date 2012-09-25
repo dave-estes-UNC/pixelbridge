@@ -76,7 +76,8 @@ _DEPS =	GlNddiDisplay.h \
 	FfmpegPlayer.h \
 	FlatTiler.h \
 	FrameVolume.h \
-	CostModel.h
+	CostModel.h \
+	PixelBridgeFeatures.h
 
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 

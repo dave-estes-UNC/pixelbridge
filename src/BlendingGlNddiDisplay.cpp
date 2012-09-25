@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "PixelBridgeFeatures.h"
 #include "BlendingGlNddiDisplay.h"
 
 #define CLAMPTOBYTE(color)                  \

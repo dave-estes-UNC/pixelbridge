@@ -6,6 +6,7 @@
  *  Copyright 2010 Qualcomm. All rights reserved.
  *
  */
+#include "PixelBridgeFeatures.h"
 #include "FfmpegPlayer.h"
 
 FfmpegPlayer::FfmpegPlayer(const char* fileName) : fileName_(fileName), width_(0), height_(0) {

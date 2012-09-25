@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "PixelBridgeFeatures.h"
 #include "BaseNddiDisplay.h"
 
 using namespace nddi;
