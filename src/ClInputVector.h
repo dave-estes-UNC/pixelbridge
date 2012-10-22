@@ -73,7 +73,7 @@ public:
         }
     }
 
-    cl_mem* initializeCl(cl_context context, cl_command_queue queue) {
+    cl_mem initializeCl(cl_context context, cl_command_queue queue) {
 
         // Set CL variables
         clContext_ = context;
@@ -81,12 +81,12 @@ public:
 
         // Create CL mem buffer
         clBuffer_ = clCreateBuffer(clContext_, CL_MEM_READ_ONLY, sizeof(int) * size_, NULL, NULL);
-        return &clBuffer_;
+        return clBuffer_;
     }
 
     // TODO(CDE): Remove this garbage
-    cl_mem* getClBuffer() {
-        return &clBuffer_;
+    cl_mem getClBuffer() {
+        return clBuffer_;
     }
 
 };

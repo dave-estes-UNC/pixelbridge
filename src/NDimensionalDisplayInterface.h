@@ -4,6 +4,8 @@
 #include <vector>
 #include "CostModel.h"
 
+using namespace std;
+
 namespace nddi {
 
     /**
@@ -51,7 +53,7 @@ namespace nddi {
          *                                    frame volume will be configured with a two-element vector with 4 and 4 in it.
          * @param inputVectorSize Used to configure the size of the input vector. It must be greater than or equal to two.
          */
-        NDimensionalDisplayInterface(std::vector<unsigned int> frameVolumeDimensionalSizes,
+        NDimensionalDisplayInterface(vector<unsigned int> frameVolumeDimensionalSizes,
                                      int inputVectorSize) {}
         /**
          * Each NDimensionalDisplayInterface is configured during contruction. This contructor allows the NDDI client
@@ -65,7 +67,7 @@ namespace nddi {
          * @param displayHeight Used to configure the width of the diplay if it is less than the display device.
          * @param inputVectorSize Used to configure the size of the input vector. It must be greater than or equal to two.
          */
-        NDimensionalDisplayInterface(std::vector<unsigned int> frameVolumeDimensionalSizes,
+        NDimensionalDisplayInterface(vector<unsigned int> frameVolumeDimensionalSizes,
                                      int displayWidth, int displayHeight,
                                      int inputVectorSize) {}
 
@@ -91,7 +93,7 @@ namespace nddi {
          * @return The cost of the operation. Can be measured in time, byte-count, or another
          *         measurements based on the display implementation
          */
-        virtual void PutPixel(Pixel p, std::vector<unsigned int> location) = 0;
+        virtual void PutPixel(Pixel p, vector<unsigned int> location) = 0;
 
         /**
          * Copies the one dimensional array of pixels along a particular dimension in the frame volume. In a
@@ -105,7 +107,7 @@ namespace nddi {
          * @return The cost of the operation. Can be measured in time, byte-count, or another
          *         measurements based on the display implementation
          */
-        virtual void CopyPixelStrip(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end) = 0;
+        virtual void CopyPixelStrip(Pixel* p, vector<unsigned int> start, vector<unsigned int> end) = 0;
 
         /**
          * Copies the array of pixels into the designated region of the frame volume. The data must be
@@ -119,7 +121,7 @@ namespace nddi {
          * @return The cost of the operation. Can be measured in time, byte-count, or another
          *         measurements based on the display implementation
          */
-        virtual void CopyPixels(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end) = 0;
+        virtual void CopyPixels(Pixel* p, vector<unsigned int> start, vector<unsigned int> end) = 0;
 
         /**
          * Fills the frame volume with the specified pixel. It can fill in multiple
@@ -132,9 +134,9 @@ namespace nddi {
          * @return The cost of the operation. Can be measured in time, byte-count, or another
          *         measurements based on the display implementation
          */
-        virtual void FillPixel(Pixel p, std::vector<unsigned int> start, std::vector<unsigned int> end) = 0;
+        virtual void FillPixel(Pixel p, vector<unsigned int> start, vector<unsigned int> end) = 0;
 
-        virtual void CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest) = 0;
+        virtual void CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest) = 0;
 
         /**
          * Used to update the input vector with the extra values in the input vector.
@@ -146,7 +148,7 @@ namespace nddi {
          * @return The cost of the operation. Can be measured in time, byte-count, or another
          *         measurements based on the display implementation
          */
-        virtual void UpdateInputVector(std::vector<int> input) = 0;
+        virtual void UpdateInputVector(vector<int> input) = 0;
 
         /**
          * Used to copy the specified coefficientMatrix into the specified location of the coefficient
@@ -160,7 +162,7 @@ namespace nddi {
          * @return The cost of the operation. Can be measured in time, byte-count, or another
          *         measurements based on the display implementation
          */
-        virtual void PutCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix, std::vector<unsigned int> location) = 0;
+        virtual void PutCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> location) = 0;
 
         /**
          * Used to copy the specified coefficientMatrix into a range of locations in the coefficient plane.
@@ -175,7 +177,7 @@ namespace nddi {
          * @return The cost of the operation. Can be measured in time, byte-count, or another
          *         measurements based on the display implementation
          */
-        virtual void FillCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix, std::vector<unsigned int> start, std::vector<unsigned int> end) = 0;
+        virtual void FillCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> start, vector<unsigned int> end) = 0;
 
         /**
          * Used to copy the specified single coefficient value from a matrix into a range of locations in the coefficient plane.
@@ -191,7 +193,7 @@ namespace nddi {
          * @return The cost of the operation. Can be measured in time, byte-count, or another
          *         measurements based on the display implementation
          */
-        virtual void FillCoefficient(int coefficient, int row, int col, std::vector<unsigned int> start, std::vector<unsigned int> end) = 0;
+        virtual void FillCoefficient(int coefficient, int row, int col, vector<unsigned int> start, vector<unsigned int> end) = 0;
 
         /**
          * Returns the CostModel for this display. The CostModel can be queried by the

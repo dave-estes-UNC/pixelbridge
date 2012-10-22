@@ -20,12 +20,12 @@ using namespace nddi;
 
 // public
 
-ClNddiDisplay::ClNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSizes,
+ClNddiDisplay::ClNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
                              int inputVectorSize) {
     ClNddiDisplay(frameVolumeDimensionalSizes, 320, 240, inputVectorSize);
 }
 
-ClNddiDisplay::ClNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSizes,
+ClNddiDisplay::ClNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
                              int displayWidth, int displayHeight,
                              int inputVectorSize) {
 
@@ -82,17 +82,14 @@ void ClNddiDisplay::Cleanup(bool shouldExit)
     if (clQueue_ != 0)
         clReleaseCommandQueue(clQueue_);
 
-    if (clKernel_ != 0)
-        clReleaseKernel(clKernel_);
+    if (clKernelComputePixel_ != 0)
+        clReleaseKernel(clKernelComputePixel_);
 
     if (clProgramComputePixel_ != 0)
         clReleaseProgram(clProgramComputePixel_);
 
     if (clContext_ != 0)
         clReleaseContext(clContext_);
-
-    if( clKernel_ != 0 )
-        clReleaseKernel(clKernel_);
 
     if (clFrameVolumeDims_ != 0)
         clReleaseMemObject(clFrameVolumeDims_);
@@ -127,7 +124,7 @@ void ClNddiDisplay::InitializeGl() {
 
     GLenum err = glGetError();
     if (err) {
-        std::cout << "Error setting up GL Texture...or previous GL command." << std::endl;
+        cout << "Error setting up GL Texture...or previous GL command." << endl;
         Cleanup(true);
     }
 }
@@ -144,7 +141,7 @@ void ClNddiDisplay::InitializeCl() {
     err = clGetDeviceIDs(clPlatformId_, CL_DEVICE_TYPE_GPU, 1, &clDeviceId_, NULL);
     //err = clGetDeviceIDs(NULL, CL_DEVICE_TYPE_CPU, 1, &clDeviceId_, NULL);
     if (err != CL_SUCCESS) {
-        std::cout << "Failed to get device IDs." << std::endl;
+        cout << "Failed to get device IDs." << endl;
         Cleanup(true);
     }
 
@@ -152,16 +149,16 @@ void ClNddiDisplay::InitializeCl() {
     size_t extensionsSize;
     err = clGetDeviceInfo(clDeviceId_, CL_DEVICE_EXTENSIONS, 0, NULL, &extensionsSize);
     if (err != CL_SUCCESS) {
-        std::cout << "Failed to find out size of extensions string." << std::endl;
+        cout << "Failed to find out size of extensions string." << endl;
         Cleanup(true);
     }
     char* extensions = (char*)malloc(extensionsSize);
     err = clGetDeviceInfo(clDeviceId_, CL_DEVICE_EXTENSIONS, extensionsSize, extensions, &extensionsSize);
     if (err != CL_SUCCESS) {
-        std::cout << "Failed to query the extensions." << std::endl;
+        cout << "Failed to query the extensions." << endl;
         Cleanup(true);
     }
-    std::cout << "Extensions: " << extensions << std::endl;
+    cout << "Extensions: " << extensions << endl;
     free(extensions);
 
     // Create the context
@@ -176,7 +173,7 @@ void ClNddiDisplay::InitializeCl() {
     // Create a context
     clContext_ = clCreateContext(clContextProperties, 1, &clDeviceId_, NULL, NULL, &err);
     if (!clContext_) {
-        std::cout << "Failed to create context." << std::endl;
+        cout << "Failed to create context." << endl;
         Cleanup(true);
     }
 
@@ -187,62 +184,23 @@ void ClNddiDisplay::InitializeCl() {
     clQueue_ = clCreateCommandQueue(clContext_, clDeviceId_, 0, &err);
 #endif
     if (!clQueue_) {
-        std::cout << "Failed to create command queue." << std::endl;
+        cout << "Failed to create command queue." << endl;
         Cleanup(true);
     }
 
-    // Read program file
-    char kernelFileName[] = "/home/cdestes/Work/pixelbridge/src/computePixel.cl";
-    std::ifstream kernelFile;
-    kernelFile.open(kernelFileName, std::ifstream::in);
+    // Load kernels
     // TODO(CDE): Figure this crap out! Why does getenv("PWD") fail when running release version in xcode?
-    //if (!kernelFile.is_open()) { kernelFile.open("/Users/cdestes/School/UNC/Research/pixelbridge/xcode/DerivedData/pixelbridge/Build/Products/Release/cl/computePixel.cl", std::ios::in); }
-    if (!kernelFile.is_open()) {
-    	kernelFile.open(kernelFileName, std::ios::in);
-    }
-    if (!kernelFile.is_open())
-    {
-        std::cerr << "Failed to open program file: " << kernelFileName << "." << std::endl;
-        Cleanup(true);
-    }
-    std::ostringstream oss;
-    oss << kernelFile.rdbuf();
-    std::string srcStdStr = oss.str();
-    const char *srcStr = srcStdStr.c_str();
+    char computePixelFileName[] = "/home/cdestes/Work/pixelbridge/src/computePixel.cl";
+    char computePixelName[] = "computePixel";
 
-    // Create the compute program from the source buffer
-    clProgramComputePixel_ = clCreateProgramWithSource(clContext_, 1, (const char **)&srcStr, NULL, &err);
-    if (!clProgramComputePixel_) {
-        std::cout << "Failed to create program." << std::endl;
-        Cleanup(true);
-    }
-
-    // Build the program executable
-    err = clBuildProgram(clProgramComputePixel_, 0, NULL, NULL, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        size_t len;
-        char buffer[2048];
-
-        std::cout << "Error: Failed to build program executable\n" << std::endl;
-        clGetProgramBuildInfo(clProgramComputePixel_, clDeviceId_, CL_PROGRAM_BUILD_LOG,
-                              sizeof(buffer), buffer, &len);
-        printf("%s\n", buffer);
-        Cleanup(true);
-    }
-
-    // Create the compute kernel in the program we wish to run
-    clKernel_ = clCreateKernel(clProgramComputePixel_, "computePixel", &err);
-    if (!clKernel_ || err != CL_SUCCESS) {
-        std::cout << "Failed to create compute kernel." << std::endl;
-        Cleanup(true);
-    }
+    LoadKernel(computePixelFileName, computePixelName, &clProgramComputePixel_, &clKernelComputePixel_);
 
     // Initialize the CL NDDI components
-    cl_mem* inputVectorBuffer = clInputVector_->initializeCl(clContext_, clQueue_);
-    cl_mem* coefficientPlaneBuffer = clCoefficientPlane_->initializeCl(clContext_, clQueue_);
-    cl_mem* frameVolumeBuffer = clFrameVolume_->initializeCl(clContext_, clQueue_);
+    cl_mem inputVectorBuffer = clInputVector_->initializeCl(clContext_, clQueue_);
+    cl_mem coefficientPlaneBuffer = clCoefficientPlane_->initializeCl(clContext_, clQueue_);
+    cl_mem frameVolumeBuffer = clFrameVolume_->initializeCl(clContext_, clQueue_);
     if (!inputVectorBuffer || !coefficientPlaneBuffer || !frameVolumeBuffer) {
-        std::cout << "Failed to do the CL initialization of the NDDI components." << std::endl;
+        cout << "Failed to do the CL initialization of the NDDI components." << endl;
         Cleanup(true);
     }
 
@@ -257,56 +215,101 @@ void ClNddiDisplay::InitializeCl() {
     // Create the framebuffer output as a GL texture, so be directly used by the GPU to render the results
     clFrameBuffer_ = clCreateFromGLTexture(clContext_, CL_MEM_READ_WRITE, GL_TEXTURE_RECTANGLE_ARB, 0, texture_, NULL );
     if (!clFrameVolumeDims_ || !clFrameBuffer_) {
-        std::cout << "Failed to create input/output memory arrays." << std::endl;
+        cout << "Failed to create input/output memory arrays." << endl;
         Cleanup(true);
     }
 
     // Create the command packet buffer
     clCommandPacket_ = clCreateBuffer(clContext_, CL_MEM_READ_ONLY,
     		                          maxCommandPacketSize_, NULL, NULL);
-    clFrameVolume_->setCommandPacket(&clCommandPacket_, maxCommandPacketSize_);
+    clFrameVolume_->setCommandPacket(clCommandPacket_, maxCommandPacketSize_);
 
     cl_uint cm_dims[2] = { CM_WIDTH, CM_HEIGHT };
     cl_uint display_dims[2] = { displayWidth_, displayHeight_ };
 
-    // Set the arguments to our compute kernel
-    err  = clSetKernelArg(clKernel_, 0, sizeof(cl_mem), inputVectorBuffer);
-    err |= clSetKernelArg(clKernel_, 1, sizeof(cl_mem), coefficientPlaneBuffer);
-    err |= clSetKernelArg(clKernel_, 2, sizeof(cl_mem), frameVolumeBuffer);
-    err |= clSetKernelArg(clKernel_, 3, sizeof(cl_mem), &clFrameVolumeDims_);
-    err |= clSetKernelArg(clKernel_, 4, sizeof(cl_mem), &clFrameBuffer_);
-    err |= clSetKernelArg(clKernel_, 5, sizeof(cl_uint), &cm_dims[0]);
-    err |= clSetKernelArg(clKernel_, 6, sizeof(cl_uint), &cm_dims[1]);
-    err |= clSetKernelArg(clKernel_, 7, sizeof(cl_uint), &display_dims[0]);
-    err |= clSetKernelArg(clKernel_, 8, sizeof(cl_uint), &display_dims[1]);
+    // Set the arguments to our computePixel kernel
+    err  = clSetKernelArg(clKernelComputePixel_, 0, sizeof(cl_mem), &inputVectorBuffer);
+    err |= clSetKernelArg(clKernelComputePixel_, 1, sizeof(cl_mem), &coefficientPlaneBuffer);
+    err |= clSetKernelArg(clKernelComputePixel_, 2, sizeof(cl_mem), &frameVolumeBuffer);
+    err |= clSetKernelArg(clKernelComputePixel_, 3, sizeof(cl_mem), &clFrameVolumeDims_);
+    err |= clSetKernelArg(clKernelComputePixel_, 4, sizeof(cl_mem), &clFrameBuffer_);
+    err |= clSetKernelArg(clKernelComputePixel_, 5, sizeof(cl_uint), &cm_dims[0]);
+    err |= clSetKernelArg(clKernelComputePixel_, 6, sizeof(cl_uint), &cm_dims[1]);
+    err |= clSetKernelArg(clKernelComputePixel_, 7, sizeof(cl_uint), &display_dims[0]);
+    err |= clSetKernelArg(clKernelComputePixel_, 8, sizeof(cl_uint), &display_dims[1]);
     if (err != CL_SUCCESS) {
-        std::cout << "Failed to set kernel arguments." << std::endl;
+        cout << "Failed to set computePixel kernel arguments." << endl;
         Cleanup(true);
     }
 
-    // Initialize global and local workgroup size
-    global[0] = displayWidth_; global[1] = displayHeight_;
-    local[0] = 1; local[1] = 1;
+    // Initialize global and local workgroup size for computePixel kernel
+    globalComputePixel_[0] = displayWidth_; globalComputePixel_[1] = displayHeight_;
+    localComputePixel_[0] = 1; localComputePixel_[1] = 1;
 
     // Get the maximum work-group size for executing the kernel on the device
-    err = clGetKernelWorkGroupInfo(clKernel_, clDeviceId_, CL_KERNEL_WORK_GROUP_SIZE,
-                                   sizeof(size_t), &local, NULL);
+    err = clGetKernelWorkGroupInfo(clKernelComputePixel_, clDeviceId_, CL_KERNEL_WORK_GROUP_SIZE,
+                                   sizeof(size_t), &localComputePixel_, NULL);
     if (err != CL_SUCCESS) {
-        std::cout << "Failed to get kernel workgroup info." << err << std::endl;
+        cout << "Failed to get kernel workgroup info." << err << endl;
         Cleanup(true);
     }
 
-    // Ignoring query above and hard coding workgroup size based on experimental data
-    //local[0]=128; local[1]=4;
-
     // Adjust global based on the new workgroup size in local
-    global[0] = displayWidth_ / local[0] * local[0];
-    if (global[0] < displayWidth_)
-        global[0] += local[0];
-    global[1] = displayHeight_ / local[1] * local[1];
-    if (global[1] < displayHeight_)
-        global[1] += local[1];
-    cout << "Global Size: " << global[0] << " " << global[1] << " and Local Workgroup Size: " << local[0] << " " << local[1] << endl;
+    globalComputePixel_[0] = displayWidth_ / localComputePixel_[0] * localComputePixel_[0];
+    if (globalComputePixel_[0] < displayWidth_)
+        globalComputePixel_[0] += localComputePixel_[0];
+    globalComputePixel_[1] = displayHeight_ / localComputePixel_[1] * localComputePixel_[1];
+    if (globalComputePixel_[1] < displayHeight_)
+        globalComputePixel_[1] += localComputePixel_[1];
+    cout << "Global Size: " << globalComputePixel_[0] << " " << globalComputePixel_[1] << " and Local Workgroup Size: " << localComputePixel_[0] << " " << localComputePixel_[1] << endl;
+}
+
+void ClNddiDisplay::LoadKernel(char *file, char *name, cl_program *program, cl_kernel *kernel) {
+
+    cl_int   err;
+
+    // Read program file
+    ifstream kernelFile;
+    kernelFile.open(file, ifstream::in);
+    if (!kernelFile.is_open()) {
+    	kernelFile.open(file, ios::in);
+    }
+    if (!kernelFile.is_open())
+    {
+        cerr << "Failed to open program file: " << file << "." << endl;
+        Cleanup(true);
+    }
+    ostringstream oss;
+    oss << kernelFile.rdbuf();
+    string srcStdStr = oss.str();
+    const char *srcStr = srcStdStr.c_str();
+
+    // Create the compute program from the source buffer
+    *program = clCreateProgramWithSource(clContext_, 1, (const char **)&srcStr, NULL, &err);
+    if (!*program) {
+        cout << "Failed to create program." << endl;
+        Cleanup(true);
+    }
+
+    // Build the program executable
+    err = clBuildProgram(*program, 0, NULL, NULL, NULL, NULL);
+    if (err != CL_SUCCESS) {
+        size_t len;
+        char buffer[2048];
+
+        cout << "Error: Failed to build program executable\n" << endl;
+        clGetProgramBuildInfo(*program, clDeviceId_, CL_PROGRAM_BUILD_LOG,
+                              sizeof(buffer), buffer, &len);
+        printf("%s\n", buffer);
+        Cleanup(true);
+    }
+
+    // Create the compute kernel in the program we wish to run
+    *kernel = clCreateKernel(*program, name, &err);
+    if (!*kernel || err != CL_SUCCESS) {
+        cout << "Failed to create kernel." << endl;
+        Cleanup(true);
+    }
 }
 
 
@@ -330,22 +333,22 @@ void ClNddiDisplay::Render() {
     glFinish();
     err = clEnqueueAcquireGLObjects(clQueue_, 1, &clFrameBuffer_, 0, NULL, NULL);
     if (err) {
-        std::cout << "Failed to enqueue acquire GL Objects command " << err << std::endl;
+        cout << "Failed to enqueue acquire GL Objects command " << err << endl;
         Cleanup(true);
     }
 
     // Execute the kernel over the entire range of the data set
-    err = clEnqueueNDRangeKernel(clQueue_, clKernel_, 2, NULL, global, local,
+    err = clEnqueueNDRangeKernel(clQueue_, clKernelComputePixel_, 2, NULL, globalComputePixel_, localComputePixel_,
                                  0, NULL, NULL);
     if (err) {
-        std::cout << "Failed to enqueue ND range kernel command " << err << std::endl;
+        cout << "Failed to enqueue ND range kernel command " << err << endl;
         Cleanup(true);
     }
 
     // Release the GL Object and wait for CL command queue to empty
     err = clEnqueueReleaseGLObjects(clQueue_, 1, &clFrameBuffer_, 0, NULL, NULL);
     if (err) {
-        std::cout << "Failed to enqueue release GL Objects command " << err << std::endl;
+        cout << "Failed to enqueue release GL Objects command " << err << endl;
         Cleanup(true);
     }
     clFinish(clQueue_);
@@ -363,10 +366,10 @@ void ClNddiDisplay::Render() {
 #endif
 }
 
-void ClNddiDisplay::PutPixel(Pixel p, std::vector<unsigned int> location) {
+void ClNddiDisplay::PutPixel(Pixel p, vector<unsigned int> location) {
 
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (1 + frameVolumeDimensionalSizes_.size()));
+    costModel->registerTransmissionCharge(4 * (1 + frameVolumeDimensionalSizes_.size()), 0);
 
     // Set the single pixel
     clFrameVolume_->PutPixel(p, location);
@@ -376,7 +379,7 @@ void ClNddiDisplay::PutPixel(Pixel p, std::vector<unsigned int> location) {
 #endif
 }
 
-void ClNddiDisplay::CopyPixelStrip(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
+void ClNddiDisplay::CopyPixelStrip(Pixel* p, vector<unsigned int> start, vector<unsigned int> end) {
 
     int dimensionToCopyAlong;
     bool dimensionFound = false;
@@ -390,7 +393,7 @@ void ClNddiDisplay::CopyPixelStrip(Pixel* p, std::vector<unsigned int> start, st
     }
 
     // Register transmission cost now that we know the length of the strip sent
-    costModel->registerTransmissionCharge(4 * ((end[dimensionToCopyAlong] - start[dimensionToCopyAlong] + 1) + 2 * frameVolumeDimensionalSizes_.size()));
+    costModel->registerTransmissionCharge(4 * ((end[dimensionToCopyAlong] - start[dimensionToCopyAlong] + 1) + 2 * frameVolumeDimensionalSizes_.size()), 0);
 
     // Copy the pixels
     clFrameVolume_->CopyPixelStrip(p, start, end);
@@ -400,14 +403,14 @@ void ClNddiDisplay::CopyPixelStrip(Pixel* p, std::vector<unsigned int> start, st
 #endif
 }
 
-void ClNddiDisplay::CopyPixels(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
+void ClNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> start, vector<unsigned int> end) {
 
     // Register transmission cost first
     int pixelsToCopy = 1;
     for (int i = 0; i < start.size(); i++) {
         pixelsToCopy *= end[i] - start[i] + 1;
     }
-    costModel->registerTransmissionCharge(4 * (pixelsToCopy + 2 * frameVolumeDimensionalSizes_.size()));
+    costModel->registerTransmissionCharge(4 * (pixelsToCopy + 2 * frameVolumeDimensionalSizes_.size()), 0);
 
     // Copy pixels
     clFrameVolume_->CopyPixels(p, start, end);
@@ -417,7 +420,10 @@ void ClNddiDisplay::CopyPixels(Pixel* p, std::vector<unsigned int> start, std::v
 #endif
 }
 
-void ClNddiDisplay::CopyPixelTiles(Pixel* p, std::vector<std::vector<unsigned int> > starts, std::vector<unsigned int> size) {
+void ClNddiDisplay::CopyPixelTiles(vector<Pixel*> p, vector<vector<unsigned int> > starts, vector<unsigned int> size) {
+
+	cl_event *                 pEvent = NULL;
+
 
 	// We're copying tiles, so the size of each tile must be two dimensional.
 	assert(size.size() == 2);
@@ -430,23 +436,20 @@ void ClNddiDisplay::CopyPixelTiles(Pixel* p, std::vector<std::vector<unsigned in
         pixelsToCopy *= size[i];
     }
     pixelsToCopy *= starts.size();
-    costModel->registerTransmissionCharge(4 * (pixelsToCopy + starts.size() * frameVolumeDimensionalSizes_.size()));
+    costModel->registerTransmissionCharge(4 * (pixelsToCopy + starts.size() * frameVolumeDimensionalSizes_.size()), 0);
 
 	// Copy pixels (copies to host array, sets up packet and sends it to the device
 	clFrameVolume_->CopyPixelTiles(p, starts, size);
-
-    // Run the copyPixelTiles kernel
-	// TODO(CDE): Do it.
 
 #ifndef SUPRESS_EXCESS_RENDERING
     Render();
 #endif
 }
 
-void ClNddiDisplay::FillPixel(Pixel p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
+void ClNddiDisplay::FillPixel(Pixel p, vector<unsigned int> start, vector<unsigned int> end) {
 
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (1 + 2 * frameVolumeDimensionalSizes_.size()));
+    costModel->registerTransmissionCharge(4 * (1 + 2 * frameVolumeDimensionalSizes_.size()), 0);
 
     // Fill pixels
     clFrameVolume_->FillPixel(p, start, end);
@@ -456,10 +459,10 @@ void ClNddiDisplay::FillPixel(Pixel p, std::vector<unsigned int> start, std::vec
 #endif
 }
 
-void ClNddiDisplay::CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest) {
+void ClNddiDisplay::CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest) {
 
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (3 * frameVolumeDimensionalSizes_.size()));
+    costModel->registerTransmissionCharge(4 * (3 * frameVolumeDimensionalSizes_.size()), 0);
 
     // Copy pixels
     clFrameVolume_->CopyFrameVolume(start, end, dest);
@@ -469,10 +472,10 @@ void ClNddiDisplay::CopyFrameVolume(std::vector<unsigned int> start, std::vector
 #endif
 }
 
-void ClNddiDisplay::UpdateInputVector(std::vector<int> input) {
+void ClNddiDisplay::UpdateInputVector(vector<int> input) {
 
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * input.size());
+    costModel->registerTransmissionCharge(4 * input.size(),0);
 
     // Update the input vector
     clInputVector_->UpdateInputVector(input);
@@ -482,11 +485,11 @@ void ClNddiDisplay::UpdateInputVector(std::vector<int> input) {
 #endif
 }
 
-void ClNddiDisplay::PutCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix,
-                                           std::vector<unsigned int> location) {
+void ClNddiDisplay::PutCoefficientMatrix(vector< vector<int> > coefficientMatrix,
+                                           vector<unsigned int> location) {
 
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + frameVolumeDimensionalSizes_.size()));
+    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + frameVolumeDimensionalSizes_.size()), 0);
 
     // Update the coefficient matrix
     clCoefficientPlane_->PutCoefficientMatrix(coefficientMatrix, location);
@@ -496,11 +499,11 @@ void ClNddiDisplay::PutCoefficientMatrix(std::vector< std::vector<int> > coeffic
 #endif
 }
 
-void ClNddiDisplay::FillCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix,
-                                            std::vector<unsigned int> start,
-                                            std::vector<unsigned int> end) {
+void ClNddiDisplay::FillCoefficientMatrix(vector< vector<int> > coefficientMatrix,
+                                            vector<unsigned int> start,
+                                            vector<unsigned int> end) {
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + 2 * 2));
+    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + 2 * 2), 0);
 
     // Fill the coefficient matrices
     clCoefficientPlane_->FillCoefficientMatrix(coefficientMatrix, start, end);
@@ -512,10 +515,10 @@ void ClNddiDisplay::FillCoefficientMatrix(std::vector< std::vector<int> > coeffi
 
 void ClNddiDisplay::FillCoefficient(int coefficient,
                                       int row, int col,
-                                      std::vector<unsigned int> start,
-                                      std::vector<unsigned int> end) {
+                                      vector<unsigned int> start,
+                                      vector<unsigned int> end) {
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (3 + 2 * 2));
+    costModel->registerTransmissionCharge(4 * (3 + 2 * 2), 0);
 
     // Fill the coefficient matrices
     clCoefficientPlane_->FillCoefficient(coefficient, row, col, start, end);

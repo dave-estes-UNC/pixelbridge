@@ -22,52 +22,53 @@
 class ClNddiDisplay : public GlNddiDisplay, public NDimensionalDisplayInterfaceExtended {
 
 public:
-    ClNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSizes,
+    ClNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
                   int inputVectorSize);
-    ClNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSizes,
+    ClNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
                   int displayWidth, int displayHeight,
                   int inputVectorSize);
     ~ClNddiDisplay();
-    void PutPixel(Pixel p, std::vector<unsigned int> location);
-    void CopyPixelStrip(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end);
-    void CopyPixels(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end);
-    void FillPixel(Pixel p, std::vector<unsigned int> start, std::vector<unsigned int> end);
-    void CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest);
-    void UpdateInputVector(std::vector<int> input);
-    void PutCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix, std::vector<unsigned int> location);
-    void FillCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix, std::vector<unsigned int> start, std::vector<unsigned int> end);
-    void FillCoefficient(int coefficient, int row, int col, std::vector<unsigned int> start, std::vector<unsigned int> end);
+    void PutPixel(Pixel p, vector<unsigned int> location);
+    void CopyPixelStrip(Pixel* p, vector<unsigned int> start, vector<unsigned int> end);
+    void CopyPixels(Pixel* p, vector<unsigned int> start, vector<unsigned int> end);
+    void FillPixel(Pixel p, vector<unsigned int> start, vector<unsigned int> end);
+    void CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest);
+    void UpdateInputVector(vector<int> input);
+    void PutCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> location);
+    void FillCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> start, vector<unsigned int> end);
+    void FillCoefficient(int coefficient, int row, int col, vector<unsigned int> start, vector<unsigned int> end);
 
     // To satisfy the NDimensionalDisplayInterfaceExtended interface
-    void CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest, bool blend) {};
-    void CopyPixelTiles(Pixel* p, std::vector<std::vector<unsigned int> > starts, std::vector<unsigned int> size);
+    void CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest, bool blend) {};
+    void CopyPixelTiles(vector<Pixel*> p, vector<vector<unsigned int> > starts, vector<unsigned int> size);
 
 private:
     void Render();
 
     void InitializeGl();
     void InitializeCl();
+    void LoadKernel(char *file, char *name, cl_program *program, cl_kernel *kernel);
 
     void Cleanup(bool shouldExit);
 
-    ClInputVector       * clInputVector_;
-    ClCoefficientPlane  * clCoefficientPlane_;
-    ClFrameVolume       * clFrameVolume_;
+    ClInputVector       *clInputVector_;
+    ClCoefficientPlane  *clCoefficientPlane_;
+    ClFrameVolume       *clFrameVolume_;
 
-    cl_platform_id    clPlatformId_;
-    cl_device_id      clDeviceId_;
-    cl_context        clContext_;
-    cl_command_queue  clQueue_;
-    cl_program        clProgramComputePixel_;
-    cl_kernel         clKernel_;
-    cl_mem            clFrameVolumeDims_;
-    cl_mem            clFrameBuffer_;
-    cl_mem            clCommandPacket_;
+    cl_platform_id       clPlatformId_;
+    cl_device_id         clDeviceId_;
+    cl_context           clContext_;
+    cl_command_queue     clQueue_;
+    cl_program           clProgramComputePixel_;
+    cl_kernel            clKernelComputePixel_;
+    cl_mem               clFrameVolumeDims_;
+    cl_mem               clFrameBuffer_;
+    cl_mem               clCommandPacket_;
 
-    size_t global[2];
-	size_t local[2];
+    size_t               globalComputePixel_[2];
+	size_t               localComputePixel_[2];
 
-	size_t            maxCommandPacketSize_;
+	size_t               maxCommandPacketSize_;
 };
 
 #endif // CL_NDDI_DISPLAY_H

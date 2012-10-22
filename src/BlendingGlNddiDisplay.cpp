@@ -23,7 +23,7 @@ using namespace nddi;
 
 // public
 
-BlendingGlNddiDisplay::BlendingGlNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSizes,
+BlendingGlNddiDisplay::BlendingGlNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
                                              int inputVectorSize)
 : GlNddiDisplay(frameVolumeDimensionalSizes, inputVectorSize)
 {
@@ -32,7 +32,7 @@ BlendingGlNddiDisplay::BlendingGlNddiDisplay(std::vector<unsigned int> frameVolu
     costModel = new CostModel();
 }
 
-BlendingGlNddiDisplay::BlendingGlNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSizes,
+BlendingGlNddiDisplay::BlendingGlNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
                                              int displayWidth, int displayHeight,
                                              int inputVectorSize)
 : GlNddiDisplay(frameVolumeDimensionalSizes, displayWidth, displayHeight, inputVectorSize)
@@ -42,7 +42,7 @@ BlendingGlNddiDisplay::BlendingGlNddiDisplay(std::vector<unsigned int> frameVolu
     costModel = new CostModel();
 }
 
-BlendingGlNddiDisplay::BlendingGlNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSizes,
+BlendingGlNddiDisplay::BlendingGlNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
                                              int displayWidth, int displayHeight,
                                              int inputVectorSize,
                                              unsigned int planes)
@@ -63,7 +63,7 @@ BlendingGlNddiDisplay::BlendingGlNddiDisplay(std::vector<unsigned int> frameVolu
     costModel = new CostModel();
 }
 
-void BlendingGlNddiDisplay::PutCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix, std::vector<unsigned int> location) {
+void BlendingGlNddiDisplay::PutCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> location) {
 	
     if (numPlanes_ > 1) {
         assert(location[2] <= numPlanes_);
@@ -74,7 +74,7 @@ void BlendingGlNddiDisplay::PutCoefficientMatrix(std::vector< std::vector<int> >
     }
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + frameVolumeDimensionalSizes_.size()));
+    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + frameVolumeDimensionalSizes_.size()), 0);
     
     // Update the coefficient matrix
     coefficientPlanes_[location[2]]->PutCoefficientMatrix(coefficientMatrix, location);
@@ -84,7 +84,7 @@ void BlendingGlNddiDisplay::PutCoefficientMatrix(std::vector< std::vector<int> >
 #endif
 }
 
-void BlendingGlNddiDisplay::FillCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix, std::vector<unsigned int> start, std::vector<unsigned int> end) {
+void BlendingGlNddiDisplay::FillCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> start, vector<unsigned int> end) {
 
     if (numPlanes_ > 1) {
         assert(start[2] <= numPlanes_);
@@ -99,7 +99,7 @@ void BlendingGlNddiDisplay::FillCoefficientMatrix(std::vector< std::vector<int> 
     }
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + 3 * 2));
+    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + 3 * 2), 0);
     
     // For each plane in the range, fill the coefficient matrices
     for (int i = start[2]; i <= end[2]; i++) {
@@ -111,7 +111,7 @@ void BlendingGlNddiDisplay::FillCoefficientMatrix(std::vector< std::vector<int> 
 #endif
 }
 
-void BlendingGlNddiDisplay::FillCoefficient(int coefficient, int row, int col, std::vector<unsigned int> start, std::vector<unsigned int> end) {
+void BlendingGlNddiDisplay::FillCoefficient(int coefficient, int row, int col, vector<unsigned int> start, vector<unsigned int> end) {
 
     if (numPlanes_ > 1) {
         assert(start[2] <= numPlanes_);
@@ -126,7 +126,7 @@ void BlendingGlNddiDisplay::FillCoefficient(int coefficient, int row, int col, s
     }
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4.0f * (3 + 3 * 2));
+    costModel->registerTransmissionCharge(4.0f * (3 + 3 * 2), 0);
     
     // For each plane in the range, fill the coefficient matrices
     for (int i = start[2]; i <= end[2]; i++) {
@@ -140,15 +140,15 @@ void BlendingGlNddiDisplay::FillCoefficient(int coefficient, int row, int col, s
 
 // Implements the frame volume function directly using getPixel and setPixel since frame volume does not yet
 // support blending.
-void BlendingGlNddiDisplay::CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest, bool blend) {
+void BlendingGlNddiDisplay::CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest, bool blend) {
 
-	std::vector<unsigned int> positionFrom = start;
-	std::vector<unsigned int> positionTo = dest;
+	vector<unsigned int> positionFrom = start;
+	vector<unsigned int> positionTo = dest;
 	bool copyFinished = false;
 	int pixelsCopied = 0;
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (3 * frameVolumeDimensionalSizes_.size() + 1));
+    costModel->registerTransmissionCharge(4 * (3 * frameVolumeDimensionalSizes_.size() + 1), 0);
     
 	// Move from start to end, filling in each location with the provided pixel
 	do {
@@ -219,17 +219,20 @@ void BlendingGlNddiDisplay::Render() {
                                         displayWidth_ * displayHeight_ * CM_HEIGHT * (CM_WIDTH - 2) * numPlanes_,
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * CM_HEIGHT * (CM_WIDTH - 2) * numPlanes_ * 4L);
+                                        displayWidth_ * displayHeight_ * CM_HEIGHT * (CM_WIDTH - 2) * numPlanes_ * 4L,
+                                        0);
     costModel->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
                                         displayWidth_ * displayHeight_ * CM_HEIGHT * CM_WIDTH * numPlanes_,
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * CM_HEIGHT * CM_WIDTH * numPlanes_ * 4L);
+                                        displayWidth_ * displayHeight_ * CM_HEIGHT * CM_WIDTH * numPlanes_ * 4L,
+                                        0);
     costModel->registerBulkMemoryCharge(FRAME_VOLUME_COMPONENT,
                                         displayWidth_ * displayHeight_ * numPlanes_,
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * numPlanes_ * 4L);
+                                        displayWidth_ * displayHeight_ * numPlanes_ * 4L,
+                                        0);
     costModel->registerPixelMappingCharge(displayWidth_ * displayHeight_ * numPlanes_);
     if (numPlanes_ > 1) {
         costModel->registerPixelBlendCharge(displayWidth_ * displayHeight_ * (numPlanes_ - 1));
@@ -281,7 +284,7 @@ nddi::Pixel BlendingGlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) 
         CoefficientMatrix * matrix = coefficientPlanes_[p]->getCoefficientMatrix(x, y);
         
         // Compute the position vector for the proper pixel in the frame volume.
-        std::vector<unsigned int> fvPosition;
+        vector<unsigned int> fvPosition;
         // Matrix multiply the input vector by the coefficient matrix
         for (int j = 0; j < CM_HEIGHT; j++) {
             fvPosition.push_back(0);
@@ -322,7 +325,7 @@ Pixel BlendingGlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* i
         int * cm = coefficientPlanes_[p]->getCoefficientMatrix(x, y)->data();
         
         // Compute the position vector for the proper pixel in the frame volume.
-        std::vector<unsigned int> fvPosition;
+        vector<unsigned int> fvPosition;
         // Matrix multiply the input vector by the coefficient matrix
         for (int j = 0; j < CM_HEIGHT; j++) {
             // Initialize to zero

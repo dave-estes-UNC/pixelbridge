@@ -22,7 +22,13 @@
 
 /*
  * This turns on the OpenCL profiling code which updates the cost model with time
+ * NOTE: This triggers a lot of clFinish()
  */
-#define CL_PROFILING_ENABLED
+//#define CL_PROFILING_ENABLED
+
+/*
+ * Uses the nDDI extension to update groups of tiles
+ */
+#define USE_COPY_PIXEL_TILES
 
 #endif /* PIXELBRIDGEFEATURES_H_ */

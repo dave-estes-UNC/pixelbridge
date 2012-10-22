@@ -1,5 +1,5 @@
 Recent
-- Try out the packetized updates for frame volume.
+- Fix crash at the end of playback
 
 Must Do
 - Get ClNddiDisplay working.

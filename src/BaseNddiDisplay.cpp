@@ -25,7 +25,7 @@ int BaseNddiDisplay::DisplayHeight() {
 void BaseNddiDisplay::PutPixel(Pixel p, std::vector<unsigned int> location) {
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (1 + frameVolumeDimensionalSizes_.size()));
+    costModel->registerTransmissionCharge(4 * (1 + frameVolumeDimensionalSizes_.size()), 0);
     
     // Set the single pixel
 	frameVolume_->PutPixel(p, location);
@@ -49,7 +49,7 @@ void BaseNddiDisplay::CopyPixelStrip(Pixel* p, std::vector<unsigned int> start, 
 	}
 	
     // Register transmission cost now that we know the length of the strip sent
-    costModel->registerTransmissionCharge(4 * ((end[dimensionToCopyAlong] - start[dimensionToCopyAlong] + 1) + 2 * frameVolumeDimensionalSizes_.size()));
+    costModel->registerTransmissionCharge(4 * ((end[dimensionToCopyAlong] - start[dimensionToCopyAlong] + 1) + 2 * frameVolumeDimensionalSizes_.size()), 0);
     
     // Copy the pixels
     frameVolume_->CopyPixelStrip(p, start, end);
@@ -66,7 +66,7 @@ void BaseNddiDisplay::CopyPixels(Pixel* p, std::vector<unsigned int> start, std:
     for (int i = 0; i < start.size(); i++) {
         pixelsToCopy *= end[i] - start[i] + 1;
     }
-    costModel->registerTransmissionCharge(4 * (pixelsToCopy + 2 * frameVolumeDimensionalSizes_.size()));
+    costModel->registerTransmissionCharge(4 * (pixelsToCopy + 2 * frameVolumeDimensionalSizes_.size()), 0);
     
     // Copy pixels
     frameVolume_->CopyPixels(p, start, end);
@@ -79,7 +79,7 @@ void BaseNddiDisplay::CopyPixels(Pixel* p, std::vector<unsigned int> start, std:
 void BaseNddiDisplay::FillPixel(Pixel p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (1 + 2 * frameVolumeDimensionalSizes_.size()));
+    costModel->registerTransmissionCharge(4 * (1 + 2 * frameVolumeDimensionalSizes_.size()), 0);
     
     // Fill pixels
     frameVolume_->FillPixel(p, start, end);
@@ -92,7 +92,7 @@ void BaseNddiDisplay::FillPixel(Pixel p, std::vector<unsigned int> start, std::v
 void BaseNddiDisplay::CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest) {
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (3 * frameVolumeDimensionalSizes_.size()));
+    costModel->registerTransmissionCharge(4 * (3 * frameVolumeDimensionalSizes_.size()), 0);
     
     // Copy pixels
     frameVolume_->CopyFrameVolume(start, end, dest);
@@ -105,7 +105,7 @@ void BaseNddiDisplay::CopyFrameVolume(std::vector<unsigned int> start, std::vect
 void BaseNddiDisplay::UpdateInputVector(std::vector<int> input) {
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * input.size());
+    costModel->registerTransmissionCharge(4 * input.size(), 0);
 	
     // Update the input vector
 	inputVector_->UpdateInputVector(input);
@@ -119,7 +119,7 @@ void BaseNddiDisplay::PutCoefficientMatrix(std::vector< std::vector<int> > coeff
                                            std::vector<unsigned int> location) {
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + frameVolumeDimensionalSizes_.size()));
+    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + frameVolumeDimensionalSizes_.size()), 0);
     
     // Update the coefficient matrix
     coefficientPlane_->PutCoefficientMatrix(coefficientMatrix, location);
@@ -133,7 +133,7 @@ void BaseNddiDisplay::FillCoefficientMatrix(std::vector< std::vector<int> > coef
                                             std::vector<unsigned int> start,
                                             std::vector<unsigned int> end) {
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + 2 * 2));
+    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + 2 * 2), 0);
     
     // Fill the coefficient matrices
     coefficientPlane_->FillCoefficientMatrix(coefficientMatrix, start, end);
@@ -148,7 +148,7 @@ void BaseNddiDisplay::FillCoefficient(int coefficient,
                                       std::vector<unsigned int> start,
                                       std::vector<unsigned int> end) {
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (3 + 2 * 2));
+    costModel->registerTransmissionCharge(4 * (3 + 2 * 2), 0);
 	
     // Fill the coefficient matrices
     coefficientPlane_->FillCoefficient(coefficient, row, col, start, end);

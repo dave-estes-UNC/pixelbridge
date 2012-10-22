@@ -41,7 +41,7 @@ FlatTiler::FlatTiler (GlNddiDisplay* display, size_t tile_width, size_t tile_hei
 			tile_map_[i].push_back(0L);
 		}
 	}
-	
+
 	// Set tile update count to zero
 	unchanged_tiles_ = tile_updates_ = 0;
 }
@@ -75,9 +75,17 @@ void FlatTiler::InitializeCoefficientPlane() {
  */
 void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 {
-	int unchanged = 0, updates = 0;
-	unsigned char mask = 0xff << (8 - bits_);
+	int                            unchanged = 0;
+	int                            updates = 0;
+	unsigned char                  mask = 0xff << (8 - bits_);
+#ifdef USE_COPY_PIXEL_TILES
+	vector<Pixel *>                tiles;
+	vector<vector<unsigned int> >  starts;
+#endif
 	
+	// Free any allocated memory from the last update. It's safe[-ish] to assume it is no longer in use
+	FreeAllocatedMem();
+
 	// Break up the passed in buffer into one tile at a time
 #ifndef NO_OMP
 #pragma omp parallel for ordered
@@ -103,15 +111,17 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                 
                 // Build the tile's pixel array while computing the checksum in an alternative tile which only
                 // holds the significant bits
-                nddi::Pixel* tile_pixels = (nddi::Pixel*)malloc(tw * th * sizeof(nddi::Pixel));
-                nddi::Pixel* tile_pixels_sig_bits = (nddi::Pixel*)malloc(tw * th * sizeof(nddi::Pixel));
+                Pixel* tile_pixels = (Pixel*)malloc(tw * th * sizeof(Pixel));
+                Pixel* tile_pixels_sig_bits = (Pixel*)malloc(tw * th * sizeof(Pixel));
+                // We'll free tile_pixels later and tile_pixels_sig_bits below
+                allocated_mem_.push_back(tile_pixels);
                 
                 for (int j_tile = 0; j_tile < th; j_tile++) {
                     // Compute the offset into the RGB buffer for this row in this tile
                     int bufferOffset = 3 * ((j_tile_map * tile_height_ + j_tile) * width + (i_tile_map * tile_width_));
                     
                     for (int i_tile = 0; i_tile < tw; i_tile++) {
-                        nddi::Pixel p, psb;
+                        Pixel p, psb;
                         
                         p.r = buffer[bufferOffset++];
                         p.g = buffer[bufferOffset++];
@@ -128,13 +138,28 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                 }
                 
                 unsigned long crc = crc32(0L, Z_NULL, 0);
-                tile_checksum = crc32(crc, (unsigned char*)tile_pixels_sig_bits, tw * th * sizeof(nddi::Pixel));
-                //tile_checksum = adler32(crc, (unsigned char*)tile_pixels_sig_bits, tw * th * sizeof(nddi::Pixel));
+                tile_checksum = crc32(crc, (unsigned char*)tile_pixels_sig_bits, tw * th * sizeof(Pixel));
+                //tile_checksum = adler32(crc, (unsigned char*)tile_pixels_sig_bits, tw * th * sizeof(Pixel));
                 
                 // If the checksum in the tile map doesn't match, then update the frame volume
                 if (tile_map_[i_tile_map][j_tile_map] != tile_checksum) {
                     tile_map_[i_tile_map][j_tile_map] = tile_checksum;
+#ifdef USE_COPY_PIXEL_TILES
+#ifndef NO_OMP
+#pragma omp critical
+#endif
+                    {
+                    	// Push the tile and its start coordinates
+                    	tiles.push_back(tile_pixels);
+                    	vector<unsigned int> start;
+                    	start.push_back(i_tile_map * tile_width_); start.push_back(j_tile_map * tile_height_);
+                    	starts.push_back(start);
+                    }
+
+#else
                     UpdateFrameVolume(tile_pixels, i_tile_map, j_tile_map);
+#endif
+
 #ifndef NO_OMP
 #pragma omp atomic
 #endif
@@ -146,12 +171,18 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                     unchanged++;
                 }
                     
-                // Free tile
-                free(tile_pixels);
+                // Free tile_pixels_sig_bits
+                // NOTE: tile_pixles is passed to frame volume and will be freed later
                 free(tile_pixels_sig_bits);
             }
         }
     }
+#ifdef USE_COPY_PIXEL_TILES
+	// Update the Frame Volume
+	vector<unsigned int> size;
+	size.push_back(tile_width_); size.push_back(tile_height_);
+	((ClNddiDisplay *)display_)->CopyPixelTiles(tiles, starts, size);
+#endif
 
 	// Report update statistics
 	unchanged_tiles_ += unchanged;
@@ -162,12 +193,22 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 }
 
 /**
- * Updates region of the Frame Volume corresponding to the tile's
- * zIndex.
+ * Goes through the allocated memory vector and free each item
+ */
+void FlatTiler::FreeAllocatedMem() {
+	while (!allocated_mem_.empty()) {
+		free(allocated_mem_.back());
+		allocated_mem_.pop_back();
+	}
+}
+
+/**
+ * Updates region of the Frame Volume corresponding to the tile's i and j location.
  *
  * @param pixels The array of pixels to use in the update.
  */
-void FlatTiler::UpdateFrameVolume(nddi::Pixel* pixels, int i_map, int j_map) {
+#ifndef USE_COPY_PIXEL_TILES
+void FlatTiler::UpdateFrameVolume(Pixel* pixels, int i_map, int j_map) {
 	
 	// Setup start and end points
 	std::vector<unsigned int> start, end;
@@ -178,3 +219,4 @@ void FlatTiler::UpdateFrameVolume(nddi::Pixel* pixels, int i_map, int j_map) {
     
     display_->CopyPixels(pixels, start, end);
 }
+#endif

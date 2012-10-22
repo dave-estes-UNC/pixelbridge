@@ -765,7 +765,7 @@ void countChangedPixels() {
 				
 				// If we haven't previously decoded a frame
 				if (lastBuffer == NULL) {
-                    costModel->registerTransmissionCharge(4 * inc * pixel_count);
+                    costModel->registerTransmissionCharge(4 * inc * pixel_count, 0);
 
 					// Allocate the lastBuffer and copy the decode frame into it.
 					lastBuffer = (uint8_t*)malloc(VIDEO_PIXEL_SIZE * pixel_count);
@@ -798,7 +798,7 @@ void countChangedPixels() {
 					}
 					
 					// Update the cost
-                    costModel->registerTransmissionCharge(4 * diffs);
+                    costModel->registerTransmissionCharge(4 * diffs, 0);
 
 					// Then copy to the lastBuffer
 					memcpy(lastBuffer, videoBuffer, VIDEO_PIXEL_SIZE * pixel_count);

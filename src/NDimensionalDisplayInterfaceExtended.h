@@ -3,6 +3,8 @@
 
 #include <vector>
 
+using namespace std;
+
 namespace nddi {
     
     /**
@@ -21,7 +23,7 @@ namespace nddi {
          * @return The cost of the operation. Can be measured in time, byte-count, or another
          *         measurements based on the display implementation
          */
-    	virtual void CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest, bool blend) = 0;
+    	virtual void CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest, bool blend) = 0;
 
         /**
          * Copies the array of pixels into the designated tile regions of the frame volume. The data must be
@@ -34,7 +36,7 @@ namespace nddi {
          * @return The cost of the operation. Can be measured in time, byte-count, or another
          *         measurements based on the display implementation
          */
-        virtual void CopyPixelTiles(Pixel* p, std::vector<std::vector<unsigned int> > starts, std::vector<unsigned int> size) = 0;
+        virtual void CopyPixelTiles(vector<Pixel*> p, vector<vector<unsigned int> > starts, vector<unsigned int> size) = 0;
     };
     
 } // namespace nddi {

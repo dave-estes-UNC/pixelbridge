@@ -11,7 +11,10 @@
 
 #include "Tiler.h"
 #include "GlNddiDisplay.h"
+#include "ClNddiDisplay.h"
 
+using namespace nddi;
+using namespace std;
 
 /**
  * This tiler will split provided frames into tiles and update the NDDI display. It organizes the
@@ -37,6 +40,7 @@ public:
 	
 	~FlatTiler() {
 		tile_map_.clear();
+		FreeAllocatedMem();
 	}
 	
     /**
@@ -57,7 +61,10 @@ public:
 	void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 	
 private:
-	void UpdateFrameVolume(nddi::Pixel* pixels, int i_map, int j_map);
+	void FreeAllocatedMem();
+#ifndef USE_COPY_PIXEL_TILES
+	void UpdateFrameVolume(Pixel* pixels, int i_map, int j_map);
+#endif
 	
 	GlNddiDisplay* display_;
 	size_t tile_width_, tile_height_;
@@ -65,7 +72,8 @@ private:
 	size_t bits_;
 	bool quiet_;
 	
-	std::vector< std::vector<unsigned long> > tile_map_;
+	vector< vector<unsigned long> > tile_map_;
+	vector<void *> allocated_mem_;
 
 	int unchanged_tiles_, tile_updates_;
 };

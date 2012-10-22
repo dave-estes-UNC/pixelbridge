@@ -16,6 +16,7 @@
 #include "FrameVolume.h"
 
 using namespace nddi;
+using namespace std;
 
 class ClFrameVolume : public FrameVolume {
     
@@ -23,13 +24,13 @@ private:
     cl_mem            clBuffer_;
     cl_context        clContext_;
     cl_command_queue  clQueue_;
-    cl_mem *          clCommandPacket_;
+    cl_mem            clCommandPacket_;
 
     size_t            fv_row_pitch_, fv_slice_pitch_;
     unsigned char *   packet_;
     size_t            maxPacketSize_;
     
-    inline unsigned int calcOffset(std::vector<unsigned int> location) {
+    inline unsigned int calcOffset(vector<unsigned int> location) {
         unsigned int  offset = 0;
         unsigned int  multiplier = 1;
         
@@ -86,23 +87,23 @@ public:
         // Release CL mem buffer
         if (clBuffer_ != 0)
             clReleaseMemObject(clBuffer_);
-    }
+}
     
-    void PutPixel(Pixel p, std::vector<unsigned int> location) {
+    void PutPixel(Pixel p, vector<unsigned int> location) {
         
         unsigned int offset = calcOffset(location);
             
         // Enqueue CL commands
         int err = clEnqueueWriteBuffer(clQueue_, clBuffer_, CL_TRUE, offset, sizeof(unsigned int), &p, 0, NULL, NULL);
         if (err != CL_SUCCESS) {
-            std::cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << std::endl;
+            cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << endl;
         }
         
         costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4, 0);
     }
     
     // TODO(CDE): move to buffer writes in 3 dimensions. Consider not even supporting strips in any other dimensions
-    void CopyPixelStrip(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
+    void CopyPixelStrip(Pixel* p, vector<unsigned int> start, vector<unsigned int> end) {
         
         int dimensionToCopyAlong;
         bool dimensionFound = false;
@@ -126,12 +127,12 @@ public:
             // Enqueue CL commands
             int err = clEnqueueWriteBuffer(clQueue_, clBuffer_, CL_TRUE, offset, sizeof(unsigned int) * stripLength, p, 0, NULL, NULL);
             if (err != CL_SUCCESS) {
-                std::cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << std::endl;
+                cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << endl;
             }
 
         // Otherwise copy one pixel at a time
         } else {
-            std::vector<unsigned int> position = start;
+            vector<unsigned int> position = start;
             for (int j = 0; j <= stripLength; j++) {
                 
                 // Calculate offset
@@ -140,7 +141,7 @@ public:
                 // Enqueue CL command
                 int err = clEnqueueWriteBuffer(clQueue_, clBuffer_, CL_TRUE, offset, sizeof(unsigned int), p + offset, 0, NULL, NULL);
                 if (err != CL_SUCCESS) {
-                    std::cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << std::endl;
+                    cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << endl;
                 }
                 
                 // Move to next position
@@ -152,9 +153,9 @@ public:
         costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * stripLength, 0);
     }
     
-    void CopyPixels(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
+    void CopyPixels(Pixel* p, vector<unsigned int> start, vector<unsigned int> end) {
         
-        std::vector<unsigned int>  position = start;
+        vector<unsigned int>  position = start;
         bool                       copyFinished = false;
         int                        pixelsCopied = 0;
     	unsigned long              time = 0;
@@ -203,7 +204,7 @@ public:
             	pEvent = &event;
 #endif
 
-            	int err = clEnqueueWriteBufferRect(clQueue_, clBuffer_, CL_TRUE,
+            	int err = clEnqueueWriteBufferRect(clQueue_, clBuffer_, CL_FALSE,
                                                    buffer_origin,
                                                    host_origin,
                                                    region,
@@ -211,11 +212,11 @@ public:
                                                    p_row_pitch, p_slice_pitch,
                                                    p, 0, NULL, pEvent);
                 if (err != CL_SUCCESS) {
-                    std::cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << err << std::endl;
+                    cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << err << endl;
                 }
                 
 #ifdef CL_PROFILING_ENABLED
-                // TODO(CDE): Consider no calling clFinish() here and instead just track each individual even for every command
+                // TODO(CDE): Consider not calling clFinish() here and instead just track each individual even for every command
                 //            we send for a frame update. Then after clFinish() is called for rendering, go back and fetch the
                 //            profile information for each event.
                 clFinish(clQueue_);
@@ -233,7 +234,7 @@ public:
 #endif
 
             } else {
-                std::cout << __FUNCTION__ << " - Still null?." << std::endl;
+                cout << __FUNCTION__ << " - Still null?." << endl;
             }
 
             // Update pixel count
@@ -267,26 +268,19 @@ public:
         costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * pixelsCopied, time);
     }
 
-    void CopyPixelTiles(Pixel* p, std::vector<std::vector<unsigned int> > starts, std::vector<unsigned int> size) {
+    void CopyPixelTiles(vector<Pixel*> p, vector<vector<unsigned int> > starts, vector<unsigned int> size) {
 
     	unsigned int *             packetPtr = (unsigned int *)packet_;
     	size_t                     packetWordCount = 0;
         size_t                     tileSize = size[0] * size[1];
     	size_t                     pixelsCopied = 0;
-
-        // Copy the tile size to the packet
-        packetPtr[packetWordCount++] = size[0];
-        packetPtr[packetWordCount++] = size[1];
+    	cl_event *                 pEvent = NULL;
 
         // Then for each tile...
         for (size_t i = 0; i < starts.size(); i++) {
-        	// Copy the start into the packet
-        	for (size_t d = 0; d < dimensionalSizes_.size(); d++) {
-        		packetPtr[packetWordCount++] = starts[i][d];
-        	}
 
         	// Copy the pixels into the packet
-        	memcpy(&packetPtr[packetWordCount], p + tileSize * i, tileSize * sizeof(Pixel));
+        	memcpy(&packetPtr[packetWordCount], p[i], tileSize * sizeof(Pixel));
         	packetWordCount += tileSize;
 
         	// We package up each tile, even if they overflow. So we pay the
@@ -298,29 +292,88 @@ public:
         	pixelsCopied += w * h;
         }
 
+#ifdef CL_PROFILING_ENABLED
+        cl_event event;
+        cl_ulong startTime, endTime;
+
+        pEvent = &event;
+#endif
+
         // Enqueue CL command
-        if (clQueue_ && clBuffer_) {
-            int err = clEnqueueWriteBuffer(clQueue_, clBuffer_, CL_TRUE,
+        if (clQueue_ && clCommandPacket_ && clBuffer_) {
+            int err = clEnqueueWriteBuffer(clQueue_, clCommandPacket_, CL_FALSE,
                                            0, packetWordCount * sizeof(unsigned int), packet_,
-                                           0, NULL, NULL);
+                                           0, NULL, pEvent);
             if (err != CL_SUCCESS) {
-                std::cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << err << std::endl;
+                cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << err << endl;
             }
 
+        	// Then for each tile...
+            size_t src_origin[3] = {0,0,0};
+            size_t dst_origin[3] = {0,0,0};
+            size_t region[3] = {1,1,1};
+            size_t src_row_pitch = size[0] * sizeof(Pixel);
+            size_t src_slice_pitch = size[0] * size[1] * sizeof(Pixel);
+
+            for (size_t i = 0; i < starts.size(); i++) {
+            	// Update the origins
+            	src_origin[2] = i;
+            	dst_origin[0] = starts[i][0] * sizeof(Pixel);
+            	dst_origin[1] = starts[i][1];
+
+            	// Clamp region if we're on the last column or row
+            	if (starts[i][0] + size[0] >= dimensionalSizes_[0]) {
+            		region[0] = (dimensionalSizes_[0] - starts[i][0]) * sizeof(Pixel);
+            	} else {
+            		region[0] = size[0] * sizeof(Pixel);
+            	}
+            	if (starts[i][1] + size[1] >= dimensionalSizes_[1]) {
+            		region[1] = dimensionalSizes_[1] - starts[i][1];
+            	} else {
+            		region[1] = size[1];
+            	}
+
+            	// Enqueue the move commands that will move each each tile from the packet to the frame volume
+            	err = clEnqueueCopyBufferRect(clQueue_, clCommandPacket_, clBuffer_,
+            			                      src_origin, dst_origin, region,
+            			                      src_row_pitch, src_slice_pitch,
+            			                      fv_row_pitch_, fv_slice_pitch_,
+            			                      0, NULL, pEvent);
+            	if (err != CL_SUCCESS) {
+            		cout << __FUNCTION__ << " - Failed to create enqueue copy buffer command." << err << endl;
+            	}
+            }
         } else {
-            std::cout << __FUNCTION__ << " - Still null?." << std::endl;
+            cout << __FUNCTION__ << " - Still null?." << endl;
         }
 
-        // Does not run the kernel The CL nddi display does that in an effort to keep that code intact.
+#ifdef CL_PROFILING_ENABLED
+        // TODO(CDE): Consider not calling clFinish() here and instead just track each individual event for every command
+        //            we send for a frame update. Then after clFinish() is called for rendering, go back and fetch the
+        //            profile information for each event.
+        clFinish(clQueue_);
+        clGetEventProfilingInfo(event,
+        		                CL_PROFILING_COMMAND_START,
+        		                sizeof(cl_ulong),
+        		                &startTime,
+        		                NULL);
+        clGetEventProfilingInfo(event,
+                                CL_PROFILING_COMMAND_END,
+                                sizeof(cl_ulong),
+                                &endTime,
+                                NULL);
+        // Register NDDI link charge for time
+        costModel_->registerTransmissionCharge(0, (unsigned long)(endTime - startTime));
+#endif
 
         // Register memory charge
         costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * pixelsCopied, 0);
     }
 
     // TODO(CDE): Implement for CL
-    void FillPixel(Pixel p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
+    void FillPixel(Pixel p, vector<unsigned int> start, vector<unsigned int> end) {
         
-        std::vector<unsigned int> position = start;
+        vector<unsigned int> position = start;
         bool fillFinished = false;
         int pixelsFilled = 0;
         
@@ -351,10 +404,10 @@ public:
     }
     
     // TODO(CDE): Implement for CL
-    void CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest) {
+    void CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest) {
         
-        std::vector<unsigned int> positionFrom = start;
-        std::vector<unsigned int> positionTo = dest;
+        vector<unsigned int> positionFrom = start;
+        vector<unsigned int> positionTo = dest;
         bool copyFinished = false;
         int pixelsCopied = 0;
         
@@ -386,7 +439,7 @@ public:
         // Enqueue CL commands
     }
     
-    cl_mem* initializeCl(cl_context context, cl_command_queue queue) {
+    cl_mem initializeCl(cl_context context, cl_command_queue queue) {
         
         // Set CL variables
         clContext_ = context;
@@ -398,14 +451,14 @@ public:
         clBuffer_ = clCreateBuffer(clContext_, CL_MEM_READ_WRITE,
                                    sizeof(unsigned int) * getSize(), NULL, NULL);
 
-        return &clBuffer_;
+        return clBuffer_;
     }
 
-    cl_mem* getClBuffer() {
-        return &clBuffer_;
+    cl_mem getClBuffer() {
+        return clBuffer_;
     }
 
-    void setCommandPacket(cl_mem* packet, size_t size) {
+    void setCommandPacket(cl_mem packet, size_t size) {
     	clCommandPacket_ = packet;
     	maxPacketSize_ = size;
     	packet_ = (unsigned char*)malloc(maxPacketSize_);
