@@ -62,7 +62,7 @@ void FlatTiler::InitializeCoefficientPlane() {
     start.push_back(0); start.push_back(0);
     end.push_back(display_->DisplayWidth() - 1); end.push_back(display_->DisplayHeight() - 1);
     
-    display_->FillCoefficientMatrix(coeffs, start, end);
+    ((ClNddiDisplay *)display_)->FillCoefficientMatrix(coeffs, start, end);
 }
 
 /**
@@ -78,14 +78,13 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 	int                            unchanged = 0;
 	int                            updates = 0;
 	unsigned char                  mask = 0xff << (8 - bits_);
+    Pixel                         *tile_pixels = NULL;
+    Pixel                         *tile_pixels_sig_bits = NULL;
 #ifdef USE_COPY_PIXEL_TILES
 	vector<Pixel *>                tiles;
 	vector<vector<unsigned int> >  starts;
 #endif
 	
-	// Free any allocated memory from the last update. It's safe[-ish] to assume it is no longer in use
-	FreeAllocatedMem();
-
 	// Break up the passed in buffer into one tile at a time
 #ifndef NO_OMP
 #pragma omp parallel for ordered
@@ -109,13 +108,14 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                     th -= tile_map_height_ * tile_height_ - height;
                 }
                 
+                // Allocate tiles is necessary. Sometimes they're re-used.
+                if (!tile_pixels)
+                	tile_pixels = (Pixel*)malloc(tw * th * sizeof(Pixel));
+                if (!tile_pixels_sig_bits)
+                	tile_pixels_sig_bits = (Pixel*)malloc(tw * th * sizeof(Pixel));
+                
                 // Build the tile's pixel array while computing the checksum in an alternative tile which only
                 // holds the significant bits
-                Pixel* tile_pixels = (Pixel*)malloc(tw * th * sizeof(Pixel));
-                Pixel* tile_pixels_sig_bits = (Pixel*)malloc(tw * th * sizeof(Pixel));
-                // We'll free tile_pixels later and tile_pixels_sig_bits below
-                allocated_mem_.push_back(tile_pixels);
-                
                 for (int j_tile = 0; j_tile < th; j_tile++) {
                     // Compute the offset into the RGB buffer for this row in this tile
                     int bufferOffset = 3 * ((j_tile_map * tile_height_ + j_tile) * width + (i_tile_map * tile_width_));
@@ -149,8 +149,13 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 #pragma omp critical
 #endif
                     {
-                    	// Push the tile and its start coordinates
+                    	// Push the tile
                     	tiles.push_back(tile_pixels);
+
+                    	// Force new tile to be allocated. This one will be freed after it's copied
+                    	tile_pixels = NULL;
+
+                    	// Create and push the start coordinates
                     	vector<unsigned int> start;
                     	start.push_back(i_tile_map * tile_width_); start.push_back(j_tile_map * tile_height_);
                     	starts.push_back(start);
@@ -170,35 +175,38 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 #endif
                     unchanged++;
                 }
-                    
-                // Free tile_pixels_sig_bits
-                // NOTE: tile_pixles is passed to frame volume and will be freed later
-                free(tile_pixels_sig_bits);
             }
         }
     }
+
 #ifdef USE_COPY_PIXEL_TILES
-	// Update the Frame Volume
-	vector<unsigned int> size;
-	size.push_back(tile_width_); size.push_back(tile_height_);
-	((ClNddiDisplay *)display_)->CopyPixelTiles(tiles, starts, size);
+	// If any tiles were updated
+	if (updates > 0) {
+
+		// Update the Frame Volume by copying the tiles over
+		vector<unsigned int> size;
+		size.push_back(tile_width_); size.push_back(tile_height_);
+		((ClNddiDisplay *)display_)->CopyPixelTiles(tiles, starts, size);
+
+		while (!tiles.empty()) {
+			free(tiles.back());
+			tiles.pop_back();
+		}
+	}
 #endif
+
+    // Free alloc'd memory
+	if (tile_pixels)
+		free(tile_pixels);
+	if (tile_pixels_sig_bits)
+		free(tile_pixels_sig_bits);
 
 	// Report update statistics
 	unchanged_tiles_ += unchanged;
 	tile_updates_ += updates;
+
 	if (!quiet_) {
 		std::cout << "Flat Tiling Statistics:" << endl << "  unchanged tiles: " << unchanged_tiles_ << " tiles updated: " << tile_updates_ << std::endl;
-	}
-}
-
-/**
- * Goes through the allocated memory vector and free each item
- */
-void FlatTiler::FreeAllocatedMem() {
-	while (!allocated_mem_.empty()) {
-		free(allocated_mem_.back());
-		allocated_mem_.pop_back();
 	}
 }
 

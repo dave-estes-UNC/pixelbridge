@@ -40,7 +40,6 @@ public:
 	
 	~FlatTiler() {
 		tile_map_.clear();
-		FreeAllocatedMem();
 	}
 	
     /**
@@ -61,7 +60,6 @@ public:
 	void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 	
 private:
-	void FreeAllocatedMem();
 #ifndef USE_COPY_PIXEL_TILES
 	void UpdateFrameVolume(Pixel* pixels, int i_map, int j_map);
 #endif
@@ -73,7 +71,6 @@ private:
 	bool quiet_;
 	
 	vector< vector<unsigned long> > tile_map_;
-	vector<void *> allocated_mem_;
 
 	int unchanged_tiles_, tile_updates_;
 };
