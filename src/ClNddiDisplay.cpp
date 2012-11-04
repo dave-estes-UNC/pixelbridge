@@ -527,3 +527,15 @@ void ClNddiDisplay::FillCoefficient(int coefficient,
     Render();
 #endif
 }
+
+void ClNddiDisplay::FillCoefficientTiles(vector<int> coefficients,
+										 vector<vector<unsigned int> > positions,
+										 vector<vector<unsigned int> > starts,
+										 vector<unsigned int> size) {
+
+	// TODO(CDE): Implement
+
+#ifndef SUPRESS_EXCESS_RENDERING
+    Render();
+#endif
+}

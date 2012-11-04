@@ -11,7 +11,11 @@
 
 #include "Tiler.h"
 #include "GlNddiDisplay.h"
+#include "ClNddiDisplay.h"
 
+
+using namespace std;
+using namespace nddi;
 
 /**
  * This struct holds the checksum of a tile as well as the zIndex into the frame volume
@@ -74,19 +78,34 @@ private:
 	int IsTileInCache(tile_t tile);
 	bool IsTileInMap(tile_t tile);
 	int GetExpiredCacheTile();
-	void UpdateFrameVolume(nddi::Pixel* pixels, tile_t tile);
 	void InitializeCoefficientMatrices();
+#ifndef USE_COPY_PIXEL_TILES
+	void UpdateFrameVolume(Pixel* pixels, tile_t tile);
 	void UpdateCoefficientMatrices(size_t x, size_t y, tile_t tile);
+#else
+	void PushTile(tile_t tile, Pixel* pixels, size_t i, size_t j);
+	void PushTile(tile_t tile, Pixel* pixels);
+	void PushTile(tile_t tile, size_t i, size_t j);
+#endif
 	
-	GlNddiDisplay* display_;
-	size_t tile_width_, tile_height_, max_tiles_;
-	size_t tile_map_width_, tile_map_height_;
-	size_t bits_;
-	bool quiet_;
+	GlNddiDisplay*                 display_;
+	size_t                         tile_width_, tile_height_, max_tiles_;
+	size_t                         tile_map_width_, tile_map_height_;
+	size_t                         bits_;
+	bool                           quiet_;
 	
-	std::vector<tile_t> tile_cache_;
-	std::vector< std::vector<tile_t> > tile_map_;
+	vector<tile_t>                 tile_cache_;
+	vector< vector<tile_t> >       tile_map_;
 	
-	int unchanged_tiles_, cache_hits_, cache_misses_;
+	int                            unchanged_tiles_, cache_hits_, cache_misses_;
+
+#ifdef USE_COPY_PIXEL_TILES
+	vector<Pixel *>                tile_pixels_list;
+	vector<vector<unsigned int> >  tile_starts_list;
+
+	vector<int>                    coefficients_list;
+	vector<vector<unsigned int> >  coefficient_positions_list;
+	vector<vector<unsigned int> >  coefficient_plane_starts_list;
+#endif
 };
 #endif // CACHED_TILER_H

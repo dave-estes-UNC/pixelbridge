@@ -41,6 +41,7 @@ public:
     // To satisfy the NDimensionalDisplayInterfaceExtended interface
     void CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest, bool blend) {};
     void CopyPixelTiles(vector<Pixel*> p, vector<vector<unsigned int> > starts, vector<unsigned int> size);
+    void FillCoefficientTiles(vector<int> coefficients, vector<vector<unsigned int> > positions, vector<vector<unsigned int> > starts, vector<unsigned int> size);
 
 private:
     void Render();

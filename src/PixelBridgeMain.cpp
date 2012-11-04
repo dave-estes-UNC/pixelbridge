@@ -102,9 +102,15 @@ void setupDisplay() {
 		fvDimensions.push_back(configTileHeight);
 		fvDimensions.push_back(configMaxTiles);
 		
+#ifndef NO_CL
+		myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
+									  displayWidth, displayHeight, // display size
+									  3); 						   // input vector size (x, y, and z)
+#else
 		myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
 									  displayWidth, displayHeight, // display size
 									  3); 						   // input vector size (x, y, and z)
+#endif
         // Grab the cost model
         costModel = myDisplay->GetCostModel();
         

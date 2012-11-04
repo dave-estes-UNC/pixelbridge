@@ -37,7 +37,18 @@ namespace nddi {
          *         measurements based on the display implementation
          */
         virtual void CopyPixelTiles(vector<Pixel*> p, vector<vector<unsigned int> > starts, vector<unsigned int> size) = 0;
-    };
+
+        /**
+         * For each coefficient, positions, and start; copies the coefficient to the position
+         * in the in each coefficient matrix in the tile specified by the start and size.
+         *
+         * @param coefficients The buffer of coefficients.
+         * @param positions The position (row, col) to place the coefficient within the coefficient matrix.
+         * @param starts The location (x, y) of the start of the tile in the coefficient plane.
+         * @param size The size (w, h) of the tile.
+         */
+        virtual void FillCoefficientTiles(vector<int> coefficients, vector<vector<unsigned int> > positions, vector<vector<unsigned int> > starts, vector<unsigned int> size) = 0;
+};
     
 } // namespace nddi {
 
