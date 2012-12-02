@@ -190,10 +190,15 @@ void ClNddiDisplay::InitializeCl() {
 
     // Load kernels
     // TODO(CDE): Figure this crap out! Why does getenv("PWD") fail when running release version in xcode?
-    char computePixelFileName[] = "/home/cdestes/Work/pixelbridge/src/computePixel.cl";
-    char computePixelName[] = "computePixel";
+    char path[] = "/home/cdestes/Work/pixelbridge/src";
 
-    LoadKernel(computePixelFileName, computePixelName, &clProgramComputePixel_, &clKernelComputePixel_);
+    char computePixelFileName[] = "computePixel.cl";
+    char computePixelName[] = "computePixel";
+    LoadKernel(path, computePixelFileName, computePixelName, &clProgramComputePixel_, &clKernelComputePixel_);
+
+    char fillCoefficientFileName[] = "fillCoefficient.cl";
+    char fillCoefficientName[] = "fillCoefficient";
+    LoadKernel(path, fillCoefficientFileName, fillCoefficientName, &clProgramFillCoefficient_, &clKernelFillCoefficient_);
 
     // Initialize the CL NDDI components
     cl_mem inputVectorBuffer = clInputVector_->initializeCl(clContext_, clQueue_);
@@ -261,22 +266,50 @@ void ClNddiDisplay::InitializeCl() {
     globalComputePixel_[1] = displayHeight_ / localComputePixel_[1] * localComputePixel_[1];
     if (globalComputePixel_[1] < displayHeight_)
         globalComputePixel_[1] += localComputePixel_[1];
-    cout << "Global Size: " << globalComputePixel_[0] << " " << globalComputePixel_[1] << " and Local Workgroup Size: " << localComputePixel_[0] << " " << localComputePixel_[1] << endl;
+    cout << "computePixel Global Size: " << globalComputePixel_[0] << " " << globalComputePixel_[1] << " and Local Workgroup Size: " << localComputePixel_[0] << " " << localComputePixel_[1] << endl;
+
+    // Set the arguments to our computePixel kernel
+    err  = clSetKernelArg(clKernelFillCoefficient_, 0, sizeof(cl_mem), &clCommandPacket_);
+    err |= clSetKernelArg(clKernelFillCoefficient_, 1, sizeof(cl_mem), &coefficientPlaneBuffer);
+    err |= clSetKernelArg(clKernelFillCoefficient_, 2, sizeof(cl_uint), &cm_dims[0]);
+    err |= clSetKernelArg(clKernelFillCoefficient_, 3, sizeof(cl_uint), &cm_dims[1]);
+    err |= clSetKernelArg(clKernelFillCoefficient_, 4, sizeof(cl_uint), &display_dims[0]);
+    err |= clSetKernelArg(clKernelFillCoefficient_, 5, sizeof(cl_uint), &display_dims[1]);
+    if (err != CL_SUCCESS) {
+        cout << "Failed to set fillCoefficient kernel arguments." << endl;
+        Cleanup(true);
+    }
+
+    // Initialize local workgroup size for fillCoefficient kernel
+    // Note: The global size is recalculated every time before enqueing the kernel
+    localFillCoefficient_[0] = 1; localFillCoefficient_[1] = 1;
+
+    // Get the maximum work-group size for executing the kernel on the device
+    err = clGetKernelWorkGroupInfo(clKernelFillCoefficient_, clDeviceId_, CL_KERNEL_WORK_GROUP_SIZE,
+                                   sizeof(size_t), &localFillCoefficient_, NULL);
+    if (err != CL_SUCCESS) {
+        cout << "Failed to get kernel workgroup info." << err << endl;
+        Cleanup(true);
+    }
+    cout << "fillCoefficient Local Workgroup Size: " << localFillCoefficient_[0] << " " << localFillCoefficient_[1] << endl;
 }
 
-void ClNddiDisplay::LoadKernel(char *file, char *name, cl_program *program, cl_kernel *kernel) {
+void ClNddiDisplay::LoadKernel(char *path, char *file, char *name, cl_program *program, cl_kernel *kernel) {
 
     cl_int   err;
+    char filename[256];
+
+    sprintf(filename, "%s/%s", path, file);
 
     // Read program file
     ifstream kernelFile;
-    kernelFile.open(file, ifstream::in);
+    kernelFile.open(filename, ifstream::in);
     if (!kernelFile.is_open()) {
-    	kernelFile.open(file, ios::in);
+    	kernelFile.open(filename, ios::in);
     }
     if (!kernelFile.is_open())
     {
-        cerr << "Failed to open program file: " << file << "." << endl;
+        cerr << "Failed to open program file: " << filename << "." << endl;
         Cleanup(true);
     }
     ostringstream oss;
@@ -528,12 +561,62 @@ void ClNddiDisplay::FillCoefficient(int coefficient,
 #endif
 }
 
+// TODO(CDE): Consider moving this to ClCoefficientPlane even though it executes a kernel
 void ClNddiDisplay::FillCoefficientTiles(vector<int> coefficients,
 										 vector<vector<unsigned int> > positions,
 										 vector<vector<unsigned int> > starts,
 										 vector<unsigned int> size) {
 
-	// TODO(CDE): Implement
+    cl_int   err;
+    static coefficient_update_t *packet = NULL;
+
+	// Set the number of instances for kernel
+	size_t tile_count = coefficients.size();
+	assert(positions.size() == tile_count);
+	assert(starts.size() == tile_count);
+
+	// Build the packet
+	if (packet) free(packet);
+	packet = (coefficient_update_t*)malloc(sizeof(coefficient_update_t) * tile_count);
+	for (int i = 0; i < tile_count; i++) {
+		packet[i].coefficient = coefficients[i];
+		packet[i].posCol = positions[i][0];
+		packet[i].posRow = positions[i][1];
+		packet[i].startX = starts[i][0];
+		packet[i].startY = starts[i][1];
+		packet[i].sizeW = size[0];
+		packet[i].sizeH = size[1];
+	}
+
+	// Enqueue command to write the packet
+	err = clEnqueueWriteBuffer(clQueue_, clCommandPacket_, CL_FALSE,
+	                           0, sizeof(coefficient_update_t) * tile_count, packet,
+	                           0, NULL, NULL); // TODO(CDE): Set the event param when I move it to ClCoefficientPlane
+	if (err != CL_SUCCESS) {
+		cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << err << endl;
+	}
+
+	// Set the num kernel arg
+    err = clSetKernelArg(clKernelFillCoefficient_, 6, sizeof(cl_uint), &tile_count);
+    if (err != CL_SUCCESS) {
+        cout << "Failed to set fillCoefficient kernel argument." << endl;
+        Cleanup(true);
+    }
+
+    // Adjust global based on the new workgroup size in local
+    globalFillCoefficient_[0] = tile_count / localFillCoefficient_[0] * localFillCoefficient_[0];
+    if (globalFillCoefficient_[0] < tile_count)
+        globalFillCoefficient_[0] += localFillCoefficient_[0];
+    globalFillCoefficient_[1] = localFillCoefficient_[1];
+    cout << "fillCoefficient Global Size: " << globalFillCoefficient_[0] << " " << globalFillCoefficient_[1] << " and Local Workgroup Size: " << localFillCoefficient_[0] << " " << localFillCoefficient_[1] << endl;
+
+    // Enqueue kernel
+    err = clEnqueueNDRangeKernel(clQueue_, clKernelFillCoefficient_, 1, NULL, globalFillCoefficient_, localFillCoefficient_,
+                                 0, NULL, NULL);
+    if (err) {
+        cout << __FUNCTION__ << " - Failed to enqueue ND range kernel command " << err << endl;
+        Cleanup(true);
+    }
 
 #ifndef SUPRESS_EXCESS_RENDERING
     Render();

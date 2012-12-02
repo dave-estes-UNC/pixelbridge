@@ -268,6 +268,8 @@ public:
         costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * pixelsCopied, time);
     }
 
+    // TODO(CDE): Since I use clEnqueueCopyBufferRect below, I can't support frame volumes with
+    //            dimensionality greater that 3. Fix it with some creative destination origin calculations.
     void CopyPixelTiles(vector<Pixel*> p, vector<vector<unsigned int> > starts, vector<unsigned int> size) {
 
     	unsigned int *             packetPtr = (unsigned int *)packet_;
@@ -283,6 +285,7 @@ public:
         	memcpy(&packetPtr[packetWordCount], p[i], tileSize * sizeof(Pixel));
         	packetWordCount += tileSize;
 
+        	// TODO(CDE): don't overflow
         	// We package up each tile, even if they overflow. So we pay the
         	// transmission cost (applied in ClNddiDisplay), but the kernel will clamp
         	// and not attempt to write the excess bytes. Therefore should not count the
@@ -320,6 +323,11 @@ public:
             	src_origin[2] = i;
             	dst_origin[0] = starts[i][0] * sizeof(Pixel);
             	dst_origin[1] = starts[i][1];
+            	if (starts[i].size() == 3) {
+            		dst_origin[2] = starts[i][2];
+            	}
+            	// TODO(CDE): See comment at the top of function
+            	assert(starts[i].size() <= 3);
 
             	// Clamp region if we're on the last column or row
             	if (starts[i][0] + size[0] >= dimensionalSizes_[0]) {

@@ -119,24 +119,18 @@ public:
             }
         }
 
-        // TODO(CDE): Change this to one single copy rect of the entire region of coefficients
-        // If the stride matches the entire x dimension of the coefficient plane, then...
-        if (stride == width_) {
-            // Enqueue CL commands
-            int err = clEnqueueWriteBuffer(clQueue_, clBuffer_, CL_TRUE, calcOffset(start), matrixSize_ * stride * rowCount, coefficients_, 0, NULL, NULL);
-            if (err != CL_SUCCESS) {
-                std::cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << std::endl;
-            }
-        } else {
-            // Otherwise enqueue the writes row by row
-            position[0] = start[0];
-            for (position[1] = start[1]; position[1] <= end[1]; position[1]++) {
-                // Enqueue CL commands
-                int err = clEnqueueWriteBuffer(clQueue_, clBuffer_, CL_TRUE, calcOffset(position), matrixSize_ * stride, coefficients_, 0, NULL, NULL);
-                if (err != CL_SUCCESS) {
-                    std::cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << std::endl;
-                }
-            }
+        // Copy the rectangular region of coefficients to the compute device
+        size_t row_pitch = matrixSize_ * width_;
+    	size_t slice_pitch = matrixSize_ * width_ * height_;
+        const size_t origin[3] = {start[0] * matrixSize_, start[1], 0};
+        const size_t region[3] = {(end[0] - start[0] + 1) * matrixSize_, end[1] - start[1] + 1, 1};
+
+        int err = clEnqueueWriteBufferRect(clQueue_, clBuffer_, CL_FALSE,
+        								   origin, origin, region,
+        								   row_pitch, slice_pitch, row_pitch, slice_pitch,
+        								   coefficients_, 0, NULL, NULL);
+        if (err != CL_SUCCESS) {
+            std::cout << __FUNCTION__ << " - Failed to create enqueue write buffer rect command." << std::endl;
         }
 
         // Update Cost Model
@@ -149,33 +143,8 @@ public:
                          std::vector<unsigned int> start,
                          std::vector<unsigned int> end) {
 
-        // TODO(CDE): Add future support for multiple planes
-        assert(start.size() == 2);
-        assert(start[0] < width_);
-        assert(start[1] < height_);
-        assert(end.size() == 2);
-        assert(end[0] < width_);
-        assert(end[1] < height_);
-
-        std::vector<unsigned int> position = start;
-        bool fillFinished = false;
-
-        // Move from start to end, filling in each location with the provided pixel
-        do {
-            // Set coefficient in the coefficient matrix at this position in the coefficient plane
-            getCoefficientMatrix(position[0], position[1])->setCoefficient(col, row, coefficient);
-
-            // Move to the next position
-            if (++position[0] > end[0]) {
-                position[0] = start[0];
-                if (++position[1] > end[1]) {
-                    fillFinished = true;
-                }
-            }
-        } while (!fillFinished);
-
-        // Enqueue CL commands
-        // TODO(CDE): Add CL support
+    	// Shouldn't be used since the functionality is implemented directly in ClNddiDisplay
+    	assert(false);
     }
 
     cl_mem initializeCl(cl_context context, cl_command_queue queue) {

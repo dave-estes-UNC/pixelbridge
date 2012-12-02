@@ -55,7 +55,7 @@ public:
 		tile_cache_.clear();
 		tile_map_.clear();
 	}
-    
+
     /**
      * Intializes the Coefficient Plane for this tiler.
      *
@@ -78,7 +78,6 @@ private:
 	int IsTileInCache(tile_t tile);
 	bool IsTileInMap(tile_t tile);
 	int GetExpiredCacheTile();
-	void InitializeCoefficientMatrices();
 #ifndef USE_COPY_PIXEL_TILES
 	void UpdateFrameVolume(Pixel* pixels, tile_t tile);
 	void UpdateCoefficientMatrices(size_t x, size_t y, tile_t tile);

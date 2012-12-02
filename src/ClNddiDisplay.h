@@ -15,6 +15,17 @@
 #include "ClCoefficientPlane.h"
 #include "ClFrameVolume.h"
 
+// Must match struct in fillCoefficient.cl
+typedef struct {
+    int  coefficient;
+    uint posCol;
+    uint posRow;
+    uint startX;
+    uint startY;
+    uint sizeW;
+    uint sizeH;
+} coefficient_update_t;
+
 /**
  * This is a version of the GlNddiDisplay that will use special OpenCL-aware
  * NDDI components and will do the rendering with OpenCL kernels.
@@ -48,7 +59,7 @@ private:
 
     void InitializeGl();
     void InitializeCl();
-    void LoadKernel(char *file, char *name, cl_program *program, cl_kernel *kernel);
+    void LoadKernel(char *path, char *file, char *name, cl_program *program, cl_kernel *kernel);
 
     void Cleanup(bool shouldExit);
 
@@ -62,12 +73,16 @@ private:
     cl_command_queue     clQueue_;
     cl_program           clProgramComputePixel_;
     cl_kernel            clKernelComputePixel_;
+    cl_program           clProgramFillCoefficient_;
+    cl_kernel            clKernelFillCoefficient_;
     cl_mem               clFrameVolumeDims_;
     cl_mem               clFrameBuffer_;
     cl_mem               clCommandPacket_;
 
     size_t               globalComputePixel_[2];
 	size_t               localComputePixel_[2];
+    size_t               globalFillCoefficient_[2];
+	size_t               localFillCoefficient_[2];
 
 	size_t               maxCommandPacketSize_;
 };

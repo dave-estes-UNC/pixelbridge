@@ -26,7 +26,7 @@ CachedTiler::CachedTiler (GlNddiDisplay* display, size_t tile_width, size_t tile
   bits_(bits),
   quiet_(quiet)
 {
-	  
+
 	// Compute tile_map width
 	tile_map_width_ = display_->DisplayWidth() / tile_width;
 	if ((tile_map_width_ * tile_width) < display_->DisplayWidth()) { tile_map_width_++; }
@@ -34,7 +34,7 @@ CachedTiler::CachedTiler (GlNddiDisplay* display, size_t tile_width, size_t tile
 	// Compute tile_map height
 	tile_map_height_ = display_->DisplayHeight() / tile_height;
 	if ((tile_map_height_ * tile_height) < display_->DisplayHeight()) { tile_map_height_++; }
-	
+
 	// Set up tile cache and counters
 	tile_cache_.reserve(max_tiles_);
 	unchanged_tiles_ = cache_hits_ = cache_misses_ = 0;
@@ -59,19 +59,19 @@ CachedTiler::CachedTiler (GlNddiDisplay* display, size_t tile_width, size_t tile
  * @return The cost of this operation, including all of the NDDI operations
  */
 void CachedTiler::InitializeCoefficientPlane() {
-    
+
 	// Setup the coefficient matrix to complete 3x3 identity initially
 	vector< vector<int> > coeffs;
     coeffs.resize(3);
     coeffs[0].push_back(1); coeffs[0].push_back(0); coeffs[0].push_back(0);
     coeffs[1].push_back(0); coeffs[1].push_back(1); coeffs[1].push_back(0);
     coeffs[2].push_back(0); coeffs[2].push_back(0); coeffs[2].push_back(0);
-    
+
 	// Setup start and end points to (0,0) initially
 	vector<unsigned int> start, end;
 	start.push_back(0); start.push_back(0);
 	end.push_back(0); end.push_back(0);
-    
+
 	for (int j = 0; j < tile_map_height_; j++) {
 		for (int i = 0; i < tile_map_width_; i++) {
 			coeffs[2][0] = -i * tile_width_;
@@ -80,7 +80,7 @@ void CachedTiler::InitializeCoefficientPlane() {
 			end[0] = (i + 1) * tile_width_ - 1; end[1] = (j + 1) * tile_height_ - 1;
 			if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
 			if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
-			display_->FillCoefficientMatrix(coeffs, start, end);
+			((ClNddiDisplay *)display_)->FillCoefficientMatrix(coeffs, start, end);
 		}
 	}
 }
@@ -89,7 +89,7 @@ void CachedTiler::InitializeCoefficientPlane() {
 /**
  * Update the tile_map, tilecache, and then the NDDI display based on the frame that's passed in. The
  * frame is returned from the ffmpeg player as an RGB buffer. There is not Alpha channel.
- * 
+ *
  * @param buffer Pointer to an RGB buffer
  * @param width The width of the RGB buffer
  * @param height The height of the RGB buffer
@@ -100,7 +100,7 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 	unsigned char                  mask = 0xff << (8 - bits_);
     Pixel                         *tile_pixels = NULL;
     Pixel                         *tile_pixels_sig_bits = NULL;
-	
+
 	// Break up the passed in buffer into one tile at a time
 	for (int j_tile_map = 0; j_tile_map < tile_map_height_; j_tile_map++) {
 		for (int i_tile_map = 0; i_tile_map < tile_map_width_; i_tile_map++) {
@@ -108,13 +108,13 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 			tile_t tile;
 			tile.checksum = 0L;
 			tile.zIndex = 0;
-			
+
 			// Allocate tiles is necessary. Sometimes they're re-used.
             if (!tile_pixels)
             	tile_pixels = (Pixel*)malloc(tile_width_ * tile_height_ * sizeof(Pixel));
             if (!tile_pixels_sig_bits)
             	tile_pixels_sig_bits = (Pixel*)malloc(tile_width_ * tile_height_ * sizeof(Pixel));
-			
+
 #ifndef NO_OMP
 #pragma omp parallel for ordered
 #endif
@@ -125,11 +125,11 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                 {
                     // Compute the offset into the RGB buffer for this row in this tile
                     int bufferOffset = 3 * ((j_tile_map * tile_height_ + j_tile) * width + (i_tile_map * tile_width_));
-                    
+
                     for (int i_tile = 0; i_tile < tile_width_; i_tile++) {
-                        
+
                         Pixel p, psb;
-                        
+
                         // Just use a black pixel if our tile is hanging off the edge of the buffer
                         if ((j_tile_map * tile_height_ + j_tile >= height) ||
                             (i_tile_map * tile_width_ + i_tile >= width) ) {
@@ -141,17 +141,17 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                             p.a = 0xff;
                         }
                         tile_pixels[j_tile * tile_width_ + i_tile].packed = p.packed;
-                        
+
                         psb.r = p.r & mask;
                         psb.g = p.g & mask;
                         psb.b = p.b & mask;
                         psb.a = p.a & mask;
-                        
+
                         tile_pixels_sig_bits[j_tile * tile_width_ + i_tile].packed = psb.packed;
                     }
                 }
 			}
-            
+
 			unsigned long crc = crc32(0L, Z_NULL, 0);
 			tile.checksum = crc32(crc, (unsigned char*)tile_pixels_sig_bits, tile_width_ * tile_height_ * sizeof(Pixel));
 			//tile.checksum = adler32(crc, (unsigned char*)tile_pixels_sig_bits, tile_width_ * tile_height_ * sizeof(Pixel));
@@ -163,7 +163,7 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 				tile = tile_cache_[index];
 				tile_cache_.erase(tile_cache_.begin() + index);
 				tile_cache_.insert(tile_cache_.begin(), tile);
-				
+
 				// If the tilemap doesn't already contain this tile
 				if (tile_map_[i_tile_map][j_tile_map].checksum != tile.checksum) {
 					// Update the cache hit counter
@@ -182,23 +182,23 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 					// Update the unchanged counter
 					unchanged++;
 				}
-				
+
 			// The tile is not already in the cache, so we'll need to add it
 			} else {
 				// Cache miss
 				misses++;
-				
+
 				// If we have room in the tile cache
 				if (tile_cache_.size() < max_tiles_) {
 					// This will be pushed at the end with this new index
 					size_t index = tile_cache_.size();
-					
+
 					// Since we're growing the cache still, we can use the cache index of this new element as the zIndex
 					tile.zIndex = index;
-					
+
 					// Push the tile onto the head of the cache
 					tile_cache_.insert(tile_cache_.begin(), tile);
-					
+
 					// Update the tile map with the new tile
 					tile_map_[i_tile_map][j_tile_map] = tile;
 
@@ -215,16 +215,16 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 					// Update Coefficient Matrices
 					UpdateCoefficientMatrices(i_tile_map, j_tile_map, tile);
 #endif
-					
+
 				// We didn't have room in the tile cache
 				} else {
 
 					// Determine if we can re-use the zIndex from the previous tile, saving coefficient matrix updates
 					tile_t previous_tile = tile_map_[i_tile_map][j_tile_map];
 					tile_map_[i_tile_map][j_tile_map].checksum = 0;
-					
+
 					int index = IsTileInCache(previous_tile);
-					
+
 					// If the previous tile at this location is not being used anymore but it is still in the tile cache
 					if (!IsTileInMap(previous_tile) && index != -1) {
 						// Set the zIndex
@@ -250,21 +250,21 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 
 					// We couldn't re-use the previous zIndex, so we'll have to find another candidate in the cache
 					} else {
-						
+
 						// Get the least recently used tile in the cache that is not currently used
 						int index = GetExpiredCacheTile();
-						
+
 						if (index >= 0) {
 							// Set the zIndex
 							tile.zIndex = tile_cache_[index].zIndex;
-							
+
 							// Update the tile cache be removing the previous one and inserting the new one at the front
 							tile_cache_.erase(tile_cache_.begin() + index);
 							tile_cache_.insert(tile_cache_.begin(), tile);
-							
+
 							// Update the tile map with the new tile
 							tile_map_[i_tile_map][j_tile_map] = tile;
-							
+
 #ifdef USE_COPY_PIXEL_TILES
 							// Push tile
 							PushTile(tile, tile_pixels, i_tile_map, j_tile_map);
@@ -278,7 +278,7 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 							// Update Coefficient Matrices
 							UpdateCoefficientMatrices(i_tile_map, j_tile_map, tile);
 #endif
-							
+
 						} else {
 							// ERROR
 							cout << "ERROR: Couldn't find a candidate to eject from the cache." << endl;
@@ -288,7 +288,7 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 			}
 		}
 	}
-	
+
 #ifdef USE_COPY_PIXEL_TILES
 	// If any tiles were updated
 	if (misses > 0) {
@@ -298,7 +298,9 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 		size.push_back(tile_width_); size.push_back(tile_height_);
 
 		// Update the Frame Volume by copying the tiles over
-		((ClNddiDisplay *)display_)->CopyPixelTiles(tile_pixels_list, tile_starts_list, size);
+		if (tile_pixels_list.size() > 0) {
+			((ClNddiDisplay *)display_)->CopyPixelTiles(tile_pixels_list, tile_starts_list, size);
+		}
 
 		// Free the tile memory and empty the vector
 		while (!tile_pixels_list.empty()) {
@@ -308,10 +310,12 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 		tile_starts_list.clear();
 
 		// Update the coefficient plane
-		((ClNddiDisplay *)display_)->FillCoefficientTiles(coefficients_list,
-														  coefficient_positions_list,
-														  coefficient_plane_starts_list,
-														  size);
+		if (coefficients_list.size() > 0) {
+			((ClNddiDisplay *)display_)->FillCoefficientTiles(coefficients_list,
+														      coefficient_positions_list,
+														  	  coefficient_plane_starts_list,
+														  	  size);
+		}
 
 		// Free the coefficient memory and empty the vector
 		coefficients_list.clear();
@@ -344,13 +348,13 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
  * @return -1 if no match is found.
  */
 int CachedTiler::IsTileInCache(tile_t tile) {
-	
+
 	for (int i = 0; i < tile_cache_.size(); i++) {
 		if (tile_cache_[i].checksum == tile.checksum) {
 			return i;
 		}
 	}
-	
+
 	return -1;
 }
 
@@ -363,7 +367,7 @@ int CachedTiler::IsTileInCache(tile_t tile) {
  * @return false if not found
  */
 bool CachedTiler::IsTileInMap(tile_t tile) {
-	
+
 	for (int i = 0; i < tile_map_width_; i++) {
 		for (int j = 0; j < tile_map_height_; j++) {
 			if (tile_map_[i][j].checksum == tile.checksum) {
@@ -371,7 +375,7 @@ bool CachedTiler::IsTileInMap(tile_t tile) {
 			}
 		}
 	}
-	
+
 	return false;
 }
 
@@ -406,7 +410,7 @@ void CachedTiler::UpdateFrameVolume(Pixel* pixels, tile_t tile) {
 	start.push_back(0); start.push_back(0); start.push_back(tile.zIndex);
 	end.push_back(tile_width_ - 1); end.push_back(tile_height_ - 1); end.push_back(tile.zIndex);
 
-    display_->CopyPixels(pixels, start, end);
+	((ClNddiDisplay *)display_)->CopyPixels(pixels, start, end);
 }
 
 
@@ -427,8 +431,8 @@ void CachedTiler::UpdateCoefficientMatrices(size_t x, size_t y, tile_t tile) {
 	end.push_back((x + 1) * tile_width_ - 1); end.push_back((y + 1) * tile_height_ - 1);
 	if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
 	if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
-    
-    display_->FillCoefficient(tile.zIndex, 2, 2, start, end);
+
+	((ClNddiDisplay *)display_)->FillCoefficient(tile.zIndex, 2, 2, start, end);
 }
 
 #else
