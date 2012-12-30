@@ -21,17 +21,23 @@ using namespace nddi;
 // public
 
 ClNddiDisplay::ClNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
-                             int inputVectorSize) {
+                             int inputVectorSize) :
+		clFrameVolume_(NULL),
+		clInputVector_(NULL),
+		clKernelFillCoefficient_(0),
+		maxCommandPacketSize_(0)
+{
     ClNddiDisplay(frameVolumeDimensionalSizes, 320, 240, inputVectorSize);
 }
 
 ClNddiDisplay::ClNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
                              int displayWidth, int displayHeight,
-                             int inputVectorSize) {
-
+                             int inputVectorSize)
+{
     frameVolumeDimensionalSizes_ = frameVolumeDimensionalSizes;
     displayWidth_ = displayWidth;
     displayHeight_ = displayHeight;
+    quiet_ = true;
 
     // Create the CostModel
     costModel = new CostModel();
@@ -346,15 +352,11 @@ void ClNddiDisplay::LoadKernel(char *path, char *file, char *name, cl_program *p
 }
 
 
-// Turn on for the timing data in the Render method below
-#define OUTPUT_RENDER_TIMING_DATA
-
 void ClNddiDisplay::Render() {
 
-#ifdef OUTPUT_RENDER_TIMING_DATA
     timeval startTime, endTime; // Used for timing data
-    gettimeofday(&startTime, NULL);
-#endif
+    if (!quiet_)
+    	gettimeofday(&startTime, NULL);
 
     int err;            // Holds return value of CL calls
     unsigned int count; // Number of pixels to compute
@@ -386,17 +388,17 @@ void ClNddiDisplay::Render() {
     }
     clFinish(clQueue_);
 
-#ifdef OUTPUT_RENDER_TIMING_DATA
-    gettimeofday(&endTime, NULL);
-    printf("Render Statistics:\n  Size: %dx%d - FPS: %f\n",
-           displayWidth_,
-           displayHeight_,
-           1.0f / ((double)(endTime.tv_sec * 1000000
-                            + endTime.tv_usec
-                            - startTime.tv_sec * 1000000
-                            - startTime.tv_usec) / 1000000.0f)
-           );
-#endif
+    if (!quiet_) {
+    	gettimeofday(&endTime, NULL);
+		printf("Render Statistics:\n  Size: %dx%d - FPS: %f\n",
+			   displayWidth_,
+			   displayHeight_,
+			   1.0f / ((double)(endTime.tv_sec * 1000000
+								+ endTime.tv_usec
+								- startTime.tv_sec * 1000000
+								- startTime.tv_usec) / 1000000.0f)
+			   );
+    }
 }
 
 void ClNddiDisplay::PutPixel(Pixel p, vector<unsigned int> location) {
@@ -608,7 +610,7 @@ void ClNddiDisplay::FillCoefficientTiles(vector<int> coefficients,
     if (globalFillCoefficient_[0] < tile_count)
         globalFillCoefficient_[0] += localFillCoefficient_[0];
     globalFillCoefficient_[1] = localFillCoefficient_[1];
-    cout << "fillCoefficient Global Size: " << globalFillCoefficient_[0] << " " << globalFillCoefficient_[1] << " and Local Workgroup Size: " << localFillCoefficient_[0] << " " << localFillCoefficient_[1] << endl;
+    //cout << "fillCoefficient Global Size: " << globalFillCoefficient_[0] << " " << globalFillCoefficient_[1] << " and Local Workgroup Size: " << localFillCoefficient_[0] << " " << localFillCoefficient_[1] << endl;
 
     // Enqueue kernel
     err = clEnqueueNDRangeKernel(clQueue_, clKernelFillCoefficient_, 1, NULL, globalFillCoefficient_, localFillCoefficient_,

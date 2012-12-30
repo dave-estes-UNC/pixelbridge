@@ -9,18 +9,20 @@ using namespace nddi;
 
 // public
 
-GlNddiDisplay::GlNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSizes,
+GlNddiDisplay::GlNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
                              int inputVectorSize) {
+	texture_ = 0;
 	GlNddiDisplay(frameVolumeDimensionalSizes, 320, 240, inputVectorSize);
 }
 
-GlNddiDisplay::GlNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSizes,
+GlNddiDisplay::GlNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
                              int displayWidth, int displayHeight,
                              int inputVectorSize) {
 
 	frameVolumeDimensionalSizes_ = frameVolumeDimensionalSizes;
 	displayWidth_ = displayWidth;
 	displayHeight_ = displayHeight;
+    quiet_ = true;
 
     // Create the CostModel
     costModel = new CostModel();
@@ -57,15 +59,11 @@ GlNddiDisplay::~GlNddiDisplay() {
 
 // Private
 
-// Turn on for the timing data in the Render method below
-#define OUTPUT_RENDER_TIMING_DATA
-
 void GlNddiDisplay::Render() {
 
-#ifdef OUTPUT_RENDER_TIMING_DATA
 	timeval startTime, endTime; // Used for timing data
-	gettimeofday(&startTime, NULL);
-#endif
+	if (!quiet_)
+		gettimeofday(&startTime, NULL);
 
     // Even though the InputVector can be invoked concurrently, it's really slow. So
     // we'll use a local copy instead and update the cost model in bulk later.
@@ -108,17 +106,17 @@ void GlNddiDisplay::Render() {
     costModel->registerPixelMappingCharge(displayWidth_ * displayHeight_);
 #endif
 
-#ifdef OUTPUT_RENDER_TIMING_DATA
-	gettimeofday(&endTime, NULL);
-	printf("Render Statistics:\n  Size: %dx%d - FPS: %f\n",
-		   displayWidth_,
-		   displayHeight_,
-		   1.0f / ((double)(endTime.tv_sec * 1000000
-							+ endTime.tv_usec
-							- startTime.tv_sec * 1000000
-							- startTime.tv_usec) / 1000000.0f)
-		   );
-#endif
+    if (!quiet_) {
+    	gettimeofday(&endTime, NULL);
+    	printf("Render Statistics:\n  Size: %dx%d - FPS: %f\n",
+    			displayWidth_,
+    			displayHeight_,
+    			1.0f / ((double)(endTime.tv_sec * 1000000
+								+ endTime.tv_usec
+								- startTime.tv_sec * 1000000
+								- startTime.tv_usec) / 1000000.0f)
+		   	   );
+    }
 }
 
 Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
@@ -127,7 +125,7 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
     CoefficientMatrix * matrix = coefficientPlane_->getCoefficientMatrix(x, y);
 
 	// Compute the position vector for the proper pixel in the frame volume.
-	std::vector<unsigned int> fvPosition;
+	vector<unsigned int> fvPosition;
 	// Matrix multiply the input vector by the coefficient matrix
 	for (int j = 0; j < CM_HEIGHT; j++) {
         // Initialize to zero
@@ -152,7 +150,7 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
     int * cm = coefficientPlane_->getCoefficientMatrix(x, y)->data();
 
 	// Compute the position vector for the proper pixel in the frame volume.
-	std::vector<unsigned int> fvPosition;
+	vector<unsigned int> fvPosition;
 	// Matrix multiply the input vector by the coefficient matrix
 	for (int j = 0; j < CM_HEIGHT; j++) {
         // Initialize to zero

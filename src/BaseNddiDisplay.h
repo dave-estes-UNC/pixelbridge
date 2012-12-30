@@ -44,9 +44,9 @@ namespace nddi {
         InputVector * inputVector_;
         
         /**
-         * Holds the sizes of each dimenion of the Frame Volume.
+         * Holds the sizes of each dimension of the Frame Volume.
          */
-        std::vector<unsigned int> frameVolumeDimensionalSizes_;
+        vector<unsigned int> frameVolumeDimensionalSizes_;
         
         /**
          * The frameVolume_ is physcially a flat buffer of Pixels, but it logically managed based on the configured
@@ -70,25 +70,32 @@ namespace nddi {
          */
         CostModel* costModel;
         
+        /**
+         * Tracks whether verbose output should be used or not.
+         */
+        bool quiet_;
+
     public:
-        BaseNddiDisplay() {}
-        BaseNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSizes,
+        BaseNddiDisplay();
+        BaseNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
                         int inputVectorSize);
-        BaseNddiDisplay(std::vector<unsigned int> frameVolumeDimensionalSizes,
+        BaseNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
                         int displayWidth, int displayHeight,
                         int inputVectorSize);
         ~BaseNddiDisplay();
         int DisplayWidth();
         int DisplayHeight();
-        void PutPixel(Pixel p, std::vector<unsigned int> location);
-        void CopyPixelStrip(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end);
-        void CopyPixels(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end);
-        void FillPixel(Pixel p, std::vector<unsigned int> start, std::vector<unsigned int> end);
-        void CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest);
-        void UpdateInputVector(std::vector<int> input);
-        void PutCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix, std::vector<unsigned int> location);
-        void FillCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix, std::vector<unsigned int> start, std::vector<unsigned int> end);
-        void FillCoefficient(int coefficient, int row, int col, std::vector<unsigned int> start, std::vector<unsigned int> end);
+        void PutPixel(Pixel p, vector<unsigned int> location);
+        void CopyPixelStrip(Pixel* p, vector<unsigned int> start, vector<unsigned int> end);
+        void CopyPixels(Pixel* p, vector<unsigned int> start, vector<unsigned int> end);
+        void FillPixel(Pixel p, vector<unsigned int> start, vector<unsigned int> end);
+        void CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest);
+        void UpdateInputVector(vector<int> input);
+        void PutCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> location);
+        void FillCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> start, vector<unsigned int> end);
+        void FillCoefficient(int coefficient, int row, int col, vector<unsigned int> start, vector<unsigned int> end);
+        void Mute() { quiet_ = true; }
+        void Unmute() { quiet_ = false; }
         CostModel* GetCostModel();
     };
     

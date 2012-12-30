@@ -72,6 +72,7 @@ size_t configStartFrame = 0;
 size_t configMaxFrames = 0;
 size_t configRewindStartFrame = 0;
 size_t configRewindFrames = 0;
+bool configVerbose = false;
 bool configHeadless = false;
 
 // Statistical Instrumentation
@@ -131,7 +132,7 @@ void setupDisplay() {
 		myTiler = new CachedTiler(myDisplay,
 								  configTileWidth, configTileHeight,
 								  configMaxTiles, configSigBits,
-								  configHeadless);
+								  configHeadless || !configVerbose);
 
         myTiler->InitializeCoefficientPlane();
 
@@ -305,7 +306,7 @@ void setupDisplay() {
         // Set up Flat Tiler and initialize Coefficient plane`
         myTiler = new FlatTiler(myDisplay,
                                 configTileWidth, configTileHeight, configSigBits,
-                                configHeadless);
+                                configHeadless || !configVerbose);
         
         myTiler->InitializeCoefficientPlane();
     // Simple Framebuffer
@@ -351,6 +352,9 @@ void setupDisplay() {
         myDisplay->FillCoefficientMatrix(coeffs, start, end);
     }
 	totalUpdates++;
+
+	if (configVerbose)
+		myDisplay->Unmute();
     
     // Renders the initial display
     myDisplay->GetFrameBuffer();
@@ -723,7 +727,7 @@ void renderFrame() {
 
 		}
 
-		if (!configHeadless) {
+		if (!configHeadless && configVerbose) {
 			cout << "PixelBidge Statistics:" << endl << "  Decoded Frames: " << framesDecoded << " - Rendered Frames: " << framesRendered << endl;
 		}
 		
@@ -822,7 +826,7 @@ void countChangedPixels() {
 			outputStats(true);
 		}
 		
-		if (!configHeadless) {
+		if (!configHeadless && configVerbose) {
 			cout << "PixelBidge Statistics:" << endl << "  Decoded Frames: " << framesDecoded << " - Counted Frames: " << framesCounted << endl;
 		}
 		
@@ -885,7 +889,8 @@ void showUsage() {
 	cout << "  --start  Will start with this frame, ignoring any decoded frames prior to it." << endl;
 	cout << "  --frames  Sets the number of maximum frames that are decoded." << endl;
 	cout << "  --rewind  Sets a start point and a number of frames to play in reverse. Once finished, normal playback continues." << endl;
-	cout << "  --headless  Removes rendering and excessive data output. Great for batch processing." << endl;
+	cout << "  --verbose  Outputs frame-by-frame statistics." << endl;
+	cout << "  --headless  Removes rendering and excessive data output. Overrides --verbose. Great for batch processing." << endl;
 }
 
 
@@ -977,6 +982,10 @@ bool parseArgs(int argc, char *argv[]) {
 			}
 			argc -= 3;
 			argv += 3;
+		} else if (strcmp(*argv, "--verbose") == 0) {
+			configVerbose = true;
+			argc--;
+			argv++;
 		} else if (strcmp(*argv, "--headless") == 0) {
 			configHeadless = true;
 			argc--;

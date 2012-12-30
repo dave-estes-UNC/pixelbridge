@@ -8,6 +8,8 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
+#include <sys/time.h>
 
 #include "PixelBridgeFeatures.h"
 #include "BlendingGlNddiDisplay.h"
@@ -190,10 +192,9 @@ void BlendingGlNddiDisplay::CopyFrameVolume(vector<unsigned int> start, vector<u
 
 void BlendingGlNddiDisplay::Render() {
     
-#ifdef OUTPUT_RENDER_TIMING_DATA
     timeval startTime, endTime; // Used for timing data
-    gettimeofday(&startTime, NULL);
-#endif
+    if (!quiet_)
+    	gettimeofday(&startTime, NULL);
     
     // Even though the InputVector can be invoked concurrently, it's really slow. So
     // we'll use a local copy instead and update the cost model in bulk later.
@@ -239,17 +240,17 @@ void BlendingGlNddiDisplay::Render() {
     }
 #endif
     
-#ifdef OUTPUT_RENDER_TIMING_DATA
-    gettimeofday(&endTime, NULL);
-    printf("Render Statistics:\n  Size: %dx%d - FPS: %f\n",
-           displayWidth_,
-           displayHeight_,
-           1.0f / ((double)(endTime.tv_sec * 1000000
-                            + endTime.tv_usec
-                            - startTime.tv_sec * 1000000
-                            - startTime.tv_usec) / 1000000.0f)
-           );
-#endif
+    if (!quiet_) {
+		gettimeofday(&endTime, NULL);
+		printf("Render Statistics:\n  Size: %dx%d - FPS: %f\n",
+			   displayWidth_,
+			   displayHeight_,
+			   1.0f / ((double)(endTime.tv_sec * 1000000
+								+ endTime.tv_usec
+								- startTime.tv_sec * 1000000
+								- startTime.tv_usec) / 1000000.0f)
+			   );
+    }
 }
 
 
