@@ -53,7 +53,7 @@ namespace nddi {
          *                                    frame volume will be configured with a two-element vector with 4 and 4 in it.
          * @param inputVectorSize Used to configure the size of the input vector. It must be greater than or equal to two.
          */
-        NDimensionalDisplayInterface(vector<unsigned int> frameVolumeDimensionalSizes,
+        NDimensionalDisplayInterface(vector<unsigned int> &frameVolumeDimensionalSizes,
                                      int inputVectorSize) {}
         /**
          * Each NDimensionalDisplayInterface is configured during contruction. This contructor allows the NDDI client
@@ -67,7 +67,7 @@ namespace nddi {
          * @param displayHeight Used to configure the width of the diplay if it is less than the display device.
          * @param inputVectorSize Used to configure the size of the input vector. It must be greater than or equal to two.
          */
-        NDimensionalDisplayInterface(vector<unsigned int> frameVolumeDimensionalSizes,
+        NDimensionalDisplayInterface(vector<unsigned int> &frameVolumeDimensionalSizes,
                                      int displayWidth, int displayHeight,
                                      int inputVectorSize) {}
 
@@ -90,10 +90,8 @@ namespace nddi {
          *
          * @param p The pixel value to be copied.
          * @param location The location within the frame volume where the pixel will be copied to.
-         * @return The cost of the operation. Can be measured in time, byte-count, or another
-         *         measurements based on the display implementation
          */
-        virtual void PutPixel(Pixel p, vector<unsigned int> location) = 0;
+        virtual void PutPixel(Pixel p, vector<unsigned int> &location) = 0;
 
         /**
          * Copies the one dimensional array of pixels along a particular dimension in the frame volume. In a
@@ -104,10 +102,8 @@ namespace nddi {
          * @param start The first pixel in the frame volume to be filled.
          * @param end The last pixel in the frame volume to be filled. All but one of the values in
          *            values in this last pixel should be identical to the start pixel.
-         * @return The cost of the operation. Can be measured in time, byte-count, or another
-         *         measurements based on the display implementation
          */
-        virtual void CopyPixelStrip(Pixel* p, vector<unsigned int> start, vector<unsigned int> end) = 0;
+        virtual void CopyPixelStrip(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end) = 0;
 
         /**
          * Copies the array of pixels into the designated region of the frame volume. The data must be
@@ -118,10 +114,8 @@ namespace nddi {
          * @param p The pointer to the pixel values to be copied.
          * @param start The first pixel in the frame volume to be filled.
          * @param end The last pixel in the frame volume to be filled.
-         * @return The cost of the operation. Can be measured in time, byte-count, or another
-         *         measurements based on the display implementation
          */
-        virtual void CopyPixels(Pixel* p, vector<unsigned int> start, vector<unsigned int> end) = 0;
+        virtual void CopyPixels(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end) = 0;
 
         /**
          * Fills the frame volume with the specified pixel. It can fill in multiple
@@ -131,12 +125,17 @@ namespace nddi {
          * @param p The pixel value to be filled.
          * @param start The first pixel in the frame volume to be filled.
          * @param end The last pixel in the frame volume to be filled.
-         * @return The cost of the operation. Can be measured in time, byte-count, or another
-         *         measurements based on the display implementation
          */
-        virtual void FillPixel(Pixel p, vector<unsigned int> start, vector<unsigned int> end) = 0;
+        virtual void FillPixel(Pixel p, vector<unsigned int> &start, vector<unsigned int> &end) = 0;
 
-        virtual void CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest) = 0;
+        /**
+         * Copies pixels from one multi-dimensional region of the frame volume to another region.
+         *
+         * @param start The starting coordinate of the source region.
+         * @param end The ending coordinate of the source region.
+         * @param dest The starting coordinate of the destination region.
+         */
+        virtual void CopyFrameVolume(vector<unsigned int> &start, vector<unsigned int> &end, vector<unsigned int> &dest) = 0;
 
         /**
          * Used to update the input vector with the extra values in the input vector.
@@ -145,10 +144,8 @@ namespace nddi {
          *              vector must equal the size of the actual input vector
          *              minus two, since the first two values in the input
          *              vector cannot be changed.
-         * @return The cost of the operation. Can be measured in time, byte-count, or another
-         *         measurements based on the display implementation
          */
-        virtual void UpdateInputVector(vector<int> input) = 0;
+        virtual void UpdateInputVector(vector<int> &input) = 0;
 
         /**
          * Used to copy the specified coefficientMatrix into the specified location of the coefficient
@@ -159,10 +156,8 @@ namespace nddi {
          *                          exactly. Can use COFFICIENT_UNCHANGED for one or more elements.
          * @param location This two-element vector specifies the location in the coefficient plane where the provided
          *                 coefficient matrix will be copied.
-         * @return The cost of the operation. Can be measured in time, byte-count, or another
-         *         measurements based on the display implementation
          */
-        virtual void PutCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> location) = 0;
+        virtual void PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &location) = 0;
 
         /**
          * Used to copy the specified coefficientMatrix into a range of locations in the coefficient plane.
@@ -174,10 +169,8 @@ namespace nddi {
          *              coefficient matrix will be copied to.
          * @param end This two-element vector specifies the location in the coefficient plane where the last
          *            coefficient matrix will be copied to.
-         * @return The cost of the operation. Can be measured in time, byte-count, or another
-         *         measurements based on the display implementation
          */
-        virtual void FillCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> start, vector<unsigned int> end) = 0;
+        virtual void FillCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &start, vector<unsigned int> &end) = 0;
 
         /**
          * Used to copy the specified single coefficient value from a matrix into a range of locations in the coefficient plane.
@@ -190,10 +183,8 @@ namespace nddi {
          *              coefficient matrix will be copied to.
          * @param end This two-element vector specifies the location in the coefficient plane where the last
          *            coefficient matrix will be copied to.
-         * @return The cost of the operation. Can be measured in time, byte-count, or another
-         *         measurements based on the display implementation
          */
-        virtual void FillCoefficient(int coefficient, int row, int col, vector<unsigned int> start, vector<unsigned int> end) = 0;
+        virtual void FillCoefficient(int coefficient, int row, int col, vector<unsigned int> &start, vector<unsigned int> &end) = 0;
 
         /**
          * Returns the CostModel for this display. The CostModel can be queried by the

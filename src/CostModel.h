@@ -9,10 +9,6 @@
 #ifndef pixelbridge_CostModel_h
 #define pixelbridge_CostModel_h
 
-#include <vector>
-
-using namespace std;
-
 namespace nddi {
     
     typedef enum {

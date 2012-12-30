@@ -21,26 +21,26 @@ using namespace std;
 class BlendingGlNddiDisplay : public GlNddiDisplay, public NDimensionalDisplayInterfaceExtended {
     
 public:
-    BlendingGlNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
+    BlendingGlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                           int inputVectorSize);
-    BlendingGlNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
+    BlendingGlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                           int displayWidth, int displayHeight,
                           int inputVectorSize);
-    BlendingGlNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
+    BlendingGlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                           int displayWidth, int displayHeight,
                           int inputVectorSize,
                           unsigned int planes);
     ~BlendingGlNddiDisplay();
     
     // Overridden to handle multiple Coefficient Planes
-    void PutCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> location);
-    void FillCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> start, vector<unsigned int> end);
-    void FillCoefficient(int coefficient, int row, int col, vector<unsigned int> start, vector<unsigned int> end);
+    void PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &location);
+    void FillCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &start, vector<unsigned int> &end);
+    void FillCoefficient(int coefficient, int row, int col, vector<unsigned int> &start, vector<unsigned int> &end);
     
     // To satisfy the NDimensionalDisplayInterfaceExtended interface
-    void CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest, bool blend);
-    void CopyPixelTiles(vector<Pixel*> p, vector<vector<unsigned int> > starts, vector<unsigned int> size) {};
-    void FillCoefficientTiles(vector<int> coefficients, vector<vector<unsigned int> > positions, vector<vector<unsigned int> > starts, vector<unsigned int> size) {};
+    void CopyFrameVolume(vector<unsigned int> &start, vector<unsigned int> &end, vector<unsigned int> &dest, bool blend);
+    void CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) {};
+    void FillCoefficientTiles(vector<int> &coefficients, vector<vector<unsigned int> > &positions, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) {};
 
     nddi::Pixel* GetFrameBuffer();
     

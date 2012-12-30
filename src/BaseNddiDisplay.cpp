@@ -18,7 +18,7 @@ BaseNddiDisplay::BaseNddiDisplay() :
 		quiet_(false)
 {}
 
-BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
+BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                                  int inputVectorSize) :
 		displayWidth_(0),
 		displayHeight_(0),
@@ -31,7 +31,7 @@ BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> frameVolumeDimensionalSize
 		quiet_(false)
 {}
 
-BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
+BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                                  int displayWidth, int displayHeight,
                                  int inputVectorSize) :
 		displayWidth_(displayWidth),
@@ -55,7 +55,7 @@ int BaseNddiDisplay::DisplayHeight() {
 	return displayHeight_;
 }
 
-void BaseNddiDisplay::PutPixel(Pixel p, vector<unsigned int> location) {
+void BaseNddiDisplay::PutPixel(Pixel p, vector<unsigned int> &location) {
 	
     // Register transmission cost first
     costModel->registerTransmissionCharge(4 * (1 + frameVolumeDimensionalSizes_.size()), 0);
@@ -68,7 +68,7 @@ void BaseNddiDisplay::PutPixel(Pixel p, vector<unsigned int> location) {
 #endif
 }
 
-void BaseNddiDisplay::CopyPixelStrip(Pixel* p, vector<unsigned int> start, vector<unsigned int> end) {
+void BaseNddiDisplay::CopyPixelStrip(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end) {
 	
 	int dimensionToCopyAlong;
 	bool dimensionFound = false;
@@ -92,7 +92,7 @@ void BaseNddiDisplay::CopyPixelStrip(Pixel* p, vector<unsigned int> start, vecto
 #endif
 }
 
-void BaseNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> start, vector<unsigned int> end) {
+void BaseNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end) {
 	
     // Register transmission cost first
     int pixelsToCopy = 1;
@@ -109,7 +109,7 @@ void BaseNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> start, vector<un
 #endif
 }
 
-void BaseNddiDisplay::FillPixel(Pixel p, vector<unsigned int> start, vector<unsigned int> end) {
+void BaseNddiDisplay::FillPixel(Pixel p, vector<unsigned int> &start, vector<unsigned int> &end) {
 	
     // Register transmission cost first
     costModel->registerTransmissionCharge(4 * (1 + 2 * frameVolumeDimensionalSizes_.size()), 0);
@@ -122,7 +122,7 @@ void BaseNddiDisplay::FillPixel(Pixel p, vector<unsigned int> start, vector<unsi
 #endif
 }
 
-void BaseNddiDisplay::CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest) {
+void BaseNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<unsigned int> &end, vector<unsigned int> &dest) {
 	
     // Register transmission cost first
     costModel->registerTransmissionCharge(4 * (3 * frameVolumeDimensionalSizes_.size()), 0);
@@ -135,7 +135,7 @@ void BaseNddiDisplay::CopyFrameVolume(vector<unsigned int> start, vector<unsigne
 #endif
 }
 
-void BaseNddiDisplay::UpdateInputVector(vector<int> input) {
+void BaseNddiDisplay::UpdateInputVector(vector<int> &input) {
 	
     // Register transmission cost first
     costModel->registerTransmissionCharge(4 * input.size(), 0);
@@ -148,8 +148,8 @@ void BaseNddiDisplay::UpdateInputVector(vector<int> input) {
 #endif
 }
 
-void BaseNddiDisplay::PutCoefficientMatrix(vector< vector<int> > coefficientMatrix,
-                                           vector<unsigned int> location) {
+void BaseNddiDisplay::PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix,
+                                           vector<unsigned int> &location) {
 	
     // Register transmission cost first
     costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + frameVolumeDimensionalSizes_.size()), 0);
@@ -162,9 +162,9 @@ void BaseNddiDisplay::PutCoefficientMatrix(vector< vector<int> > coefficientMatr
 #endif
 }
 
-void BaseNddiDisplay::FillCoefficientMatrix(vector< vector<int> > coefficientMatrix,
-                                            vector<unsigned int> start,
-                                            vector<unsigned int> end) {
+void BaseNddiDisplay::FillCoefficientMatrix(vector< vector<int> > &coefficientMatrix,
+                                            vector<unsigned int> &start,
+                                            vector<unsigned int> &end) {
     // Register transmission cost first
     costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + 2 * 2), 0);
     
@@ -178,8 +178,8 @@ void BaseNddiDisplay::FillCoefficientMatrix(vector< vector<int> > coefficientMat
 
 void BaseNddiDisplay::FillCoefficient(int coefficient,
                                       int row, int col,
-                                      vector<unsigned int> start,
-                                      vector<unsigned int> end) {
+                                      vector<unsigned int> &start,
+                                      vector<unsigned int> &end) {
     // Register transmission cost first
     costModel->registerTransmissionCharge(4 * (3 + 2 * 2), 0);
 	

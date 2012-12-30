@@ -20,7 +20,7 @@ using namespace nddi;
 
 // public
 
-ClNddiDisplay::ClNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
+ClNddiDisplay::ClNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                              int inputVectorSize) :
 		clFrameVolume_(NULL),
 		clInputVector_(NULL),
@@ -30,7 +30,7 @@ ClNddiDisplay::ClNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
     ClNddiDisplay(frameVolumeDimensionalSizes, 320, 240, inputVectorSize);
 }
 
-ClNddiDisplay::ClNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
+ClNddiDisplay::ClNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                              int displayWidth, int displayHeight,
                              int inputVectorSize)
 {
@@ -401,7 +401,7 @@ void ClNddiDisplay::Render() {
     }
 }
 
-void ClNddiDisplay::PutPixel(Pixel p, vector<unsigned int> location) {
+void ClNddiDisplay::PutPixel(Pixel p, vector<unsigned int> &location) {
 
     // Register transmission cost first
     costModel->registerTransmissionCharge(4 * (1 + frameVolumeDimensionalSizes_.size()), 0);
@@ -414,7 +414,7 @@ void ClNddiDisplay::PutPixel(Pixel p, vector<unsigned int> location) {
 #endif
 }
 
-void ClNddiDisplay::CopyPixelStrip(Pixel* p, vector<unsigned int> start, vector<unsigned int> end) {
+void ClNddiDisplay::CopyPixelStrip(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end) {
 
     int dimensionToCopyAlong;
     bool dimensionFound = false;
@@ -438,7 +438,7 @@ void ClNddiDisplay::CopyPixelStrip(Pixel* p, vector<unsigned int> start, vector<
 #endif
 }
 
-void ClNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> start, vector<unsigned int> end) {
+void ClNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end) {
 
     // Register transmission cost first
     int pixelsToCopy = 1;
@@ -455,7 +455,7 @@ void ClNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> start, vector<unsi
 #endif
 }
 
-void ClNddiDisplay::CopyPixelTiles(vector<Pixel*> p, vector<vector<unsigned int> > starts, vector<unsigned int> size) {
+void ClNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) {
 
 	cl_event *                 pEvent = NULL;
 
@@ -481,7 +481,7 @@ void ClNddiDisplay::CopyPixelTiles(vector<Pixel*> p, vector<vector<unsigned int>
 #endif
 }
 
-void ClNddiDisplay::FillPixel(Pixel p, vector<unsigned int> start, vector<unsigned int> end) {
+void ClNddiDisplay::FillPixel(Pixel p, vector<unsigned int> &start, vector<unsigned int> &end) {
 
     // Register transmission cost first
     costModel->registerTransmissionCharge(4 * (1 + 2 * frameVolumeDimensionalSizes_.size()), 0);
@@ -494,7 +494,7 @@ void ClNddiDisplay::FillPixel(Pixel p, vector<unsigned int> start, vector<unsign
 #endif
 }
 
-void ClNddiDisplay::CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest) {
+void ClNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<unsigned int> &end, vector<unsigned int> &dest) {
 
     // Register transmission cost first
     costModel->registerTransmissionCharge(4 * (3 * frameVolumeDimensionalSizes_.size()), 0);
@@ -507,7 +507,7 @@ void ClNddiDisplay::CopyFrameVolume(vector<unsigned int> start, vector<unsigned 
 #endif
 }
 
-void ClNddiDisplay::UpdateInputVector(vector<int> input) {
+void ClNddiDisplay::UpdateInputVector(vector<int> &input) {
 
     // Register transmission cost first
     costModel->registerTransmissionCharge(4 * input.size(),0);
@@ -520,8 +520,8 @@ void ClNddiDisplay::UpdateInputVector(vector<int> input) {
 #endif
 }
 
-void ClNddiDisplay::PutCoefficientMatrix(vector< vector<int> > coefficientMatrix,
-                                           vector<unsigned int> location) {
+void ClNddiDisplay::PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix,
+                                           vector<unsigned int> &location) {
 
     // Register transmission cost first
     costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + frameVolumeDimensionalSizes_.size()), 0);
@@ -534,9 +534,9 @@ void ClNddiDisplay::PutCoefficientMatrix(vector< vector<int> > coefficientMatrix
 #endif
 }
 
-void ClNddiDisplay::FillCoefficientMatrix(vector< vector<int> > coefficientMatrix,
-                                            vector<unsigned int> start,
-                                            vector<unsigned int> end) {
+void ClNddiDisplay::FillCoefficientMatrix(vector< vector<int> > &coefficientMatrix,
+                                            vector<unsigned int> &start,
+                                            vector<unsigned int> &end) {
     // Register transmission cost first
     costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + 2 * 2), 0);
 
@@ -550,8 +550,8 @@ void ClNddiDisplay::FillCoefficientMatrix(vector< vector<int> > coefficientMatri
 
 void ClNddiDisplay::FillCoefficient(int coefficient,
                                       int row, int col,
-                                      vector<unsigned int> start,
-                                      vector<unsigned int> end) {
+                                      vector<unsigned int> &start,
+                                      vector<unsigned int> &end) {
     // Register transmission cost first
     costModel->registerTransmissionCharge(4 * (3 + 2 * 2), 0);
 
@@ -564,10 +564,10 @@ void ClNddiDisplay::FillCoefficient(int coefficient,
 }
 
 // TODO(CDE): Consider moving this to ClCoefficientPlane even though it executes a kernel
-void ClNddiDisplay::FillCoefficientTiles(vector<int> coefficients,
-										 vector<vector<unsigned int> > positions,
-										 vector<vector<unsigned int> > starts,
-										 vector<unsigned int> size) {
+void ClNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
+										 vector<vector<unsigned int> > &positions,
+										 vector<vector<unsigned int> > &starts,
+										 vector<unsigned int> &size) {
 
     cl_int   err;
     static coefficient_update_t *packet = NULL;

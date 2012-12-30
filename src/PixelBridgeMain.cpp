@@ -22,8 +22,6 @@
 #include "Rewinder.h"
 
 
-using namespace std;
-
 typedef enum {
 	COUNT,  // Just count (aka Perfect Pixel Latching)
 	SIMPLE, // Simple Framebuffer
@@ -86,7 +84,7 @@ uint8_t* videoBuffer = NULL;
 uint8_t* lastBuffer = NULL;
 
 // Buffers decoded frame
-std::queue<uint8_t*> bufferQueue;
+queue<uint8_t*> bufferQueue;
 
 // Synchronization variables
 pthread_mutex_t      bufferQueueMutex;
@@ -98,7 +96,7 @@ void setupDisplay() {
 	if (config == CACHE) {
 
 		// 3 dimensional matching the Tile Width x Height x max tiles
-		std::vector<unsigned int> fvDimensions;
+		vector<unsigned int> fvDimensions;
 		fvDimensions.push_back(configTileWidth);
 		fvDimensions.push_back(configTileHeight);
 		fvDimensions.push_back(configMaxTiles);
@@ -116,14 +114,14 @@ void setupDisplay() {
         costModel = myDisplay->GetCostModel();
         
 		// Initialize Input Vector
-		std::vector<int> iv;
+		vector<int> iv;
 		iv.push_back(1);
 		myDisplay->UpdateInputVector(iv);
 		
 		// Initialize Frame Volume
 		nddi::Pixel p;
 		p.r = p.g = p.b = p.a = 0xff;
-		std::vector<unsigned int> start, end;
+		vector<unsigned int> start, end;
 		start.push_back(0); start.push_back(0); start.push_back(0);
 		end.push_back(configTileWidth); end.push_back(configTileHeight); end.push_back(configMaxTiles);
 		myDisplay->FillPixel(p, start, end);
@@ -140,7 +138,7 @@ void setupDisplay() {
     } else if ((config == SIMPLE) && (configBlend == FRAME_VOLUME)) {
 		
 		// 3 dimensional matching the Video Width x Height x 3
-		std::vector<unsigned int> fvDimensions;
+		vector<unsigned int> fvDimensions;
 		fvDimensions.push_back(displayWidth);
 		fvDimensions.push_back(displayHeight);
 		fvDimensions.push_back(3);
@@ -154,14 +152,14 @@ void setupDisplay() {
         costModel = myDisplay->GetCostModel();
         
 		// Initialize Input Vector
-		std::vector<int> iv;
+		vector<int> iv;
 		iv.push_back(0);
 		myDisplay->UpdateInputVector(iv);
 		
 		// Initialize Frame Volume
 		nddi::Pixel p;
 		p.r = p.g = p.b = 0x00; p.a = 0x7f;
-		std::vector<unsigned int> start, end;
+		vector<unsigned int> start, end;
 		start.push_back(0); start.push_back(0); start.push_back(0);
 		end.push_back(displayWidth - 1); end.push_back(displayHeight - 1); end.push_back(2);
 		myDisplay->FillPixel(p, start, end);
@@ -184,7 +182,7 @@ void setupDisplay() {
     } else if ((config == SIMPLE) && (configBlend == TEMPORAL)) {
 		
 		// 3 dimensional matching the Video Width x Height x 2
-		std::vector<unsigned int> fvDimensions;
+		vector<unsigned int> fvDimensions;
 		fvDimensions.push_back(displayWidth);
 		fvDimensions.push_back(displayHeight);
 		fvDimensions.push_back(2);
@@ -197,14 +195,14 @@ void setupDisplay() {
         costModel = myDisplay->GetCostModel();
         
 		// Initialize Input Vector
-		std::vector<int> iv;
+		vector<int> iv;
 		iv.push_back(0);
 		myDisplay->UpdateInputVector(iv);
 		
 		// Initialize Frame Volume
 		nddi::Pixel p;
 		p.r = p.g = p.b = 0x00; p.a = 0x7f;
-		std::vector<unsigned int> start, end;
+		vector<unsigned int> start, end;
 		start.push_back(0); start.push_back(0); start.push_back(0);
 		end.push_back(displayWidth - 1); end.push_back(displayHeight - 1); end.push_back(1);
 		myDisplay->FillPixel(p, start, end);
@@ -227,7 +225,7 @@ void setupDisplay() {
     } else if ((config == SIMPLE) && (configBlend == COEFFICIENT_PLANE)) {
 		
 		// 3 dimensional matching the Video Width x Height x 2
-		std::vector<unsigned int> fvDimensions;
+		vector<unsigned int> fvDimensions;
 		fvDimensions.push_back(displayWidth);
 		fvDimensions.push_back(displayHeight);
 		fvDimensions.push_back(2);
@@ -242,14 +240,14 @@ void setupDisplay() {
         costModel = myDisplay->GetCostModel();
         
 		// Initialize Input Vector
-		std::vector<int> iv;
+		vector<int> iv;
 		iv.push_back(1);
 		myDisplay->UpdateInputVector(iv);
 		
 		// Initialize Frame Volume
 		nddi::Pixel p;
 		p.r = p.g = p.b = 0x00; p.a = 0x7f;
-		std::vector<unsigned int> start, end;
+		vector<unsigned int> start, end;
 		start.push_back(0); start.push_back(0); start.push_back(0);
 		end.push_back(displayWidth - 1); end.push_back(displayHeight - 1); end.push_back(1);
 		myDisplay->FillPixel(p, start, end);
@@ -278,7 +276,7 @@ void setupDisplay() {
 	} else if (config == FLAT) {
 
 		// 2 dimensional matching the Video Width x Height
-		std::vector<unsigned int> fvDimensions;
+		vector<unsigned int> fvDimensions;
 		
 		fvDimensions.push_back(displayWidth);
 		fvDimensions.push_back(displayHeight);
@@ -298,7 +296,7 @@ void setupDisplay() {
 		// Initialize Frame Volume
 		nddi::Pixel p;
 		p.r = p.g = p.b = p.a = 0xff;
-		std::vector<unsigned int> start, end;
+		vector<unsigned int> start, end;
 		start.push_back(0); start.push_back(0);
 		end.push_back(displayWidth - 1); end.push_back(displayHeight - 1);
 		myDisplay->FillPixel(p, start, end);
@@ -314,7 +312,7 @@ void setupDisplay() {
 		
 		
 		// 2 dimensional matching the Video Width x Height
-		std::vector<unsigned int> fvDimensions;
+		vector<unsigned int> fvDimensions;
 		fvDimensions.push_back(displayWidth);
 		fvDimensions.push_back(displayHeight);
 		
@@ -333,7 +331,7 @@ void setupDisplay() {
 		// Initialize Frame Volume
 		nddi::Pixel p;
 		p.r = p.g = p.b = p.a = 0xff;
-		std::vector<unsigned int> start, end;
+		vector<unsigned int> start, end;
 		start.push_back(0); start.push_back(0);
 		end.push_back(displayWidth - 1); end.push_back(displayHeight - 1);
 		myDisplay->FillPixel(p, start, end);
@@ -386,7 +384,7 @@ void updateDisplay(uint8_t* buffer, size_t width, size_t height) {
 		}
 		
 		// Update the frame volume
-		std::vector<unsigned int> start, end, dest;
+		vector<unsigned int> start, end, dest;
 
         // Not Blending
         if (configBlend == NONE) {
@@ -412,7 +410,7 @@ void updateDisplay(uint8_t* buffer, size_t width, size_t height) {
             myBlendingDisplay->CopyFrameVolume(start, end, dest, true);
             
             // Render
-            std::vector<int> iv;
+            vector<int> iv;
             iv.push_back(plane);
             myDisplay->UpdateInputVector(iv);
         // Temporal Blending
@@ -426,7 +424,7 @@ void updateDisplay(uint8_t* buffer, size_t width, size_t height) {
             // Render the new frame and then render the black frame.
             // Note: This is a loose simulation. Actual temporal blending would carefully
             // drive the input vector, perhaps flipping back and forth several times per frame.
-            std::vector<int> iv;
+            vector<int> iv;
             for (int c = 0; c < TEMPORAL_FLIP_PER_FRAME_COUNT; c++) {
                 iv.push_back(0);
                 myDisplay->UpdateInputVector(iv);

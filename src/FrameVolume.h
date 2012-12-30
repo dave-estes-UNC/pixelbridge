@@ -10,7 +10,6 @@
 #define pixelbridge_FrameVolume_h
 
 #include <cstdlib>
-#include <vector>
 #include <cassert>
 
 #include "NDimensionalDisplayInterface.h"
@@ -30,7 +29,7 @@ namespace nddi {
     public:
 
         FrameVolume(CostModel* costModel,
-                    vector<unsigned int> frameVolumeDimensionalSizes)
+                    vector<unsigned int> &frameVolumeDimensionalSizes)
         : costModel_(costModel), size_(1), pixels_(NULL) {
 
             dimensionalSizes_ = frameVolumeDimensionalSizes;
@@ -56,11 +55,11 @@ namespace nddi {
             return size_;
         }
 
-        void PutPixel(Pixel p, std::vector<unsigned int> location) {
+        void PutPixel(Pixel p, vector<unsigned int> &location) {
             setPixel(location, p);
         }
 
-        void CopyPixelStrip(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
+        void CopyPixelStrip(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end) {
             int dimensionToCopyAlong;
             bool dimensionFound = false;
 
@@ -72,16 +71,16 @@ namespace nddi {
                 }
             }
 
-            std::vector<unsigned int> position = start;
+            vector<unsigned int> position = start;
             for (int j = 0; j <= end[dimensionToCopyAlong] - start[dimensionToCopyAlong]; j++) {
                 setPixel(position, p[j]);
                 position[dimensionToCopyAlong]++;
             }
         }
 
-        void CopyPixels(Pixel* p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
+        void CopyPixels(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end) {
 
-            std::vector<unsigned int> position = start;
+            vector<unsigned int> position = start;
             bool copyFinished = false;
             int pixelsCopied = 0;
 
@@ -109,9 +108,9 @@ namespace nddi {
             } while (!copyFinished);
         }
 
-        void FillPixel(Pixel p, std::vector<unsigned int> start, std::vector<unsigned int> end) {
+        void FillPixel(Pixel p, vector<unsigned int> &start, vector<unsigned int> &end) {
 
-            std::vector<unsigned int> position = start;
+            vector<unsigned int> position = start;
             bool fillFinished = false;
             int pixelsFilled = 0;
 
@@ -139,10 +138,10 @@ namespace nddi {
             } while (!fillFinished);
         }
 
-        void CopyFrameVolume(std::vector<unsigned int> start, std::vector<unsigned int> end, std::vector<unsigned int> dest) {
+        void CopyFrameVolume(vector<unsigned int> &start, vector<unsigned int> &end, vector<unsigned int> &dest) {
 
-        	std::vector<unsigned int> positionFrom = start;
-            std::vector<unsigned int> positionTo = dest;
+        	vector<unsigned int> positionFrom = start;
+            vector<unsigned int> positionTo = dest;
             bool copyFinished = false;
             int pixelsCopied = 0;
 
@@ -172,7 +171,7 @@ namespace nddi {
             } while (!copyFinished);
         }
 
-        void setPixel(vector<unsigned int> location, Pixel pixel) {
+        void setPixel(vector<unsigned int> &location, Pixel pixel) {
 
             unsigned int  offset = 0;
             unsigned int  multiplier = 1;
@@ -191,7 +190,7 @@ namespace nddi {
             costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, pixels_ + offset, 4, 0);
         }
 
-        Pixel getPixel(vector<unsigned int> location) {
+        Pixel getPixel(vector<unsigned int> &location) {
 
             Pixel         pixel;
             unsigned int  offset = 0;

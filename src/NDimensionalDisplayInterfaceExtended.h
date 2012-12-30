@@ -1,10 +1,6 @@
 #ifndef N_DIMENSIONAL_DISPLAY_INTERFACE_EXTENDED_H
 #define N_DIMENSIONAL_DISPLAY_INTERFACE_EXTENDED_H
 
-#include <vector>
-
-using namespace std;
-
 namespace nddi {
     
     /**
@@ -20,10 +16,8 @@ namespace nddi {
          * @param start The first pixel in the frame volume to be copied from.
          * @param end The last pixel in the frame volume to be copied from.
          * @param dest The first pixel in the frame volume to be copied to.
-         * @return The cost of the operation. Can be measured in time, byte-count, or another
-         *         measurements based on the display implementation
          */
-    	virtual void CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest, bool blend) = 0;
+    	virtual void CopyFrameVolume(vector<unsigned int> &start, vector<unsigned int> &end, vector<unsigned int> &dest, bool blend) = 0;
 
         /**
          * Copies the array of pixels into the designated tile regions of the frame volume. The data must be
@@ -33,10 +27,8 @@ namespace nddi {
          * @param p The pointer to the pixel values to be copied.
          * @param starts Vector holding series of first pixel for each destination tile in the frame volume.
          * @param size The size of each tile. Dimensionality should match that of the individual start vectors.
-         * @return The cost of the operation. Can be measured in time, byte-count, or another
-         *         measurements based on the display implementation
          */
-        virtual void CopyPixelTiles(vector<Pixel*> p, vector<vector<unsigned int> > starts, vector<unsigned int> size) = 0;
+        virtual void CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) = 0;
 
         /**
          * For each coefficient, positions, and start; copies the coefficient to the position
@@ -47,7 +39,7 @@ namespace nddi {
          * @param starts The location (x, y) of the start of the tile in the coefficient plane.
          * @param size The size (w, h) of the tile.
          */
-        virtual void FillCoefficientTiles(vector<int> coefficients, vector<vector<unsigned int> > positions, vector<vector<unsigned int> > starts, vector<unsigned int> size) = 0;
+        virtual void FillCoefficientTiles(vector<int> &coefficients, vector<vector<unsigned int> > &positions, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) = 0;
 };
     
 } // namespace nddi {

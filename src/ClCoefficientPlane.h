@@ -26,7 +26,7 @@ private:
 
     int             * coefficients_;
 
-    inline unsigned int calcOffset(std::vector<unsigned int> location) {
+    inline unsigned int calcOffset(vector<unsigned int> &location) {
         return (location[1] * width_ + location[0]) * matrixWidth_ * matrixHeight_;
     }
 
@@ -58,7 +58,7 @@ public:
             clReleaseMemObject(clBuffer_);
     }
 
-    void PutCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix, std::vector<unsigned int> location) {
+    void PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &location) {
 
         // TODO(CDE): Add future support for multiple planes
         assert(location.size() == 2);
@@ -79,7 +79,7 @@ public:
         // Enqueue CL commands
         int err = clEnqueueWriteBuffer(clQueue_, clBuffer_, CL_TRUE, offset, matrixSize_, coefficients_, 0, NULL, NULL);
         if (err != CL_SUCCESS) {
-            std::cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << std::endl;
+            cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << endl;
         }
 
         // Update Cost Model
@@ -87,9 +87,9 @@ public:
         costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, coefficients_ + offset, matrixSize_, 0);
     }
 
-    void FillCoefficientMatrix(std::vector< std::vector<int> > coefficientMatrix,
-                               std::vector<unsigned int> start,
-                               std::vector<unsigned int> end) {
+    void FillCoefficientMatrix(vector< vector<int> > &coefficientMatrix,
+                               vector<unsigned int> &start,
+                               vector<unsigned int> &end) {
 
         // TODO(CDE): Add future support for multiple planes
         assert(start.size() == 2);
@@ -99,7 +99,7 @@ public:
         assert(end[0] < width_);
         assert(end[1] < height_);
 
-        std::vector<unsigned int> position = start;
+        vector<unsigned int> position = start;
         unsigned int stride = end[0] - start[0] + 1;
         unsigned int rowCount = end[1] - start[1] + 1;
 
@@ -130,7 +130,7 @@ public:
         								   row_pitch, slice_pitch, row_pitch, slice_pitch,
         								   coefficients_, 0, NULL, NULL);
         if (err != CL_SUCCESS) {
-            std::cout << __FUNCTION__ << " - Failed to create enqueue write buffer rect command." << std::endl;
+            cout << __FUNCTION__ << " - Failed to create enqueue write buffer rect command." << endl;
         }
 
         // Update Cost Model
@@ -140,8 +140,8 @@ public:
 
     void FillCoefficient(int coefficient,
                          int row, int col,
-                         std::vector<unsigned int> start,
-                         std::vector<unsigned int> end) {
+                         vector<unsigned int> &start,
+                         vector<unsigned int> &end) {
 
     	// Shouldn't be used since the functionality is implemented directly in ClNddiDisplay
     	assert(false);

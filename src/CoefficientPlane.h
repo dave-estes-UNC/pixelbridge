@@ -74,14 +74,14 @@ namespace nddi {
             return height_;
         }
 
-        void PutCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> location) {
+        void PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &location) {
 
             getCoefficientMatrix(location[0], location[1])->setCoefficients(coefficientMatrix);
         }
 
-        void FillCoefficientMatrix(vector< vector<int> > coefficientMatrix,
-                                   vector<unsigned int> start,
-                                   vector<unsigned int> end) {
+        void FillCoefficientMatrix(vector< vector<int> > &coefficientMatrix,
+                                   vector<unsigned int> &start,
+                                   vector<unsigned int> &end) {
 
             vector<unsigned int> position = start;
             bool fillFinished = false;
@@ -103,8 +103,8 @@ namespace nddi {
 
         void FillCoefficient(int coefficient,
                              int row, int col,
-                             vector<unsigned int> start,
-                             vector<unsigned int> end) {
+                             vector<unsigned int> &start,
+                             vector<unsigned int> &end) {
 
             vector<unsigned int> position = start;
             bool fillFinished = false;

@@ -9,13 +9,13 @@ using namespace nddi;
 
 // public
 
-GlNddiDisplay::GlNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
+GlNddiDisplay::GlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                              int inputVectorSize) {
 	texture_ = 0;
 	GlNddiDisplay(frameVolumeDimensionalSizes, 320, 240, inputVectorSize);
 }
 
-GlNddiDisplay::GlNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
+GlNddiDisplay::GlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                              int displayWidth, int displayHeight,
                              int inputVectorSize) {
 

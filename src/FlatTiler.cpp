@@ -58,7 +58,7 @@ void FlatTiler::InitializeCoefficientPlane() {
     coeffs[0].push_back(1); coeffs[0].push_back(0);
     coeffs[1].push_back(0); coeffs[1].push_back(1);
     
-	std::vector<unsigned int> start, end;
+	vector<unsigned int> start, end;
     start.push_back(0); start.push_back(0);
     end.push_back(display_->DisplayWidth() - 1); end.push_back(display_->DisplayHeight() - 1);
     
@@ -206,7 +206,7 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 	tile_updates_ += updates;
 
 	if (!quiet_) {
-		std::cout << "Flat Tiling Statistics:" << endl << "  unchanged tiles: " << unchanged_tiles_ << " tiles updated: " << tile_updates_ << std::endl;
+		cout << "Flat Tiling Statistics:" << endl << "  unchanged tiles: " << unchanged_tiles_ << " tiles updated: " << tile_updates_ << endl;
 	}
 }
 
@@ -219,7 +219,7 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 void FlatTiler::UpdateFrameVolume(Pixel* pixels, int i_map, int j_map) {
 	
 	// Setup start and end points
-	std::vector<unsigned int> start, end;
+	vector<unsigned int> start, end;
 	start.push_back(i_map * tile_width_); start.push_back(j_map * tile_height_);
 	end.push_back(i_map * tile_width_ + tile_width_ - 1); end.push_back(j_map * tile_height_ + tile_height_ - 1);
 	if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }

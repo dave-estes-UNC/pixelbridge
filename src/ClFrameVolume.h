@@ -9,7 +9,6 @@
 #ifndef pixelbridge_ClFrameVolume_h
 #define pixelbridge_ClFrameVolume_h
 
-#include <vector>
 #include <cassert>
 #include <string.h>
 
@@ -30,7 +29,7 @@ private:
     unsigned char *   packet_;
     size_t            maxPacketSize_;
     
-    inline unsigned int calcOffset(vector<unsigned int> location) {
+    inline unsigned int calcOffset(vector<unsigned int> &location) {
         unsigned int  offset = 0;
         unsigned int  multiplier = 1;
         
@@ -49,7 +48,7 @@ private:
 public:
     
     ClFrameVolume(CostModel* costModel,
-                vector<unsigned int> frameVolumeDimensionalSizes)
+                vector<unsigned int> &frameVolumeDimensionalSizes)
     : FrameVolume(costModel, frameVolumeDimensionalSizes),
       clBuffer_(NULL),
       clContext_(NULL), clQueue_(NULL),
@@ -89,7 +88,7 @@ public:
             clReleaseMemObject(clBuffer_);
 }
     
-    void PutPixel(Pixel p, vector<unsigned int> location) {
+    void PutPixel(Pixel p, vector<unsigned int> &location) {
         
         unsigned int offset = calcOffset(location);
             
@@ -103,7 +102,7 @@ public:
     }
     
     // TODO(CDE): move to buffer writes in 3 dimensions. Consider not even supporting strips in any other dimensions
-    void CopyPixelStrip(Pixel* p, vector<unsigned int> start, vector<unsigned int> end) {
+    void CopyPixelStrip(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end) {
         
         int dimensionToCopyAlong;
         bool dimensionFound = false;
@@ -153,7 +152,7 @@ public:
         costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * stripLength, 0);
     }
     
-    void CopyPixels(Pixel* p, vector<unsigned int> start, vector<unsigned int> end) {
+    void CopyPixels(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end) {
         
         vector<unsigned int>  position = start;
         bool                       copyFinished = false;
@@ -270,7 +269,7 @@ public:
 
     // TODO(CDE): Since I use clEnqueueCopyBufferRect below, I can't support frame volumes with
     //            dimensionality greater that 3. Fix it with some creative destination origin calculations.
-    void CopyPixelTiles(vector<Pixel*> p, vector<vector<unsigned int> > starts, vector<unsigned int> size) {
+    void CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) {
 
     	unsigned int *             packetPtr = (unsigned int *)packet_;
     	size_t                     packetWordCount = 0;
@@ -379,7 +378,7 @@ public:
     }
 
     // TODO(CDE): Implement for CL
-    void FillPixel(Pixel p, vector<unsigned int> start, vector<unsigned int> end) {
+    void FillPixel(Pixel p, vector<unsigned int> &start, vector<unsigned int> &end) {
         
         vector<unsigned int> position = start;
         bool fillFinished = false;
@@ -412,7 +411,7 @@ public:
     }
     
     // TODO(CDE): Implement for CL
-    void CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest) {
+    void CopyFrameVolume(vector<unsigned int> &start, vector<unsigned int> &end, vector<unsigned int> &dest) {
         
         vector<unsigned int> positionFrom = start;
         vector<unsigned int> positionTo = dest;

@@ -49,7 +49,7 @@ namespace nddi {
             return size_;
         }
 
-        void UpdateInputVector(vector<int> input) {
+        void UpdateInputVector(vector<int> &input) {
 
             assert(input.size() + 2 == size_);
 

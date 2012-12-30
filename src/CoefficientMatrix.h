@@ -73,7 +73,7 @@ namespace nddi {
             coefficients_[y * width_ + x] = value;
         }
 
-        void setCoefficients(std::vector< std::vector<int> > coefficientVector) {
+        void setCoefficients(vector< vector<int> > &coefficientVector) {
 
             assert(coefficientVector.size() == width_);
             assert(coefficientVector[0].size() == height_);

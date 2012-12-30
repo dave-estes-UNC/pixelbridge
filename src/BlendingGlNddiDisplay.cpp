@@ -25,7 +25,7 @@ using namespace nddi;
 
 // public
 
-BlendingGlNddiDisplay::BlendingGlNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
+BlendingGlNddiDisplay::BlendingGlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                                              int inputVectorSize)
 : GlNddiDisplay(frameVolumeDimensionalSizes, inputVectorSize)
 {
@@ -34,7 +34,7 @@ BlendingGlNddiDisplay::BlendingGlNddiDisplay(vector<unsigned int> frameVolumeDim
     costModel = new CostModel();
 }
 
-BlendingGlNddiDisplay::BlendingGlNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
+BlendingGlNddiDisplay::BlendingGlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                                              int displayWidth, int displayHeight,
                                              int inputVectorSize)
 : GlNddiDisplay(frameVolumeDimensionalSizes, displayWidth, displayHeight, inputVectorSize)
@@ -44,7 +44,7 @@ BlendingGlNddiDisplay::BlendingGlNddiDisplay(vector<unsigned int> frameVolumeDim
     costModel = new CostModel();
 }
 
-BlendingGlNddiDisplay::BlendingGlNddiDisplay(vector<unsigned int> frameVolumeDimensionalSizes,
+BlendingGlNddiDisplay::BlendingGlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                                              int displayWidth, int displayHeight,
                                              int inputVectorSize,
                                              unsigned int planes)
@@ -65,7 +65,7 @@ BlendingGlNddiDisplay::BlendingGlNddiDisplay(vector<unsigned int> frameVolumeDim
     costModel = new CostModel();
 }
 
-void BlendingGlNddiDisplay::PutCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> location) {
+void BlendingGlNddiDisplay::PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &location) {
 	
     if (numPlanes_ > 1) {
         assert(location[2] <= numPlanes_);
@@ -86,7 +86,7 @@ void BlendingGlNddiDisplay::PutCoefficientMatrix(vector< vector<int> > coefficie
 #endif
 }
 
-void BlendingGlNddiDisplay::FillCoefficientMatrix(vector< vector<int> > coefficientMatrix, vector<unsigned int> start, vector<unsigned int> end) {
+void BlendingGlNddiDisplay::FillCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &start, vector<unsigned int> &end) {
 
     if (numPlanes_ > 1) {
         assert(start[2] <= numPlanes_);
@@ -113,7 +113,7 @@ void BlendingGlNddiDisplay::FillCoefficientMatrix(vector< vector<int> > coeffici
 #endif
 }
 
-void BlendingGlNddiDisplay::FillCoefficient(int coefficient, int row, int col, vector<unsigned int> start, vector<unsigned int> end) {
+void BlendingGlNddiDisplay::FillCoefficient(int coefficient, int row, int col, vector<unsigned int> &start, vector<unsigned int> &end) {
 
     if (numPlanes_ > 1) {
         assert(start[2] <= numPlanes_);
@@ -142,7 +142,7 @@ void BlendingGlNddiDisplay::FillCoefficient(int coefficient, int row, int col, v
 
 // Implements the frame volume function directly using getPixel and setPixel since frame volume does not yet
 // support blending.
-void BlendingGlNddiDisplay::CopyFrameVolume(vector<unsigned int> start, vector<unsigned int> end, vector<unsigned int> dest, bool blend) {
+void BlendingGlNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<unsigned int> &end, vector<unsigned int> &dest, bool blend) {
 
 	vector<unsigned int> positionFrom = start;
 	vector<unsigned int> positionTo = dest;
