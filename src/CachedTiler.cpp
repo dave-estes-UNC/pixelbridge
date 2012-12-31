@@ -152,9 +152,17 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                 }
 			}
 
+#if (CHECKSUM_CALCULATOR == TRIVIAL)
+			tile.checksum  = (unsigned long)tile_pixels_sig_bits[0].packed << 32;
+			tile.checksum |= (unsigned long)tile_pixels_sig_bits[tile_width_ * tile_height_ - 1].packed;
+#else
 			unsigned long crc = crc32(0L, Z_NULL, 0);
+#if (CHECKSUM_CALCULATOR == CRC)
 			tile.checksum = crc32(crc, (unsigned char*)tile_pixels_sig_bits, tile_width_ * tile_height_ * sizeof(Pixel));
-			//tile.checksum = adler32(crc, (unsigned char*)tile_pixels_sig_bits, tile_width_ * tile_height_ * sizeof(Pixel));
+#elif (CHECKSUM_CALCULATOR == ADLER)
+			tile.checksum = adler32(crc, (unsigned char*)tile_pixels_sig_bits, tile_width_ * tile_height_ * sizeof(Pixel));
+#endif
+#endif
 
 			// If the tile is already in the tile cache
 			int index = IsTileInCache(tile);

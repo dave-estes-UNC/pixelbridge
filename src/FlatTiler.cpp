@@ -137,9 +137,17 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                     }
                 }
                 
+#if (CHECKSUM_CALCULATOR == TRIVIAL)
+                tile_checksum  = (unsigned long)tile_pixels_sig_bits[0].packed << 32;
+                tile_checksum |= (unsigned long)tile_pixels_sig_bits[tw * th - 1].packed;
+#else
                 unsigned long crc = crc32(0L, Z_NULL, 0);
+#if (CHECKSUM_CALCULATOR == CRC)
                 tile_checksum = crc32(crc, (unsigned char*)tile_pixels_sig_bits, tw * th * sizeof(Pixel));
-                //tile_checksum = adler32(crc, (unsigned char*)tile_pixels_sig_bits, tw * th * sizeof(Pixel));
+#elif (CHECKSUM_CALCULATOR == ADLER)
+                tile_checksum = adler32(crc, (unsigned char*)tile_pixels_sig_bits, tw * th * sizeof(Pixel));
+#endif
+#endif
                 
                 // If the checksum in the tile map doesn't match, then update the frame volume
                 if (tile_map_[i_tile_map][j_tile_map] != tile_checksum) {

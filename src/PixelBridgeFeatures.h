@@ -27,6 +27,17 @@
 //#define CL_PROFILING_ENABLED
 
 /*
+ * Sets the checksum calculating mode.
+ */
+#define CRC 1
+#define ADLER 2
+#define TRIVIAL 3
+
+#define CHECKSUM_CALCULATOR CRC
+//#define CHECKSUM_CALCULATOR ADLER
+//#define CHECKSUM_CALCULATOR TRIVIAL
+
+/*
  * Uses the nDDI extension to update groups of tiles
  */
 #define USE_COPY_PIXEL_TILES
