@@ -35,21 +35,24 @@ CachedTiler::CachedTiler (GlNddiDisplay* display, size_t tile_width, size_t tile
 	tile_map_height_ = display_->DisplayHeight() / tile_height;
 	if ((tile_map_height_ * tile_height) < display_->DisplayHeight()) { tile_map_height_++; }
 
-	// Set up tile cache and counters
-	tile_cache_.reserve(max_tiles_);
-	unchanged_tiles_ = cache_hits_ = cache_misses_ = 0;
-
-	// Blank tile for map
-	tile_t tile;
-	tile.checksum = 0;
-	tile.zIndex = 0;
+	// Set up tile cache counters
+	unchanged_tiles_ = cache_hits_ = cache_misses_ = age_counter_ = 0;
 
 	// Set up the tile map, one column at a time
-	tile_map_.resize(tile_map_width_);
+	display_map_.resize(tile_map_width_);
 	for (int i = 0; i < tile_map_width_; i++) {
 		for (int j = 0; j < tile_map_height_; j++) {
-			tile_map_[i].push_back(tile);
+			display_map_[i].push_back(NULL);
 		}
+	}
+}
+
+CachedTiler::~CachedTiler()
+{
+	// Free all of the allocated tile_t structs
+	map<unsigned long, tile_t*>::iterator it;
+	for (it = cache_map_.begin(); it != cache_map_.end(); it++) {
+		free(it->second);
 	}
 }
 
@@ -98,18 +101,24 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 {
 	int                            unchanged = 0, hits = 0, misses = 0;
 	unsigned char                  mask = 0xff << (8 - bits_);
+    tile_t                        *tile;
     Pixel                         *tile_pixels = NULL;
     Pixel                         *tile_pixels_sig_bits = NULL;
+
+    // TODO(CDE): IDEA
+    //            Move tile, tile_pixels, and tile_pixels_sig_bits into inner loop
+    //            Then move the omp parallel section to the outer loop.
+    //            Figure out how much needs to be omp ordered.
+    //            Figure out what needs to be omp critical
 
 	// Break up the passed in buffer into one tile at a time
 	for (int j_tile_map = 0; j_tile_map < tile_map_height_; j_tile_map++) {
 		for (int i_tile_map = 0; i_tile_map < tile_map_width_; i_tile_map++) {
-			// Initialize a tile
-			tile_t tile;
-			tile.checksum = 0L;
-			tile.zIndex = 0;
 
-			// Allocate tiles is necessary. Sometimes they're re-used.
+            // Increment age counter
+            age_counter_++;
+
+			// Allocate tile pixel arrays if necessary. Sometimes they're re-used.
             if (!tile_pixels)
             	tile_pixels = (Pixel*)malloc(tile_width_ * tile_height_ * sizeof(Pixel));
             if (!tile_pixels_sig_bits)
@@ -152,32 +161,36 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                 }
 			}
 
+			// Calculate the checksum
+			unsigned long  checksum;
 #if (CHECKSUM_CALCULATOR == TRIVIAL)
-			tile.checksum  = (unsigned long)tile_pixels_sig_bits[0].packed << 32;
-			tile.checksum |= (unsigned long)tile_pixels_sig_bits[tile_width_ * tile_height_ - 1].packed;
+			checksum  = (unsigned long)tile_pixels_sig_bits[0].packed << 32;
+			checksum |= (unsigned long)tile_pixels_sig_bits[tile_width_ * tile_height_ - 1].packed;
 #else
 			unsigned long crc = crc32(0L, Z_NULL, 0);
 #if (CHECKSUM_CALCULATOR == CRC)
-			tile.checksum = crc32(crc, (unsigned char*)tile_pixels_sig_bits, tile_width_ * tile_height_ * sizeof(Pixel));
+			checksum = crc32(crc, (unsigned char*)tile_pixels_sig_bits, tile_width_ * tile_height_ * sizeof(Pixel));
 #elif (CHECKSUM_CALCULATOR == ADLER)
-			tile.checksum = adler32(crc, (unsigned char*)tile_pixels_sig_bits, tile_width_ * tile_height_ * sizeof(Pixel));
+			checksum = adler32(crc, (unsigned char*)tile_pixels_sig_bits, tile_width_ * tile_height_ * sizeof(Pixel));
 #endif
 #endif
 
 			// If the tile is already in the tile cache
-			int index = IsTileInCache(tile);
-			if (index >= 0) {
-				// Move it to the head of the tile cache
-				tile = tile_cache_[index];
-				tile_cache_.erase(tile_cache_.begin() + index);
-				tile_cache_.insert(tile_cache_.begin(), tile);
+			tile = IsTileInCache(checksum);
+			if (tile) {
+				// Remove the old age mapping
+				age_map_.erase(tile->age);
 
-				// If the tilemap doesn't already contain this tile
-				if (tile_map_[i_tile_map][j_tile_map].checksum != tile.checksum) {
+				// Update the age and map it
+				tile->age = age_counter_;
+				age_map_.insert(pair<unsigned long, tile_t*>(tile->age, tile));
+
+				// If the display doesn't already contain this tile
+				if (display_map_[i_tile_map][j_tile_map] != tile) {
 					// Update the cache hit counter
 					hits++;
-					// Update the tilemap
-					tile_map_[i_tile_map][j_tile_map] = tile;
+					// Update the display map
+					display_map_[i_tile_map][j_tile_map] = tile;
 
 #ifdef USE_COPY_PIXEL_TILES
 					// Push tile, updating coefficient plane only
@@ -197,18 +210,25 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 				misses++;
 
 				// If we have room in the tile cache
-				if (tile_cache_.size() < max_tiles_) {
-					// This will be pushed at the end with this new index
-					size_t index = tile_cache_.size();
+				if (cache_map_.size() < max_tiles_) {
 
-					// Since we're growing the cache still, we can use the cache index of this new element as the zIndex
-					tile.zIndex = index;
+					// Allocate a new tile
+					tile = (tile_t*)malloc(sizeof(tile_t));
+					tile->checksum = checksum;
 
-					// Push the tile onto the head of the cache
-					tile_cache_.insert(tile_cache_.begin(), tile);
+					// This will be pushed at the end with this new "index". Since we're growing the cache still,
+					// we can use the cache index of this new element as the zIndex
+					tile->zIndex = cache_map_.size();
 
-					// Update the tile map with the new tile
-					tile_map_[i_tile_map][j_tile_map] = tile;
+					// Update the display map with the new tile
+					display_map_[i_tile_map][j_tile_map] = tile;
+
+					// Map the checksum to this tile
+					cache_map_.insert(pair<unsigned long, tile_t*>(tile->checksum, tile));
+
+					// Update the age and map it
+					tile->age = age_counter_;
+					age_map_.insert(pair<unsigned long, tile_t*>(tile->age, tile));
 
 #ifdef USE_COPY_PIXEL_TILES
 					// Push tile
@@ -224,77 +244,61 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 					UpdateCoefficientMatrices(i_tile_map, j_tile_map, tile);
 #endif
 
-				// We didn't have room in the tile cache
+				// We didn't have room in the tile cache, so update an existing tile
 				} else {
 
+					bool needToUpdateCoefficients = false;
+
 					// Determine if we can re-use the zIndex from the previous tile, saving coefficient matrix updates
-					tile_t previous_tile = tile_map_[i_tile_map][j_tile_map];
-					tile_map_[i_tile_map][j_tile_map].checksum = 0;
+					tile = display_map_[i_tile_map][j_tile_map];
+					if (IsTileInUse(tile)) {
+						// It was in use, so try to find an expired one.
+						tile = GetExpiredCacheTile();
 
-					int index = IsTileInCache(previous_tile);
+						// If we couldn't, then we're in trouble
+						assert(tile);
 
-					// If the previous tile at this location is not being used anymore but it is still in the tile cache
-					if (!IsTileInMap(previous_tile) && index != -1) {
-						// Set the zIndex
-						tile.zIndex = previous_tile.zIndex;
+						needToUpdateCoefficients = true;
 
-						// Update the tile cache be removing the previous one and inserting the new one at the front
-						tile_cache_.erase(tile_cache_.begin() + index);
-						tile_cache_.insert(tile_cache_.begin(), tile);
+						// Update the tile map with the new tile
+						display_map_[i_tile_map][j_tile_map] = tile;
+					}
 
-						// Update the tile map with the new tile. The zIndex is the same, so no need to update coefficient matrices
-						tile_map_[i_tile_map][j_tile_map] = tile;
+					// Remove the old checksum and age mappings
+					cache_map_.erase(tile->checksum);
+					age_map_.erase(tile->age);
+
+					// Set the new checksum and age
+					tile->checksum = checksum;
+					tile->age = age_counter_;
+
+					// Add the new checksum and age mappings
+					cache_map_.insert(pair<unsigned long, tile_t*>(tile->checksum, tile));
+					age_map_.insert(pair<unsigned long, tile_t*>(tile->age, tile));
 
 #ifdef USE_COPY_PIXEL_TILES
+					if (!needToUpdateCoefficients) {
 						// Push tile, updating FrameVolume only
 						PushTile(tile, tile_pixels);
-
-						// Force new tile to be allocated. This one will be freed after it's copied
-						tile_pixels = NULL;
-#else
-						// Push the pixels to the frame volume.
-						UpdateFrameVolume(tile_pixels, tile);
-#endif
-
-					// We couldn't re-use the previous zIndex, so we'll have to find another candidate in the cache
 					} else {
-
-						// Get the least recently used tile in the cache that is not currently used
-						int index = GetExpiredCacheTile();
-
-						if (index >= 0) {
-							// Set the zIndex
-							tile.zIndex = tile_cache_[index].zIndex;
-
-							// Update the tile cache be removing the previous one and inserting the new one at the front
-							tile_cache_.erase(tile_cache_.begin() + index);
-							tile_cache_.insert(tile_cache_.begin(), tile);
-
-							// Update the tile map with the new tile
-							tile_map_[i_tile_map][j_tile_map] = tile;
-
-#ifdef USE_COPY_PIXEL_TILES
-							// Push tile
-							PushTile(tile, tile_pixels, i_tile_map, j_tile_map);
-
-							// Force new tile to be allocated. This one will be freed after it's copied
-							tile_pixels = NULL;
-#else
-							// Push the pixels to the frame volume.
-							UpdateFrameVolume(tile_pixels, tile);
-
-							// Update Coefficient Matrices
-							UpdateCoefficientMatrices(i_tile_map, j_tile_map, tile);
-#endif
-
-						} else {
-							// ERROR
-							cout << "ERROR: Couldn't find a candidate to eject from the cache." << endl;
-						}
+						// Push tile, FrameVolume and CoeffientPlane
+						PushTile(tile, tile_pixels, i_tile_map, j_tile_map);
 					}
+
+					// Force new tile to be allocated. This one will be freed after it's copied
+					tile_pixels = NULL;
+#else
+					// Push the pixels to the frame volume.
+					UpdateFrameVolume(tile_pixels, tile);
+
+                    // Update Coefficient Matrices if needed
+					if (needToUpdateCoefficients) {
+						UpdateCoefficientMatrices(i_tile_map, j_tile_map, tile);
+					}
+#endif
 				}
-			}
-		}
+			} // for (int i_tile_map = 0; i_tile_map < tile_map_width_; i_tile_map++) {
+		} // for (int j_tile_map = 0; j_tile_map < tile_map_height_; j_tile_map++) {
 	}
 
 #ifdef USE_COPY_PIXEL_TILES
@@ -343,7 +347,7 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 	cache_hits_ += hits;
 	cache_misses_ += misses;
 	if (!quiet_) {
-		cout << "Cached Tiling Statistics:" << endl << "  unchanged: " << unchanged_tiles_ << " cache hits: " << cache_hits_ << " cache misses: " << cache_misses_ << " cache size: " << tile_cache_.size() << endl;
+		cout << "Cached Tiling Statistics:" << endl << "  unchanged: " << unchanged_tiles_ << " cache hits: " << cache_hits_ << " cache misses: " << cache_misses_ << " cache size: " << cache_map_.size() << endl;
 	}
 }
 
@@ -351,55 +355,47 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
  * Checks to see if the tile is already in the tile cache based solely on the
  * checksum.
  *
- * @param tile The checksum in this tile is searched for in the tile cache based on a checksum match.
- * @return The index of the tile in the cache if it is found.
- * @return -1 if no match is found.
+ * @param checksum The checksum of the tile to search for.
+ * @return The pointer to the tile_t.
  */
-int CachedTiler::IsTileInCache(tile_t tile) {
+tile_t* CachedTiler::IsTileInCache(unsigned long checksum) {
 
-	for (int i = 0; i < tile_cache_.size(); i++) {
-		if (tile_cache_[i].checksum == tile.checksum) {
-			return i;
-		}
+	map<unsigned long, tile_t*>::iterator it;
+
+	it = cache_map_.find(checksum);
+	if (it != cache_map_.end()) {
+		return it->second;
+	} else {
+		return NULL;
 	}
-
-	return -1;
 }
 
 /**
  * Checks to see if the tile is being used in the tile map based solely on the
  * checksum.
  *
- * @param tile The checksum in this tile is searched for in the tile map based on a checksum match.
- * @return true if found at least once
- * @return false if not found
+ * @param tile The tile whose age is used to determine if it's in use.
+ * @return true if still in use
+ * @return false if not in use
  */
-bool CachedTiler::IsTileInMap(tile_t tile) {
+bool CachedTiler::IsTileInUse(tile_t* tile) {
 
-	for (int i = 0; i < tile_map_width_; i++) {
-		for (int j = 0; j < tile_map_height_; j++) {
-			if (tile_map_[i][j].checksum == tile.checksum) {
-				return true;
-			}
-		}
-	}
-
-	return false;
+	// If the tile's age is greater than the current counter minus the total number
+	// of tiles on the display, then it's likely in use.
+	return (tile->age >= (age_counter_ - tile_map_width_ * tile_map_height_));
 }
 
 /**
  * Finds a candidate to be ejected from the cache.
  *
- * @return The index of the candidate tile
- * @return -1 if no candidate found
+ * @return The tile to be ejected
  */
-int CachedTiler::GetExpiredCacheTile() {
-	for (int i = tile_cache_.size() - 1; i >= 0; i--) {
-		if (!IsTileInMap(tile_cache_[i])) {
-			return i;
-		}
-	}
-	return -1;
+tile_t* CachedTiler::GetExpiredCacheTile() {
+	pair<map<unsigned long, tile_t*>::iterator, map<unsigned long, tile_t*>::iterator> its;
+
+	its = age_map_.equal_range(0);
+
+	return its.first->second;
 }
 
 /**
@@ -454,7 +450,7 @@ void CachedTiler::UpdateCoefficientMatrices(size_t x, size_t y, tile_t tile) {
  * @param i The new X coordinate of the tile in the tile map.
  * @param i The new Y coordinate of the tile in the tile map.
  */
-void CachedTiler::PushTile(tile_t tile, Pixel* pixels, size_t i, size_t j) {
+void CachedTiler::PushTile(tile_t* tile, Pixel* pixels, size_t i, size_t j) {
 	PushTile(tile, pixels);
 	PushTile(tile, i, j);
 }
@@ -466,10 +462,10 @@ void CachedTiler::PushTile(tile_t tile, Pixel* pixels, size_t i, size_t j) {
  * @param tile The zIndex of the tile will be used to choose the region in the frame volume.
  * @param pixels The array of pixels to use in the update.
  */
-void CachedTiler::PushTile(tile_t tile, Pixel* pixels) {
+void CachedTiler::PushTile(tile_t* tile, Pixel* pixels) {
 	// Create and push the start coordinates
 	vector<unsigned int> start;
-	start.push_back(0); start.push_back(0); start.push_back(tile.zIndex);
+	start.push_back(0); start.push_back(0); start.push_back(tile->zIndex);
 
 #ifndef NO_OMP
 #pragma omp critical
@@ -489,7 +485,7 @@ void CachedTiler::PushTile(tile_t tile, Pixel* pixels) {
  * @param i The X coordinate of the tile in the tile map.
  * @param j The Y coordinate of the tile in the tile map.
  */
-void CachedTiler::PushTile(tile_t tile, size_t i, size_t j) {
+void CachedTiler::PushTile(tile_t* tile, size_t i, size_t j) {
 	// Create and push the position and start coordinates
 	vector<unsigned int> position;
 	position.push_back(2); position.push_back(2);
@@ -502,7 +498,7 @@ void CachedTiler::PushTile(tile_t tile, size_t i, size_t j) {
 #endif
 	{
 		// Push the tile and starts
-		coefficients_list.push_back(tile.zIndex);
+		coefficients_list.push_back(tile->zIndex);
 		coefficient_positions_list.push_back(position);
 		coefficient_plane_starts_list.push_back(start);
 	}

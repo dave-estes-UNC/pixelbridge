@@ -9,6 +9,8 @@
  *
  */
 
+#include <map>
+
 #include "Tiler.h"
 #include "GlNddiDisplay.h"
 #include "ClNddiDisplay.h"
@@ -22,8 +24,9 @@ using namespace nddi;
  * when the tile is used in a caching configuration.
  */
 typedef struct {
-	unsigned long checksum;
-	size_t zIndex;
+	unsigned long  checksum;
+	unsigned long  age;
+	size_t         zIndex;
 } tile_t;
 
 
@@ -50,11 +53,8 @@ public:
 				size_t tile_width, size_t tile_height,
 				size_t max_tiles, size_t bits,
 				bool quiet);
-	
-	~CachedTiler() {
-		tile_cache_.clear();
-		tile_map_.clear();
-	}
+
+	~CachedTiler();
 
     /**
      * Intializes the Coefficient Plane for this tiler.
@@ -75,16 +75,16 @@ public:
 	
 private:
 	
-	int IsTileInCache(tile_t tile);
-	bool IsTileInMap(tile_t tile);
-	int GetExpiredCacheTile();
+	tile_t* IsTileInCache(unsigned long checksum);
+	bool IsTileInUse(tile_t *);
+	tile_t* GetExpiredCacheTile();
 #ifndef USE_COPY_PIXEL_TILES
 	void UpdateFrameVolume(Pixel* pixels, tile_t tile);
 	void UpdateCoefficientMatrices(size_t x, size_t y, tile_t tile);
 #else
-	void PushTile(tile_t tile, Pixel* pixels, size_t i, size_t j);
-	void PushTile(tile_t tile, Pixel* pixels);
-	void PushTile(tile_t tile, size_t i, size_t j);
+	void PushTile(tile_t* tile, Pixel* pixels, size_t i, size_t j);
+	void PushTile(tile_t* tile, Pixel* pixels);
+	void PushTile(tile_t* tile, size_t i, size_t j);
 #endif
 	
 	GlNddiDisplay*                 display_;
@@ -93,9 +93,23 @@ private:
 	size_t                         bits_;
 	bool                           quiet_;
 	
-	vector<tile_t>                 tile_cache_;
-	vector< vector<tile_t> >       tile_map_;
+	// Maps checksums to tiles. This map is non-decreasing until max_tiles. When a tile is ejected,
+	// the tile_t struct is not freed, it's simply update. The old checksum mapping is removed and a new one
+	// is added.
+	map<unsigned long, tile_t*>    cache_map_;
+
+	// Maps age counter to tiles. This map is non-decreasing until max_tiles. When a tile is ejected,
+	// we find the oldest one here and remove the mapping. Once the cache_map_ is updated, it's likely
+	// that the same tile_t will be mapped in here with a new age.
+	map<unsigned long, tile_t*>    age_map_;
+
+	// Age counter increments for every tile processed
+	unsigned long                  age_counter_;
+
+	// Maps display regions to tiles.
+	vector<vector<tile_t*> >       display_map_;
 	
+
 	int                            unchanged_tiles_, cache_hits_, cache_misses_;
 
 #ifdef USE_COPY_PIXEL_TILES
