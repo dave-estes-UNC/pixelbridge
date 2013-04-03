@@ -11,6 +11,7 @@
 
 #include <map>
 
+#include "PixelBridgeFeatures.h"
 #include "Tiler.h"
 #include "GlNddiDisplay.h"
 #include "ClNddiDisplay.h"
@@ -79,8 +80,8 @@ private:
 	bool IsTileInUse(tile_t *);
 	tile_t* GetExpiredCacheTile();
 #ifndef USE_COPY_PIXEL_TILES
-	void UpdateFrameVolume(Pixel* pixels, tile_t tile);
-	void UpdateCoefficientMatrices(size_t x, size_t y, tile_t tile);
+	void UpdateFrameVolume(Pixel* pixels, tile_t* tile);
+	void UpdateCoefficientMatrices(size_t x, size_t y, tile_t* tile);
 #else
 	void PushTile(tile_t* tile, Pixel* pixels, size_t i, size_t j);
 	void PushTile(tile_t* tile, Pixel* pixels);

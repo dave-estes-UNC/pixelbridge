@@ -10,7 +10,6 @@
 #include <iostream>
 #include <zlib.h>
 
-#include "PixelBridgeFeatures.h"
 #include "CachedTiler.h"
 
 
@@ -106,8 +105,8 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
     Pixel                         *tile_pixels_sig_bits = NULL;
 
 	// Break up the passed in buffer into one tile at a time
-	for (int j_tile_map = 0; j_tile_map < tile_map_height_; j_tile_map++) {
-		for (int i_tile_map = 0; i_tile_map < tile_map_width_; i_tile_map++) {
+	for (size_t j_tile_map = 0; j_tile_map < tile_map_height_; j_tile_map++) {
+		for (size_t i_tile_map = 0; i_tile_map < tile_map_width_; i_tile_map++) {
 
             // Increment age counter
             age_counter_++;
@@ -121,7 +120,7 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 #ifndef NO_OMP
 #pragma omp parallel for ordered
 #endif
-			for (int j_tile = 0; j_tile < tile_height_; j_tile++) {
+			for (size_t j_tile = 0; j_tile < tile_height_; j_tile++) {
 #ifndef NO_OMP
 #pragma omp ordered
 #endif
@@ -129,7 +128,7 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                     // Compute the offset into the RGB buffer for this row in this tile
                     int bufferOffset = 3 * ((j_tile_map * tile_height_ + j_tile) * width + (i_tile_map * tile_width_));
 
-                    for (int i_tile = 0; i_tile < tile_width_; i_tile++) {
+                    for (size_t i_tile = 0; i_tile < tile_width_; i_tile++) {
 
                         Pixel p, psb;
 
@@ -401,12 +400,12 @@ tile_t* CachedTiler::GetExpiredCacheTile() {
  * @return The cost of the NDDI operations.
  */
 #ifndef USE_COPY_PIXEL_TILES
-void CachedTiler::UpdateFrameVolume(Pixel* pixels, tile_t tile) {
+void CachedTiler::UpdateFrameVolume(Pixel* pixels, tile_t *tile) {
 
 	// Setup start and end points
 	vector<unsigned int> start, end;
-	start.push_back(0); start.push_back(0); start.push_back(tile.zIndex);
-	end.push_back(tile_width_ - 1); end.push_back(tile_height_ - 1); end.push_back(tile.zIndex);
+	start.push_back(0); start.push_back(0); start.push_back(tile->zIndex);
+	end.push_back(tile_width_ - 1); end.push_back(tile_height_ - 1); end.push_back(tile->zIndex);
 
 	((ClNddiDisplay *)display_)->CopyPixels(pixels, start, end);
 }
@@ -421,7 +420,7 @@ void CachedTiler::UpdateFrameVolume(Pixel* pixels, tile_t tile) {
  * @param tile The zIndex from this tile will be used to update the coefficient matrices.
  * @return The cost of the NDDI operations.
  */
-void CachedTiler::UpdateCoefficientMatrices(size_t x, size_t y, tile_t tile) {
+void CachedTiler::UpdateCoefficientMatrices(size_t x, size_t y, tile_t *tile) {
 
 	// Setup start and end points
 	vector<unsigned int> start, end;
@@ -430,7 +429,7 @@ void CachedTiler::UpdateCoefficientMatrices(size_t x, size_t y, tile_t tile) {
 	if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
 	if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
 
-	((ClNddiDisplay *)display_)->FillCoefficient(tile.zIndex, 2, 2, start, end);
+	((ClNddiDisplay *)display_)->FillCoefficient(tile->zIndex, 2, 2, start, end);
 }
 
 #else

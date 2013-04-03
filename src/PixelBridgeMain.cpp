@@ -613,10 +613,10 @@ void outputStats(bool exitNow) {
     cout << "- Was compiled with SUPRESS_EXCESS_RENDERING, and so the numbers may be off. Recompile with \"make NO_HACKS=1\"." << endl;
 #endif
 #ifdef NO_CL
-    cout << - "Was compiled without OpenCL." << endl;
+    cout << "- Was compiled without OpenCL." << endl;
 #endif
 #ifdef NO_GL
-    cout << - "Was compiled without OpenGL." << endl;
+    cout << "- Was compiled without OpenGL." << endl;
 #endif
 #endif
 
