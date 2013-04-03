@@ -42,4 +42,11 @@
  */
 #define USE_COPY_PIXEL_TILES
 
+/*
+ * Checking for invalid feature combinations.
+ */
+#if defined(NO_CL) && defined(USE_COPY_PIXEL_TILES)
+#error "Currently only ClNddiDisplay implements CopyPixelTiles() and FillCoefficientTiles(). Undef NO_CL or USE_COPY_PIXEL_TILES."
+#endif
+
 #endif /* PIXELBRIDGEFEATURES_H_ */

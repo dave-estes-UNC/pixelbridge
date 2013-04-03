@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cassert>
 
 #include "PixelBridgeFeatures.h"
 #include "BaseNddiDisplay.h"
@@ -109,6 +110,11 @@ void BaseNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> &start, vector<u
 #endif
 }
 
+void BaseNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) {
+	// TODO(CDE): Implement
+	assert(false);
+}
+
 void BaseNddiDisplay::FillPixel(Pixel p, vector<unsigned int> &start, vector<unsigned int> &end) {
 	
     // Register transmission cost first
@@ -189,6 +195,11 @@ void BaseNddiDisplay::FillCoefficient(int coefficient,
 #ifndef SUPRESS_EXCESS_RENDERING
 	Render();
 #endif
+}
+
+void BaseNddiDisplay::FillCoefficientTiles(vector<int> &coefficients, vector<vector<unsigned int> > &positions, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) {
+	// TODO(CDE): Implement
+	assert(false);
 }
 
 CostModel* BaseNddiDisplay::GetCostModel() {

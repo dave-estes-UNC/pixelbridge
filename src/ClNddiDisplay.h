@@ -42,17 +42,17 @@ public:
     void PutPixel(Pixel p, vector<unsigned int> &location);
     void CopyPixelStrip(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end);
     void CopyPixels(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end);
+    void CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int> > &starts, vector<unsigned int> &size);
     void FillPixel(Pixel p, vector<unsigned int> &start, vector<unsigned int> &end);
     void CopyFrameVolume(vector<unsigned int> &start, vector<unsigned int> &end, vector<unsigned int> &dest);
     void UpdateInputVector(vector<int> &input);
     void PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &location);
     void FillCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &start, vector<unsigned int> &end);
     void FillCoefficient(int coefficient, int row, int col, vector<unsigned int> &start, vector<unsigned int> &end);
+    void FillCoefficientTiles(vector<int> &coefficients, vector<vector<unsigned int> > &positions, vector<vector<unsigned int> > &starts, vector<unsigned int> &size);
 
     // To satisfy the NDimensionalDisplayInterfaceExtended interface
     void CopyFrameVolume(vector<unsigned int> &start, vector<unsigned int> &end, vector<unsigned int> &dest, bool blend) {};
-    void CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int> > &starts, vector<unsigned int> &size);
-    void FillCoefficientTiles(vector<int> &coefficients, vector<vector<unsigned int> > &positions, vector<vector<unsigned int> > &starts, vector<unsigned int> &size);
 
 private:
     void Render();

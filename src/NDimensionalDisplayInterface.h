@@ -118,6 +118,17 @@ namespace nddi {
         virtual void CopyPixels(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end) = 0;
 
         /**
+         * Copies the array of pixels into the designated tile regions of the frame volume. The data must be
+         * arranged in the array with strides for each dimension of the area. Tiles are not necessarily two-
+         * dimensional and can have any dimensionality at most the dimensionality of the frame volume.
+         *
+         * @param p The pointer to the pixel values to be copied.
+         * @param starts Vector holding series of first pixel for each destination tile in the frame volume.
+         * @param size The size of each tile. Dimensionality should match that of the individual start vectors.
+         */
+        virtual void CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) = 0;
+
+        /**
          * Fills the frame volume with the specified pixel. It can fill in multiple
          * dimensions by starting at the start pixel and filling in each dimension until
          * the end pixel value is reached.
@@ -186,6 +197,16 @@ namespace nddi {
          */
         virtual void FillCoefficient(int coefficient, int row, int col, vector<unsigned int> &start, vector<unsigned int> &end) = 0;
 
+        /**
+         * For each coefficient, positions, and start; copies the coefficient to the position
+         * in the in each coefficient matrix in the tile specified by the start and size.
+         *
+         * @param coefficients The buffer of coefficients.
+         * @param positions The position (row, col) to place the coefficient within the coefficient matrix.
+         * @param starts The location (x, y) of the start of the tile in the coefficient plane.
+         * @param size The size (w, h) of the tile.
+         */
+        virtual void FillCoefficientTiles(vector<int> &coefficients, vector<vector<unsigned int> > &positions, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) = 0;
         /**
          * Returns the CostModel for this display. The CostModel can be queried by the
          * host application to understand the cost of operations after they complete.

@@ -105,12 +105,6 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
     Pixel                         *tile_pixels = NULL;
     Pixel                         *tile_pixels_sig_bits = NULL;
 
-    // TODO(CDE): IDEA
-    //            Move tile, tile_pixels, and tile_pixels_sig_bits into inner loop
-    //            Then move the omp parallel section to the outer loop.
-    //            Figure out how much needs to be omp ordered.
-    //            Figure out what needs to be omp critical
-
 	// Break up the passed in buffer into one tile at a time
 	for (int j_tile_map = 0; j_tile_map < tile_map_height_; j_tile_map++) {
 		for (int i_tile_map = 0; i_tile_map < tile_map_width_; i_tile_map++) {
