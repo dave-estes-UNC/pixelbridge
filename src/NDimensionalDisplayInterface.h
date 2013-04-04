@@ -119,12 +119,11 @@ namespace nddi {
 
         /**
          * Copies the array of pixels into the designated tile regions of the frame volume. The data must be
-         * arranged in the array with strides for each dimension of the area. Tiles are not necessarily two-
-         * dimensional and can have any dimensionality at most the dimensionality of the frame volume.
+         * arranged in the array with strides for each dimension of the area. Only 2D tiles are supported.
          *
          * @param p The pointer to the pixel values to be copied.
          * @param starts Vector holding series of first pixel for each destination tile in the frame volume.
-         * @param size The size of each tile. Dimensionality should match that of the individual start vectors.
+         * @param size The size of each tile (w, h).
          */
         virtual void CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) = 0;
 

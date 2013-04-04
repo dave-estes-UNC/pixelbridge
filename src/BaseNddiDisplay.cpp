@@ -111,8 +111,37 @@ void BaseNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> &start, vector<u
 }
 
 void BaseNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) {
-	// TODO(CDE): Implement
-	assert(false);
+
+	size_t tile_count = p.size();
+
+	// Ensure parameter vectors' sizes match
+	assert(starts.size() == tile_count);
+	assert(size.size() == 2);
+
+    // Register transmission cost first
+    int pixelsToCopy = 1;
+    for (int i = 0; i < size.size(); i++) {
+        pixelsToCopy *= size[i];
+    }
+    pixelsToCopy *= starts.size();
+    costModel->registerTransmissionCharge(4 * (pixelsToCopy + (tile_count + 1) * frameVolumeDimensionalSizes_.size()), 0);
+
+    // Copy pixels
+    vector<unsigned int> end;
+	end.resize(size.size());
+    for (int i = 0; i < starts.size(); i++) {
+    	assert(starts[i].size() == frameVolumeDimensionalSizes_.size());
+		end[0] = starts[i][0] + size[0]- 1; if (end[0] >= frameVolumeDimensionalSizes_[0]) end[0] = frameVolumeDimensionalSizes_[0] - 1;
+		end[1] = starts[i][1] + size[1] - 1; if (end[1] >= frameVolumeDimensionalSizes_[1]) end[1] = frameVolumeDimensionalSizes_[1] - 1;
+    	for (int j = 2; j < frameVolumeDimensionalSizes_.size(); j++) {
+    		end[j] = starts[i][j];
+    	}
+    	frameVolume_->CopyPixels(p[i], starts[i], end);
+    }
+
+    #ifndef SUPRESS_EXCESS_RENDERING
+	Render();
+#endif
 }
 
 void BaseNddiDisplay::FillPixel(Pixel p, vector<unsigned int> &start, vector<unsigned int> &end) {
@@ -198,8 +227,31 @@ void BaseNddiDisplay::FillCoefficient(int coefficient,
 }
 
 void BaseNddiDisplay::FillCoefficientTiles(vector<int> &coefficients, vector<vector<unsigned int> > &positions, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) {
-	// TODO(CDE): Implement
-	assert(false);
+
+	size_t tile_count = coefficients.size();
+
+	// Ensure parameter vectors' sizes match
+	assert(positions.size() == tile_count);
+	assert(starts.size() == tile_count);
+	assert(size.size() == 2);
+
+    // Register transmission cost first
+    costModel->registerTransmissionCharge(4 * ((1 + 3 + 2) * tile_count + 2), 0);
+
+    // Fill the coefficient matrices
+    vector<unsigned int> end;
+    end.resize(2);
+    for (size_t i = 0; i < tile_count; i++) {
+    	assert(positions[i].size() == 2);
+    	assert(starts[i].size() == 2);
+    	end[0] = starts[i][0] + size[0] - 1; if (end[0] >= displayWidth_) end[0] = displayWidth_ - 1;
+    	end[1] = starts[i][1] + size[1] - 1; if (end[1] >= displayHeight_) end[1] = displayHeight_ - 1;
+    	coefficientPlane_->FillCoefficient(coefficients[i], positions[i][0], positions[i][1], starts[i], end);
+    }
+
+#ifndef SUPRESS_EXCESS_RENDERING
+	Render();
+#endif
 }
 
 CostModel* BaseNddiDisplay::GetCostModel() {
