@@ -50,7 +50,7 @@ public:
 	 * @param max_tiles The maximum number of tiles in the cache
 	 * @param bits The number of most significant bits to use when computing checksums for a tile match
 	 */
-	CachedTiler(GlNddiDisplay* display,
+	CachedTiler(BaseNddiDisplay* display,
 				size_t tile_width, size_t tile_height,
 				size_t max_tiles, size_t bits,
 				bool quiet);
@@ -58,11 +58,11 @@ public:
 	~CachedTiler();
 
     /**
-     * Intializes the Coefficient Plane for this tiler.
+     * Intializes the Coefficient Planes for this tiler.
      *
 	 * @return The cost of this operation, including all of the NDDI operations
      */
-    void InitializeCoefficientPlane();
+    void InitializeCoefficientPlanes();
     
 	/**
 	 * Update the tile_map, tilecache, and then the NDDI display based on the frame that's passed in.
@@ -88,7 +88,7 @@ private:
 	void PushTile(tile_t* tile, size_t i, size_t j);
 #endif
 	
-	GlNddiDisplay*                 display_;
+	BaseNddiDisplay*               display_;
 	size_t                         tile_width_, tile_height_, max_tiles_;
 	size_t                         tile_map_width_, tile_map_height_;
 	size_t                         bits_;

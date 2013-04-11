@@ -282,7 +282,7 @@ nddi::Pixel BlendingGlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) 
     for (int p = 0; p < numPlanes_; p++) {
     
         // Grab the coefficient matrix
-        CoefficientMatrix * matrix = coefficientPlanes_[p]->getCoefficientMatrix(x, y);
+        CoefficientMatrix * matrix = coefficientPlanes_[p]->getCoefficientMatrix(x, y, 0);
         
         // Compute the position vector for the proper pixel in the frame volume.
         vector<unsigned int> fvPosition;
@@ -323,7 +323,7 @@ Pixel BlendingGlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* i
     for (int p = 0; p < numPlanes_; p++) {
         
         // Grab the coefficient matrix
-        int * cm = coefficientPlanes_[p]->getCoefficientMatrix(x, y)->data();
+        int * cm = coefficientPlanes_[p]->getCoefficientMatrix(x, y, 0)->data();
         
         // Compute the position vector for the proper pixel in the frame volume.
         vector<unsigned int> fvPosition;

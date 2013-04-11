@@ -15,6 +15,11 @@ namespace nddi {
      */
     #define COFFICIENT_UNCHANGED INT_MAX
 
+	/**
+	 * The number of coefficient planes is fixed at 256.
+	 */
+	#define NUM_COEFFICIENT_PLANES 256
+
     /**
      * Struct representing an RGBA 32-bit pixel.
      */
@@ -159,7 +164,7 @@ namespace nddi {
 
         /**
          * Used to copy the specified coefficientMatrix into the specified location of the coefficient
-         * plane.
+         * planes.
          *
          * @param coefficientMatrix This two-dimensional vector holds the matrix to be copied.
          *                          It's size must match the configuration of the coefficient matrices
@@ -170,42 +175,63 @@ namespace nddi {
         virtual void PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &location) = 0;
 
         /**
-         * Used to copy the specified coefficientMatrix into a range of locations in the coefficient plane.
+         * Used to copy the specified coefficientMatrix into a range of locations in the coefficient planes.
          *
          * @param coefficientMatrix This two-dimensional vector holds the matrix to be copied.
          *                          It's size must match the configuration of the coefficient matrices
          *                          exactly. Can use COFFICIENT_UNCHANGED for one or more elements.
-         * @param start This two-element vector specifies the location in the coefficient plane where the first
+         * @param start This three-element vector specifies the location in the coefficient planes where the first
          *              coefficient matrix will be copied to.
-         * @param end This two-element vector specifies the location in the coefficient plane where the last
+         * @param end This three-element vector specifies the location in the coefficient planes where the last
          *            coefficient matrix will be copied to.
          */
         virtual void FillCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &start, vector<unsigned int> &end) = 0;
 
         /**
-         * Used to copy the specified single coefficient value from a matrix into a range of locations in the coefficient plane.
+         * Used to copy the specified single coefficient value from a matrix into a range of locations in the coefficient planes.
          *
          * @param coefficient This single value will be placed into each coefficient at the specified location in the coefficient
          *                    matrices of the specified range.
          * @param row The row of the coefficient to be updated in the coefficient matrix.
          * @param col The column of the coefficient to be updated in the coefficient matrix.
-         * @param start This two-element vector specifies the location in the coefficient plane where the first
+         * @param start This three-element vector specifies the location in the coefficient planes where the first
          *              coefficient matrix will be copied to.
-         * @param end This two-element vector specifies the location in the coefficient plane where the last
+         * @param end This three-element vector specifies the location in the coefficient planes where the last
          *            coefficient matrix will be copied to.
          */
         virtual void FillCoefficient(int coefficient, int row, int col, vector<unsigned int> &start, vector<unsigned int> &end) = 0;
 
         /**
          * For each coefficient, positions, and start; copies the coefficient to the position
-         * in the in each coefficient matrix in the tile specified by the start and size.
+         * in the in each coefficient matrix in the 2D tile specified by the start and size.
          *
          * @param coefficients The buffer of coefficients.
          * @param positions The position (row, col) to place the coefficient within the coefficient matrix.
-         * @param starts The location (x, y) of the start of the tile in the coefficient plane.
+         * @param starts The location (x, y) of the start of the tile in the coefficient planes.
          * @param size The size (w, h) of the tile.
          */
         virtual void FillCoefficientTiles(vector<int> &coefficients, vector<vector<unsigned int> > &positions, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) = 0;
+
+        /**
+         * Used to copy the specified scaler to a range of locations in the coefficient planes.
+         *
+         * @param scaler This single scaler will be copied to each location in the range of coefficient planes.
+         * @param start This three-element vector specifies the location in the coefficient planes where the
+         *              scaler will be copied to.
+         * @param end This three-element vector specifies the location in the coefficient planes where the
+         *            scalers will be copied to.
+         */
+        virtual void FillScaler(int scaler, vector<unsigned int> &start, vector<unsigned int> &end) = 0;
+
+        /**
+         * Used to copy the specified scalers to a series of 2D ranges of locations (tiles) in the coefficient planes.
+         *
+         * @param scaler This single scaler will be copied to each location in the range of coefficient planes.
+         * @param starts The location (x, y) of the start of the tile in the coefficient planes.
+         * @param size The size (w, h) of the tile.
+         */
+        virtual void FillScalerTiles(vector<int> &scalers, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) = 0;
+
         /**
          * Returns the CostModel for this display. The CostModel can be queried by the
          * host application to understand the cost of operations after they complete.

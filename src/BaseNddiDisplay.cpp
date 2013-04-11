@@ -226,7 +226,10 @@ void BaseNddiDisplay::FillCoefficient(int coefficient,
 #endif
 }
 
-void BaseNddiDisplay::FillCoefficientTiles(vector<int> &coefficients, vector<vector<unsigned int> > &positions, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) {
+void BaseNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
+		                                   vector<vector<unsigned int> > &positions,
+		                                   vector<vector<unsigned int> > &starts,
+		                                   vector<unsigned int> &size) {
 
 	size_t tile_count = coefficients.size();
 
@@ -240,10 +243,10 @@ void BaseNddiDisplay::FillCoefficientTiles(vector<int> &coefficients, vector<vec
 
     // Fill the coefficient matrices
     vector<unsigned int> end;
-    end.resize(2);
+    end.push_back(0); end.push_back(0); end.push_back(0);
     for (size_t i = 0; i < tile_count; i++) {
     	assert(positions[i].size() == 2);
-    	assert(starts[i].size() == 2);
+    	assert(starts[i].size() == 3);
     	end[0] = starts[i][0] + size[0] - 1; if (end[0] >= displayWidth_) end[0] = displayWidth_ - 1;
     	end[1] = starts[i][1] + size[1] - 1; if (end[1] >= displayHeight_) end[1] = displayHeight_ - 1;
     	coefficientPlane_->FillCoefficient(coefficients[i], positions[i][0], positions[i][1], starts[i], end);
@@ -252,6 +255,26 @@ void BaseNddiDisplay::FillCoefficientTiles(vector<int> &coefficients, vector<vec
 #ifndef SUPRESS_EXCESS_RENDERING
 	Render();
 #endif
+}
+
+void BaseNddiDisplay::FillScaler(int scaler,
+                                 vector<unsigned int> &start,
+                                 vector<unsigned int> &end) {
+    // Register transmission cost first
+    costModel->registerTransmissionCharge(4 * (1 + 3 * 2), 0);
+
+    // Fill the coefficient matrices
+    coefficientPlane_->FillScaler(scaler, start, end);
+
+#ifndef SUPRESS_EXCESS_RENDERING
+	Render();
+#endif
+}
+
+void BaseNddiDisplay::FillScalerTiles(vector<int> &scalers,
+                                      vector<vector<unsigned int> > &starts,
+                                      vector<unsigned int> &size) {
+	// TODO(CDE): Implement
 }
 
 CostModel* BaseNddiDisplay::GetCostModel() {

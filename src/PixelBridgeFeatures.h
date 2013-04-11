@@ -13,7 +13,7 @@
  */
 //#define NO_OMP
 //#define NO_GL
-//#define NO_CL
+#define NO_CL
 
 /*
  * Running make with NO_HACKS=1 till turn this off, but uncommenting this will accomplish the same thing.

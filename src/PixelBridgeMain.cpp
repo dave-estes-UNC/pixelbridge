@@ -132,7 +132,7 @@ void setupDisplay() {
 								  configMaxTiles, configSigBits,
 								  configHeadless || !configVerbose);
 
-        myTiler->InitializeCoefficientPlane();
+        myTiler->InitializeCoefficientPlanes();
 
     // Frame Volume Blending
     } else if ((config == SIMPLE) && (configBlend == FRAME_VOLUME)) {
@@ -173,10 +173,16 @@ void setupDisplay() {
 		
 		start.clear(); end.clear();
 		
-		start.push_back(0); start.push_back(0); 
-		end.push_back(displayWidth - 1); end.push_back(displayHeight - 1);
+		start.push_back(0); start.push_back(0); start.push_back(0);
+		end.push_back(displayWidth - 1); end.push_back(displayHeight - 1); end.push_back(0);
 		
         myDisplay->FillCoefficientMatrix(coeffs, start, end);
+
+        // Turn off all planes and then set the 0 plane to full on.
+        end[2] = NUM_COEFFICIENT_PLANES - 1;
+        myDisplay->FillScaler(0, start, end);
+        end[2] = 0;
+        myDisplay->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
 
     // Temporal Blending
     } else if ((config == SIMPLE) && (configBlend == TEMPORAL)) {
@@ -216,11 +222,17 @@ void setupDisplay() {
 		
 		start.clear(); end.clear();
 		
-		start.push_back(0); start.push_back(0); 
-		end.push_back(displayWidth - 1); end.push_back(displayHeight - 1);
+		start.push_back(0); start.push_back(0); start.push_back(0);
+		end.push_back(displayWidth - 1); end.push_back(displayHeight - 1); end.push_back(0);
 		
 		myDisplay->FillCoefficientMatrix(coeffs, start, end);
         
+        // Turn off all planes and then set the 0 plane to full on.
+        end[2] = NUM_COEFFICIENT_PLANES - 1;
+        myDisplay->FillScaler(0, start, end);
+        end[2] = 0;
+        myDisplay->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
+
     // Coefficient Plane Blending
     } else if ((config == SIMPLE) && (configBlend == COEFFICIENT_PLANE)) {
 		
@@ -230,11 +242,9 @@ void setupDisplay() {
 		fvDimensions.push_back(displayHeight);
 		fvDimensions.push_back(2);
 		
-		myBlendingDisplay = new BlendingGlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
-                                                      displayWidth, displayHeight, // display size
-                                                      3, 						   // input vector size (x, y, 1)
-                                                      2);                          // 2 coefficient planes
-        myDisplay = myBlendingDisplay;
+		myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
+									  displayWidth, displayHeight, // display size
+									  3); 						   // input vector size (x, y, t)
 		
         // Grab the cost model
         costModel = myDisplay->GetCostModel();
@@ -271,7 +281,13 @@ void setupDisplay() {
         start[2] = 1; end[2] = 1;
 
 		myDisplay->FillCoefficientMatrix(coeffs, start, end);
-        
+
+        // Turn off all planes and then set the 0 and 1 planes to half each.
+        end[2] = NUM_COEFFICIENT_PLANES - 1;
+        myDisplay->FillScaler(0, start, end);
+        end[2] = 1;
+        myDisplay->FillScaler(NUM_COEFFICIENT_PLANES / 2, start, end);
+
     // Flat-Tiled
 	} else if (config == FLAT) {
 
@@ -306,7 +322,8 @@ void setupDisplay() {
                                 configTileWidth, configTileHeight, configSigBits,
                                 configHeadless || !configVerbose);
         
-        myTiler->InitializeCoefficientPlane();
+        myTiler->InitializeCoefficientPlanes();
+
     // Simple Framebuffer
 	} else {
 		
@@ -344,10 +361,17 @@ void setupDisplay() {
         
         start.clear(); end.clear();
         
-        start.push_back(0); start.push_back(0);
-        end.push_back(displayWidth - 1); end.push_back(displayHeight - 1);
+        start.push_back(0); start.push_back(0); start.push_back(0);
+        end.push_back(displayWidth - 1); end.push_back(displayHeight - 1); end.push_back(0);
         
         myDisplay->FillCoefficientMatrix(coeffs, start, end);
+
+        // Turn off all planes and then set the 0 plane to full on.
+        end[2] = NUM_COEFFICIENT_PLANES - 1;
+        myDisplay->FillScaler(0, start, end);
+        end[2] = 0;
+        myDisplay->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
+
     }
 	totalUpdates++;
 

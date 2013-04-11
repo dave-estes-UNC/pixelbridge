@@ -96,6 +96,8 @@ namespace nddi {
         void FillCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &start, vector<unsigned int> &end);
         void FillCoefficient(int coefficient, int row, int col, vector<unsigned int> &start, vector<unsigned int> &end);
         void FillCoefficientTiles(vector<int> &coefficients, vector<vector<unsigned int> > &positions, vector<vector<unsigned int> > &starts, vector<unsigned int> &size);
+        void FillScaler(int scaler, vector<unsigned int> &start, vector<unsigned int> &end);
+        void FillScalerTiles(vector<int> &scalers, vector<vector<unsigned int> > &starts, vector<unsigned int> &size);
         void Mute() { quiet_ = true; }
         void Unmute() { quiet_ = false; }
         CostModel* GetCostModel();

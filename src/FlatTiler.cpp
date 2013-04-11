@@ -18,7 +18,7 @@
  * The FlatTiler is created based on the dimensions of the NDDI display that's passed in. If those
  * dimensions change, then the FlatTiler should be destroyed and re-created.
  */
-FlatTiler::FlatTiler (GlNddiDisplay* display, size_t tile_width, size_t tile_height, size_t bits, bool quiet)
+FlatTiler::FlatTiler (BaseNddiDisplay* display, size_t tile_width, size_t tile_height, size_t bits, bool quiet)
 : display_(display),
   tile_width_(tile_width),
   tile_height_(tile_height),
@@ -47,11 +47,11 @@ FlatTiler::FlatTiler (GlNddiDisplay* display, size_t tile_width, size_t tile_hei
 }
 
 /**
- * Intializes the Coefficient Plane for this tiler.
+ * Intializes the Coefficient Planes for this tiler.
  *
  * @return The cost of this operation, including all of the NDDI operations
  */
-void FlatTiler::InitializeCoefficientPlane() {
+void FlatTiler::InitializeCoefficientPlanes() {
 
     vector< vector<int> > coeffs;
     coeffs.resize(2);
@@ -59,10 +59,16 @@ void FlatTiler::InitializeCoefficientPlane() {
     coeffs[1].push_back(0); coeffs[1].push_back(1);
     
 	vector<unsigned int> start, end;
-    start.push_back(0); start.push_back(0);
-    end.push_back(display_->DisplayWidth() - 1); end.push_back(display_->DisplayHeight() - 1);
-    
-    ((ClNddiDisplay *)display_)->FillCoefficientMatrix(coeffs, start, end);
+    start.push_back(0); start.push_back(0); start.push_back(0);
+    end.push_back(display_->DisplayWidth() - 1); end.push_back(display_->DisplayHeight() - 1); end.push_back(0);
+
+    display_->FillCoefficientMatrix(coeffs, start, end);
+
+    // Turn off all planes and then set the 0 plane to full on.
+    end[2] = NUM_COEFFICIENT_PLANES - 1;
+    display_->FillScaler(0, start, end);
+    end[2] = 0;
+    display_->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
 }
 
 /**
@@ -194,7 +200,7 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 		// Update the Frame Volume by copying the tiles over
 		vector<unsigned int> size;
 		size.push_back(tile_width_); size.push_back(tile_height_);
-		((ClNddiDisplay *)display_)->CopyPixelTiles(tiles, starts, size);
+		display_->CopyPixelTiles(tiles, starts, size);
 
 		while (!tiles.empty()) {
 			free(tiles.back());

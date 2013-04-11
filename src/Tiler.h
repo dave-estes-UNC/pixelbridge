@@ -22,9 +22,9 @@ class Tiler {
 public:
 
     /**
-     * Intializes the Coefficient Plane for this tiler.
+     * Intializes the Coefficient Planes for this tiler.
      */
-    virtual void InitializeCoefficientPlane() = 0;
+    virtual void InitializeCoefficientPlanes() = 0;
 
 	/**
 	 * Update the tile_map, tilecache, and then the NDDI display based on the frame that's passed in.

@@ -624,3 +624,16 @@ void ClNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
     Render();
 #endif
 }
+
+void ClNddiDisplay::FillScaler(int scaler,
+                               vector<unsigned int> &start,
+                               vector<unsigned int> &end) {
+	// TODO(CDE): Implement
+}
+
+
+void ClNddiDisplay::FillScalerTiles(vector<int> &scalers,
+                                    vector<vector<unsigned int> > &starts,
+                                    vector<unsigned int> &size) {
+	// TODO(CDE): Implement
+}

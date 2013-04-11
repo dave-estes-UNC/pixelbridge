@@ -33,7 +33,7 @@ public:
 	 * @param tile_height The height of the tiles
 	 * @param bits The number of most significant bits to use when computing checksums for a tile match
 	 */
-	FlatTiler(GlNddiDisplay* display,
+	FlatTiler(BaseNddiDisplay* display,
 			  size_t tile_width, size_t tile_height,
 			  size_t bits,
 			  bool quiet);
@@ -43,11 +43,11 @@ public:
 	}
 	
     /**
-     * Intializes the Coefficient Plane for this tiler.
+     * Intializes the Coefficient Planes for this tiler.
      *
 	 * @return The cost of this operation, including all of the NDDI operations
      */
-    void InitializeCoefficientPlane();
+    void InitializeCoefficientPlanes();
     
 	/**
 	 * Update the tile_map, tilecache, and then the NDDI display based on the frame that's passed in.
@@ -64,11 +64,11 @@ private:
 	void UpdateFrameVolume(Pixel* pixels, int i_map, int j_map);
 #endif
 	
-	GlNddiDisplay* display_;
-	size_t tile_width_, tile_height_;
-	size_t tile_map_width_, tile_map_height_;
-	size_t bits_;
-	bool quiet_;
+	BaseNddiDisplay*  display_;
+	size_t            tile_width_, tile_height_;
+	size_t            tile_map_width_, tile_map_height_;
+	size_t            bits_;
+	bool              quiet_;
 	
 	vector< vector<unsigned long> > tile_map_;
 

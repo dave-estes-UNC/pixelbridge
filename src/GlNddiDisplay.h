@@ -34,7 +34,9 @@ public:
 private:
     void Render();
     nddi::Pixel ComputePixel(unsigned int x, unsigned int y);
+#ifndef NO_OMP
     nddi::Pixel ComputePixel(unsigned int x, unsigned int y, int* iv, nddi::Pixel* fv);
+#endif
 
 protected:
     GLuint texture_;

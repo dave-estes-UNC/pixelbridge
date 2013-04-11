@@ -121,60 +121,117 @@ void GlNddiDisplay::Render() {
 
 Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
 
-	// Grab the coefficient matrix
-    CoefficientMatrix * matrix = coefficientPlane_->getCoefficientMatrix(x, y);
+	int    rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
+	Pixel  q;
 
-	// Compute the position vector for the proper pixel in the frame volume.
-	vector<unsigned int> fvPosition;
-	// Matrix multiply the input vector by the coefficient matrix
-	for (int j = 0; j < CM_HEIGHT; j++) {
-        // Initialize to zero
-		fvPosition.push_back(0);
-        // No need to read the x and y from the input vector, just multiply directly.
-        fvPosition[j] += matrix->getCoefficient(0, j) * x;
-        fvPosition[j] += matrix->getCoefficient(1, j) * y;
-        // Then multiply the remainder of the input vector
-		for (int i = 2; i < CM_WIDTH; i++) {
-			fvPosition[j] += matrix->getCoefficient(i, j) * inputVector_->getValue(i);
+	// Accumulate color channels for the pixels chosen by each plane
+	for (unsigned int p = 0; p < NUM_COEFFICIENT_PLANES; p++) {
+
+		// Grab the scaler for this location
+		int scaler = coefficientPlane_->getScaler(x, y, p);
+		if (scaler == 0) continue;
+
+		// Grab the coefficient matrix
+		CoefficientMatrix * matrix = coefficientPlane_->getCoefficientMatrix(x, y, p);
+		assert(matrix);
+
+		// Compute the position vector for the proper pixel in the frame volume.
+		vector<unsigned int> fvPosition;
+		// Matrix multiply the input vector by the coefficient matrix
+		for (int j = 0; j < CM_HEIGHT; j++) {
+			// Initialize to zero
+			fvPosition.push_back(0);
+			// No need to read the x and y from the input vector, just multiply directly.
+			fvPosition[j] += matrix->getCoefficient(0, j) * x;
+			fvPosition[j] += matrix->getCoefficient(1, j) * y;
+			// Then multiply the remainder of the input vector
+			for (int i = 2; i < CM_WIDTH; i++) {
+				fvPosition[j] += matrix->getCoefficient(i, j) * inputVector_->getValue(i);
+			}
 		}
+		q = frameVolume_->getPixel(fvPosition);
+		rAccumulator += (unsigned int)q.r * scaler;
+		gAccumulator += (unsigned int)q.g * scaler;
+		bAccumulator += (unsigned int)q.b * scaler;
 	}
+
+	// Make sure there are 256 planes so the shift operation (divide 256) works correctly.
+	// Note: This shift operation will be absolutely necessary when this is implemented
+	//       in hardware to avoid the division operation.
+#if (NUM_COEFFICIENT_PLANES != 256)
+#error Coefficient Plane Count must be 256
+#endif
+	q.r = rAccumulator >> 8;
+	q.g = gAccumulator >> 8;
+	q.b = bAccumulator >> 8;
+	q.a = 255;
 
     costModel->registerPixelMappingCharge(1);
 
-	return frameVolume_->getPixel(fvPosition);
+	return q;
 }
 
+#ifndef NO_OMP
+// Duplicate version of the proper ComputePixel which avoids locking
 Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel* fv) {
 
-    // Grab the coefficient matrix
-    int * cm = coefficientPlane_->getCoefficientMatrix(x, y)->data();
+	int    rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
+	Pixel  q;
 
-	// Compute the position vector for the proper pixel in the frame volume.
-	vector<unsigned int> fvPosition;
-	// Matrix multiply the input vector by the coefficient matrix
-	for (int j = 0; j < CM_HEIGHT; j++) {
-        // Initialize to zero
-		fvPosition.push_back(0);
-        // No need to read the x and y from the input vector, just multiply directly.
-        fvPosition[j] += cm[j * CM_WIDTH + 0] * x;
-        fvPosition[j] += cm[j * CM_WIDTH + 1] * y;
-        // Then multiply the remainder of the input vector
-		for (int i = 2; i < CM_WIDTH; i++) {
-			fvPosition[j] += cm[j * CM_WIDTH + i] * iv[i];
+	// Accumulate color channels for the pixels chosen by each plane
+	for (unsigned int p = 0; p < NUM_COEFFICIENT_PLANES; p++) {
+
+		// Grab the scaler for this location
+		int scaler = coefficientPlane_->getScaler(x, y, p);
+		if (scaler == 0) continue;
+
+		// Grab the coefficient matrix
+		int * cm = coefficientPlane_->getCoefficientMatrix(x, y, 0)->data();
+
+		// Compute the position vector for the proper pixel in the frame volume.
+		vector<unsigned int> fvPosition;
+		// Matrix multiply the input vector by the coefficient matrix
+		for (int j = 0; j < CM_HEIGHT; j++) {
+			// Initialize to zero
+			fvPosition.push_back(0);
+			// No need to read the x and y from the input vector, just multiply directly.
+			fvPosition[j] += cm[j * CM_WIDTH + 0] * x;
+			fvPosition[j] += cm[j * CM_WIDTH + 1] * y;
+			// Then multiply the remainder of the input vector
+			for (int i = 2; i < CM_WIDTH; i++) {
+				fvPosition[j] += cm[j * CM_WIDTH + i] * iv[i];
+			}
 		}
+
+		// Compute the offset and grab the pixel directly from the frame volume
+		unsigned int offset = 0;
+		unsigned int multiplier = 1;
+
+		for (int i = 0; i < fvPosition.size(); i++) {
+			offset += fvPosition[i] * multiplier;
+			multiplier *= frameVolumeDimensionalSizes_[i];
+		}
+
+		q = fv[offset];
+		rAccumulator += (unsigned int)q.r * scaler;
+		gAccumulator += (unsigned int)q.g * scaler;
+		bAccumulator += (unsigned int)q.b * scaler;
 	}
 
-    // Compute the offset and grab the pixel directly from the frame volume
-    unsigned int offset = 0;
-    unsigned int multiplier = 1;
+	// Make sure there are 256 planes so the shift operation (divide 256) works correctly.
+	// Note: This shift operation will be absolutely necessary when this is implemented
+	//       in hardware to avoid the division operation.
+#if (NUM_COEFFICIENT_PLANES != 256)
+#error Coefficient Plane Count must be 256
+#endif
+	q.r = rAccumulator >> 8;
+	q.g = gAccumulator >> 8;
+	q.b = bAccumulator >> 8;
+	q.a = 255;
 
-    for (int i = 0; i < fvPosition.size(); i++) {
-        offset += fvPosition[i] * multiplier;
-        multiplier *= frameVolumeDimensionalSizes_[i];
-    }
-
-    return fv[offset];
+	return q;
 }
+#endif
 
 GLuint GlNddiDisplay::GetFrameBuffer() {
 

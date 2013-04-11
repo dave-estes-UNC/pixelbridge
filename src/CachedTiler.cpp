@@ -17,7 +17,7 @@
  * The CachedTiler is created based on the dimensions of the NDDI display that's passed in. If those
  * dimensions change, then the CachedTiler should be destroyed and re-created.
  */
-CachedTiler::CachedTiler (GlNddiDisplay* display, size_t tile_width, size_t tile_height, size_t max_tiles, size_t bits, bool quiet)
+CachedTiler::CachedTiler (BaseNddiDisplay* display, size_t tile_width, size_t tile_height, size_t max_tiles, size_t bits, bool quiet)
 : display_(display),
   tile_width_(tile_width),
   tile_height_(tile_height),
@@ -56,11 +56,11 @@ CachedTiler::~CachedTiler()
 }
 
 /**
- * Intializes the Coefficient Plane for this tiler.
+ * Intializes the Coefficient Planes for this tiler.
  *
  * @return The cost of this operation, including all of the NDDI operations
  */
-void CachedTiler::InitializeCoefficientPlane() {
+void CachedTiler::InitializeCoefficientPlanes() {
 
 	// Setup the coefficient matrix to complete 3x3 identity initially
 	vector< vector<int> > coeffs;
@@ -71,8 +71,8 @@ void CachedTiler::InitializeCoefficientPlane() {
 
 	// Setup start and end points to (0,0) initially
 	vector<unsigned int> start, end;
-	start.push_back(0); start.push_back(0);
-	end.push_back(0); end.push_back(0);
+	start.push_back(0); start.push_back(0); start.push_back(0);
+	end.push_back(0); end.push_back(0); end.push_back(0);
 
 	for (int j = 0; j < tile_map_height_; j++) {
 		for (int i = 0; i < tile_map_width_; i++) {
@@ -82,9 +82,18 @@ void CachedTiler::InitializeCoefficientPlane() {
 			end[0] = (i + 1) * tile_width_ - 1; end[1] = (j + 1) * tile_height_ - 1;
 			if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
 			if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
-			((ClNddiDisplay *)display_)->FillCoefficientMatrix(coeffs, start, end);
+			display_->FillCoefficientMatrix(coeffs, start, end);
 		}
 	}
+
+    // Turn off all planes and then set the 0 plane to full on.
+	start[0] = 0; start[1] = 0; start[2] = 0;
+	end[0] = display_->DisplayWidth() - 1;
+	end[1] = display_->DisplayHeight() - 1;
+    end[2] = NUM_COEFFICIENT_PLANES - 1;
+    display_->FillScaler(0, start, end);
+    end[2] = 0;
+    display_->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
 }
 
 
@@ -304,7 +313,7 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 
 		// Update the Frame Volume by copying the tiles over
 		if (tile_pixels_list.size() > 0) {
-			((ClNddiDisplay *)display_)->CopyPixelTiles(tile_pixels_list, tile_starts_list, size);
+			display_->CopyPixelTiles(tile_pixels_list, tile_starts_list, size);
 		}
 
 		// Free the tile memory and empty the vector
@@ -316,10 +325,10 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 
 		// Update the coefficient plane
 		if (coefficients_list.size() > 0) {
-			((ClNddiDisplay *)display_)->FillCoefficientTiles(coefficients_list,
-														      coefficient_positions_list,
-														  	  coefficient_plane_starts_list,
-														  	  size);
+			display_->FillCoefficientTiles(coefficients_list,
+                                           coefficient_positions_list,
+                                           coefficient_plane_starts_list,
+                                           size);
 		}
 
 		// Free the coefficient memory and empty the vector
@@ -407,7 +416,7 @@ void CachedTiler::UpdateFrameVolume(Pixel* pixels, tile_t *tile) {
 	start.push_back(0); start.push_back(0); start.push_back(tile->zIndex);
 	end.push_back(tile_width_ - 1); end.push_back(tile_height_ - 1); end.push_back(tile->zIndex);
 
-	((ClNddiDisplay *)display_)->CopyPixels(pixels, start, end);
+	display_->CopyPixels(pixels, start, end);
 }
 
 
@@ -424,12 +433,12 @@ void CachedTiler::UpdateCoefficientMatrices(size_t x, size_t y, tile_t *tile) {
 
 	// Setup start and end points
 	vector<unsigned int> start, end;
-	start.push_back(x * tile_width_); start.push_back(y * tile_height_);
-	end.push_back((x + 1) * tile_width_ - 1); end.push_back((y + 1) * tile_height_ - 1);
+	start.push_back(x * tile_width_); start.push_back(y * tile_height_); start.push_back(0);
+	end.push_back((x + 1) * tile_width_ - 1); end.push_back((y + 1) * tile_height_ - 1); end.push_back(0);
 	if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
 	if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
 
-	((ClNddiDisplay *)display_)->FillCoefficient(tile->zIndex, 2, 2, start, end);
+	display_->FillCoefficient(tile->zIndex, 2, 2, start, end);
 }
 
 #else
@@ -484,7 +493,7 @@ void CachedTiler::PushTile(tile_t* tile, size_t i, size_t j) {
 	position.push_back(2); position.push_back(2);
 
 	vector<unsigned int> start;
-	start.push_back(i * tile_width_); start.push_back(j * tile_height_);
+	start.push_back(i * tile_width_); start.push_back(j * tile_height_); start.push_back(0);
 
 #ifndef NO_OMP
 #pragma omp critical

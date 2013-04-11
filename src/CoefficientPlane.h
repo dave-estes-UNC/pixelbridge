@@ -23,8 +23,9 @@ namespace nddi {
 
     protected:
         CostModel           * costModel_;
-        unsigned int          width_, height_;
+        unsigned int          width_, height_, numPlanes_;
         CoefficientMatrix  ** coefficientMatrices_;
+        int                 * scalers_;
 
     public:
 
@@ -34,15 +35,18 @@ namespace nddi {
         CoefficientPlane(CostModel* costModel,
                          unsigned int displayWidth, unsigned int displayHeight,
                          unsigned int matrixWidth, unsigned int matrixHeight)
-        : costModel_(costModel), width_(displayWidth), height_(displayHeight), coefficientMatrices_(NULL) {
+        : costModel_(costModel), width_(displayWidth), height_(displayHeight), numPlanes_(NUM_COEFFICIENT_PLANES), coefficientMatrices_(NULL) {
 
-            coefficientMatrices_ = (CoefficientMatrix **)malloc(sizeof(CoefficientMatrix *) * displayWidth * displayHeight);
-            for (int y = 0; y < displayHeight; y++) {
-                for (int x = 0; x < displayWidth; x++) {
-                    coefficientMatrices_[y * displayWidth + x] = new CoefficientMatrix(costModel_, matrixWidth, matrixHeight);
-                }
+            coefficientMatrices_ = (CoefficientMatrix **)malloc(sizeof(CoefficientMatrix *) * displayWidth * displayHeight * NUM_COEFFICIENT_PLANES);
+            for (int p = 0; p < NUM_COEFFICIENT_PLANES; p++) {
+				for (int y = 0; y < displayHeight; y++) {
+					for (int x = 0; x < displayWidth; x++) {
+						coefficientMatrices_[p * displayWidth * displayHeight + y * displayWidth + x] = new CoefficientMatrix(costModel_, matrixWidth, matrixHeight);
+					}
+				}
             }
 
+            scalers_ = (int *)malloc(sizeof(int) * displayWidth * displayHeight * NUM_COEFFICIENT_PLANES);
         }
 
         ~CoefficientPlane() {
@@ -62,6 +66,7 @@ namespace nddi {
 
                 free(coefficientMatrices_);
             }
+            if (scalers_) free(scalers_);
         }
 
         unsigned int getWidth() {
@@ -76,12 +81,17 @@ namespace nddi {
 
         void PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &location) {
 
-            getCoefficientMatrix(location[0], location[1])->setCoefficients(coefficientMatrix);
+        	assert(location.size() == 3);
+
+            getCoefficientMatrix(location[0], location[1], location[2])->setCoefficients(coefficientMatrix);
         }
 
         void FillCoefficientMatrix(vector< vector<int> > &coefficientMatrix,
                                    vector<unsigned int> &start,
                                    vector<unsigned int> &end) {
+
+        	assert(start.size() == 3);
+        	assert(end.size() == 3);
 
             vector<unsigned int> position = start;
             bool fillFinished = false;
@@ -89,13 +99,16 @@ namespace nddi {
             // Move from start to end, filling in each location with the provided pixel
             do {
                 // Update coefficient matrix in coefficient plane at position
-                getCoefficientMatrix(position[0], position[1])->setCoefficients(coefficientMatrix);
+                getCoefficientMatrix(position[0], position[1], position[2])->setCoefficients(coefficientMatrix);
 
                 // Move to the next position
                 if (++position[0] > end[0]) {
                     position[0] = start[0];
                     if (++position[1] > end[1]) {
-                        fillFinished = true;
+                    	position[1] = start[1];
+                        if (++position[2] > end[2]) {
+                        	fillFinished = true;
+                        }
                     }
                 }
             } while (!fillFinished);
@@ -106,41 +119,90 @@ namespace nddi {
                              vector<unsigned int> &start,
                              vector<unsigned int> &end) {
 
-            vector<unsigned int> position = start;
+        	assert(start.size() == 3);
+        	assert(end.size() == 3);
+
+        	vector<unsigned int> position = start;
             bool fillFinished = false;
 
             // Move from start to end, filling in each location with the provided pixel
             do {
                 // Set coefficient in the coefficient matrix at this position in the coefficient plane
-                getCoefficientMatrix(position[0], position[1])->setCoefficient(col, row, coefficient);
+                getCoefficientMatrix(position[0], position[1], position[2])->setCoefficient(col, row, coefficient);
 
                 // Move to the next position
                 if (++position[0] > end[0]) {
                     position[0] = start[0];
                     if (++position[1] > end[1]) {
-                        fillFinished = true;
+                    	position[1] = start[1];
+                        if (++position[2] > end[2]) {
+                        	fillFinished = true;
+                        }
                     }
                 }
             } while (!fillFinished);
         }
 
-        void putCoefficientMatrix(unsigned int x, unsigned int y, CoefficientMatrix * matrix) {
+        void FillScaler(int scaler,
+                        vector<unsigned int> &start,
+                        vector<unsigned int> &end) {
+
+        	assert(start.size() == 3);
+        	assert(end.size() == 3);
+
+        	vector<unsigned int> position = start;
+            bool fillFinished = false;
+
+            // Move from start to end, filling in each location with the provided pixel
+            do {
+                // Set scaler at this position in the coefficient plane
+                putScaler(position[0], position[1], position[2], scaler);
+
+                // Move to the next position
+                if (++position[0] > end[0]) {
+                    position[0] = start[0];
+                    if (++position[1] > end[1]) {
+                    	position[1] = start[1];
+                        if (++position[2] > end[2]) {
+                        	fillFinished = true;
+                        }
+                    }
+                }
+            } while (!fillFinished);
+        }
+
+        void putCoefficientMatrix(unsigned int x, unsigned int y, unsigned int p, CoefficientMatrix * matrix) {
 
             assert(x < width_);
             assert(y < height_);
 
-            CoefficientMatrix* m = coefficientMatrices_[y * width_ + x];
+            CoefficientMatrix* m = coefficientMatrices_[p * width_ * height_ * numPlanes_ + y * width_ + x];
             if (m != NULL) {
                 delete(m);
             }
-            coefficientMatrices_[y * width_ + x] = matrix;
+            coefficientMatrices_[p * width_ * height_ + y * width_ + x] = matrix;
         }
 
-        CoefficientMatrix* getCoefficientMatrix(unsigned int x, unsigned int y) {
+        CoefficientMatrix* getCoefficientMatrix(unsigned int x, unsigned int y, unsigned int p) {
 
             assert(x < width_);
             assert(y < height_);
-            return coefficientMatrices_[y * width_ + x];
+            return coefficientMatrices_[p * width_ * height_ + y * width_ + x];
+        }
+
+        void putScaler(unsigned int x, unsigned int y, unsigned int p, int scaler) {
+
+            assert(x < width_);
+            assert(y < height_);
+
+            scalers_[p * width_ * height_ + y * width_ + x] = scaler;
+        }
+
+        int getScaler(unsigned int x, unsigned int y, unsigned int p) {
+
+            assert(x < width_);
+            assert(y < height_);
+            return scalers_[p * width_ * height_ + y * width_ + x];
         }
     };
 }
