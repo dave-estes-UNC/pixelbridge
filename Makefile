@@ -73,6 +73,7 @@ _DEPS =	GlNddiDisplay.h \
 	CoefficientMatrix.h \
 	CoefficientPlane.h \
 	CostModel.h \
+	DctTiler.h \
 	FfmpegPlayer.h \
 	FlatTiler.h \
 	FrameVolume.h \
@@ -85,6 +86,7 @@ _OBJ = \
 	BaseNddiDisplay.o \
 	BlendingGlNddiDisplay.o \
 	CachedTiler.o \
+	DctTiler.o \
 	FfmpegPlayer.o \
 	FlatTiler.o \
 	GlNddiDisplay.o \

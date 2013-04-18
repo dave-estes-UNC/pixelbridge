@@ -47,9 +47,7 @@ FlatTiler::FlatTiler (BaseNddiDisplay* display, size_t tile_width, size_t tile_h
 }
 
 /**
- * Intializes the Coefficient Planes for this tiler.
- *
- * @return The cost of this operation, including all of the NDDI operations
+ * Initializes the Coefficient Planes for this tiler.
  */
 void FlatTiler::InitializeCoefficientPlanes() {
 

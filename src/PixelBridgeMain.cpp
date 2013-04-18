@@ -17,6 +17,7 @@
 #include "ClNddiDisplay.h"
 #include "BlendingGlNddiDisplay.h"
 #include "CachedTiler.h"
+#include "DctTiler.h"
 #include "FlatTiler.h"
 #include "FfmpegPlayer.h"
 #include "Rewinder.h"
@@ -26,7 +27,8 @@ typedef enum {
 	COUNT,  // Just count (aka Perfect Pixel Latching)
 	SIMPLE, // Simple Framebuffer
 	FLAT,   // Tiled, but not cached
-	CACHE   // Tiled and cached
+	CACHE,  // Tiled and cached
+	DCT     // Macroblocks and DCT coefficients
 } config_t;
 
 typedef enum {
@@ -133,6 +135,32 @@ void setupDisplay() {
 								  configHeadless || !configVerbose);
 
         myTiler->InitializeCoefficientPlanes();
+
+	// DCT-Tiled
+	} else if (config == DCT) {
+
+		// 3 dimensional matching the Macroblock Width x Height x 64+3+1
+		vector<unsigned int> fvDimensions;
+		fvDimensions.push_back(MACROBLOCK_WIDTH);
+		fvDimensions.push_back(MACROBLOCK_HEIGHT);
+		fvDimensions.push_back(DCT_FRAMEVOLUME_DEPTH);
+
+#ifndef NO_CL
+#error CL not supported for DCT Tiler yet.
+#else
+		myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
+									  displayWidth, displayHeight, // display size
+									  2); 						   // input vector size (x, y)
+#endif
+        // Grab the cost model
+        costModel = myDisplay->GetCostModel();
+
+		// Setup DCT Tiler and initializes Coefficient Plane and Frame Volume
+		myTiler = new DctTiler(myDisplay,
+							   configHeadless || !configVerbose);
+
+        myTiler->InitializeCoefficientPlanes();
+        ((DctTiler *)myTiler)->InitializeFrameVolume();
 
     // Frame Volume Blending
     } else if ((config == SIMPLE) && (configBlend == FRAME_VOLUME)) {
@@ -385,8 +413,8 @@ void setupDisplay() {
 
 void updateDisplay(uint8_t* buffer, size_t width, size_t height) {
 
-    // CACHE or FLAT
-	if ( (config == CACHE) || (config == FLAT) ) {
+    // CACHE, DCT, or FLAT
+	if ( (config == CACHE) || (config == DCT) || (config == FLAT) ) {
 		// Update the display with the Tiler
 		myTiler->UpdateDisplay(buffer, width, height);
     // SIMPLE
@@ -900,9 +928,9 @@ void motion( int x, int y ) {
 
 
 void showUsage() {
-	cout << "pixelbridge [--mode <fb|flat|cache|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--start <n>] [--frames <n>] [--rewind <n> <n>] <filename>" << endl;
+	cout << "pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--start <n>] [--frames <n>] [--rewind <n> <n>] <filename>" << endl;
 	cout << endl;
-	cout << "  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), or as a cached tile (cache).\n" <<
+	cout << "  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), or using DCT (dct).\n" <<
 	        "          Optional the mode can be set to count the number of pixels changed (count)." << endl;
 	cout << "  --blend  For fb mode, this option alpha-blends using just the frame volume, input vector (temporal), or coefficient plane." << endl;
 	cout << "  --ts  Sets the tile size to the width and height provided." << endl;
@@ -930,6 +958,8 @@ bool parseArgs(int argc, char *argv[]) {
 				config = FLAT;
 			} else if (strcmp(*argv, "cache") == 0) {
 				config = CACHE;
+			} else if (strcmp(*argv, "dct") == 0) {
+				config = DCT;
 			} else if (strcmp(*argv, "count") == 0) {
 				config = COUNT;
 			}

@@ -1,6 +1,7 @@
 #ifndef TILER_H
 #define TILER_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 /*

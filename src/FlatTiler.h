@@ -43,9 +43,7 @@ public:
 	}
 	
     /**
-     * Intializes the Coefficient Planes for this tiler.
-     *
-	 * @return The cost of this operation, including all of the NDDI operations
+     * Initializes the Coefficient Planes for this tiler.
      */
     void InitializeCoefficientPlanes();
     
@@ -55,7 +53,6 @@ public:
 	 * @param buffer Pointer to the return frame buffer
 	 * @param width The width of that frame buffer
 	 * @param height The height of that frame buffer
-	 * @return The cost of this operation, including all of the NDDI operations
 	 */
 	void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 	
