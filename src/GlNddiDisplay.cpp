@@ -178,8 +178,6 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 	int    rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
 	Pixel  q;
 
-	assert(false); // I'm broken and I make things go red.
-
 	// Accumulate color channels for the pixels chosen by each plane
 	for (unsigned int p = 0; p < NUM_COEFFICIENT_PLANES; p++) {
 
@@ -188,7 +186,7 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 		if (scaler == 0) continue;
 
 		// Grab the coefficient matrix
-		int * cm = coefficientPlane_->getCoefficientMatrix(x, y, 0)->data();
+		int * cm = coefficientPlane_->getCoefficientMatrix(x, y, p)->data();
 
 		// Compute the position vector for the proper pixel in the frame volume.
 		vector<unsigned int> fvPosition;
