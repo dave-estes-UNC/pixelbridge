@@ -30,8 +30,8 @@ class DctTiler : public Tiler {
 
 public:
 	/**
-	 * The FlatTiler is created based on the dimensions of the NDDI display that's passed in. If those
-	 * dimensions change, then the CachedTiler should be destroyed and re-created.
+	 * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
+	 * dimensions change, then the DctTiler should be destroyed and re-created.
 	 *
 	 * @param display A pointer to the NDDI display
 	 */
@@ -61,8 +61,8 @@ public:
 	void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 
 private:
-	static const size_t  BLOCK_WIDTH = 8;
-	static const size_t  BLOCK_HEIGHT = 8;
+	static const size_t  BLOCK_WIDTH = MACROBLOCK_WIDTH;
+	static const size_t  BLOCK_HEIGHT = MACROBLOCK_HEIGHT;
 	static const size_t  BLOCK_SIZE = BLOCK_WIDTH * BLOCK_HEIGHT;
 	static const size_t  BLOCKS_WIDE = 8;
 	static const size_t  BLOCKS_TALL = 8;
@@ -71,6 +71,6 @@ private:
 
 	BaseNddiDisplay*  display_;
 	bool              quiet_;
-	int               zigZag_[64];
+	int               zigZag_[BLOCKS_WIDE * BLOCKS_TALL];
 };
 #endif // DCT_TILER_H

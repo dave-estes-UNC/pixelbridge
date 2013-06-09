@@ -178,6 +178,8 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 	int    rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
 	Pixel  q;
 
+	assert(false); // I'm broken and I make things go red.
+
 	// Accumulate color channels for the pixels chosen by each plane
 	for (unsigned int p = 0; p < NUM_COEFFICIENT_PLANES; p++) {
 

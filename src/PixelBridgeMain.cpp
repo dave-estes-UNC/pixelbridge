@@ -150,10 +150,15 @@ void setupDisplay() {
 #else
 		myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
 									  displayWidth, displayHeight, // display size
-									  2); 						   // input vector size (x, y)
+									  3); 						   // input vector size (x, y, 1)
 #endif
         // Grab the cost model
         costModel = myDisplay->GetCostModel();
+
+		// Initialize Input Vector
+		vector<int> iv;
+		iv.push_back(1);
+		myDisplay->UpdateInputVector(iv);
 
 		// Setup DCT Tiler and initializes Coefficient Plane and Frame Volume
 		myTiler = new DctTiler(myDisplay,

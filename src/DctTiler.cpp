@@ -1,4 +1,5 @@
 #include <cmath>
+#include <iostream>
 
 #include "PixelBridgeFeatures.h"
 #include "DctTiler.h"
@@ -7,19 +8,22 @@
  * Frame Volume
  *
  * Dimensions are 8 x 8 x 193 and holds the 64 basis function for the red, green, and then blue channels and then
- * one extra planes for medium gray. The pre-rendered basis functions are arranged in the frame volume
+ * one extra plane for medium gray. The pre-rendered basis functions are arranged in the frame volume
  * using zig-zag ordering, with the colors interleaved.
  *
- * R(0,0) G(0,0) B(0,0) - R(1,0) G(1,0) B(1,0) - R(0,1) G(0,1) B(0,1) - R(0,2) G(0,2) B(0,2) -
- * R(1,1) G(1,1) B(1,1) - R(2,0) G(2,0) B(2,0) - R(3,0) G(3,0) B(3,0) - R(2,1) G(2,1) B(2,1) -
- * ... -
+ *      0      1      2      3      4      5      6      7      8      9     10     11
+ * R(0,0) G(0,0) B(0,0) R(1,0) G(1,0) B(1,0) R(0,1) G(0,1) B(0,1) R(0,2) G(0,2) B(0,2)
+ *     12     13     14     15     16     17     18     19     20     21     22     23
+ * R(1,1) G(1,1) B(1,1) R(2,0) G(2,0) B(2,0) R(3,0) G(3,0) B(3,0) R(2,1) G(2,1) B(2,1)
+ *   ...
+ *    189    190    191
  * R(7,7) G(7,7) B(7,7)
  *
  *
  * Coefficient Plane
  *
- * The Coefficient Planes are then arranged to match, where each coefficient matrix in planes 0 - 195 correspond
- * to the same plane in the Frame Volume with the proper translation values. The last plane (196) picks the
+ * The Coefficient Planes are then arranged to match, where each coefficient matrix in planes 0 - 191 correspond
+ * to the same plane in the Frame Volume with the proper translation values. The last plane (192) picks the
  * extra medium medium gray plane from the frame volume.
  *
  * The scalers for each 8x8 block of coefficient matrices are set per macro block using the DCT coefficients
@@ -37,6 +41,43 @@
 /**
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
  * dimensions change, then the FlatTiler should be destroyed and re-created.
+ *
+ * A particular 8x8 macroblock has pixels index by x,y with the origin at the top left:
+ *
+ *   0,0 1,0 2,0 3,0 4,0 5,0 6,0 7,0
+ *   0,1 1,1 2,1 3,1 4,1 5,1 6,1 7,1
+ *   0,2 1,2 2,2 3,2 4,2 5,2 6,2 7,2
+ *   0,3 1,3 2,3 3,3 4,3 5,3 6,3 7,3
+ *   0,4 1,4 2,4 3,4 4,4 5,4 6,4 7,4
+ *   0,5 1,5 2,5 3,5 4,5 5,5 6,5 7,5
+ *   0,6 1,6 2,6 3,6 4,6 5,6 6,6 7,6
+ *   0,7 1,7 2,7 3,7 4,7 5,7 6,7 7,7
+ *
+ * Zig-Zag order is therefore:
+ *
+ *                 0,0
+ *               1,0 0,1
+ *             0,2 1,1 2,0
+ *           3,0 2,1 1,2 0,3
+ *         0,4 1,3 2,2 3,1 4,0
+ *       5,0 4,1 3,2 2,3 1,4 0,5
+ *     0,6 1,5 2,4 3,3 4,2 5,1 6,0
+ *   7,0 6,1 5,2 4,3 3,4 2,5 1,6 0,7
+ *     1,7 2,6 3,5 4,4 5,3 6,2 7,1
+ *       7,2 6,3 5,4 4,5 3,6 2,7
+ *         3,7 4,6 5,5 6,4 7,3
+ *           7,4 6,5 5,6 4,7
+ *             5,7 6,6 7,5
+ *               7,6 6,7
+ *                 7,7
+ *
+ * This zig-zag ordering is then stored in the zigZag_ array. Each (x,y) pair
+ * is used as a unique index into the array by multiplying the pair in a row-major
+ * manner (y*8+x). Then the number of the corresponding frame volume frame is stored.
+ * Specifically, each plane in the frame volume holds a rendering of a basis function
+ * and each of the color channels has its own rendering. So the value stored at the
+ * particular entry in the zigZag_ array is actually a logical value that must be
+ * multiplied by 3 and then the proper frames for that color are chosen independently.
  */
 DctTiler::DctTiler (BaseNddiDisplay* display, bool quiet)
 : display_(display),
@@ -47,29 +88,38 @@ DctTiler::DctTiler (BaseNddiDisplay* display, bool quiet)
 
 	// Setup the zigZag_ table
 	for (size_t i = 0; i < 64; i++) {
-		zigZag_[i] = y * 8 + x;
+		zigZag_[y * 8 + x] = i;
 		if (up) {
-			x++;
-			if (y > 0) {
-				y--;
+			if (x < 7) {
+				x++;
+				if (y > 0) {
+					y--;
+				} else {
+					up = false;
+				}
 			} else {
+				y++;
 				up = false;
 			}
 		} else {
-			y++;
-			if (x > 0) {
-				x--;
+			if (y < 7) {
+				y++;
+				if (x > 0) {
+					x--;
+				} else {
+					up = true;
+				}
 			} else {
+				x++;
 				up = true;
 			}
-
 		}
 	}
 }
 
 /**
  * Initializes the Coefficient Planes for this tiler. The coefficient matrices
- * for each plane will pick a plane from the frame volume in zig-zag order.
+ * for each plane will pick a plane from the frame volume.
  */
 void DctTiler::InitializeCoefficientPlanes() {
 
@@ -85,10 +135,10 @@ void DctTiler::InitializeCoefficientPlanes() {
 	start.push_back(0); start.push_back(0); start.push_back(0);
 	end.push_back(0); end.push_back(0); end.push_back(0);
 
-	// Break the display into macroblocks and initialize each 8x8x193 cube of coefficients to pick out the proper
+	// Break the display into macroblocks and initialize each 8x8x193 cube of coefficients to pick out the proper block from the frame volume
 	for (int k = 0; k < (BLOCKS_WIDE * BLOCKS_TALL * 3 + 1); k++) {
-		for (int j = 0; j < display_->DisplayHeight() / MACROBLOCK_HEIGHT; j++) {
-			for (int i = 0; display_->DisplayWidth() / i < MACROBLOCK_WIDTH; i++) {
+		for (int j = 0; j < (display_->DisplayHeight() / MACROBLOCK_HEIGHT); j++) {
+			for (int i = 0; i < (display_->DisplayWidth() / MACROBLOCK_WIDTH); i++) {
 				coeffs[2][0] = -i * MACROBLOCK_WIDTH;
 				coeffs[2][1] = -j * MACROBLOCK_HEIGHT;
 				coeffs[2][2] = k;
@@ -115,25 +165,29 @@ void DctTiler::InitializeCoefficientPlanes() {
 
 /**
  * Initializes the Frame Volume for this tiler by pre-rendering each
- * of the 64 basis functions into 8x8 planes in the Frame Volume.
+ * of the 64 basis functions into 8x8 planes in the Frame Volume. They're
+ * rendered for each color channel and stored in those groups of three in
+ * zig-zag order.
  */
 void DctTiler::InitializeFrameVolume() {
 
 	Pixel  *pixels;
-	size_t  p;
-	size_t  pixels_size = sizeof(Pixel)                           // pixel size
-						 * BLOCK_WIDTH * BLOCK_HEIGHT            // size of each x,y plane
+	size_t  pixels_size = sizeof(Pixel)                          // pixel size
+						 * BLOCK_SIZE                            // size of each x,y plane
 						 * (BLOCKS_WIDE * BLOCKS_TALL * 3 + 1);  // number of basis functions for each color channel
 	                                                             //   plus one medium gray plane
 
 
 	pixels = (Pixel *)malloc(pixels_size);
-	memset(pixels, pixels_size, 0x00);
+	memset(pixels, 0x00, pixels_size);
 
 	// Pre-render each basis function
+#ifndef NO_OMP
+#pragma omp parallel for
+#endif
     for (int j = 0; j < BLOCKS_TALL; j++) {
         for (int i = 0; i < BLOCKS_WIDE; i++) {
-        	p = 0;
+        	size_t p = zigZag_[j * BLOCKS_WIDE + i] * BLOCK_SIZE * 3;
             for (int y = 0; y < BLOCK_HEIGHT; y++) {
                 for (int x = 0; x < BLOCK_WIDTH; x++) {
                     double m = 0.0f;
@@ -164,20 +218,38 @@ void DctTiler::InitializeFrameVolume() {
                     }
 
                     // Set the color channels with the magnitude clamped to 127
-                    pixels[zigZag_[p]].r                  = c;
-                    pixels[zigZag_[p] + BLOCK_SIZE].g     = c;
-                    pixels[zigZag_[p] + BLOCK_SIZE * 2].b = c;
+                    pixels[p + BLOCK_SIZE * 0].r = c;
+                    pixels[p + BLOCK_SIZE * 0].a = 0xff;
+                    pixels[p + BLOCK_SIZE * 1].g = c;
+                    pixels[p + BLOCK_SIZE * 1].a = 0xff;
+                    pixels[p + BLOCK_SIZE * 2].b = c;
+                    pixels[p + BLOCK_SIZE * 2].a = 0xff;
 
-                    // Finally set the alpha channel and move to the next pixel
-                    pixels[zigZag_[p] + BLOCK_SIZE * 3].a = (unsigned char)255;
+                    // Move to the next pixel
                     p++;
                 }
             }
         }
     }
 
-    // Update the frame volume in bulk
-    //TODO(CDE): Do it or it won't work.
+    // Then render the gray block
+    size_t p = BLOCK_SIZE * BLOCKS_WIDE * BLOCKS_TALL * 3;
+    for (int y = 0; y < BLOCK_HEIGHT; y++) {
+        for (int x = 0; x < BLOCK_WIDTH; x++) {
+        	unsigned int c = 0x7f;
+        	pixels[p].r = c;
+        	pixels[p].g = c;
+        	pixels[p].b = c;
+        	pixels[p].a = 0xff;
+        	p++;
+        }
+    }
+
+    // Update the frame volume with the basis function renderings and gray block in bulk.
+	vector<unsigned int> start, end;
+	start.push_back(0); start.push_back(0); start.push_back(0);
+	end.push_back(BLOCK_WIDTH - 1); end.push_back(BLOCK_HEIGHT - 1); end.push_back(DCT_FRAMEVOLUME_DEPTH - 1);
+	display_->CopyPixels(pixels, start, end);
 
     // Free the pixel memory
     free(pixels);
@@ -193,5 +265,17 @@ void DctTiler::InitializeFrameVolume() {
  */
 void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 {
+	///////////////////DEBUG/////////////////////
+	cout << "Update" << endl;
 
+	size_t p = 0;
+
+	// Fill scalers for all three colors of plane p to full
+	vector<unsigned int> start(3, 0), end(3, 0);
+	start[2] = p; end[2] = p;
+	end[0] = display_->DisplayWidth() - 1;
+	end[1] = display_->DisplayHeight() - 1;
+	end[2] = p + 3 - 1;
+    display_->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
+	///////////////////DEBUG/////////////////////
 }
