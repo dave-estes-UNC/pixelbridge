@@ -6,7 +6,7 @@ x Update coefficent blending mode to actually use the new and official multiple 
 - Implement DctTiler.
   x Initialize Frame Volume with pre-rendered basis functions
   x Initialize Coefficient Planes
-  - Debug: Make a dummy tile updater that just renders 64 macroblocks as the basis functions themselves.
+  x Debug: Make a dummy tile updater that just renders 64 macroblocks as the basis functions themselves.
   - Implement proper updater
 
 - Use a copy constructor or something similar to speed up the initialization of the coefficient planes.

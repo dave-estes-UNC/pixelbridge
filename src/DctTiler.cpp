@@ -268,14 +268,24 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 	///////////////////DEBUG/////////////////////
 	cout << "Update" << endl;
 
-	size_t p = 0;
-
-	// Fill scalers for all three colors of plane p to full
 	vector<unsigned int> start(3, 0), end(3, 0);
-	start[2] = p; end[2] = p;
+
+	// Clear all scalers
+	start[0] = 0; start[1] = 0; start[2] = 0;
 	end[0] = display_->DisplayWidth() - 1;
 	end[1] = display_->DisplayHeight() - 1;
-	end[2] = p + 3 - 1;
-    display_->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
+    end[2] = NUM_COEFFICIENT_PLANES - 1;
+    display_->FillScaler(0, start, end);
+
+	// Then select the proper planes to just render the 64 basis functions
+	for (int j = 0; j < BLOCKS_TALL; j++) {
+    	start[1] = 4 * j * BLOCK_HEIGHT; end[1] = 4 * ((j + 1) * BLOCK_HEIGHT - 1);
+        for (int i = 0; i < BLOCKS_WIDE; i++) {
+        	start[0] = 4 * i * BLOCK_WIDTH; end[0] = 4 * ((i + 1) * BLOCK_WIDTH - 1);
+        	size_t p = zigZag_[j * BLOCKS_WIDE + i];
+        	start[2] = p * 3; end[2] = (p + 1) * 3 - 1;
+            display_->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
+        }
+    }
 	///////////////////DEBUG/////////////////////
 }
