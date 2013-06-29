@@ -8,6 +8,8 @@ x Update coefficent blending mode to actually use the new and official multiple 
   x Initialize Coefficient Planes
   x Debug: Make a dummy tile updater that just renders 64 macroblocks as the basis functions themselves.
   - Implement proper updater
+  - Optimize updater so that it doesn't have to fill with zeroes first.
+  - Implement a FillScalerTiled that will accept an array of scalers and fill each tile in the plane with the provided scaler
 
 - Use a copy constructor or something similar to speed up the initialization of the coefficient planes.
 

@@ -4,6 +4,8 @@
 #include "PixelBridgeFeatures.h"
 #include "DctTiler.h"
 
+#define PI 3.14159265
+
 /*
  * Frame Volume
  *
@@ -41,7 +43,16 @@
 /**
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
  * dimensions change, then the FlatTiler should be destroyed and re-created.
- *
+ */
+DctTiler::DctTiler (BaseNddiDisplay* display, bool quiet)
+: display_(display),
+  quiet_(quiet)
+{
+	initZigZag();
+	initQuantizationMatrix(4);
+}
+
+/*
  * A particular 8x8 macroblock has pixels index by x,y with the origin at the top left:
  *
  *   0,0 1,0 2,0 3,0 4,0 5,0 6,0 7,0
@@ -79,10 +90,7 @@
  * particular entry in the zigZag_ array is actually a logical value that must be
  * multiplied by 3 and then the proper frames for that color are chosen independently.
  */
-DctTiler::DctTiler (BaseNddiDisplay* display, bool quiet)
-: display_(display),
-  quiet_(quiet)
-{
+void DctTiler::initZigZag() {
 	size_t  x = 0, y = 0;
 	bool    up = true;
 
@@ -114,6 +122,20 @@ DctTiler::DctTiler (BaseNddiDisplay* display, bool quiet)
 				up = true;
 			}
 		}
+	}
+}
+
+/*
+ * Uses simple algorithm from M. Nelson, "The Data Compression Book," San Mateo, CA, M&T Books, 1992.
+ */
+void DctTiler::initQuantizationMatrix(unsigned char quality) {
+	cout << "Quantization Matrix:" << endl;
+	for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
+		for (size_t u = 0; u < BLOCK_WIDTH; u++) {
+			quantizationMatrix_[v * BLOCK_WIDTH + u] = 1 + (1 + u + v) * quality;
+			cout << " " << (int)quantizationMatrix_[v * BLOCK_WIDTH + u];
+		}
+		cout << endl;
 	}
 }
 
@@ -265,6 +287,8 @@ void DctTiler::InitializeFrameVolume() {
  */
 void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 {
+//#define HACKADACK
+#ifdef HACKADACK
 	///////////////////DEBUG/////////////////////
 	cout << "Update" << endl;
 
@@ -288,4 +312,102 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
         }
     }
 	///////////////////DEBUG/////////////////////
+#else // HACKADACK
+	/*
+	 * Produces the de-quantized coefficients for the input buffer using the following steps:
+	 *
+	 * 1. Shift by subtracting 128
+	 * 2. Take the 2D DCT
+	 * 3. Quantize
+	 * 4. De-quantize
+	 */
+	//TODO(CDE): Do all of the blocks, Dog!
+	//for (size_t j = 0; j < BLOCKS_TALL; j++) {
+	//	for (size_t i = 0; i < BLOCKS_WIDE; i++) {
+	for (size_t j = 0; j < 1; j++) {
+		for (size_t i = 0; i < 1; i++) {
+
+			/* The coefficients are stored in this array in zig-zag order */
+			int coefficients[BLOCK_WIDTH * BLOCK_HEIGHT * 3];
+			memset(coefficients, 0x00, sizeof(coefficients));
+
+			for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
+				for (size_t u = 0; u < BLOCK_WIDTH; u++) {
+
+					double c_r = 0.0f, c_g = 0.0f, c_b = 0.0f;
+
+					/* Calculate G for each u, v using g(x,y) shifted (1. and 2.) */
+					for (size_t y = 0; y < BLOCK_HEIGHT; y++) {
+						for (size_t x = 0; x < BLOCK_WIDTH; x++) {
+
+							double s = 1.0f;
+
+							s *= (u == 0) ? sqrt((double)0.125) : sqrt((double)0.25);                                            // alpha(u)
+							s *= (v == 0) ? sqrt((double)0.125) : sqrt((double)0.25);                                            // alpha(v)
+							s *= cos(PI / 8.0 * ((double)x + 0.5) * (double)u);                                                  // cos with x, u
+							s *= cos(PI / 8.0 * ((double)y + 0.5) * (double)v);                                                  // cos with y, v
+							/* If we're past the display dimensions, then use black, shifted by - 128 */
+							if ( ((i * BLOCK_WIDTH + x) >= display_->DisplayWidth())
+									|| ((j * BLOCK_HEIGHT + y) >= display_->DisplayHeight()) ) {
+								c_r -= 128.0;
+								c_g -= 128.0;
+								c_b -= 128.0;
+							} else {
+								c_r += s * (double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 0] - 128.0; // red: g(x,y) - 128
+								c_g += s * (double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 1] - 128.0; // green: g(x,y) - 128
+								c_b += s * (double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 2] - 128.0; // blue: g(x,y) - 128
+							}
+						}
+					}
+
+					int g_r, g_g, g_b;
+
+					/* Quantize G(u,v) (3.) */
+					g_r = (int)int(c_r / double(quantizationMatrix_[v * BLOCK_WIDTH + u]) + 0.5);
+					g_g = (int)int(c_g / double(quantizationMatrix_[v * BLOCK_WIDTH + u]) + 0.5);
+					g_b = (int)int(c_b / double(quantizationMatrix_[v * BLOCK_WIDTH + u]) + 0.5);
+
+					/* De-quantized G(u,v) (4.) */
+					g_r *= (int)quantizationMatrix_[v * BLOCK_WIDTH + u];
+					g_g *= (int)quantizationMatrix_[v * BLOCK_WIDTH + u];
+					g_b *= (int)quantizationMatrix_[v * BLOCK_WIDTH + u];
+
+					/* Set the coefficient in zig-zag order. */
+					size_t p = zigZag_[v * BLOCK_WIDTH + u] * 3;
+					coefficients[p + 0] = g_r;
+					coefficients[p + 1] = g_g;
+					coefficients[p + 2] = g_b;
+				}
+			}
+
+			vector<unsigned int> start(3, 0), end(3, 0);
+
+			/* Clear all scalers. */
+			start[0] = 0; start[1] = 0; start[2] = 0;
+			end[0] = display_->DisplayWidth() - 1;
+			end[1] = display_->DisplayHeight() - 1;
+		    end[2] = NUM_COEFFICIENT_PLANES - 1;
+		    display_->FillScaler(0, start, end);
+
+			/* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
+		    start[0] = i * BLOCK_WIDTH; end[0] = (i + 1) * BLOCK_WIDTH - 1;
+		    start[1] = j * BLOCK_HEIGHT; end[1] = (j + 1) * BLOCK_HEIGHT - 1;
+		    if (end[0] >= display_->DisplayWidth()) end[0] = display_->DisplayWidth() - 1;
+		    if (end[1] >= display_->DisplayHeight()) end[1] = display_->DisplayHeight() - 1;
+
+		    for (size_t k = 0; k < BLOCK_WIDTH * BLOCK_HEIGHT * 3; k++) {
+		    	start[2] = end[2] = k;
+		    	display_->FillScaler(coefficients[k], start, end);
+		    }
+
+		    cout << "Updated Macroblock (" << i << ", " << j << ")" << endl;
+		    for (size_t b = 0; b < 8; b++) {
+			    for (size_t a = 0; a < 8; a++) {
+			    	cout << " " << coefficients[(b * 8 + a) * 3];
+			    }
+			    cout << endl;
+		    }
+		}
+	}
+#endif // HACKADACK
 }

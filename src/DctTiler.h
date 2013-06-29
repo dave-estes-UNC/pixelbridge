@@ -41,6 +41,9 @@ public:
 	~DctTiler() {
 	}
 
+	void initZigZag();
+	void initQuantizationMatrix(unsigned char quality);
+
     /**
      * Initializes the Coefficient Planes for this tiler.
      */
@@ -72,5 +75,6 @@ private:
 	BaseNddiDisplay*  display_;
 	bool              quiet_;
 	int               zigZag_[BLOCKS_WIDE * BLOCKS_TALL];
+	unsigned char     quantizationMatrix_[BLOCK_WIDTH * BLOCK_HEIGHT];
 };
 #endif // DCT_TILER_H
