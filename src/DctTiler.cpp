@@ -129,13 +129,10 @@ void DctTiler::initZigZag() {
  * Uses simple algorithm from M. Nelson, "The Data Compression Book," San Mateo, CA, M&T Books, 1992.
  */
 void DctTiler::initQuantizationMatrix(unsigned char quality) {
-	cout << "Quantization Matrix:" << endl;
 	for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
 		for (size_t u = 0; u < BLOCK_WIDTH; u++) {
 			quantizationMatrix_[v * BLOCK_WIDTH + u] = 1 + (1 + u + v) * quality;
-			cout << " " << (int)quantizationMatrix_[v * BLOCK_WIDTH + u];
 		}
-		cout << endl;
 	}
 }
 
@@ -158,7 +155,7 @@ void DctTiler::InitializeCoefficientPlanes() {
 	end.push_back(0); end.push_back(0); end.push_back(0);
 
 	// Break the display into macroblocks and initialize each 8x8x193 cube of coefficients to pick out the proper block from the frame volume
-	for (int k = 0; k < (BLOCKS_WIDE * BLOCKS_TALL * 3 + 1); k++) {
+	for (int k = 0; k < DCT_FRAMEVOLUME_DEPTH; k++) {
 		for (int j = 0; j < (display_->DisplayHeight() / MACROBLOCK_HEIGHT); j++) {
 			for (int i = 0; i < (display_->DisplayWidth() / MACROBLOCK_WIDTH); i++) {
 				coeffs[2][0] = -i * MACROBLOCK_WIDTH;
@@ -181,7 +178,7 @@ void DctTiler::InitializeCoefficientPlanes() {
     display_->FillScaler(0, start, end);
 
 	// Fill the scalers for the medium gray plane to full on
-    start[2] = end[2] = (BLOCKS_WIDE * BLOCKS_TALL * 3 + 1) - 1;
+    start[2] = end[2] = DCT_FRAMEVOLUME_DEPTH - 1;
     display_->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
 }
 
@@ -194,10 +191,10 @@ void DctTiler::InitializeCoefficientPlanes() {
 void DctTiler::InitializeFrameVolume() {
 
 	Pixel  *pixels;
-	size_t  pixels_size = sizeof(Pixel)                          // pixel size
-						 * BLOCK_SIZE                            // size of each x,y plane
-						 * (BLOCKS_WIDE * BLOCKS_TALL * 3 + 1);  // number of basis functions for each color channel
-	                                                             //   plus one medium gray plane
+	size_t  pixels_size = sizeof(Pixel)            // pixel size
+						 * BLOCK_SIZE              // size of each x,y plane
+						 * DCT_FRAMEVOLUME_DEPTH;  // number of basis functions for each color channel
+	                                               //   plus one medium gray plane
 
 
 	pixels = (Pixel *)malloc(pixels_size);
@@ -207,9 +204,9 @@ void DctTiler::InitializeFrameVolume() {
 #ifndef NO_OMP
 #pragma omp parallel for
 #endif
-    for (int j = 0; j < BLOCKS_TALL; j++) {
-        for (int i = 0; i < BLOCKS_WIDE; i++) {
-        	size_t p = zigZag_[j * BLOCKS_WIDE + i] * BLOCK_SIZE * 3;
+    for (int j = 0; j < BASIS_BLOCKS_TALL; j++) {
+        for (int i = 0; i < BASIS_BLOCKS_WIDE; i++) {
+        	size_t p = zigZag_[j * BASIS_BLOCKS_WIDE + i] * BLOCK_SIZE * 3;
             for (int y = 0; y < BLOCK_HEIGHT; y++) {
                 for (int x = 0; x < BLOCK_WIDTH; x++) {
                     double m = 0.0f;
@@ -255,7 +252,7 @@ void DctTiler::InitializeFrameVolume() {
     }
 
     // Then render the gray block
-    size_t p = BLOCK_SIZE * BLOCKS_WIDE * BLOCKS_TALL * 3;
+    size_t p = BLOCK_SIZE * BASIS_BLOCKS_WIDE * BASIS_BLOCKS_TALL * 3;
     for (int y = 0; y < BLOCK_HEIGHT; y++) {
         for (int x = 0; x < BLOCK_WIDTH; x++) {
         	unsigned int c = 0x7f;
@@ -302,17 +299,27 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
     display_->FillScaler(0, start, end);
 
 	// Then select the proper planes to just render the 64 basis functions
-	for (int j = 0; j < BLOCKS_TALL; j++) {
+	for (int j = 0; j < BASIS_BLOCKS_TALL; j++) {
     	start[1] = 4 * j * BLOCK_HEIGHT; end[1] = 4 * ((j + 1) * BLOCK_HEIGHT - 1);
-        for (int i = 0; i < BLOCKS_WIDE; i++) {
+        for (int i = 0; i < BASIS_BLOCKS_WIDE; i++) {
         	start[0] = 4 * i * BLOCK_WIDTH; end[0] = 4 * ((i + 1) * BLOCK_WIDTH - 1);
-        	size_t p = zigZag_[j * BLOCKS_WIDE + i];
+        	size_t p = zigZag_[j * BASIS_BLOCKS_WIDE + i];
         	start[2] = p * 3; end[2] = (p + 1) * 3 - 1;
             display_->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
         }
     }
 	///////////////////DEBUG/////////////////////
 #else // HACKADACK
+	vector<unsigned int> start(3, 0), end(3, 0);
+
+	/* Clear all scalers. */
+	// TODO(CDE): Don't do this in the future. Just write enough planes to overwrite the last known non-zero plane.
+	start[0] = 0; start[1] = 0; start[2] = 0;
+	end[0] = display_->DisplayWidth() - 1;
+	end[1] = display_->DisplayHeight() - 1;
+    end[2] = NUM_COEFFICIENT_PLANES - 1;
+    display_->FillScaler(0, start, end);
+
 	/*
 	 * Produces the de-quantized coefficients for the input buffer using the following steps:
 	 *
@@ -322,16 +329,20 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 	 * 4. De-quantize
 	 */
 	//TODO(CDE): Do all of the blocks, Dog!
-	//for (size_t j = 0; j < BLOCKS_TALL; j++) {
-	//	for (size_t i = 0; i < BLOCKS_WIDE; i++) {
-	for (size_t j = 0; j < 1; j++) {
-		for (size_t i = 0; i < 1; i++) {
+	for (size_t j = 0; j < display_->DisplayHeight() / BLOCK_HEIGHT; j++) {
+		for (size_t i = 0; i < display_->DisplayWidth() / BLOCK_WIDTH; i++) {
 
 			/* The coefficients are stored in this array in zig-zag order */
 			int coefficients[BLOCK_WIDTH * BLOCK_HEIGHT * 3];
-			memset(coefficients, 0x00, sizeof(coefficients));
 
-			for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
+#ifndef NO_OMP
+#pragma omp parallel for ordered
+#endif
+			for (size_t v = 0; v < BLOCK_HEIGHT; v++)
+#ifndef NO_OMP
+#pragma omp ordered
+#endif
+			{
 				for (size_t u = 0; u < BLOCK_WIDTH; u++) {
 
 					double c_r = 0.0f, c_g = 0.0f, c_b = 0.0f;
@@ -353,9 +364,9 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 								c_g -= 128.0;
 								c_b -= 128.0;
 							} else {
-								c_r += s * (double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 0] - 128.0; // red: g(x,y) - 128
-								c_g += s * (double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 1] - 128.0; // green: g(x,y) - 128
-								c_b += s * (double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 2] - 128.0; // blue: g(x,y) - 128
+								c_r += s * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 0] - 128.0); // red: g(x,y) - 128
+								c_g += s * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 1] - 128.0); // green: g(x,y) - 128
+								c_b += s * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 2] - 128.0); // blue: g(x,y) - 128
 							}
 						}
 					}
@@ -380,15 +391,6 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 				}
 			}
 
-			vector<unsigned int> start(3, 0), end(3, 0);
-
-			/* Clear all scalers. */
-			start[0] = 0; start[1] = 0; start[2] = 0;
-			end[0] = display_->DisplayWidth() - 1;
-			end[1] = display_->DisplayHeight() - 1;
-		    end[2] = NUM_COEFFICIENT_PLANES - 1;
-		    display_->FillScaler(0, start, end);
-
 			/* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
 		    start[0] = i * BLOCK_WIDTH; end[0] = (i + 1) * BLOCK_WIDTH - 1;
 		    start[1] = j * BLOCK_HEIGHT; end[1] = (j + 1) * BLOCK_HEIGHT - 1;
@@ -397,9 +399,10 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 
 		    for (size_t k = 0; k < BLOCK_WIDTH * BLOCK_HEIGHT * 3; k++) {
 		    	start[2] = end[2] = k;
-		    	display_->FillScaler(coefficients[k], start, end);
+		    	if (coefficients[k]) display_->FillScaler(coefficients[k], start, end);
 		    }
 
+#ifdef DEBUG
 		    cout << "Updated Macroblock (" << i << ", " << j << ")" << endl;
 		    for (size_t b = 0; b < 8; b++) {
 			    for (size_t a = 0; a < 8; a++) {
@@ -407,6 +410,7 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 			    }
 			    cout << endl;
 		    }
+#endif
 		}
 	}
 #endif // HACKADACK

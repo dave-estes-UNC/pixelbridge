@@ -67,14 +67,14 @@ private:
 	static const size_t  BLOCK_WIDTH = MACROBLOCK_WIDTH;
 	static const size_t  BLOCK_HEIGHT = MACROBLOCK_HEIGHT;
 	static const size_t  BLOCK_SIZE = BLOCK_WIDTH * BLOCK_HEIGHT;
-	static const size_t  BLOCKS_WIDE = 8;
-	static const size_t  BLOCKS_TALL = 8;
+	static const size_t  BASIS_BLOCKS_WIDE = 8;
+	static const size_t  BASIS_BLOCKS_TALL = 8;
 	static const size_t  MAX_DCT_COEFF = 256;
 	static const double  PI = 3.14159265;
 
 	BaseNddiDisplay*  display_;
 	bool              quiet_;
-	int               zigZag_[BLOCKS_WIDE * BLOCKS_TALL];
+	int               zigZag_[BLOCK_WIDTH * BLOCK_HEIGHT];
 	unsigned char     quantizationMatrix_[BLOCK_WIDTH * BLOCK_HEIGHT];
 };
 #endif // DCT_TILER_H
