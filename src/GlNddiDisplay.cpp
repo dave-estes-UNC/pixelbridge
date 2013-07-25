@@ -7,6 +7,19 @@
 
 using namespace nddi;
 
+inline unsigned char CLAMP_BYTE(int i) {
+	unsigned int ret;
+
+	if (i < 0) {
+		ret = 0;
+	} else if (i > 255) {
+		ret = 255;
+	} else {
+		ret = i & 0xff;
+	}
+	return ret;
+}
+
 // public
 
 GlNddiDisplay::GlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
@@ -161,9 +174,9 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
 #if (NUM_COEFFICIENT_PLANES != 256)
 #error Coefficient Plane Count must be 256
 #endif
-	q.r = rAccumulator >> 8;
-	q.g = gAccumulator >> 8;
-	q.b = bAccumulator >> 8;
+	q.r = CLAMP_BYTE(rAccumulator >> 8);
+	q.g = CLAMP_BYTE(gAccumulator >> 8);
+	q.b = CLAMP_BYTE(bAccumulator >> 8);
 	q.a = 255;
 
     costModel->registerPixelMappingCharge(1);
@@ -224,9 +237,9 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 #if (NUM_COEFFICIENT_PLANES != 256)
 #error Coefficient Plane Count must be 256
 #endif
-	q.r = rAccumulator >> 8;
-	q.g = gAccumulator >> 8;
-	q.b = bAccumulator >> 8;
+	q.r = CLAMP_BYTE(rAccumulator >> 8);
+	q.g = CLAMP_BYTE(gAccumulator >> 8);
+	q.b = CLAMP_BYTE(bAccumulator >> 8);
 	q.a = 255;
 
 	return q;

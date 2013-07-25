@@ -312,12 +312,12 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 #else // HACKADACK
 	vector<unsigned int> start(3, 0), end(3, 0);
 
-	/* Clear all scalers. */
+	/* Clear all scalers up to but not including the medium gray plane. */
 	// TODO(CDE): Don't do this in the future. Just write enough planes to overwrite the last known non-zero plane.
 	start[0] = 0; start[1] = 0; start[2] = 0;
 	end[0] = display_->DisplayWidth() - 1;
 	end[1] = display_->DisplayHeight() - 1;
-    end[2] = NUM_COEFFICIENT_PLANES - 1;
+    end[2] = DCT_FRAMEVOLUME_DEPTH - 2;
     display_->FillScaler(0, start, end);
 
 	/*
