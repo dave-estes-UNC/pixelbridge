@@ -10,15 +10,17 @@
 		C61B1A8A1514D0B500B63372 /* ClNddiDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C61B1A881514D0B500B63372 /* ClNddiDisplay.cpp */; };
 		C62E9145127BA5AA004FF5C9 /* CachedTiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C62E9144127BA5AA004FF5C9 /* CachedTiler.cpp */; };
 		C633734914E21B460017B819 /* BlendingGlNddiDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C633734714E21B460017B819 /* BlendingGlNddiDisplay.cpp */; };
+		C649EB3017B9CB4000749E59 /* DctTiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C649EB2C17B9CB4000749E59 /* DctTiler.cpp */; };
+		C649EB3117B9CB4000749E59 /* fillCoefficient.cl in Sources */ = {isa = PBXBuildFile; fileRef = C649EB2E17B9CB4000749E59 /* fillCoefficient.cl */; };
 		C67EB570140F1B8B0036B1E6 /* Rewinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C67EB56E140F1B8B0036B1E6 /* Rewinder.cpp */; };
 		C68F372414128562000D2DD0 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F372314128562000D2DD0 /* GLUT.framework */; };
 		C68F37261412856C000D2DD0 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F37251412856C000D2DD0 /* OpenGL.framework */; };
 		C68F37281412858C000D2DD0 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F37271412858C000D2DD0 /* OpenCL.framework */; };
 		C68F372A141285DC000D2DD0 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F3729141285DC000D2DD0 /* libz.dylib */; };
-		C68F372C141285EC000D2DD0 /* libavcodec.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F372B141285EC000D2DD0 /* libavcodec.dylib */; };
-		C68F372E141285FB000D2DD0 /* libavformat.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F372D141285FB000D2DD0 /* libavformat.dylib */; };
-		C68F373014128608000D2DD0 /* libavutil.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F372F14128608000D2DD0 /* libavutil.dylib */; };
-		C68F373214128617000D2DD0 /* libswscale.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F373114128617000D2DD0 /* libswscale.dylib */; };
+		C6B3114317BB198A0020A5F6 /* libavcodec.54.92.100.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C6B3114217BB198A0020A5F6 /* libavcodec.54.92.100.dylib */; };
+		C6B3114517BB19A50020A5F6 /* libavformat.54.63.104.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C6B3114417BB19A50020A5F6 /* libavformat.54.63.104.dylib */; };
+		C6B3114717BB19C00020A5F6 /* libswscale.2.2.100.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C6B3114617BB19C00020A5F6 /* libswscale.2.2.100.dylib */; };
+		C6B3114917BB19E60020A5F6 /* libavutil.52.18.100.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C6B3114817BB19E60020A5F6 /* libavutil.52.18.100.dylib */; };
 		C6B93E771339842D001397CD /* FlatTiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6CE21F812A061DF00778BD8 /* FlatTiler.cpp */; };
 		C6B93E781339842E001397CD /* GlNddiDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6C28C1D127346D000919942 /* GlNddiDisplay.cpp */; };
 		C6B93E791339842F001397CD /* PixelBridgeMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C628F708126FD5AF0084C796 /* PixelBridgeMain.cpp */; };
@@ -55,6 +57,10 @@
 		C633734714E21B460017B819 /* BlendingGlNddiDisplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BlendingGlNddiDisplay.cpp; path = ../src/BlendingGlNddiDisplay.cpp; sourceTree = "<group>"; };
 		C633734814E21B460017B819 /* BlendingGlNddiDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlendingGlNddiDisplay.h; path = ../src/BlendingGlNddiDisplay.h; sourceTree = "<group>"; };
 		C633734D14E21CEA0017B819 /* NDimensionalDisplayInterfaceExtended.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NDimensionalDisplayInterfaceExtended.h; path = ../src/NDimensionalDisplayInterfaceExtended.h; sourceTree = "<group>"; };
+		C649EB2C17B9CB4000749E59 /* DctTiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DctTiler.cpp; path = ../src/DctTiler.cpp; sourceTree = "<group>"; };
+		C649EB2D17B9CB4000749E59 /* DctTiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DctTiler.h; path = ../src/DctTiler.h; sourceTree = "<group>"; };
+		C649EB2E17B9CB4000749E59 /* fillCoefficient.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; name = fillCoefficient.cl; path = ../src/fillCoefficient.cl; sourceTree = "<group>"; };
+		C649EB2F17B9CB4000749E59 /* PixelBridgeFeatures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PixelBridgeFeatures.h; path = ../src/PixelBridgeFeatures.h; sourceTree = "<group>"; };
 		C658921B14D8CD5800D315EC /* readme */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme; sourceTree = "<group>"; };
 		C671B20C152140BA00199EDB /* ClInputVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClInputVector.h; path = ../src/ClInputVector.h; sourceTree = "<group>"; };
 		C67EB56E140F1B8B0036B1E6 /* Rewinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Rewinder.cpp; path = ../src/Rewinder.cpp; sourceTree = "<group>"; };
@@ -64,12 +70,12 @@
 		C68F37251412856C000D2DD0 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		C68F37271412858C000D2DD0 /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
 		C68F3729141285DC000D2DD0 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
-		C68F372B141285EC000D2DD0 /* libavcodec.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavcodec.dylib; path = usr/local/lib/libavcodec.dylib; sourceTree = SDKROOT; };
-		C68F372D141285FB000D2DD0 /* libavformat.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavformat.dylib; path = usr/local/lib/libavformat.dylib; sourceTree = SDKROOT; };
-		C68F372F14128608000D2DD0 /* libavutil.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavutil.dylib; path = usr/local/lib/libavutil.dylib; sourceTree = SDKROOT; };
-		C68F373114128617000D2DD0 /* libswscale.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libswscale.dylib; path = usr/local/lib/libswscale.dylib; sourceTree = SDKROOT; };
 		C6AEAD0412B3180000EC5840 /* Doxyfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Doxyfile; path = ../Doxyfile; sourceTree = SOURCE_ROOT; };
 		C6AEAD0512B31AD000EC5840 /* mainpage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mainpage.h; path = ../src/mainpage.h; sourceTree = SOURCE_ROOT; };
+		C6B3114217BB198A0020A5F6 /* libavcodec.54.92.100.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavcodec.54.92.100.dylib; path = ../../../../../../../opt/local/lib/libavcodec.54.92.100.dylib; sourceTree = "<group>"; };
+		C6B3114417BB19A50020A5F6 /* libavformat.54.63.104.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavformat.54.63.104.dylib; path = ../../../../../../../opt/local/lib/libavformat.54.63.104.dylib; sourceTree = "<group>"; };
+		C6B3114617BB19C00020A5F6 /* libswscale.2.2.100.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libswscale.2.2.100.dylib; path = ../../../../../../../opt/local/lib/libswscale.2.2.100.dylib; sourceTree = "<group>"; };
+		C6B3114817BB19E60020A5F6 /* libavutil.52.18.100.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavutil.52.18.100.dylib; path = ../../../../../../../opt/local/lib/libavutil.52.18.100.dylib; sourceTree = "<group>"; };
 		C6C28C1B127346D000919942 /* BaseNddiDisplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BaseNddiDisplay.cpp; path = ../src/BaseNddiDisplay.cpp; sourceTree = SOURCE_ROOT; };
 		C6C28C1C127346D000919942 /* BaseNddiDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseNddiDisplay.h; path = ../src/BaseNddiDisplay.h; sourceTree = SOURCE_ROOT; };
 		C6C28C1D127346D000919942 /* GlNddiDisplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlNddiDisplay.cpp; path = ../src/GlNddiDisplay.cpp; sourceTree = SOURCE_ROOT; };
@@ -93,10 +99,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C68F373214128617000D2DD0 /* libswscale.dylib in Frameworks */,
-				C68F373014128608000D2DD0 /* libavutil.dylib in Frameworks */,
-				C68F372E141285FB000D2DD0 /* libavformat.dylib in Frameworks */,
-				C68F372C141285EC000D2DD0 /* libavcodec.dylib in Frameworks */,
+				C6B3114917BB19E60020A5F6 /* libavutil.52.18.100.dylib in Frameworks */,
+				C6B3114717BB19C00020A5F6 /* libswscale.2.2.100.dylib in Frameworks */,
+				C6B3114517BB19A50020A5F6 /* libavformat.54.63.104.dylib in Frameworks */,
+				C6B3114317BB198A0020A5F6 /* libavcodec.54.92.100.dylib in Frameworks */,
 				C68F372A141285DC000D2DD0 /* libz.dylib in Frameworks */,
 				C68F37281412858C000D2DD0 /* OpenCL.framework in Frameworks */,
 				C68F37261412856C000D2DD0 /* OpenGL.framework in Frameworks */,
@@ -110,10 +116,10 @@
 		08FB7794FE84155DC02AAC07 /* pixelbridge */ = {
 			isa = PBXGroup;
 			children = (
-				C68F373114128617000D2DD0 /* libswscale.dylib */,
-				C68F372F14128608000D2DD0 /* libavutil.dylib */,
-				C68F372D141285FB000D2DD0 /* libavformat.dylib */,
-				C68F372B141285EC000D2DD0 /* libavcodec.dylib */,
+				C6B3114817BB19E60020A5F6 /* libavutil.52.18.100.dylib */,
+				C6B3114617BB19C00020A5F6 /* libswscale.2.2.100.dylib */,
+				C6B3114417BB19A50020A5F6 /* libavformat.54.63.104.dylib */,
+				C6B3114217BB198A0020A5F6 /* libavcodec.54.92.100.dylib */,
 				C68F3729141285DC000D2DD0 /* libz.dylib */,
 				C68F37271412858C000D2DD0 /* OpenCL.framework */,
 				C68F37251412856C000D2DD0 /* OpenGL.framework */,
@@ -129,6 +135,10 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				C649EB2C17B9CB4000749E59 /* DctTiler.cpp */,
+				C649EB2D17B9CB4000749E59 /* DctTiler.h */,
+				C649EB2E17B9CB4000749E59 /* fillCoefficient.cl */,
+				C649EB2F17B9CB4000749E59 /* PixelBridgeFeatures.h */,
 				C6FFB6431508397700B12215 /* CostModel.h */,
 				C67EB56E140F1B8B0036B1E6 /* Rewinder.cpp */,
 				C67EB56F140F1B8B0036B1E6 /* Rewinder.h */,
@@ -208,7 +218,7 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0410;
+				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = "Dave Estes";
 			};
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "pixelbridge" */;
@@ -242,6 +252,8 @@
 				C633734914E21B460017B819 /* BlendingGlNddiDisplay.cpp in Sources */,
 				C61B1A8A1514D0B500B63372 /* ClNddiDisplay.cpp in Sources */,
 				C6F90DB6151ABEC900BEB286 /* computePixel.cl in Sources */,
+				C649EB3017B9CB4000749E59 /* DctTiler.cpp in Sources */,
+				C649EB3117B9CB4000749E59 /* fillCoefficient.cl in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,24 +269,16 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					FLAT_TILED_3D,
-					SUPRESS_EXCESS_RENDERING,
-				);
-				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
-					FLAT_TILED_3D,
-					SUPRESS_EXCESS_RENDERING,
-				);
-				HEADER_SEARCH_PATHS = "/opt/local/include//**";
+				GCC_PREPROCESSOR_DEFINITIONS = SUPRESS_EXCESS_RENDERING;
+				HEADER_SEARCH_PATHS = /opt/local/include;
+				"HEADER_SEARCH_PATHS[arch=*]" = /opt/local/include;
 				INSTALL_PATH = /usr/local/bin;
-				LIBRARY_SEARCH_PATHS = (
-					"/opt/local/lib//**",
-					/opt/local/lib,
-				);
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				"LIBRARY_SEARCH_PATHS[arch=*]" = /opt/local/lib;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = pixelbridge;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
-				USER_HEADER_SEARCH_PATHS = "/usr/include /usr/local/include";
+				USER_HEADER_SEARCH_PATHS = /opt/local/include;
 			};
 			name = Debug;
 		};
@@ -285,24 +289,16 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = "/opt/local/lib//**";
 				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					FLAT_TILED_3D,
-					SUPRESS_EXCESS_RENDERING,
-				);
-				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
-					FLAT_TILED_3D,
-					SUPRESS_EXCESS_RENDERING,
-				);
-				HEADER_SEARCH_PATHS = "/opt/local/include//**";
+				GCC_PREPROCESSOR_DEFINITIONS = SUPRESS_EXCESS_RENDERING;
+				HEADER_SEARCH_PATHS = /opt/local/include;
+				"HEADER_SEARCH_PATHS[arch=*]" = /opt/local/include;
 				INSTALL_PATH = /usr/local/bin;
-				LIBRARY_SEARCH_PATHS = (
-					"/opt/local/lib//**",
-					/opt/local/lib,
-				);
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				"LIBRARY_SEARCH_PATHS[arch=*]" = /opt/local/lib;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = pixelbridge;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
-				USER_HEADER_SEARCH_PATHS = "/usr/include /usr/local/include";
+				USER_HEADER_SEARCH_PATHS = /opt/local/include;
 			};
 			name = Release;
 		};
@@ -319,11 +315,13 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
+				"HEADER_SEARCH_PATHS[arch=*]" = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = "";
+				"LIBRARY_SEARCH_PATHS[arch=*]" = /usr/local/lib;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = /usr/local/include;
+				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
 		};
@@ -339,11 +337,13 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
+				"HEADER_SEARCH_PATHS[arch=*]" = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = "";
+				"LIBRARY_SEARCH_PATHS[arch=*]" = /usr/local/lib;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = /usr/local/include;
+				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Release;
 		};

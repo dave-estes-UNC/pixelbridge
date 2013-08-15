@@ -171,8 +171,14 @@ void ClNddiDisplay::InitializeCl() {
     cl_context_properties clContextProperties[] =
     {
 	CL_CONTEXT_PLATFORM, (cl_context_properties)clPlatformId_,
+#ifdef __APPLE__
+#ifndef NO_CL
+#error OpenCL Not supported on Mac OS X Perfectly yet.
+#endif
+#else
 	CL_GL_CONTEXT_KHR, (cl_context_properties)glXGetCurrentContext(),
 	CL_GLX_DISPLAY_KHR, (cl_context_properties)glXGetCurrentDisplay(),
+#endif
         0
     };
 

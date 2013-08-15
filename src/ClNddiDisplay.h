@@ -18,12 +18,12 @@
 // Must match struct in fillCoefficient.cl
 typedef struct {
     int  coefficient;
-    uint posCol;
-    uint posRow;
-    uint startX;
-    uint startY;
-    uint sizeW;
-    uint sizeH;
+    unsigned int posCol;
+    unsigned int posRow;
+    unsigned int startX;
+    unsigned int startY;
+    unsigned int sizeW;
+    unsigned int sizeH;
 } coefficient_update_t;
 
 /**

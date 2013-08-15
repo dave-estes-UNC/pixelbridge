@@ -16,7 +16,7 @@
 #define NO_CL
 
 /*
- * Running make with NO_HACKS=1 till turn this off, but uncommenting this will accomplish the same thing.
+ * Running make with NO_HACKS=1 still turn this off, but uncommenting this will accomplish the same thing.
  */
 //#undef SUPRESS_EXCESS_RENDERING
 

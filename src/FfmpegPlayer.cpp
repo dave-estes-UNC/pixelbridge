@@ -31,10 +31,10 @@ FfmpegPlayer::FfmpegPlayer(const char* fileName) : fileName_(fileName), width_(0
     // Find the first video stream
     videoStream_ = -1;
     for (int i = 0; i < pFormatCtx_->nb_streams; i++) {
-	if (pFormatCtx_->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
-	    videoStream_ = i;
-	    break;
-	}
+        if (pFormatCtx_->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
+            videoStream_ = i;
+            break;
+        }
     }
     if (videoStream_ == -1)
         return; // Didn't find a video stream
@@ -132,15 +132,15 @@ uint8_t* FfmpegPlayer::decodeFrame() {
     while (true) {
         // Work on the current packet until we have decoded all of it
         while (bytesRemaining > 0) {
-	    // Decode the next chunk of data
-	    // avcodec_decode_video() has been deprecated
+	        // Decode the next chunk of data
+	        // avcodec_decode_video() has been deprecated
             //bytesDecoded = avcodec_decode_video(pCodecCtx_, pFrame_,
-	    //                                    &frameFinished, rawData, bytesRemaining);
+	        //                                    &frameFinished, rawData, bytesRemaining);
             bytesDecoded = avcodec_decode_video2(pCodecCtx_, pFrame_, &frameFinished, &packet);
-	    // Was there an error?
+	        // Was there an error?
             if (bytesDecoded < 0) {
                 fprintf(stderr, "Error while decoding frame\n");
-		return NULL;
+		        return NULL;
             }
 
             bytesRemaining -= bytesDecoded;
