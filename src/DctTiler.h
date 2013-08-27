@@ -69,7 +69,7 @@ private:
 	static const size_t  BLOCK_SIZE = BLOCK_WIDTH * BLOCK_HEIGHT;
 	static const size_t  BASIS_BLOCKS_WIDE = 8;
 	static const size_t  BASIS_BLOCKS_TALL = 8;
-	static const size_t  MAX_DCT_COEFF = 256;
+	static const size_t  MAX_DCT_COEFF = 1 << 8;
 	static const double  PI = 3.14159265;
 
 	BaseNddiDisplay*  display_;

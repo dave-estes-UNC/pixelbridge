@@ -7,13 +7,14 @@
 
 using namespace nddi;
 
+// TODO(CDE): Need to figure out if clamping can be skipped.
 inline unsigned char CLAMP_BYTE(int i) {
 	unsigned int ret;
 
 	if (i < 0) {
 		ret = 0;
-	} else if (i > 255) {
-		ret = 255;
+	} else if (i & 0xffffff00) {
+		ret = 0xff;
 	} else {
 		ret = i & 0xff;
 	}
@@ -226,9 +227,16 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 		}
 
 		q = fv[offset];
-		rAccumulator += (unsigned int)q.r * scaler;
-		gAccumulator += (unsigned int)q.g * scaler;
-		bAccumulator += (unsigned int)q.b * scaler;
+// TODO(CDE): Below we have an unsigned cast of the pixel and a signed cast of the pixel. The signed casting triggers a sign extension when the value is multiplied by the scaler and added to the accumulator. This is desireable, but it produces some isses with the fb tiler. Need to dig into it.
+#if 0
+		rAccumulator += (uint8_t)q.r * scaler;
+		gAccumulator += (uint8_t)q.g * scaler;
+		bAccumulator += (uint8_t)q.b * scaler;
+#else
+		rAccumulator += (int8_t)q.r * scaler;
+		gAccumulator += (int8_t)q.g * scaler;
+		bAccumulator += (int8_t)q.b * scaler;
+#endif
 	}
 
 	// Make sure there are 256 planes so the shift operation (divide 256) works correctly.

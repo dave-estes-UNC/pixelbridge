@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C60F21CC17CC231F00C09351 /* RandomPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C60F21CB17CC231F00C09351 /* RandomPlayer.cpp */; };
 		C61B1A8A1514D0B500B63372 /* ClNddiDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C61B1A881514D0B500B63372 /* ClNddiDisplay.cpp */; };
 		C62E9145127BA5AA004FF5C9 /* CachedTiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C62E9144127BA5AA004FF5C9 /* CachedTiler.cpp */; };
 		C633734914E21B460017B819 /* BlendingGlNddiDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C633734714E21B460017B819 /* BlendingGlNddiDisplay.cpp */; };
@@ -47,6 +48,9 @@
 /* Begin PBXFileReference section */
 		8DD76F6C0486A84900D96B5E /* pixelbridge */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pixelbridge; sourceTree = BUILT_PRODUCTS_DIR; };
 		C60F19FB129DE1790050044F /* Tiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tiler.h; path = ../src/Tiler.h; sourceTree = SOURCE_ROOT; };
+		C60F21CA17CC230200C09351 /* RandomPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RandomPlayer.h; sourceTree = "<group>"; };
+		C60F21CB17CC231F00C09351 /* RandomPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RandomPlayer.cpp; sourceTree = "<group>"; };
+		C60F21CD17CC28C400C09351 /* Player.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Player.h; sourceTree = "<group>"; };
 		C614D0C9152893A00063F103 /* ClFrameVolume.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClFrameVolume.h; path = ../src/ClFrameVolume.h; sourceTree = "<group>"; };
 		C614D0CA15289D2F0063F103 /* ClCoefficientPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClCoefficientPlane.h; path = ../src/ClCoefficientPlane.h; sourceTree = "<group>"; };
 		C61B1A881514D0B500B63372 /* ClNddiDisplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ClNddiDisplay.cpp; path = ../src/ClNddiDisplay.cpp; sourceTree = "<group>"; };
@@ -148,6 +152,9 @@
 				C6CE21F712A061DF00778BD8 /* FlatTiler.h */,
 				C6CE21F812A061DF00778BD8 /* FlatTiler.cpp */,
 				C60F19FB129DE1790050044F /* Tiler.h */,
+				C60F21CD17CC28C400C09351 /* Player.h */,
+				C60F21CA17CC230200C09351 /* RandomPlayer.h */,
+				C60F21CB17CC231F00C09351 /* RandomPlayer.cpp */,
 				C6C28D581273AC4D00919942 /* FfmpegPlayer.h */,
 				C6C28D591273ADEB00919942 /* FfmpegPlayer.cpp */,
 				C6C28C1F127346D000919942 /* NDimensionalDisplayInterface.h */,
@@ -254,6 +261,7 @@
 				C6F90DB6151ABEC900BEB286 /* computePixel.cl in Sources */,
 				C649EB3017B9CB4000749E59 /* DctTiler.cpp in Sources */,
 				C649EB3117B9CB4000749E59 /* fillCoefficient.cl in Sources */,
+				C60F21CC17CC231F00C09351 /* RandomPlayer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

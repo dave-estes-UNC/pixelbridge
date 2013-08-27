@@ -42,4 +42,9 @@
  */
 #define USE_COPY_PIXEL_TILES
 
+/*
+ * Creates random frame(s) instead of decoding video.
+ */
+//#define USE_RANDOM_PLAYER
+
 #endif /* PIXELBRIDGEFEATURES_H_ */

@@ -9,6 +9,8 @@
  *
  */
 
+#include "Player.h"
+
 extern "C" {
 #include "libavcodec/avcodec.h"
 #include "libavformat/avformat.h"
@@ -22,7 +24,7 @@ extern "C" {
  * This class will utilize an FFMPEG demuxer, decoder, and color convertor to decode
  * each frame of the provided video.
  */
-class FfmpegPlayer {
+class FfmpegPlayer : Player {
 public:
 	/**
 	 * The constructor for the player.

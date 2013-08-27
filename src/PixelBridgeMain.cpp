@@ -20,6 +20,7 @@
 #include "DctTiler.h"
 #include "FlatTiler.h"
 #include "FfmpegPlayer.h"
+#include "RandomPlayer.h"
 #include "Rewinder.h"
 
 
@@ -52,7 +53,7 @@ int displayWidth = 320, displayHeight = 240;
 const char* fileName = NULL;
 
 // Helper Objects
-FfmpegPlayer*  myPlayer;
+Player*  myPlayer;
 GlNddiDisplay* myDisplay;
 BlendingGlNddiDisplay* myBlendingDisplay;
 Tiler* myTiler;
@@ -1090,7 +1091,11 @@ int main(int argc, char *argv[]) {
 	}
 	
 	// Initialize ffmpeg and set dimensions
-	myPlayer = new FfmpegPlayer(fileName);
+#ifndef USE_RANDOM_PLAYER
+	myPlayer = (Player*)new FfmpegPlayer(fileName);
+#else
+    myPlayer = (Player*)new RandomPlayer();
+#endif
 	displayWidth = myPlayer->width();
 	displayHeight = myPlayer->height();
 	if (configRewindStartFrame > 0) {

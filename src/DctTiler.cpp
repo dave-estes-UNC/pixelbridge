@@ -328,7 +328,6 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 	 * 3. Quantize
 	 * 4. De-quantize
 	 */
-	//TODO(CDE): Do all of the blocks, Dog!
 	for (size_t j = 0; j < display_->DisplayHeight() / BLOCK_HEIGHT; j++) {
 		for (size_t i = 0; i < display_->DisplayWidth() / BLOCK_WIDTH; i++) {
 
