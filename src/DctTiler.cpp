@@ -50,6 +50,7 @@ DctTiler::DctTiler (BaseNddiDisplay* display, bool quiet)
 {
 	initZigZag();
 	initQuantizationMatrix(4);
+    display_->SetPixelByteSignMode(SIGNED_MODE);
 }
 
 /*

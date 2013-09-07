@@ -529,8 +529,10 @@ void draw( void ) {
         GLuint texture = myDisplay->GetFrameBuffer();
 		
 		// If we used a lossy mode, then calculate the Square Error for this frame
-#if 0   // TODO(CDE): Add this back! Will likely be done in the CachedTiler
-		if (videoBuffer && (config == CACHE) && (configSigBits < 8)) {
+#if 0 // TODO(CDE): Add this back. Need to figure out a way to get the renderered frame back.
+		if (videoBuffer &&
+            ( ((config == CACHE) && (configSigBits < 8))
+              || (config == DCT) ) ) {
 			totalSE += calculateSE(videoBuffer, frameBuffer);
 		}
 #endif

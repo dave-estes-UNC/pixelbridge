@@ -51,7 +51,7 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "--mode fb"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--mode flat"
@@ -64,6 +64,10 @@
          <CommandLineArgument
             argument = "--mode count"
             isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--mode dct"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--bits 4"

@@ -51,7 +51,7 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "--mode fb"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--mode flat"
@@ -76,6 +76,10 @@
          <CommandLineArgument
             argument = "--blend cp"
             isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--mode dct"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--blend t"
@@ -119,11 +123,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "${PROJECT_DIR}/../../recordings/acmmm2011/960x600/digg.mov"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "${PROJECT_DIR}/../../recordings/acmmm2011/video/bourne-10-action.m4v"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>

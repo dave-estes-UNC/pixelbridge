@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C60F21CC17CC231F00C09351 /* RandomPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C60F21CB17CC231F00C09351 /* RandomPlayer.cpp */; };
 		C61B1A8A1514D0B500B63372 /* ClNddiDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C61B1A881514D0B500B63372 /* ClNddiDisplay.cpp */; };
 		C62E9145127BA5AA004FF5C9 /* CachedTiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C62E9144127BA5AA004FF5C9 /* CachedTiler.cpp */; };
 		C633734914E21B460017B819 /* BlendingGlNddiDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C633734714E21B460017B819 /* BlendingGlNddiDisplay.cpp */; };
@@ -18,6 +17,7 @@
 		C68F37261412856C000D2DD0 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F37251412856C000D2DD0 /* OpenGL.framework */; };
 		C68F37281412858C000D2DD0 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F37271412858C000D2DD0 /* OpenCL.framework */; };
 		C68F372A141285DC000D2DD0 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F3729141285DC000D2DD0 /* libz.dylib */; };
+		C690773C17D6CB4F00F76F87 /* RandomPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C690773A17D6CB4E00F76F87 /* RandomPlayer.cpp */; };
 		C6B3114317BB198A0020A5F6 /* libavcodec.54.92.100.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C6B3114217BB198A0020A5F6 /* libavcodec.54.92.100.dylib */; };
 		C6B3114517BB19A50020A5F6 /* libavformat.54.63.104.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C6B3114417BB19A50020A5F6 /* libavformat.54.63.104.dylib */; };
 		C6B3114717BB19C00020A5F6 /* libswscale.2.2.100.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C6B3114617BB19C00020A5F6 /* libswscale.2.2.100.dylib */; };
@@ -48,9 +48,6 @@
 /* Begin PBXFileReference section */
 		8DD76F6C0486A84900D96B5E /* pixelbridge */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pixelbridge; sourceTree = BUILT_PRODUCTS_DIR; };
 		C60F19FB129DE1790050044F /* Tiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tiler.h; path = ../src/Tiler.h; sourceTree = SOURCE_ROOT; };
-		C60F21CA17CC230200C09351 /* RandomPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RandomPlayer.h; sourceTree = "<group>"; };
-		C60F21CB17CC231F00C09351 /* RandomPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RandomPlayer.cpp; sourceTree = "<group>"; };
-		C60F21CD17CC28C400C09351 /* Player.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Player.h; sourceTree = "<group>"; };
 		C614D0C9152893A00063F103 /* ClFrameVolume.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClFrameVolume.h; path = ../src/ClFrameVolume.h; sourceTree = "<group>"; };
 		C614D0CA15289D2F0063F103 /* ClCoefficientPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClCoefficientPlane.h; path = ../src/ClCoefficientPlane.h; sourceTree = "<group>"; };
 		C61B1A881514D0B500B63372 /* ClNddiDisplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ClNddiDisplay.cpp; path = ../src/ClNddiDisplay.cpp; sourceTree = "<group>"; };
@@ -74,6 +71,9 @@
 		C68F37251412856C000D2DD0 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		C68F37271412858C000D2DD0 /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
 		C68F3729141285DC000D2DD0 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		C690773917D6CB4E00F76F87 /* Player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Player.h; path = ../src/Player.h; sourceTree = "<group>"; };
+		C690773A17D6CB4E00F76F87 /* RandomPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RandomPlayer.cpp; path = ../src/RandomPlayer.cpp; sourceTree = "<group>"; };
+		C690773B17D6CB4F00F76F87 /* RandomPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RandomPlayer.h; path = ../src/RandomPlayer.h; sourceTree = "<group>"; };
 		C6AEAD0412B3180000EC5840 /* Doxyfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Doxyfile; path = ../Doxyfile; sourceTree = SOURCE_ROOT; };
 		C6AEAD0512B31AD000EC5840 /* mainpage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mainpage.h; path = ../src/mainpage.h; sourceTree = SOURCE_ROOT; };
 		C6B3114217BB198A0020A5F6 /* libavcodec.54.92.100.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavcodec.54.92.100.dylib; path = ../../../../../../../opt/local/lib/libavcodec.54.92.100.dylib; sourceTree = "<group>"; };
@@ -139,22 +139,22 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				C649EB2C17B9CB4000749E59 /* DctTiler.cpp */,
-				C649EB2D17B9CB4000749E59 /* DctTiler.h */,
 				C649EB2E17B9CB4000749E59 /* fillCoefficient.cl */,
 				C649EB2F17B9CB4000749E59 /* PixelBridgeFeatures.h */,
 				C6FFB6431508397700B12215 /* CostModel.h */,
 				C67EB56E140F1B8B0036B1E6 /* Rewinder.cpp */,
 				C67EB56F140F1B8B0036B1E6 /* Rewinder.h */,
 				C6C28D571273844D00919942 /* todo */,
-				C62E913F127A68F4004FF5C9 /* CachedTiler.h */,
-				C62E9144127BA5AA004FF5C9 /* CachedTiler.cpp */,
+				C60F19FB129DE1790050044F /* Tiler.h */,
 				C6CE21F712A061DF00778BD8 /* FlatTiler.h */,
 				C6CE21F812A061DF00778BD8 /* FlatTiler.cpp */,
-				C60F19FB129DE1790050044F /* Tiler.h */,
-				C60F21CD17CC28C400C09351 /* Player.h */,
-				C60F21CA17CC230200C09351 /* RandomPlayer.h */,
-				C60F21CB17CC231F00C09351 /* RandomPlayer.cpp */,
+				C62E913F127A68F4004FF5C9 /* CachedTiler.h */,
+				C62E9144127BA5AA004FF5C9 /* CachedTiler.cpp */,
+				C649EB2D17B9CB4000749E59 /* DctTiler.h */,
+				C649EB2C17B9CB4000749E59 /* DctTiler.cpp */,
+				C690773917D6CB4E00F76F87 /* Player.h */,
+				C690773A17D6CB4E00F76F87 /* RandomPlayer.cpp */,
+				C690773B17D6CB4F00F76F87 /* RandomPlayer.h */,
 				C6C28D581273AC4D00919942 /* FfmpegPlayer.h */,
 				C6C28D591273ADEB00919942 /* FfmpegPlayer.cpp */,
 				C6C28C1F127346D000919942 /* NDimensionalDisplayInterface.h */,
@@ -261,7 +261,7 @@
 				C6F90DB6151ABEC900BEB286 /* computePixel.cl in Sources */,
 				C649EB3017B9CB4000749E59 /* DctTiler.cpp in Sources */,
 				C649EB3117B9CB4000749E59 /* fillCoefficient.cl in Sources */,
-				C60F21CC17CC231F00C09351 /* RandomPlayer.cpp in Sources */,
+				C690773C17D6CB4F00F76F87 /* RandomPlayer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

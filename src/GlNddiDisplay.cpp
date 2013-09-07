@@ -7,18 +7,38 @@
 
 using namespace nddi;
 
-// TODO(CDE): Need to figure out if clamping can be skipped.
-inline unsigned char CLAMP_BYTE(int i) {
-	unsigned int ret;
+inline uint8_t CLAMP_SIGNED_BYTE(int32_t i) {
+	uint32_t ret;
 
-	if (i < 0) {
-		ret = 0;
-	} else if (i & 0xffffff00) {
-		ret = 0xff;
-	} else {
-		ret = i & 0xff;
-	}
+    if (i < 0) {
+        ret = 0;
+    } else if (i > 0xff) {
+        ret = 0xff;
+    } else {
+        ret = i;
+    }
+    
+	return (uint8_t)ret;
+}
+
+inline uint8_t CLAMP_UNSIGNED_BYTE(uint32_t i) {
+	uint32_t ret;
+    
+    if (i > 0xff) {
+        ret = 0xff;
+    } else {
+        ret = i;
+    }
+    
 	return ret;
+}
+
+inline uint8_t TRUNCATE_BYTE(int32_t i) {
+	uint32_t ret;
+    
+    ret = i & 0xff;
+    
+	return (uint8_t)ret;
 }
 
 // public
@@ -36,6 +56,7 @@ GlNddiDisplay::GlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
 	frameVolumeDimensionalSizes_ = frameVolumeDimensionalSizes;
 	displayWidth_ = displayWidth;
 	displayHeight_ = displayHeight;
+    pixelSignMode_ = UNSIGNED_MODE;
     quiet_ = true;
 
     // Create the CostModel
@@ -135,7 +156,7 @@ void GlNddiDisplay::Render() {
 
 Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
 
-	int    rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
+	int32_t    rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
 	Pixel  q;
 
 	// Accumulate color channels for the pixels chosen by each plane
@@ -164,9 +185,15 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
 			}
 		}
 		q = frameVolume_->getPixel(fvPosition);
-		rAccumulator += (unsigned int)q.r * scaler;
-		gAccumulator += (unsigned int)q.g * scaler;
-		bAccumulator += (unsigned int)q.b * scaler;
+        if (pixelSignMode_ == UNSIGNED_MODE) {
+            rAccumulator += (uint8_t)q.r * scaler;
+            gAccumulator += (uint8_t)q.g * scaler;
+            bAccumulator += (uint8_t)q.b * scaler;
+        } else {
+            rAccumulator += (int8_t)q.r * scaler;
+            gAccumulator += (int8_t)q.g * scaler;
+            bAccumulator += (int8_t)q.b * scaler;
+        }
 	}
 
 	// Make sure there are 256 planes so the shift operation (divide 256) works correctly.
@@ -175,9 +202,15 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
 #if (NUM_COEFFICIENT_PLANES != 256)
 #error Coefficient Plane Count must be 256
 #endif
-	q.r = CLAMP_BYTE(rAccumulator >> 8);
-	q.g = CLAMP_BYTE(gAccumulator >> 8);
-	q.b = CLAMP_BYTE(bAccumulator >> 8);
+    if (pixelSignMode_ == UNSIGNED_MODE) {
+        q.r = CLAMP_UNSIGNED_BYTE(rAccumulator >> 8);
+        q.g = CLAMP_UNSIGNED_BYTE(gAccumulator >> 8);
+        q.b = CLAMP_UNSIGNED_BYTE(bAccumulator >> 8);
+    } else {
+        q.r = CLAMP_SIGNED_BYTE(rAccumulator >> 8);
+        q.g = CLAMP_SIGNED_BYTE(gAccumulator >> 8);
+        q.b = CLAMP_SIGNED_BYTE(bAccumulator >> 8);
+    }
 	q.a = 255;
 
     costModel->registerPixelMappingCharge(1);
@@ -189,7 +222,7 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
 // Duplicate version of the proper ComputePixel which avoids locking
 Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel* fv) {
 
-	int    rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
+	int32_t    rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
 	Pixel  q;
 
 	// Accumulate color channels for the pixels chosen by each plane
@@ -227,27 +260,32 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 		}
 
 		q = fv[offset];
-// TODO(CDE): Below we have an unsigned cast of the pixel and a signed cast of the pixel. The signed casting triggers a sign extension when the value is multiplied by the scaler and added to the accumulator. This is desireable, but it produces some isses with the fb tiler. Need to dig into it.
-#if 0
-		rAccumulator += (uint8_t)q.r * scaler;
-		gAccumulator += (uint8_t)q.g * scaler;
-		bAccumulator += (uint8_t)q.b * scaler;
-#else
-		rAccumulator += (int8_t)q.r * scaler;
-		gAccumulator += (int8_t)q.g * scaler;
-		bAccumulator += (int8_t)q.b * scaler;
-#endif
+        if (pixelSignMode_ == UNSIGNED_MODE) {
+            rAccumulator += (uint8_t)q.r * scaler;
+            gAccumulator += (uint8_t)q.g * scaler;
+            bAccumulator += (uint8_t)q.b * scaler;
+        } else {
+            rAccumulator += (int8_t)q.r * scaler;
+            gAccumulator += (int8_t)q.g * scaler;
+            bAccumulator += (int8_t)q.b * scaler;
+        }
 	}
-
+    
 	// Make sure there are 256 planes so the shift operation (divide 256) works correctly.
 	// Note: This shift operation will be absolutely necessary when this is implemented
 	//       in hardware to avoid the division operation.
 #if (NUM_COEFFICIENT_PLANES != 256)
 #error Coefficient Plane Count must be 256
 #endif
-	q.r = CLAMP_BYTE(rAccumulator >> 8);
-	q.g = CLAMP_BYTE(gAccumulator >> 8);
-	q.b = CLAMP_BYTE(bAccumulator >> 8);
+    if (pixelSignMode_ == UNSIGNED_MODE) {
+        q.r = CLAMP_UNSIGNED_BYTE(rAccumulator >> 8);
+        q.g = CLAMP_UNSIGNED_BYTE(gAccumulator >> 8);
+        q.b = CLAMP_UNSIGNED_BYTE(bAccumulator >> 8);
+    } else {
+        q.r = CLAMP_SIGNED_BYTE(rAccumulator >> 8);
+        q.g = CLAMP_SIGNED_BYTE(gAccumulator >> 8);
+        q.b = CLAMP_SIGNED_BYTE(bAccumulator >> 8);
+    }
 	q.a = 255;
 
 	return q;

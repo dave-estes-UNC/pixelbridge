@@ -410,7 +410,9 @@ void ClNddiDisplay::Render() {
 void ClNddiDisplay::PutPixel(Pixel p, vector<unsigned int> &location) {
 
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (1 + frameVolumeDimensionalSizes_.size()), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_PIXELS(1) +         // One Pixel
+                                          CALC_BYTES_FOR_FV_COORD_TUPLES(1), // One Coordinate Tuple
+                                          0);
 
     // Set the single pixel
     clFrameVolume_->PutPixel(p, location);
@@ -432,9 +434,12 @@ void ClNddiDisplay::CopyPixelStrip(Pixel* p, vector<unsigned int> &start, vector
             dimensionFound = true;
         }
     }
+    int pixelsToCopy = end[dimensionToCopyAlong] - start[dimensionToCopyAlong] + 1;
 
     // Register transmission cost now that we know the length of the strip sent
-    costModel->registerTransmissionCharge(4 * ((end[dimensionToCopyAlong] - start[dimensionToCopyAlong] + 1) + 2 * frameVolumeDimensionalSizes_.size()), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_PIXELS(pixelsToCopy) +    // A strip of pixels
+                                          CALC_BYTES_FOR_FV_COORD_TUPLES(2),       // Two Coordinate Tuples
+                                          0);
 
     // Copy the pixels
     clFrameVolume_->CopyPixelStrip(p, start, end);
@@ -451,7 +456,9 @@ void ClNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> &start, vector<uns
     for (int i = 0; i < start.size(); i++) {
         pixelsToCopy *= end[i] - start[i] + 1;
     }
-    costModel->registerTransmissionCharge(4 * (pixelsToCopy + 2 * frameVolumeDimensionalSizes_.size()), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_PIXELS(pixelsToCopy) +    // Range of pixels
+                                          CALC_BYTES_FOR_FV_COORD_TUPLES(2),       // Two Coordinate Tuples
+                                          0);
 
     // Copy pixels
     clFrameVolume_->CopyPixels(p, start, end);
@@ -463,13 +470,12 @@ void ClNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> &start, vector<uns
 
 void ClNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) {
 
-	cl_event *                 pEvent = NULL;
-
-
-	// We're copying tiles, so the size of each tile must be two dimensional.
-	assert(size.size() == 2);
-	// The starts should each be a vector matching the dimensionality of the frame volume
+	size_t tile_count = p.size();
+    
+	// Ensure parameter vectors' sizes match
+	assert(starts.size() == tile_count);
 	assert(starts[0].size() == frameVolumeDimensionalSizes_.size());
+	assert(size.size() == 2);
 
 	// Register transmission cost first
     int pixelsToCopy = 1;
@@ -477,7 +483,10 @@ void ClNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int
         pixelsToCopy *= size[i];
     }
     pixelsToCopy *= starts.size();
-    costModel->registerTransmissionCharge(4 * (pixelsToCopy + starts.size() * frameVolumeDimensionalSizes_.size()), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_PIXELS(pixelsToCopy) +            // t tiles of x by y tiles of pixels
+                                          CALC_BYTES_FOR_FV_COORD_TUPLES(tile_count + 1) + // t start coordinate tuples + 1 tuple for tile size dimensions
+                                          CALC_BYTES_FOR_TILE_COORD_DOUBLES(1),            // 1 X by Y tile dimension double
+                                          0);
 
 	// Copy pixels (copies to host array, sets up packet and sends it to the device
 	clFrameVolume_->CopyPixelTiles(p, starts, size);
@@ -490,7 +499,9 @@ void ClNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int
 void ClNddiDisplay::FillPixel(Pixel p, vector<unsigned int> &start, vector<unsigned int> &end) {
 
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (1 + 2 * frameVolumeDimensionalSizes_.size()), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_PIXELS(1) +         // One Pixel
+                                          CALC_BYTES_FOR_FV_COORD_TUPLES(2), // Two Coordinate Tuples
+                                          0);
 
     // Fill pixels
     clFrameVolume_->FillPixel(p, start, end);
@@ -503,7 +514,8 @@ void ClNddiDisplay::FillPixel(Pixel p, vector<unsigned int> &start, vector<unsig
 void ClNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<unsigned int> &end, vector<unsigned int> &dest) {
 
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (3 * frameVolumeDimensionalSizes_.size()), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_FV_COORD_TUPLES(3), // Three Coordinate Tuples
+                                          0);
 
     // Copy pixels
     clFrameVolume_->CopyFrameVolume(start, end, dest);
@@ -515,8 +527,11 @@ void ClNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<unsigned
 
 void ClNddiDisplay::UpdateInputVector(vector<int> &input) {
 
+    assert(input.size() == inputVector_->getSize() - 2);
+
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * input.size(),0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_IV_UPDATE(), // Input Vector
+                                          0);
 
     // Update the input vector
     clInputVector_->UpdateInputVector(input);
@@ -530,7 +545,9 @@ void ClNddiDisplay::PutCoefficientMatrix(vector< vector<int> > &coefficientMatri
                                            vector<unsigned int> &location) {
 
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + frameVolumeDimensionalSizes_.size()), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_CMS(1) +             // One coefficient matrix
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(1), // One Coefficient Plane Coordinate triple
+                                          0);
 
     // Update the coefficient matrix
     clCoefficientPlane_->PutCoefficientMatrix(coefficientMatrix, location);
@@ -544,7 +561,9 @@ void ClNddiDisplay::FillCoefficientMatrix(vector< vector<int> > &coefficientMatr
                                             vector<unsigned int> &start,
                                             vector<unsigned int> &end) {
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + 2 * 2), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_CMS(1) +             // One coefficient matrix
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(2), // Two Coefficient Plane Coordinate triples
+                                          0);
 
     // Fill the coefficient matrices
     clCoefficientPlane_->FillCoefficientMatrix(coefficientMatrix, start, end);
@@ -558,8 +577,16 @@ void ClNddiDisplay::FillCoefficient(int coefficient,
                                       int row, int col,
                                       vector<unsigned int> &start,
                                       vector<unsigned int> &end) {
+    assert(row >= 0 && row < CM_HEIGHT);
+    assert(col >= 0 && col < CM_WIDTH);
+    assert(start.size() == 3);
+    assert(end.size() == 3);
+    
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (3 + 2 * 2), 0);
+    costModel->registerTransmissionCharge(BYTES_PER_COEFF * 1 +                // One coefficient
+                                          CALC_BYTES_FOR_CM_COORD_DOUBLES(1) + // One Coefficient Matrix Coordinate double
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(2),  // Two Coefficient Plane Coordinate triples
+                                          0);
 
     // Fill the coefficient matrices
     clCoefficientPlane_->FillCoefficient(coefficient, row, col, start, end);
@@ -583,6 +610,13 @@ void ClNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
 	assert(positions.size() == tile_count);
 	assert(starts.size() == tile_count);
 
+    // Register transmission cost first
+    costModel->registerTransmissionCharge(BYTES_PER_COEFF * tile_count +                 // t coefficients
+                                          CALC_BYTES_FOR_CM_COORD_DOUBLES(tile_count) +  // t Coefficient Matrix Coordinate doubles
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(tile_count) +  // t Coefficient Plane Coordinate triples
+                                          CALC_BYTES_FOR_TILE_COORD_DOUBLES(1),          // 1 X by Y tile dimension double
+                                          0);
+    
 	// Build the packet
 	if (packet) free(packet);
 	packet = (coefficient_update_t*)malloc(sizeof(coefficient_update_t) * tile_count);

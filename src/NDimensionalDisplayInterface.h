@@ -32,6 +32,14 @@ namespace nddi {
         };
         unsigned int packed;
     } Pixel;
+    
+    /**
+     * Options for pixel byte sign mode.
+     */
+    typedef enum {
+        UNSIGNED_MODE,
+        SIGNED_MODE
+    } SignMode;
 
     /**
      * This abstract class serves as a software interface to an n-Dimensional Display Interface (NDDI) compliant
@@ -231,6 +239,13 @@ namespace nddi {
          * @param size The size (w, h) of the tile.
          */
         virtual void FillScalerTiles(vector<int> &scalers, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) = 0;
+        
+        /**
+         * Allows the bytes of pixel values to be interpretted as signed values when scaling, accumulating, and clamping
+         * in the pixel blending pipeline.
+         *
+         */
+        virtual void SetPixelByteSignMode(SignMode mode) = 0;
 
         /**
          * Returns the CostModel for this display. The CostModel can be queried by the

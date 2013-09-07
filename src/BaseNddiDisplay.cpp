@@ -15,6 +15,7 @@ BaseNddiDisplay::BaseNddiDisplay() :
 		frameVolume_(NULL),
 		coefficientPlane_(NULL),
 		frameBuffer_(NULL),
+        pixelSignMode_(UNSIGNED_MODE),
 		costModel(NULL),
 		quiet_(false)
 {}
@@ -28,6 +29,7 @@ BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSiz
 		frameVolume_(NULL),
 		coefficientPlane_(NULL),
 		frameBuffer_(NULL),
+        pixelSignMode_(UNSIGNED_MODE),
 		costModel(NULL),
 		quiet_(false)
 {}
@@ -42,6 +44,7 @@ BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSiz
 		frameVolume_(NULL),
 		coefficientPlane_(NULL),
 		frameBuffer_(NULL),
+        pixelSignMode_(UNSIGNED_MODE),
 		costModel(NULL),
 		quiet_(false)
 {}
@@ -59,7 +62,9 @@ int BaseNddiDisplay::DisplayHeight() {
 void BaseNddiDisplay::PutPixel(Pixel p, vector<unsigned int> &location) {
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (1 + frameVolumeDimensionalSizes_.size()), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_PIXELS(1) +         // One Pixel
+                                          CALC_BYTES_FOR_FV_COORD_TUPLES(1), // One Coordinate Tuple
+                                          0);
     
     // Set the single pixel
 	frameVolume_->PutPixel(p, location);
@@ -81,9 +86,12 @@ void BaseNddiDisplay::CopyPixelStrip(Pixel* p, vector<unsigned int> &start, vect
 			dimensionFound = true;
 		}
 	}
+    int pixelsToCopy = end[dimensionToCopyAlong] - start[dimensionToCopyAlong] + 1;
 	
     // Register transmission cost now that we know the length of the strip sent
-    costModel->registerTransmissionCharge(4 * ((end[dimensionToCopyAlong] - start[dimensionToCopyAlong] + 1) + 2 * frameVolumeDimensionalSizes_.size()), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_PIXELS(pixelsToCopy) +    // A strip of pixels
+                                          CALC_BYTES_FOR_FV_COORD_TUPLES(2),       // Two Coordinate Tuples
+                                          0);
     
     // Copy the pixels
     frameVolume_->CopyPixelStrip(p, start, end);
@@ -100,7 +108,9 @@ void BaseNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> &start, vector<u
     for (int i = 0; i < start.size(); i++) {
         pixelsToCopy *= end[i] - start[i] + 1;
     }
-    costModel->registerTransmissionCharge(4 * (pixelsToCopy + 2 * frameVolumeDimensionalSizes_.size()), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_PIXELS(pixelsToCopy) +    // Range of pixels
+                                          CALC_BYTES_FOR_FV_COORD_TUPLES(2),       // Two Coordinate Tuples
+                                          0);
     
     // Copy pixels
     frameVolume_->CopyPixels(p, start, end);
@@ -116,6 +126,7 @@ void BaseNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned i
 
 	// Ensure parameter vectors' sizes match
 	assert(starts.size() == tile_count);
+	assert(starts[0].size() == frameVolumeDimensionalSizes_.size());
 	assert(size.size() == 2);
 
     // Register transmission cost first
@@ -123,8 +134,11 @@ void BaseNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned i
     for (int i = 0; i < size.size(); i++) {
         pixelsToCopy *= size[i];
     }
-    pixelsToCopy *= starts.size();
-    costModel->registerTransmissionCharge(4 * (pixelsToCopy + (tile_count + 1) * frameVolumeDimensionalSizes_.size()), 0);
+    pixelsToCopy *= tile_count;
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_PIXELS(pixelsToCopy) +            // t tiles of x by y tiles of pixels
+                                          CALC_BYTES_FOR_FV_COORD_TUPLES(tile_count + 1) + // t start coordinate tuples + 1 tuple for tile size dimensions
+                                          CALC_BYTES_FOR_TILE_COORD_DOUBLES(1),            // 1 X by Y tile dimension double
+                                          0);
 
     // Copy pixels
     vector<unsigned int> end;
@@ -139,7 +153,7 @@ void BaseNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned i
     	frameVolume_->CopyPixels(p[i], starts[i], end);
     }
 
-    #ifndef SUPRESS_EXCESS_RENDERING
+#ifndef SUPRESS_EXCESS_RENDERING
 	Render();
 #endif
 }
@@ -147,7 +161,9 @@ void BaseNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned i
 void BaseNddiDisplay::FillPixel(Pixel p, vector<unsigned int> &start, vector<unsigned int> &end) {
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (1 + 2 * frameVolumeDimensionalSizes_.size()), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_PIXELS(1) +         // One Pixel
+                                          CALC_BYTES_FOR_FV_COORD_TUPLES(2), // Two Coordinate Tuples
+                                          0);
     
     // Fill pixels
     frameVolume_->FillPixel(p, start, end);
@@ -160,7 +176,8 @@ void BaseNddiDisplay::FillPixel(Pixel p, vector<unsigned int> &start, vector<uns
 void BaseNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<unsigned int> &end, vector<unsigned int> &dest) {
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (3 * frameVolumeDimensionalSizes_.size()), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_FV_COORD_TUPLES(3), // Three Coordinate Tuples
+                                          0);
     
     // Copy pixels
     frameVolume_->CopyFrameVolume(start, end, dest);
@@ -171,9 +188,12 @@ void BaseNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<unsign
 }
 
 void BaseNddiDisplay::UpdateInputVector(vector<int> &input) {
+    
+    assert(input.size() == inputVector_->getSize() - 2);
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * input.size(), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_IV_UPDATE(), // Input Vector
+                                          0);
 	
     // Update the input vector
 	inputVector_->UpdateInputVector(input);
@@ -187,7 +207,9 @@ void BaseNddiDisplay::PutCoefficientMatrix(vector< vector<int> > &coefficientMat
                                            vector<unsigned int> &location) {
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + frameVolumeDimensionalSizes_.size()), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_CMS(1) +             // One coefficient matrix
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(1), // One Coefficient Plane Coordinate triple
+                                          0);
     
     // Update the coefficient matrix
     coefficientPlane_->PutCoefficientMatrix(coefficientMatrix, location);
@@ -201,7 +223,9 @@ void BaseNddiDisplay::FillCoefficientMatrix(vector< vector<int> > &coefficientMa
                                             vector<unsigned int> &start,
                                             vector<unsigned int> &end) {
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + 2 * 2), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_CMS(1) +             // One coefficient matrix
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(2), // Two Coefficient Plane Coordinate triples
+                                          0);
     
     // Fill the coefficient matrices
     coefficientPlane_->FillCoefficientMatrix(coefficientMatrix, start, end);
@@ -215,8 +239,16 @@ void BaseNddiDisplay::FillCoefficient(int coefficient,
                                       int row, int col,
                                       vector<unsigned int> &start,
                                       vector<unsigned int> &end) {
+    assert(row >= 0 && row < CM_HEIGHT);
+    assert(col >= 0 && col < CM_WIDTH);
+    assert(start.size() == 3);
+    assert(end.size() == 3);
+
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (3 + 2 * 2), 0);
+    costModel->registerTransmissionCharge(BYTES_PER_COEFF * 1 +                // One coefficient
+                                          CALC_BYTES_FOR_CM_COORD_DOUBLES(1) + // One Coefficient Matrix Coordinate double
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(2),  // Two Coefficient Plane Coordinate triples
+                                          0);
 	
     // Fill the coefficient matrices
     coefficientPlane_->FillCoefficient(coefficient, row, col, start, end);
@@ -239,7 +271,11 @@ void BaseNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
 	assert(size.size() == 2);
 
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * ((1 + 3 + 2) * tile_count + 2), 0);
+    costModel->registerTransmissionCharge(BYTES_PER_COEFF * tile_count +                 // t coefficients
+                                          CALC_BYTES_FOR_CM_COORD_DOUBLES(tile_count) +  // t Coefficient Matrix Coordinate doubles
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(tile_count) +  // t Coefficient Plane Coordinate triples
+                                          CALC_BYTES_FOR_TILE_COORD_DOUBLES(1),          // 1 X by Y tile dimension double
+                                          0);
 
     // Fill the coefficient matrices
     vector<unsigned int> end;
@@ -260,8 +296,13 @@ void BaseNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
 void BaseNddiDisplay::FillScaler(int scaler,
                                  vector<unsigned int> &start,
                                  vector<unsigned int> &end) {
+    assert(start.size() == 3);
+    assert(end.size() == 3);
+    
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (1 + 3 * 2), 0);
+    costModel->registerTransmissionCharge(BYTES_PER_SCALAR * 1 +              // One Scalar
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(2), // Two Coefficient Plane Coordinate triples
+                                          0);
 
     // Fill the coefficient matrices
     coefficientPlane_->FillScaler(scaler, start, end);
@@ -275,6 +316,11 @@ void BaseNddiDisplay::FillScalerTiles(vector<int> &scalers,
                                       vector<vector<unsigned int> > &starts,
                                       vector<unsigned int> &size) {
 	// TODO(CDE): Implement
+}
+
+void BaseNddiDisplay::SetPixelByteSignMode(SignMode mode) {
+    assert(mode == UNSIGNED_MODE || mode == SIGNED_MODE);
+    pixelSignMode_ = mode;
 }
 
 CostModel* BaseNddiDisplay::GetCostModel() {
