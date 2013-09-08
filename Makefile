@@ -78,7 +78,9 @@ _DEPS =	GlNddiDisplay.h \
 	FlatTiler.h \
 	FrameVolume.h \
 	CostModel.h \
-	PixelBridgeFeatures.h
+	PixelBridgeFeatures.h \
+	Player.h \
+	RandomPlayer.h
 
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
@@ -88,6 +90,7 @@ _OBJ = \
 	CachedTiler.o \
 	DctTiler.o \
 	FfmpegPlayer.o \
+	RandomPlayer.o \
 	FlatTiler.o \
 	GlNddiDisplay.o \
 	PixelBridgeMain.o \
