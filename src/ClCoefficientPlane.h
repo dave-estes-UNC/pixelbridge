@@ -73,6 +73,7 @@ public:
                 if (coefficientMatrix[x][y] != COFFICIENT_UNCHANGED) {
                     *coefficientPtr = coefficientMatrix[x][y];
                 }
+                assert(0); // TODO(CDE): Shouldn't coefficientPtr be moved to the next coefficient?
             }
         }
 

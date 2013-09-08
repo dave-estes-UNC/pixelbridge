@@ -76,7 +76,9 @@ void BlendingGlNddiDisplay::PutCoefficientMatrix(vector< vector<int> > &coeffici
     }
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + frameVolumeDimensionalSizes_.size()), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_CMS(1) +             // One coefficient matrix
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(1), // One Coefficient Plane Coordinate triple
+                                          0);
     
     // Update the coefficient matrix
     coefficientPlanes_[location[2]]->PutCoefficientMatrix(coefficientMatrix, location);
@@ -101,7 +103,9 @@ void BlendingGlNddiDisplay::FillCoefficientMatrix(vector< vector<int> > &coeffic
     }
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (CM_WIDTH * CM_SIZE + 3 * 2), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_CMS(1) +             // One coefficient matrix
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(2), // Two Coefficient Plane Coordinate triples
+                                          0);
     
     // For each plane in the range, fill the coefficient matrices
     for (int i = start[2]; i <= end[2]; i++) {
@@ -128,7 +132,10 @@ void BlendingGlNddiDisplay::FillCoefficient(int coefficient, int row, int col, v
     }
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4.0f * (3 + 3 * 2), 0);
+    costModel->registerTransmissionCharge(BYTES_PER_COEFF * 1 +                // One coefficient
+                                          CALC_BYTES_FOR_CM_COORD_DOUBLES(1) + // One Coefficient Matrix Coordinate double
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(2),  // Two Coefficient Plane Coordinate triples
+                                          0);
     
     // For each plane in the range, fill the coefficient matrices
     for (int i = start[2]; i <= end[2]; i++) {
@@ -150,7 +157,8 @@ void BlendingGlNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<
 	int pixelsCopied = 0;
 	
     // Register transmission cost first
-    costModel->registerTransmissionCharge(4 * (3 * frameVolumeDimensionalSizes_.size() + 1), 0);
+    costModel->registerTransmissionCharge(CALC_BYTES_FOR_FV_COORD_TUPLES(3), // Three Coordinate Tuples
+                                          0);
     
 	// Move from start to end, filling in each location with the provided pixel
 	do {
@@ -220,19 +228,19 @@ void BlendingGlNddiDisplay::Render() {
                                         displayWidth_ * displayHeight_ * CM_HEIGHT * (CM_WIDTH - 2) * numPlanes_,
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * CM_HEIGHT * (CM_WIDTH - 2) * numPlanes_ * 4L,
+                                        displayWidth_ * displayHeight_ * CM_HEIGHT * (CM_WIDTH - 2) * numPlanes_ * BYTES_PER_IV_VALUE,
                                         0);
     costModel->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
                                         displayWidth_ * displayHeight_ * CM_HEIGHT * CM_WIDTH * numPlanes_,
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * CM_HEIGHT * CM_WIDTH * numPlanes_ * 4L,
+                                        displayWidth_ * displayHeight_ * CM_HEIGHT * CM_WIDTH * numPlanes_ * BYTES_PER_COEFF,
                                         0);
     costModel->registerBulkMemoryCharge(FRAME_VOLUME_COMPONENT,
                                         displayWidth_ * displayHeight_ * numPlanes_,
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * numPlanes_ * 4L,
+                                        displayWidth_ * displayHeight_ * numPlanes_ * BYTES_PER_PIXEL,
                                         0);
     costModel->registerPixelMappingCharge(displayWidth_ * displayHeight_ * numPlanes_);
     if (numPlanes_ > 1) {

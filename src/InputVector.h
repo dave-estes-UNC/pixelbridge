@@ -62,7 +62,7 @@ namespace nddi {
 
             assert(location < size_);
 
-            costModel_->registerMemoryCharge(INPUT_VECTOR_COMPONENT, WRITE_ACCESS, values_ + location, 4, 0);
+            costModel_->registerMemoryCharge(INPUT_VECTOR_COMPONENT, WRITE_ACCESS, values_ + location, BYTES_PER_IV_VALUE, 0);
 
             values_[location] = value;
         }
@@ -72,7 +72,7 @@ namespace nddi {
             assert(location > 1);
             assert(location < size_);
 
-            costModel_->registerMemoryCharge(INPUT_VECTOR_COMPONENT, READ_ACCESS, values_ + location, 4, 0);
+            costModel_->registerMemoryCharge(INPUT_VECTOR_COMPONENT, READ_ACCESS, values_ + location, BYTES_PER_IV_VALUE, 0);
 
             return values_[location];
         }

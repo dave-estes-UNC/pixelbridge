@@ -187,7 +187,7 @@ namespace nddi {
 
             pixels_[offset].packed = pixel.packed;
 
-            costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, pixels_ + offset, 4, 0);
+            costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, pixels_ + offset, BYTES_PER_PIXEL, 0);
         }
 
         Pixel getPixel(vector<unsigned int> &location) {
@@ -207,7 +207,7 @@ namespace nddi {
 
             pixel.packed = pixels_[offset].packed;
 
-            costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, READ_ACCESS, pixels_ + offset, 4, 0);
+            costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, READ_ACCESS, pixels_ + offset, BYTES_PER_PIXEL, 0);
 
             return pixel;
         }

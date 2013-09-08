@@ -124,19 +124,19 @@ void GlNddiDisplay::Render() {
                                         displayWidth_ * displayHeight_ * CM_HEIGHT * (CM_WIDTH - 2),
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * CM_HEIGHT * (CM_WIDTH - 2) * 4L,
+                                        displayWidth_ * displayHeight_ * CM_HEIGHT * (CM_WIDTH - 2) * BYTES_PER_IV_VALUE,
                                         0);
     costModel->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
                                         displayWidth_ * displayHeight_ * CM_HEIGHT * CM_WIDTH,
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * CM_HEIGHT * CM_WIDTH * 4L,
+                                        displayWidth_ * displayHeight_ * CM_HEIGHT * CM_WIDTH * BYTES_PER_COEFF,
                                         0);
     costModel->registerBulkMemoryCharge(FRAME_VOLUME_COMPONENT,
                                         displayWidth_ * displayHeight_,
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * 4L,
+                                        displayWidth_ * displayHeight_ * BYTES_PER_PIXEL,
                                         0);
     costModel->registerPixelMappingCharge(displayWidth_ * displayHeight_);
 #endif
