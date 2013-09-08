@@ -18,7 +18,7 @@
 #define BYTES_PER_COORD     4
 #define BYTES_PER_IV_VALUE  4
 #define BYTES_PER_COEFF     4
-#define BYTES_PER_SCALAR    4
+#define BYTES_PER_SCALER    4
 
 /*
  * Helper macros to be used when registering

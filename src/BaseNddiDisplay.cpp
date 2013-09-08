@@ -322,7 +322,7 @@ void BaseNddiDisplay::FillScaler(int scaler,
     assert(end.size() == 3);
     
     // Register transmission cost first
-    costModel->registerTransmissionCharge(BYTES_PER_SCALAR * 1 +              // One Scalar
+    costModel->registerTransmissionCharge(BYTES_PER_SCALER * 1 +              // One Scalar
                                           CALC_BYTES_FOR_CP_COORD_TRIPLES(2), // Two Coefficient Plane Coordinate triples
                                           0);
 
@@ -346,7 +346,7 @@ void BaseNddiDisplay::FillScalerTiles(vector<int> &scalers,
 	assert(size.size() == 2);
 
     // Register transmission cost first
-    costModel->registerTransmissionCharge(BYTES_PER_SCALAR * tile_count +                // t scalers
+    costModel->registerTransmissionCharge(BYTES_PER_SCALER * tile_count +                // t scalers
                                           CALC_BYTES_FOR_CP_COORD_TRIPLES(tile_count) +  // t Coefficient Plane Coordinate triples
                                           CALC_BYTES_FOR_TILE_COORD_DOUBLES(1),          // One X by Y tile dimension double
                                           0);
@@ -378,7 +378,7 @@ void BaseNddiDisplay::FillScalerTileStack(vector<int> &scalers,
 	assert(start.size() == 3);
 
     // Register transmission cost first
-    costModel->registerTransmissionCharge(BYTES_PER_SCALAR * tile_count +       // t scalers
+    costModel->registerTransmissionCharge(BYTES_PER_SCALER * tile_count +       // t scalers
                                           CALC_BYTES_FOR_CP_COORD_TRIPLES(1) +  // One Coefficient Plane Coordinate triples
                                           CALC_BYTES_FOR_TILE_COORD_DOUBLES(1), // One X by Y tile dimension double
                                           0);
