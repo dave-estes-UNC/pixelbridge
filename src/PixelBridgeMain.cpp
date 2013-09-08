@@ -69,6 +69,7 @@ size_t configTileWidth = 0;
 size_t configTileHeight = 0;
 size_t configMaxTiles = 1000;
 size_t configSigBits = 8;
+size_t configQuality = 4;
 size_t configStartFrame = 0;
 size_t configMaxFrames = 0;
 size_t configRewindStartFrame = 0;
@@ -164,7 +165,7 @@ void setupDisplay() {
 		myDisplay->UpdateInputVector(iv);
 
 		// Setup DCT Tiler and initializes Coefficient Plane and Frame Volume
-		myTiler = new DctTiler(myDisplay,
+		myTiler = new DctTiler(myDisplay, configQuality,
 							   configHeadless || !configVerbose);
 
         myTiler->InitializeCoefficientPlanes();
@@ -944,7 +945,8 @@ void motion( int x, int y ) {
 
 
 void showUsage() {
-	cout << "pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--start <n>] [--frames <n>] [--rewind <n> <n>] <filename>" << endl;
+	cout << "pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <1-100>]" << endl <<
+			"            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>" << endl;
 	cout << endl;
 	cout << "  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), or using DCT (dct).\n" <<
 	        "          Optional the mode can be set to count the number of pixels changed (count)." << endl;
@@ -952,6 +954,7 @@ void showUsage() {
 	cout << "  --ts  Sets the tile size to the width and height provided." << endl;
 	cout << "  --tc  Sets the maximum number of tiles in the cache." << endl;
 	cout << "  --bits  Sets the number of significant bits per channel when computing checksums." << endl;
+	cout << "  --quality  Sets the quality for DCT mode." << endl;
 	cout << "  --start  Will start with this frame, ignoring any decoded frames prior to it." << endl;
 	cout << "  --frames  Sets the number of maximum frames that are decoded." << endl;
 	cout << "  --rewind  Sets a start point and a number of frames to play in reverse. Once finished, normal playback continues." << endl;
@@ -1021,6 +1024,14 @@ bool parseArgs(int argc, char *argv[]) {
 		} else if (strcmp(*argv, "--bits") == 0) {
 			configSigBits = atoi(argv[1]);
 			if ( (configSigBits == 0) || (configSigBits > 8) ) {
+				showUsage();
+				return false;
+			}
+			argc -= 2;
+			argv += 2;
+		} else if (strcmp(*argv, "--quality") == 0) {
+			configQuality = atoi(argv[1]);
+			if ( (configQuality == 0) || (configQuality > 100) ) {
 				showUsage();
 				return false;
 			}

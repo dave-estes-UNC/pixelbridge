@@ -36,13 +36,14 @@ public:
 	 * @param display A pointer to the NDDI display
 	 */
 	DctTiler(BaseNddiDisplay* display,
+			 size_t quality,
 			 bool quiet);
 
 	~DctTiler() {
 	}
 
 	void initZigZag();
-	void initQuantizationMatrix(unsigned char quality);
+	void initQuantizationMatrix(size_t quality);
 
     /**
      * Initializes the Coefficient Planes for this tiler.

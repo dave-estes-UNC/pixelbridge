@@ -39,17 +39,19 @@
  * Using a #define because it's used for floats and ints.
  */
 #define CLAMP(x, min, max)   (x < min ? min : x >= max ? max : x)
+#define MAX(x, y)            (x > y ? x : y)
+#define MIN(x, y)            (x < y ? x : y)
 
 /**
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
  * dimensions change, then the FlatTiler should be destroyed and re-created.
  */
-DctTiler::DctTiler (BaseNddiDisplay* display, bool quiet)
+DctTiler::DctTiler (BaseNddiDisplay* display, size_t quality, bool quiet)
 : display_(display),
   quiet_(quiet)
 {
-	initZigZag();
-	initQuantizationMatrix(4);
+    initZigZag();
+    initQuantizationMatrix(quality);
     display_->SetPixelByteSignMode(SIGNED_MODE);
 }
 
@@ -129,7 +131,7 @@ void DctTiler::initZigZag() {
 /*
  * Uses simple algorithm from M. Nelson, "The Data Compression Book," San Mateo, CA, M&T Books, 1992.
  */
-void DctTiler::initQuantizationMatrix(unsigned char quality) {
+void DctTiler::initQuantizationMatrix(size_t quality) {
 	for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
 		for (size_t u = 0; u < BLOCK_WIDTH; u++) {
 			quantizationMatrix_[v * BLOCK_WIDTH + u] = 1 + (1 + u + v) * quality;
@@ -287,6 +289,7 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 {
 	vector<unsigned int> start(3, 0), end(3, 0);
 	vector<unsigned int> size(2, 0);
+	size_t lastNonZeroPlane;
 
 	size[0] = BLOCK_WIDTH;
 	size[1] = BLOCK_HEIGHT;
@@ -312,6 +315,7 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 
 			/* The coefficients are stored in this array in zig-zag order */
 			vector<int> coefficients(BLOCK_WIDTH * BLOCK_HEIGHT * 3, 0);
+			lastNonZeroPlane = 0;
 
 #ifndef NO_OMP
 #pragma omp parallel for ordered
@@ -366,8 +370,12 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 					coefficients[p + 0] = g_r;
 					coefficients[p + 1] = g_g;
 					coefficients[p + 2] = g_b;
+					if (g_r != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p + 0);
+					if (g_g != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p + 1);
+					if (g_b != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p + 2);
 				}
 			}
+		    coefficients.resize(lastNonZeroPlane + 1);
 
 			/* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
 		    start[0] = i * BLOCK_WIDTH; end[0] = (i + 1) * BLOCK_WIDTH - 1;
