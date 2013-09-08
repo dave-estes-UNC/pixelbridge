@@ -12,7 +12,7 @@ x Implement DctTiler.
   x Implement a FillScalerTiled that will accept an array of scalers and fill each tile in the plane with the provided scaler
 x Review and fix ALL transmission cost calculations. Pay attention to the p in the (x, y, p) locations for coefficient planes.
 x Get PSNR working again.
-- Add cost model tracking for scaler writes...and read?
+x Add cost model tracking for scaler writes...and read?
 - Revisit the Blending Experiments
   - Get Temporal Blending working
   - Get FrameVolume Blending working again
