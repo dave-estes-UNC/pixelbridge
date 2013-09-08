@@ -61,11 +61,6 @@ namespace nddi {
         CoefficientPlane* coefficientPlane_;
         
         /**
-         * The frameBuffer_ holds the rendered pixels.
-         */
-        Pixel* frameBuffer_;
-        
-        /**
          * The current pixel byte sign mode.
          */
         SignMode pixelSignMode_;
@@ -79,6 +74,11 @@ namespace nddi {
          * Tracks whether verbose output should be used or not.
          */
         bool quiet_;
+
+        /**
+         * Used to indicate that a render was suppressed.
+         */
+        bool changed_;
 
     public:
         BaseNddiDisplay();

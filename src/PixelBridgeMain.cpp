@@ -73,6 +73,7 @@ size_t configStartFrame = 0;
 size_t configMaxFrames = 0;
 size_t configRewindStartFrame = 0;
 size_t configRewindFrames = 0;
+bool configPSNR = false;
 bool configVerbose = false;
 bool configHeadless = false;
 
@@ -86,12 +87,13 @@ long totalSE = 0; // Cumulative Square Error used to calculate MSE and then PSNR
 uint8_t* videoBuffer = NULL;
 uint8_t* lastBuffer = NULL;
 
+#ifdef USE_ASYNC_DECODER
 // Buffers decoded frame
 queue<uint8_t*> bufferQueue;
 
 // Synchronization variables
 pthread_mutex_t      bufferQueueMutex;
-
+#endif
 
 void setupDisplay() {
     
@@ -361,7 +363,6 @@ void setupDisplay() {
     // Simple Framebuffer
 	} else {
 		
-		
 		// 2 dimensional matching the Video Width x Height
 		vector<unsigned int> fvDimensions;
 		fvDimensions.push_back(displayWidth);
@@ -413,7 +414,7 @@ void setupDisplay() {
 		myDisplay->Unmute();
     
     // Renders the initial display
-    myDisplay->GetFrameBuffer();
+    myDisplay->GetFrameBufferTex();
 }
 
 
@@ -429,7 +430,7 @@ void updateDisplay(uint8_t* buffer, size_t width, size_t height) {
 		size_t bufferPos = 0;
 		
         // Array of pixels used for framebuffer mode.
-        nddi::Pixel* frameBuffer = (nddi::Pixel*)malloc(sizeof(nddi::Pixel) * width * height);
+        Pixel* frameBuffer = (Pixel*)malloc(sizeof(Pixel) * width * height);
 
 		// Transform the buffer into pixels
 		for (int j = 0; j < height; j++) {
@@ -505,7 +506,7 @@ void updateDisplay(uint8_t* buffer, size_t width, size_t height) {
 }
 
 
-long calculateSE(uint8_t* videoIn, nddi::Pixel* frameOut) {
+long calculateSE(uint8_t* videoIn, Pixel* frameOut) {
 	long errR = 0, errG = 0, errB = 0;
 	size_t i, bufferPos = 0;
 	long SE = 0;
@@ -526,19 +527,9 @@ void draw( void ) {
 	if (config > COUNT) {
 		
 		// Grab the frame buffer from the NDDI display
-        GLuint texture = myDisplay->GetFrameBuffer();
+        GLuint texture = myDisplay->GetFrameBufferTex();
 		
-		// If we used a lossy mode, then calculate the Square Error for this frame
-#if 0 // TODO(CDE): Add this back. Need to figure out a way to get the renderered frame back.
-		if (videoBuffer &&
-            ( ((config == CACHE) && (configSigBits < 8))
-              || (config == DCT) ) ) {
-			totalSE += calculateSE(videoBuffer, frameBuffer);
-		}
-#endif
-        
         if (!configHeadless) {
-            
 // TODO(CDE): Temporarily putting this here until GlNddiDisplay and ClNddiDisplay
 //            are using the exact same kind of GL textures
 #ifndef NO_CL
@@ -578,12 +569,8 @@ void draw( void ) {
 
 void outputStats(bool exitNow) {
     
-    double MSE, PSNR;
     long totalCost = costModel->getLinkBytesTransmitted();
-    
-    MSE = (double)totalSE / (double)(displayWidth * displayHeight * totalUpdates) / 3.0f;
-    PSNR = 10.0f * log10(65025.0f / MSE);
-    
+
     gettimeofday(&endTime, NULL);
     
     // Configuration
@@ -649,11 +636,18 @@ void outputStats(bool exitNow) {
     
     // Quality
     //
-    cout << "Quality Statistics:" << endl << "  Total PSNR: " << PSNR << endl;
+    if (configPSNR) {
+    	double MSE, PSNR;
+    	MSE = (double)totalSE / (double)(displayWidth * displayHeight * totalUpdates) / 3.0f;
+    	PSNR = 10.0f * log10(65025.0f / MSE);
+    	cout << "Quality Statistics:" << endl << "  MSE: " << MSE << endl << "  Total PSNR: " << PSNR << endl;
+    } else {
+    	cout << "Quality Statistics:" << endl << "  N/A" << endl;
+    }
     
     // CSV
     //
-    cout << "CSV" << endl;
+    cout << "CSV:" << endl;
     cout << "Commands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written\tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended" << endl;
     cout
     << costModel->getLinkCommandsSent() << "\t" << costModel->getLinkBytesTransmitted() << "\t"
@@ -701,16 +695,20 @@ void renderFrame() {
 	if (!configMaxFrames || (totalUpdates <= configMaxFrames)) {
 		// If we're not in a rewind backwards or forward state...
 		if (rewindState == NOT_REWINDING) {
+#ifdef USE_ASYNC_DECODER
 			// Get a decoded frame
             // TODO(CDE): Don't poll. Use signals instead.
             while (bufferQueue.size() == 0) {
                 usleep(5);
             }
             if ((videoBuffer = bufferQueue.front()) != NULL) {
-                
                 pthread_mutex_lock(&bufferQueueMutex);
                 bufferQueue.pop();
                 pthread_mutex_unlock(&bufferQueueMutex);
+#else
+            // Decode a frame
+            if ((videoBuffer = myPlayer->decodeFrame()) != NULL) {
+#endif
 				framesDecoded++;
 
 				// If we're past the designated start frame, then update the NDDI display
@@ -728,6 +726,12 @@ void renderFrame() {
 					
 					framesRendered++;
 					
+					// If we used a lossy mode, then calculate the Square Error for this frame
+					if (configPSNR) {
+				        Pixel* frameBuffer = myDisplay->GetFrameBuffer();
+						totalSE += calculateSE(videoBuffer, frameBuffer);
+					}
+
 					// Draw
                     glutPostRedisplay();
 					
@@ -809,7 +813,7 @@ void countChangedPixels() {
 
 	if (!configMaxFrames || (totalUpdates < configMaxFrames)) {
 		int pixel_count = myPlayer->width() * myPlayer->height();
-		
+#ifdef USE_ASYNC_DECODER
 		// Get a decoded frame
         // TODO(CDE): Don't poll. Use signals instead.
         while (bufferQueue.size() == 0) {
@@ -820,6 +824,10 @@ void countChangedPixels() {
             pthread_mutex_lock(&bufferQueueMutex);
             bufferQueue.pop();
             pthread_mutex_unlock(&bufferQueueMutex);
+#else
+            // Decode a frame
+            if ((videoBuffer = myPlayer->decodeFrame()) != NULL) {
+#endif
 			framesDecoded++;
 			
 			if (framesDecoded > configStartFrame) {
@@ -947,6 +955,7 @@ void showUsage() {
 	cout << "  --start  Will start with this frame, ignoring any decoded frames prior to it." << endl;
 	cout << "  --frames  Sets the number of maximum frames that are decoded." << endl;
 	cout << "  --rewind  Sets a start point and a number of frames to play in reverse. Once finished, normal playback continues." << endl;
+	cout << "  --psnr  Calculates and outputs PSNR." << endl;
 	cout << "  --verbose  Outputs frame-by-frame statistics." << endl;
 	cout << "  --headless  Removes rendering and excessive data output. Overrides --verbose. Great for batch processing." << endl;
 }
@@ -1042,6 +1051,10 @@ bool parseArgs(int argc, char *argv[]) {
 			}
 			argc -= 3;
 			argv += 3;
+		} else if (strcmp(*argv, "--psnr") == 0) {
+			configPSNR = true;
+			argc--;
+			argv++;
 		} else if (strcmp(*argv, "--verbose") == 0) {
 			configVerbose = true;
 			argc--;
@@ -1066,6 +1079,7 @@ bool parseArgs(int argc, char *argv[]) {
 }
 
 
+#ifdef USE_ASYNC_DECODER
 void* decoderRun(void* none) {
     uint8_t* buf;
     
@@ -1083,6 +1097,7 @@ void* decoderRun(void* none) {
     
     return NULL;
 }
+#endif
 
 
 int main(int argc, char *argv[]) {
@@ -1108,8 +1123,10 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
     
+#ifdef USE_ASYNC_DECODER
     // Start decoded thread
     pthread_create(&decoderThread, NULL, decoderRun, NULL);
+#endif
     
 	// Initialize GLUT
 	glutInit( &argc, argv );

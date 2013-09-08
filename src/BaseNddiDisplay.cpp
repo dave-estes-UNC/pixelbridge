@@ -14,10 +14,10 @@ BaseNddiDisplay::BaseNddiDisplay() :
 		inputVector_(NULL),
 		frameVolume_(NULL),
 		coefficientPlane_(NULL),
-		frameBuffer_(NULL),
         pixelSignMode_(UNSIGNED_MODE),
 		costModel(NULL),
-		quiet_(false)
+		quiet_(false),
+		changed_(false)
 {}
 
 BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
@@ -28,10 +28,10 @@ BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSiz
 		frameVolumeDimensionalSizes_(frameVolumeDimensionalSizes),
 		frameVolume_(NULL),
 		coefficientPlane_(NULL),
-		frameBuffer_(NULL),
         pixelSignMode_(UNSIGNED_MODE),
 		costModel(NULL),
-		quiet_(false)
+		quiet_(false),
+		changed_(false)
 {}
 
 BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
@@ -43,10 +43,10 @@ BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSiz
 		frameVolumeDimensionalSizes_(frameVolumeDimensionalSizes),
 		frameVolume_(NULL),
 		coefficientPlane_(NULL),
-		frameBuffer_(NULL),
         pixelSignMode_(UNSIGNED_MODE),
 		costModel(NULL),
-		quiet_(false)
+		quiet_(false),
+		changed_(false)
 {}
 
 BaseNddiDisplay::~BaseNddiDisplay() {}
@@ -69,7 +69,9 @@ void BaseNddiDisplay::PutPixel(Pixel p, vector<unsigned int> &location) {
     // Set the single pixel
 	frameVolume_->PutPixel(p, location);
 	
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -96,7 +98,9 @@ void BaseNddiDisplay::CopyPixelStrip(Pixel* p, vector<unsigned int> &start, vect
     // Copy the pixels
     frameVolume_->CopyPixelStrip(p, start, end);
 	
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -115,7 +119,9 @@ void BaseNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> &start, vector<u
     // Copy pixels
     frameVolume_->CopyPixels(p, start, end);
     
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -153,7 +159,9 @@ void BaseNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned i
     	frameVolume_->CopyPixels(p[i], starts[i], end);
     }
 
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -168,7 +176,9 @@ void BaseNddiDisplay::FillPixel(Pixel p, vector<unsigned int> &start, vector<uns
     // Fill pixels
     frameVolume_->FillPixel(p, start, end);
     
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -182,7 +192,9 @@ void BaseNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<unsign
     // Copy pixels
     frameVolume_->CopyFrameVolume(start, end, dest);
     
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -198,7 +210,9 @@ void BaseNddiDisplay::UpdateInputVector(vector<int> &input) {
     // Update the input vector
 	inputVector_->UpdateInputVector(input);
 	
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -214,7 +228,9 @@ void BaseNddiDisplay::PutCoefficientMatrix(vector< vector<int> > &coefficientMat
     // Update the coefficient matrix
     coefficientPlane_->PutCoefficientMatrix(coefficientMatrix, location);
 	
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -230,7 +246,9 @@ void BaseNddiDisplay::FillCoefficientMatrix(vector< vector<int> > &coefficientMa
     // Fill the coefficient matrices
     coefficientPlane_->FillCoefficientMatrix(coefficientMatrix, start, end);
 	
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -253,7 +271,9 @@ void BaseNddiDisplay::FillCoefficient(int coefficient,
     // Fill the coefficient matrices
     coefficientPlane_->FillCoefficient(coefficient, row, col, start, end);
 
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -288,7 +308,9 @@ void BaseNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
     	coefficientPlane_->FillCoefficient(coefficients[i], positions[i][0], positions[i][1], starts[i], end);
     }
 
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -307,7 +329,9 @@ void BaseNddiDisplay::FillScaler(int scaler,
     // Fill the coefficient matrices
     coefficientPlane_->FillScaler(scaler, start, end);
 
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -337,7 +361,9 @@ void BaseNddiDisplay::FillScalerTiles(vector<int> &scalers,
     	coefficientPlane_->FillScaler(scalers[i], starts[i], end);
     }
 
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -369,11 +395,12 @@ void BaseNddiDisplay::FillScalerTileStack(vector<int> &scalers,
     	st[2]++;
     }
 
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
-
 
 void BaseNddiDisplay::SetPixelByteSignMode(SignMode mode) {
     assert(mode == UNSIGNED_MODE || mode == SIGNED_MODE);

@@ -47,4 +47,10 @@
  */
 //#define USE_RANDOM_PLAYER
 
+/*
+ * Turns on the VERY BROKEN asynchronous decoder.
+ */
+// TODO(CDE): Fix this junk
+//#define USE_ASYNC_DECODER
+
 #endif /* PIXELBRIDGEFEATURES_H_ */

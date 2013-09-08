@@ -5,8 +5,6 @@
 #include "PixelBridgeFeatures.h"
 #include "GlNddiDisplay.h"
 
-using namespace nddi;
-
 inline uint8_t CLAMP_SIGNED_BYTE(int32_t i) {
 	uint32_t ret;
 
@@ -152,6 +150,10 @@ void GlNddiDisplay::Render() {
 								- startTime.tv_usec) / 1000000.0f)
 		   	   );
     }
+#ifdef SUPRESS_EXCESS_RENDERING
+    changed_ = false;
+#endif
+
 }
 
 Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
@@ -292,10 +294,11 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 }
 #endif
 
-GLuint GlNddiDisplay::GetFrameBuffer() {
+GLuint GlNddiDisplay::GetFrameBufferTex() {
 
 #ifdef SUPRESS_EXCESS_RENDERING
-	Render();
+	if (changed_)
+		Render();
 #endif
 
 // TODO(CDE): Temporarily putting this here until GlNddiDisplay and ClNddiDisplay
@@ -326,4 +329,14 @@ GLuint GlNddiDisplay::GetFrameBuffer() {
 #endif
 
 	return texture_;
+}
+
+Pixel* GlNddiDisplay::GetFrameBuffer() {
+
+#ifdef SUPRESS_EXCESS_RENDERING
+	if (changed_)
+		Render();
+#endif
+
+	return frameBuffer_;
 }
