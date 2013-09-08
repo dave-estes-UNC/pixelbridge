@@ -3,23 +3,23 @@ x Create new nDDI APIs to update the scaler for each coefficient matrix.
 x Correctly initialize the coefficient planes with 0 scalers (PixelBridgeMain, FlatTiler, and CachedTiler).
 x Update GlNddiDisplay rendering to use multiple coefficient planes.
 x Update coefficent blending mode to actually use the new and official multiple coefficient support.
-- Implement DctTiler.
+x Implement DctTiler.
   x Initialize Frame Volume with pre-rendered basis functions
   x Initialize Coefficient Planes
   x Debug: Make a dummy tile updater that just renders 64 macroblocks as the basis functions themselves.
   x Implement proper updater
-  - Figure out the proper sign-extending and clamping strategy for the accumulators in ComputePixel().
-  - Optimize updater so that it doesn't have to fill with zeroes first.
-  - Implement a FillScalerTiled that will accept an array of scalers and fill each tile in the plane with the provided scaler
+  x Figure out the proper sign-extending and clamping strategy for the accumulators in ComputePixel().
+  x Implement a FillScalerTiled that will accept an array of scalers and fill each tile in the plane with the provided scaler
 
 - Use a copy constructor or something similar to speed up the initialization of the coefficient planes.
+- Optimize updater so that it doesn't have to fill with zeroes first.
 
 - Review and fix ALL transmission cost calculations. Pay attention to the p in the (x, y, p) locations for coefficient planes.
-
-- Implement FillScalerTiles API for BaseNddiDisplay.
+- Get PSNR working again.
 
 - Implement FillScaler API for ClNddiDisplay.
 - Implement FillScalerTiles API for ClNddiDisplay.
+- Implement FillScalerTileStack API for ClNddiDisplay.
 - Update ClNddiDisplay to use multiple coefficient planes.
 
 

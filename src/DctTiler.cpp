@@ -285,33 +285,11 @@ void DctTiler::InitializeFrameVolume() {
  */
 void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 {
-//#define HACKADACK
-#ifdef HACKADACK
-	///////////////////DEBUG/////////////////////
-	cout << "Update" << endl;
-
 	vector<unsigned int> start(3, 0), end(3, 0);
+	vector<unsigned int> size(2, 0);
 
-	// Clear all scalers
-	start[0] = 0; start[1] = 0; start[2] = 0;
-	end[0] = display_->DisplayWidth() - 1;
-	end[1] = display_->DisplayHeight() - 1;
-    end[2] = NUM_COEFFICIENT_PLANES - 1;
-    display_->FillScaler(0, start, end);
-
-	// Then select the proper planes to just render the 64 basis functions
-	for (int j = 0; j < BASIS_BLOCKS_TALL; j++) {
-    	start[1] = 4 * j * BLOCK_HEIGHT; end[1] = 4 * ((j + 1) * BLOCK_HEIGHT - 1);
-        for (int i = 0; i < BASIS_BLOCKS_WIDE; i++) {
-        	start[0] = 4 * i * BLOCK_WIDTH; end[0] = 4 * ((i + 1) * BLOCK_WIDTH - 1);
-        	size_t p = zigZag_[j * BASIS_BLOCKS_WIDE + i];
-        	start[2] = p * 3; end[2] = (p + 1) * 3 - 1;
-            display_->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
-        }
-    }
-	///////////////////DEBUG/////////////////////
-#else // HACKADACK
-	vector<unsigned int> start(3, 0), end(3, 0);
+	size[0] = BLOCK_WIDTH;
+	size[1] = BLOCK_HEIGHT;
 
 	/* Clear all scalers up to but not including the medium gray plane. */
 	// TODO(CDE): Don't do this in the future. Just write enough planes to overwrite the last known non-zero plane.
@@ -333,7 +311,7 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 		for (size_t i = 0; i < display_->DisplayWidth() / BLOCK_WIDTH; i++) {
 
 			/* The coefficients are stored in this array in zig-zag order */
-			int coefficients[BLOCK_WIDTH * BLOCK_HEIGHT * 3];
+			vector<int> coefficients(BLOCK_WIDTH * BLOCK_HEIGHT * 3, 0);
 
 #ifndef NO_OMP
 #pragma omp parallel for ordered
@@ -394,13 +372,7 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 			/* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
 		    start[0] = i * BLOCK_WIDTH; end[0] = (i + 1) * BLOCK_WIDTH - 1;
 		    start[1] = j * BLOCK_HEIGHT; end[1] = (j + 1) * BLOCK_HEIGHT - 1;
-		    if (end[0] >= display_->DisplayWidth()) end[0] = display_->DisplayWidth() - 1;
-		    if (end[1] >= display_->DisplayHeight()) end[1] = display_->DisplayHeight() - 1;
-
-		    for (size_t k = 0; k < BLOCK_WIDTH * BLOCK_HEIGHT * 3; k++) {
-		    	start[2] = end[2] = k;
-		    	if (coefficients[k]) display_->FillScaler(coefficients[k], start, end);
-		    }
+		    display_->FillScalerTileStack(coefficients, start, size);
 
 #ifdef DEBUG
 		    cout << "Updated Macroblock (" << i << ", " << j << ")" << endl;
@@ -413,5 +385,4 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 #endif
 		}
 	}
-#endif // HACKADACK
 }

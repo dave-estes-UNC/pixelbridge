@@ -315,8 +315,65 @@ void BaseNddiDisplay::FillScaler(int scaler,
 void BaseNddiDisplay::FillScalerTiles(vector<int> &scalers,
                                       vector<vector<unsigned int> > &starts,
                                       vector<unsigned int> &size) {
-	// TODO(CDE): Implement
+	size_t tile_count = scalers.size();
+
+	// Ensure parameter vectors' sizes match
+	assert(starts.size() == tile_count);
+	assert(size.size() == 2);
+
+    // Register transmission cost first
+    costModel->registerTransmissionCharge(BYTES_PER_SCALAR * tile_count +                // t scalers
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(tile_count) +  // t Coefficient Plane Coordinate triples
+                                          CALC_BYTES_FOR_TILE_COORD_DOUBLES(1),          // One X by Y tile dimension double
+                                          0);
+
+    vector<unsigned int> end;
+    end.push_back(0); end.push_back(0); end.push_back(0);
+    for (size_t i = 0; i < tile_count; i++) {
+    	assert(starts[i].size() == 3);
+    	end[0] = starts[i][0] + size[0] - 1; if (end[0] >= displayWidth_) end[0] = displayWidth_ - 1;
+    	end[1] = starts[i][1] + size[1] - 1; if (end[1] >= displayHeight_) end[1] = displayHeight_ - 1;
+    	end[2] = starts[i][2];
+    	coefficientPlane_->FillScaler(scalers[i], starts[i], end);
+    }
+
+#ifndef SUPRESS_EXCESS_RENDERING
+	Render();
+#endif
 }
+
+void BaseNddiDisplay::FillScalerTileStack(vector<int> &scalers,
+                                          vector<unsigned int> &start,
+                                          vector<unsigned int> &size) {
+	vector<unsigned int> st = start;
+
+	size_t tile_count = scalers.size();
+
+	assert(start.size() == 3);
+
+    // Register transmission cost first
+	/*
+    costModel->registerTransmissionCharge(BYTES_PER_SCALAR * tile_count +       // t scalers
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(1) +  // One Coefficient Plane Coordinate triples
+                                          CALC_BYTES_FOR_TILE_COORD_DOUBLES(1), // One X by Y tile dimension double
+                                          0);
+                                          */
+
+    vector<unsigned int> end;
+    end.push_back(0); end.push_back(0); end.push_back(0);
+    for (size_t i = 0; i < tile_count; i++) {
+    	end[0] = start[0] + size[0] - 1; if (end[0] >= displayWidth_) end[0] = displayWidth_ - 1;
+    	end[1] = start[1] + size[1] - 1; if (end[1] >= displayHeight_) end[1] = displayHeight_ - 1;
+    	end[2] = start[2];
+    	coefficientPlane_->FillScaler(scalers[i], st, end);
+    	st[2]++;
+    }
+
+#ifndef SUPRESS_EXCESS_RENDERING
+	Render();
+#endif
+}
+
 
 void BaseNddiDisplay::SetPixelByteSignMode(SignMode mode) {
     assert(mode == UNSIGNED_MODE || mode == SIGNED_MODE);

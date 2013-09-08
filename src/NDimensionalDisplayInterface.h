@@ -234,12 +234,21 @@ namespace nddi {
         /**
          * Used to copy the specified scalers to a series of 2D ranges of locations (tiles) in the coefficient planes.
          *
+         * @param scalers Each scaler in this list will be filled to its own tile, which is a 2D range of coefficient matrices.
+         * @param starts The location (x, y, z) of the start of the tile in the coefficient planes.
+         * @param size The size (w, h) of the tile.
+         */
+        virtual void FillScalerTiles(vector<int> &scalers, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) = 0;
+
+        /**
+         * Used to copy the specified scalers to a stack of 2D ranges of locations (tiles) in the coefficient planes.
+         *
          * @param scaler This single scaler will be copied to each location in the range of coefficient planes.
          * @param starts The location (x, y) of the start of the tile in the coefficient planes.
          * @param size The size (w, h) of the tile.
          */
-        virtual void FillScalerTiles(vector<int> &scalers, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) = 0;
-        
+        virtual void FillScalerTileStack(vector<int> &scalers, vector<unsigned int> &start, vector<unsigned int> &size) = 0;
+
         /**
          * Allows the bytes of pixel values to be interpretted as signed values when scaling, accumulating, and clamping
          * in the pixel blending pipeline.

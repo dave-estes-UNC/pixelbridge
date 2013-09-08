@@ -103,6 +103,7 @@ namespace nddi {
         void FillCoefficientTiles(vector<int> &coefficients, vector<vector<unsigned int> > &positions, vector<vector<unsigned int> > &starts, vector<unsigned int> &size);
         void FillScaler(int scaler, vector<unsigned int> &start, vector<unsigned int> &end);
         void FillScalerTiles(vector<int> &scalers, vector<vector<unsigned int> > &starts, vector<unsigned int> &size);
+        void FillScalerTileStack(vector<int> &scalers, vector<unsigned int> &start, vector<unsigned int> &size);
         void SetPixelByteSignMode(SignMode mode);
         void Mute() { quiet_ = true; }
         void Unmute() { quiet_ = false; }
