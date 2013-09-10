@@ -14,23 +14,35 @@
  * data in the NDDI display. Modify to perform
  * various cost experiments.
  */
+#ifdef USE_NARROW_DATA_FIELDS
 #define BYTES_PER_PIXEL     3
-#define BYTES_PER_COORD     4
+#define BYTES_PER_FV_COORD  4
+#define BYTES_PER_CP_COORD  2
+#define BYTES_PER_CM_COORD  1
+#define BYTES_PER_IV_VALUE  4
+#define BYTES_PER_COEFF     4
+#define BYTES_PER_SCALER    2
+#else
+#define BYTES_PER_PIXEL     4
+#define BYTES_PER_FV_COORD  4
+#define BYTES_PER_CP_COORD  4
+#define BYTES_PER_CM_COORD  4
 #define BYTES_PER_IV_VALUE  4
 #define BYTES_PER_COEFF     4
 #define BYTES_PER_SCALER    4
+#endif
 
 /*
  * Helper macros to be used when registering
  * cost charges.
  */
 #define CALC_BYTES_FOR_PIXELS(c)              (BYTES_PER_PIXEL * c)
-#define CALC_BYTES_FOR_FV_COORD_TUPLES(c)     (BYTES_PER_COORD * frameVolumeDimensionalSizes_.size() * c)
-#define CALC_BYTES_FOR_TILE_COORD_DOUBLES(c)  (BYTES_PER_COORD * 2 * c)
+#define CALC_BYTES_FOR_FV_COORD_TUPLES(c)     (BYTES_PER_FV_COORD * frameVolumeDimensionalSizes_.size() * c)
+#define CALC_BYTES_FOR_TILE_COORD_DOUBLES(c)  (BYTES_PER_CP_COORD * 2 * c)
 #define CALC_BYTES_FOR_IV_UPDATE()            (BYTES_PER_IV_VALUE * (inputVector_->getSize() - 2))
 #define CALC_BYTES_FOR_CMS(c)                 (BYTES_PER_COEFF * inputVector_->getSize() * frameVolumeDimensionalSizes_.size() * c)
-#define CALC_BYTES_FOR_CM_COORD_DOUBLES(c)    (BYTES_PER_COORD * 2 * c)
-#define CALC_BYTES_FOR_CP_COORD_TRIPLES(c)    (BYTES_PER_COORD * 3 * c)
+#define CALC_BYTES_FOR_CM_COORD_DOUBLES(c)    (BYTES_PER_CM_COORD * 2 * c)
+#define CALC_BYTES_FOR_CP_COORD_TRIPLES(c)    (BYTES_PER_CP_COORD * 3 * c)
 
 namespace nddi {
 

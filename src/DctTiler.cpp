@@ -41,6 +41,7 @@
 #define CLAMP(x, min, max)   (x < min ? min : x >= max ? max : x)
 #define MAX(x, y)            (x > y ? x : y)
 #define MIN(x, y)            (x < y ? x : y)
+#define CEIL(x, y)           (1 + ((x - 1) / y))
 
 /**
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
@@ -158,19 +159,23 @@ void DctTiler::InitializeCoefficientPlanes() {
 	end.push_back(0); end.push_back(0); end.push_back(0);
 
 	// Break the display into macroblocks and initialize each 8x8x193 cube of coefficients to pick out the proper block from the frame volume
-	for (int k = 0; k < DCT_FRAMEVOLUME_DEPTH; k++) {
-		for (int j = 0; j < (display_->DisplayHeight() / MACROBLOCK_HEIGHT); j++) {
-			for (int i = 0; i < (display_->DisplayWidth() / MACROBLOCK_WIDTH); i++) {
-				coeffs[2][0] = -i * MACROBLOCK_WIDTH;
-				coeffs[2][1] = -j * MACROBLOCK_HEIGHT;
-				coeffs[2][2] = k;
-				start[0] = i * MACROBLOCK_WIDTH; start[1] = j * MACROBLOCK_HEIGHT; start[2] = k;
-				end[0] = (i + 1) * MACROBLOCK_WIDTH - 1; end[1] = (j + 1) * MACROBLOCK_HEIGHT - 1; end[2] = k;
-				if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
-				if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
-				display_->FillCoefficientMatrix(coeffs, start, end);
-			}
+	for (int j = 0; j < CEIL(display_->DisplayHeight(), MACROBLOCK_HEIGHT); j++) {
+		for (int i = 0; i < CEIL(display_->DisplayWidth(), MACROBLOCK_WIDTH); i++) {
+			coeffs[2][0] = -i * MACROBLOCK_WIDTH;
+			coeffs[2][1] = -j * MACROBLOCK_HEIGHT;
+			start[0] = i * MACROBLOCK_WIDTH; start[1] = j * MACROBLOCK_HEIGHT; start[2] = 0;
+			end[0] = (i + 1) * MACROBLOCK_WIDTH - 1; end[1] = (j + 1) * MACROBLOCK_HEIGHT - 1; end[2] = DCT_FRAMEVOLUME_DEPTH - 1;
+			if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
+			if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
+			display_->FillCoefficientMatrix(coeffs, start, end);
 		}
+	}
+	// Finish up by setting the proper k for every plane
+	start[0] = 0; start[1] = 0;
+	end[0] = display_->DisplayWidth() - 1; end[1] = display_->DisplayHeight() - 1;
+	for (int k = 0; k < DCT_FRAMEVOLUME_DEPTH; k++) {
+		start[2] = k; end[2] = k;
+		display_->FillCoefficient(k, 2, 2, start, end);
 	}
 
 	// Fill each scaler in every plane with 0
@@ -217,13 +222,13 @@ void DctTiler::InitializeFrameVolume() {
 
                     for (int v = 0; v < BLOCK_HEIGHT; v++) {
                         for (int u = 0; u < BLOCK_WIDTH; u++) {
-                            double s = 1.0f;
-                            s *= (u == 0) ? sqrt((double)0.125) : sqrt((double)0.25);   // alpha(u)
-                            s *= (v == 0) ? sqrt((double)0.125) : sqrt((double)0.25);   // alpha(v)
-                            s *= ((u == i) && (v == j)) ? double(MAX_DCT_COEFF) : 0.0;  // DCT coefficient (maximum on or off)
-                            s *= cos(PI / 8.0 * ((double)x + 0.5) * (double)u);         // cos with x, u
-                            s *= cos(PI / 8.0 * ((double)y + 0.5) * (double)v);         // cos with y, v
-                            m += s;
+                            double p = 1.0f;
+                            p *= (u == 0) ? sqrt((double)0.125) : sqrt((double)0.25);   // alpha(u)
+                            p *= (v == 0) ? sqrt((double)0.125) : sqrt((double)0.25);   // alpha(v)
+                            p *= ((u == i) && (v == j)) ? double(MAX_DCT_COEFF) : 0.0;  // DCT coefficient (maximum on or off)
+                            p *= cos(PI / 8.0 * ((double)x + 0.5) * (double)u);         // cos with x, u
+                            p *= cos(PI / 8.0 * ((double)y + 0.5) * (double)v);         // cos with y, v
+                            m += p;
                         }
                     }
 
@@ -310,8 +315,8 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 	 * 3. Quantize
 	 * 4. De-quantize
 	 */
-	for (size_t j = 0; j < display_->DisplayHeight() / BLOCK_HEIGHT; j++) {
-		for (size_t i = 0; i < display_->DisplayWidth() / BLOCK_WIDTH; i++) {
+	for (size_t j = 0; j < CEIL(display_->DisplayHeight(), BLOCK_HEIGHT); j++) {
+		for (size_t i = 0; i < CEIL(display_->DisplayWidth(), BLOCK_WIDTH); i++) {
 
 			/* The coefficients are stored in this array in zig-zag order */
 			vector<int> coefficients(BLOCK_WIDTH * BLOCK_HEIGHT * 3, 0);
@@ -333,22 +338,18 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 					for (size_t y = 0; y < BLOCK_HEIGHT; y++) {
 						for (size_t x = 0; x < BLOCK_WIDTH; x++) {
 
-							double s = 1.0f;
+							double p = 1.0f;
 
-							s *= (u == 0) ? sqrt((double)0.125) : sqrt((double)0.25);                                            // alpha(u)
-							s *= (v == 0) ? sqrt((double)0.125) : sqrt((double)0.25);                                            // alpha(v)
-							s *= cos(PI / 8.0 * ((double)x + 0.5) * (double)u);                                                  // cos with x, u
-							s *= cos(PI / 8.0 * ((double)y + 0.5) * (double)v);                                                  // cos with y, v
-							/* If we're past the display dimensions, then use black, shifted by - 128 */
-							if ( ((i * BLOCK_WIDTH + x) >= display_->DisplayWidth())
-									|| ((j * BLOCK_HEIGHT + y) >= display_->DisplayHeight()) ) {
-								c_r -= 128.0;
-								c_g -= 128.0;
-								c_b -= 128.0;
-							} else {
-								c_r += s * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 0] - 128.0); // red: g(x,y) - 128
-								c_g += s * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 1] - 128.0); // green: g(x,y) - 128
-								c_b += s * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 2] - 128.0); // blue: g(x,y) - 128
+							p *= (u == 0) ? sqrt((double)0.125) : sqrt((double)0.25);                                            // alpha(u)
+							p *= (v == 0) ? sqrt((double)0.125) : sqrt((double)0.25);                                            // alpha(v)
+							p *= cos(PI / 8.0 * ((double)x + 0.5) * (double)u);                                                  // cos with x, u
+							p *= cos(PI / 8.0 * ((double)y + 0.5) * (double)v);                                                  // cos with y, v
+							/* Fetch each channel, multiply by product p and then shift */
+							if ( ((i * BLOCK_WIDTH + x) < display_->DisplayWidth())
+									&& ((j * BLOCK_HEIGHT + y) < display_->DisplayHeight()) ) {
+								c_r += p * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 0] - 128.0); // red: g(x,y) - 128
+								c_g += p * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 1] - 128.0); // green: g(x,y) - 128
+								c_b += p * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 2] - 128.0); // blue: g(x,y) - 128
 							}
 						}
 					}

@@ -13,6 +13,10 @@ x Implement DctTiler.
 x Review and fix ALL transmission cost calculations. Pay attention to the p in the (x, y, p) locations for coefficient planes.
 x Get PSNR working again.
 x Add cost model tracking for scaler writes...and read?
+x For DCT, initializing the coefficient plane is KILLING me. Fix it by:
+  x Redesign it to fill the a coefficient matrix to an 8x8x192 area.
+  x Then kill in the k values for each of the 192 planes.
+- Determine if it's necessary to narrow some data values like scalers and coordinates (for transmission).
 - Revisit the Blending Experiments
   - Get Temporal Blending working
   - Get FrameVolume Blending working again

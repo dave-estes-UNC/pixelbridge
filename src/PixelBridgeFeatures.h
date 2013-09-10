@@ -38,6 +38,11 @@
 //#define CHECKSUM_CALCULATOR TRIVIAL
 
 /*
+ * Use the narrowed data fields instead of 4-byte words for EVERYTHING.
+ */
+//#define USE_NARROW_DATA_FIELDS
+
+/*
  * Uses the nDDI extension to update groups of tiles
  */
 #define USE_COPY_PIXEL_TILES
