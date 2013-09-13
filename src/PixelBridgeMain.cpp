@@ -569,111 +569,118 @@ void draw( void ) {
 }
 
 void outputStats(bool exitNow) {
-    
-    long totalCost = costModel->getLinkBytesTransmitted();
 
-    gettimeofday(&endTime, NULL);
-    
-    // Configuration
-    //
-    cout << "Configuration Information:" << endl;
-    
-    switch (config) {
-        case SIMPLE:
-            cout << "  Configuring NDDI as a simple Framebuffer." << endl;
-            break;
-        case FLAT:
-            cout << "  Configuring NDDI as Flat Tiled." << endl;
-            cout << "  Tile Dimensions: " << configTileWidth << "x" << configTileHeight << endl;
-            break;
-        case CACHE:
-            cout << "  Configuring NDDI as Cached Tiled." << endl;
-            cout << "  Tile Dimensions: " << configTileWidth << "x" << configTileHeight << endl;
-            break;
-        case COUNT:
-            cout << "  Configuring NDDI to just count." << endl;
-            break;
-        default:
-            break;
-    }
-    
-    cout << "  File: " << fileName << endl;
-    
-    // Transmission
-    //
-    cout << "Transmission Statistics:" << endl;
-    
-    cout << "  Total Pixel Data Updated (bytes): " << totalUpdates * displayWidth * displayHeight * 4 <<
-    " Total NDDI Cost (bytes): " << totalCost <<  
-    " Ratio: " << (double)totalCost / (double)totalUpdates / (double)displayWidth / (double)displayHeight / 4.0f << endl;
-    
-    // Memory
-    //
-    cout << "Memory Statistics:" << endl;
-    cout << "  Input Vector" << endl;
-    cout << "    - Num Reads: " << costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << endl;
-    cout << "    - Num Writes: " << costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << endl;
-    cout << "  Coefficient Plane" << endl;
-    cout << "    - Num Reads: " << costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << endl;
-    cout << "    - Num Writes: " << costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << endl;
-    cout << "  Frame Volume" << endl;
-    cout << "    - Num Reads: " << costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << endl;
-    cout << "    - Num Writes: " << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << endl;
-    
-    
-    // Pixel
-    //
-    cout << "Pixel Statistics:" << endl;
-    cout << "  Pixel Mappings: " << costModel->getPixelsMapped() << endl;
-    cout << "  Pixel Blends: " << costModel->getPixelsBlended() << endl;
-    
-    // Performance
-    //
-    cout << "Performance Statistics:" << endl;
-    cout << "  Average FPS: " << (double)totalUpdates / ((double)(endTime.tv_sec * 1000000
-                                                                  + endTime.tv_usec
-                                                                  - startTime.tv_sec * 1000000
-                                                                  - startTime.tv_usec) / 1000000.0f) << endl;
-    
-    // Quality
-    //
-    if (configPSNR) {
-    	double MSE, PSNR;
-    	MSE = (double)totalSE / (double)(displayWidth * displayHeight * totalUpdates) / 3.0f;
-    	PSNR = 10.0f * log10(65025.0f / MSE);
-    	cout << "Quality Statistics:" << endl << "  MSE: " << MSE << endl << "  Total PSNR: " << PSNR << endl;
+    // Calculate the PSNR regardless of whether or not we were calculating it
+	double MSE, PSNR;
+	MSE = (double)totalSE / (double)(displayWidth * displayHeight * totalUpdates) / 3.0f;
+	PSNR = 10.0f * log10(65025.0f / MSE);
+
+	// Just print the CSV for headless
+    if (configHeadless) {
+
+		// CSV
+		//
+		cout << "Commands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written\tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended\tPSNR" << endl;
+		cout
+		<< costModel->getLinkCommandsSent() << "\t" << costModel->getLinkBytesTransmitted() << "\t"
+		<< costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) << "\t" << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << "\t"
+		<< costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << "\t" << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << "\t"
+		<< costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) << "\t" << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << "\t"
+		<< costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << "\t" << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << "\t"
+		<< costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) << "\t" << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << "\t"
+		<< costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << "\t" << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << "\t"
+		<< costModel->getTime(FRAME_VOLUME_COMPONENT) << "\t"
+		<< costModel->getPixelsMapped() << "\t" << costModel->getPixelsBlended() << "\t"
+		<< PSNR << endl;
+
+	// Otherwise print a detailed report
     } else {
-    	cout << "Quality Statistics:" << endl << "  N/A" << endl;
-    }
     
-    // CSV
-    //
-    cout << "CSV:" << endl;
-    cout << "Commands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written\tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended" << endl;
-    cout
-    << costModel->getLinkCommandsSent() << "\t" << costModel->getLinkBytesTransmitted() << "\t"
-    << costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) << "\t" << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << "\t"
-    << costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << "\t" << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << "\t"
-    << costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) << "\t" << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << "\t"
-    << costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << "\t" << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << "\t"
-    << costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) << "\t" << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << "\t"
-    << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << "\t" << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << "\t"
-    << costModel->getTime(FRAME_VOLUME_COMPONENT) << "\t"
-    << costModel->getPixelsMapped() << "\t" << costModel->getPixelsBlended() << endl;
-    
-    // Warnings about Configuration
+		// Configuration
+		//
+		cout << "Configuration Information:" << endl;
+
+		switch (config) {
+			case SIMPLE:
+				cout << "  Configuring NDDI as a simple Framebuffer." << endl;
+				break;
+			case FLAT:
+				cout << "  Configuring NDDI as Flat Tiled." << endl;
+				cout << "  Tile Dimensions: " << configTileWidth << "x" << configTileHeight << endl;
+				break;
+			case CACHE:
+				cout << "  Configuring NDDI as Cached Tiled." << endl;
+				cout << "  Tile Dimensions: " << configTileWidth << "x" << configTileHeight << endl;
+				break;
+			case DCT:
+				cout << "  Configuring NDDI as DCT Tiled." << endl;
+				break;
+			case COUNT:
+				cout << "  Configuring NDDI to just count." << endl;
+				break;
+			default:
+				break;
+		}
+
+		cout << "  File: " << fileName << endl;
+
+		// Transmission
+		//
+		cout << "Transmission Statistics:" << endl;
+
+		// Get total transmission cost
+	    long totalCost = costModel->getLinkBytesTransmitted();
+		cout << "  Total Pixel Data Updated (bytes): " << totalUpdates * displayWidth * displayHeight * 4 <<
+		" Total NDDI Cost (bytes): " << totalCost <<
+		" Ratio: " << (double)totalCost / (double)totalUpdates / (double)displayWidth / (double)displayHeight / 4.0f << endl;
+
+		// Memory
+		//
+		cout << "Memory Statistics:" << endl;
+		cout << "  Input Vector" << endl;
+		cout << "    - Num Reads: " << costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << endl;
+		cout << "    - Num Writes: " << costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << endl;
+		cout << "  Coefficient Plane" << endl;
+		cout << "    - Num Reads: " << costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << endl;
+		cout << "    - Num Writes: " << costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << endl;
+		cout << "  Frame Volume" << endl;
+		cout << "    - Num Reads: " << costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << endl;
+		cout << "    - Num Writes: " << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << endl;
+
+
+		// Pixel
+		//
+		cout << "Pixel Statistics:" << endl;
+		cout << "  Pixel Mappings: " << costModel->getPixelsMapped() << endl;
+		cout << "  Pixel Blends: " << costModel->getPixelsBlended() << endl;
+
+		// Performance
+		//
+	    gettimeofday(&endTime, NULL);
+		cout << "Performance Statistics:" << endl;
+		cout << "  Average FPS: " << (double)totalUpdates / ((double)(endTime.tv_sec * 1000000
+																	  + endTime.tv_usec
+																	  - startTime.tv_sec * 1000000
+																	  - startTime.tv_usec) / 1000000.0f) << endl;
+
+		// Quality
+		//
+		cout << "Quality Statistics:" << endl << "  MSE: " << MSE << endl << "  Total PSNR: " << PSNR << endl;
+
+		// Warnings about Configuration
 #if defined(SUPRESS_EXCESS_RENDERING) || defined(NO_CL) || defined(NO_GL)
-    cout << endl << "CONFIGURATION WARNINGS:" << endl;
+		cout << endl << "CONFIGURATION WARNINGS:" << endl;
 #ifdef SUPRESS_EXCESS_RENDERING
-    cout << "- Was compiled with SUPRESS_EXCESS_RENDERING, and so the numbers may be off. Recompile with \"make NO_HACKS=1\"." << endl;
+		cout << "- Was compiled with SUPRESS_EXCESS_RENDERING, and so the numbers may be off. Recompile with \"make NO_HACKS=1\"." << endl;
 #endif
 #ifdef NO_CL
-    cout << "- Was compiled without OpenCL." << endl;
+		cout << "- Was compiled without OpenCL." << endl;
 #endif
 #ifdef NO_GL
-    cout << "- Was compiled without OpenGL." << endl;
+		cout << "- Was compiled without OpenGL." << endl;
 #endif
 #endif
+    }
 
     // Clean up
     if (exitNow) {

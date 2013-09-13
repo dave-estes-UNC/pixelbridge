@@ -118,18 +118,21 @@ void GlNddiDisplay::Render() {
     // Update the cost model for the in bulk now if we are using OpenMP since we bypassed the traditional
     // getters for input vector, frame volume, and coefficient matrix.
 #ifndef NO_OMP
+	// For each pixel computed with all 256 planes, the input vector (except x,y) is read
     costModel->registerBulkMemoryCharge(INPUT_VECTOR_COMPONENT,
-                                        displayWidth_ * displayHeight_ * CM_HEIGHT * (CM_WIDTH - 2),
+                                        displayWidth_ * displayHeight_ * NUM_COEFFICIENT_PLANES * CM_HEIGHT * (CM_WIDTH - 2),
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * CM_HEIGHT * (CM_WIDTH - 2) * BYTES_PER_IV_VALUE,
+                                        displayWidth_ * displayHeight_ * NUM_COEFFICIENT_PLANES * CM_HEIGHT * (CM_WIDTH - 2) * BYTES_PER_IV_VALUE,
                                         0);
+	// For each pixel computed with all 256 planes, the coefficient and scaler is read
     costModel->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
-                                        displayWidth_ * displayHeight_ * CM_HEIGHT * CM_WIDTH,
+                                        displayWidth_ * displayHeight_ * NUM_COEFFICIENT_PLANES * (CM_HEIGHT * CM_WIDTH + 1),
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * CM_HEIGHT * CM_WIDTH * BYTES_PER_COEFF,
+                                        displayWidth_ * displayHeight_ * NUM_COEFFICIENT_PLANES * (CM_HEIGHT * CM_WIDTH + 1) * BYTES_PER_COEFF,
                                         0);
+    // For each pixel computed with all 256 planes, a pixel sample is pulled from the frame volume
     costModel->registerBulkMemoryCharge(FRAME_VOLUME_COMPONENT,
                                         displayWidth_ * displayHeight_,
                                         READ_ACCESS,
@@ -159,7 +162,9 @@ void GlNddiDisplay::Render() {
 Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
 
 	int32_t    rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
-	Pixel  q;
+	Pixel      q;
+
+	q.packed = 0x00;
 
 	// Accumulate color channels for the pixels chosen by each plane
 	for (unsigned int p = 0; p < NUM_COEFFICIENT_PLANES; p++) {
@@ -225,7 +230,9 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
 Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel* fv) {
 
 	int32_t    rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
-	Pixel  q;
+	Pixel      q;
+
+	q.packed = 0x00;
 
 	// Accumulate color channels for the pixels chosen by each plane
 	for (unsigned int p = 0; p < NUM_COEFFICIENT_PLANES; p++) {

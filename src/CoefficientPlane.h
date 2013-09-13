@@ -195,7 +195,7 @@ namespace nddi {
             assert(x < width_);
             assert(y < height_);
 
-            costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, &scalers_[p * width_ * height_ + y * width_ + x], BYTES_PER_SCALER, 0);
+            //costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, &scalers_[p * width_ * height_ + y * width_ + x], BYTES_PER_SCALER, 0);
 
             scalers_[p * width_ * height_ + y * width_ + x] = scaler;
         }
@@ -205,7 +205,7 @@ namespace nddi {
             assert(x < width_);
             assert(y < height_);
 
-            costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, READ_ACCESS, &scalers_[p * width_ * height_ + y * width_ + x], BYTES_PER_SCALER, 0);
+            //costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, READ_ACCESS, &scalers_[p * width_ * height_ + y * width_ + x], BYTES_PER_SCALER, 0);
 
             return scalers_[p * width_ * height_ + y * width_ + x];
         }

@@ -382,16 +382,6 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 		    start[0] = i * BLOCK_WIDTH; end[0] = (i + 1) * BLOCK_WIDTH - 1;
 		    start[1] = j * BLOCK_HEIGHT; end[1] = (j + 1) * BLOCK_HEIGHT - 1;
 		    display_->FillScalerTileStack(coefficients, start, size);
-
-#ifdef DEBUG
-		    cout << "Updated Macroblock (" << i << ", " << j << ")" << endl;
-		    for (size_t b = 0; b < 8; b++) {
-			    for (size_t a = 0; a < 8; a++) {
-			    	cout << " " << coefficients[(b * 8 + a) * 3];
-			    }
-			    cout << endl;
-		    }
-#endif
 		}
 	}
 }
