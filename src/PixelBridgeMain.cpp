@@ -71,10 +71,12 @@ size_t configTileWidth = 0;
 size_t configTileHeight = 0;
 size_t configMaxTiles = 1000;
 size_t configSigBits = 8;
+size_t configQuality = 4;
 size_t configStartFrame = 0;
 size_t configMaxFrames = 0;
 size_t configRewindStartFrame = 0;
 size_t configRewindFrames = 0;
+bool configPSNR = false;
 bool configVerbose = false;
 bool configHeadless = false;
 
@@ -88,12 +90,13 @@ long totalSE = 0; // Cumulative Square Error used to calculate MSE and then PSNR
 uint8_t* videoBuffer = NULL;
 uint8_t* lastBuffer = NULL;
 
+#ifdef USE_ASYNC_DECODER
 // Buffers decoded frame
 queue<uint8_t*> bufferQueue;
 
 // Synchronization variables
 pthread_mutex_t      bufferQueueMutex;
-
+#endif
 
 void setupDisplay() {
     
@@ -164,7 +167,7 @@ void setupDisplay() {
 		myDisplay->UpdateInputVector(iv);
 
 		// Setup DCT Tiler and initializes Coefficient Plane and Frame Volume
-		myTiler = new DctTiler(myDisplay,
+		myTiler = new DctTiler(myDisplay, configQuality,
 							   configHeadless || !configVerbose);
 
         myTiler->InitializeCoefficientPlanes();
@@ -394,7 +397,6 @@ void setupDisplay() {
     // Simple Framebuffer
 	} else {
 		
-		
 		// 2 dimensional matching the Video Width x Height
 		vector<unsigned int> fvDimensions;
 		fvDimensions.push_back(displayWidth);
@@ -440,13 +442,12 @@ void setupDisplay() {
         myDisplay->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
 
     }
-	totalUpdates++;
 
 	if (configVerbose)
 		myDisplay->Unmute();
     
     // Renders the initial display
-    myDisplay->GetFrameBuffer();
+    myDisplay->GetFrameBufferTex();
 }
 
 
@@ -462,7 +463,7 @@ void updateDisplay(uint8_t* buffer, size_t width, size_t height) {
 		size_t bufferPos = 0;
 		
         // Array of pixels used for framebuffer mode.
-        nddi::Pixel* frameBuffer = (nddi::Pixel*)malloc(sizeof(nddi::Pixel) * width * height);
+        Pixel* frameBuffer = (Pixel*)malloc(sizeof(Pixel) * width * height);
 
 		// Transform the buffer into pixels
 		for (int j = 0; j < height; j++) {
@@ -538,7 +539,7 @@ void updateDisplay(uint8_t* buffer, size_t width, size_t height) {
 }
 
 
-long calculateSE(uint8_t* videoIn, nddi::Pixel* frameOut) {
+long calculateSE(uint8_t* videoIn, Pixel* frameOut) {
 	long errR = 0, errG = 0, errB = 0;
 	size_t i, bufferPos = 0;
 	long SE = 0;
@@ -559,19 +560,9 @@ void draw( void ) {
 	if (config > COUNT) {
 		
 		// Grab the frame buffer from the NDDI display
-        GLuint texture = myDisplay->GetFrameBuffer();
+        GLuint texture = myDisplay->GetFrameBufferTex();
 		
-		// If we used a lossy mode, then calculate the Square Error for this frame
-#if 0 // TODO(CDE): Add this back. Need to figure out a way to get the renderered frame back.
-		if (videoBuffer &&
-            ( ((config == CACHE) && (configSigBits < 8))
-              || (config == DCT) || (config == IT) ) ) {
-			totalSE += calculateSE(videoBuffer, frameBuffer);
-		}
-#endif
-        
         if (!configHeadless) {
-            
 // TODO(CDE): Temporarily putting this here until GlNddiDisplay and ClNddiDisplay
 //            are using the exact same kind of GL textures
 #ifndef NO_CL
@@ -610,108 +601,154 @@ void draw( void ) {
 }
 
 void outputStats(bool exitNow) {
-    
-    double MSE, PSNR;
-    long totalCost = costModel->getLinkBytesTransmitted();
-    
-    MSE = (double)totalSE / (double)(displayWidth * displayHeight * totalUpdates) / 3.0f;
-    PSNR = 10.0f * log10(65025.0f / MSE);
-    
-    gettimeofday(&endTime, NULL);
-    
-    // Configuration
-    //
-    cout << "Configuration Information:" << endl;
-    
-    switch (config) {
-        case SIMPLE:
-            cout << "  Configuring NDDI as a simple Framebuffer." << endl;
-            break;
-        case FLAT:
-            cout << "  Configuring NDDI as Flat Tiled." << endl;
-            cout << "  Tile Dimensions: " << configTileWidth << "x" << configTileHeight << endl;
-            break;
-        case CACHE:
-            cout << "  Configuring NDDI as Cached Tiled." << endl;
-            cout << "  Tile Dimensions: " << configTileWidth << "x" << configTileHeight << endl;
-            break;
-        case COUNT:
-            cout << "  Configuring NDDI to just count." << endl;
-            break;
-        default:
-            break;
-    }
-    
-    cout << "  File: " << fileName << endl;
-    
-    // Transmission
-    //
-    cout << "Transmission Statistics:" << endl;
-    
-    cout << "  Total Pixel Data Updated (bytes): " << totalUpdates * displayWidth * displayHeight * 4 <<
-    " Total NDDI Cost (bytes): " << totalCost <<  
-    " Ratio: " << (double)totalCost / (double)totalUpdates / (double)displayWidth / (double)displayHeight / 4.0f << endl;
-    
-    // Memory
-    //
-    cout << "Memory Statistics:" << endl;
-    cout << "  Input Vector" << endl;
-    cout << "    - Num Reads: " << costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << endl;
-    cout << "    - Num Writes: " << costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << endl;
-    cout << "  Coefficient Plane" << endl;
-    cout << "    - Num Reads: " << costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << endl;
-    cout << "    - Num Writes: " << costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << endl;
-    cout << "  Frame Volume" << endl;
-    cout << "    - Num Reads: " << costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << endl;
-    cout << "    - Num Writes: " << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << endl;
-    
-    
-    // Pixel
-    //
-    cout << "Pixel Statistics:" << endl;
-    cout << "  Pixel Mappings: " << costModel->getPixelsMapped() << endl;
-    cout << "  Pixel Blends: " << costModel->getPixelsBlended() << endl;
-    
-    // Performance
-    //
-    cout << "Performance Statistics:" << endl;
-    cout << "  Average FPS: " << (double)totalUpdates / ((double)(endTime.tv_sec * 1000000
-                                                                  + endTime.tv_usec
-                                                                  - startTime.tv_sec * 1000000
-                                                                  - startTime.tv_usec) / 1000000.0f) << endl;
-    
-    // Quality
-    //
-    cout << "Quality Statistics:" << endl << "  Total PSNR: " << PSNR << endl;
-    
-    // CSV
-    //
-    cout << "CSV" << endl;
-    cout << "Commands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written\tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended" << endl;
-    cout
-    << costModel->getLinkCommandsSent() << "\t" << costModel->getLinkBytesTransmitted() << "\t"
-    << costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) << "\t" << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << "\t"
-    << costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << "\t" << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << "\t"
-    << costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) << "\t" << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << "\t"
-    << costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << "\t" << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << "\t"
-    << costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) << "\t" << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << "\t"
-    << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << "\t" << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << "\t"
-    << costModel->getTime(FRAME_VOLUME_COMPONENT) << "\t"
-    << costModel->getPixelsMapped() << "\t" << costModel->getPixelsBlended() << endl;
-    
-    // Warnings about Configuration
+
+    // Calculate the PSNR regardless of whether or not we were calculating it
+	double MSE, PSNR;
+	MSE = (double)totalSE / (double)(displayWidth * displayHeight * totalUpdates) / 3.0f;
+	PSNR = 10.0f * log10(65025.0f / MSE);
+
+	//
+	// Just print the minimal CSV for headless
+	//
+    if (configHeadless) {
+
+		// File Name | Tile Width | Tile Height | Frame Count | PSNR | Bytes Transmitted
+		//
+		cout << fileName << "\t";
+		cout << configTileWidth << "\t" << configTileHeight << "\t";
+		cout << totalUpdates << "\t";
+		if (configPSNR) {
+			cout << PSNR << "\t";
+		}
+		cout << costModel->getLinkBytesTransmitted() << endl;;
+
+	//
+	// Otherwise print a detailed report
+	//
+    } else {
+
+    	cout << endl;
+
+    	// General
+    	//
+    	cout << "General Information" << endl;
+		cout << "  File: " << fileName << endl;
+		cout << "  Dimensions: " << displayWidth << " x " << displayHeight << endl;
+		cout << "  Frames Rendered: " << totalUpdates << endl;
+		cout << endl;
+
+		// Configuration
+		//
+		cout << "Configuration Information:" << endl;
+
+		switch (config) {
+			case SIMPLE:
+				cout << "  Configuring NDDI as a simple Framebuffer." << endl;
+				break;
+			case FLAT:
+				cout << "  Configuring NDDI as Flat Tiled." << endl;
+				cout << "  Tile Dimensions: " << configTileWidth << "x" << configTileHeight << endl;
+				break;
+			case CACHE:
+				cout << "  Configuring NDDI as Cached Tiled." << endl;
+				cout << "  Tile Dimensions: " << configTileWidth << "x" << configTileHeight << endl;
+				cout << "  Significant Bits: " << configSigBits << endl;
+				break;
+			case DCT:
+				cout << "  Configuring NDDI as DCT Tiled." << endl;
+				cout << "  Quality: " << configQuality << endl;
+				break;
+			case COUNT:
+				cout << "  Configuring NDDI to just count." << endl;
+				break;
+			default:
+				break;
+		}
+		cout << endl;
+
+		// Transmission
+		//
+		cout << "Transmission Statistics:" << endl;
+		// Get total transmission cost
+	    long totalCost = costModel->getLinkBytesTransmitted();
+		cout << "  Total Pixel Data Updated (bytes): " << totalUpdates * displayWidth * displayHeight * BYTES_PER_PIXEL <<
+		" Total NDDI Cost (bytes): " << totalCost <<
+		" Ratio: " << (double)totalCost / (double)totalUpdates / (double)displayWidth / (double)displayHeight / BYTES_PER_PIXEL << endl;
+		cout << endl;
+
+
+		// Memory
+		//
+		cout << "Memory Statistics:" << endl;
+		cout << "  Input Vector" << endl;
+		cout << "    - Num Reads: " << costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << endl;
+		cout << "    - Num Writes: " << costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << endl;
+		cout << "  Coefficient Plane" << endl;
+		cout << "    - Num Reads: " << costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << endl;
+		cout << "    - Num Writes: " << costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << endl;
+		cout << "  Frame Volume" << endl;
+		cout << "    - Num Reads: " << costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << endl;
+		cout << "    - Num Writes: " << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << endl;
+		cout << endl;
+
+
+		// Pixel
+		//
+		cout << "Pixel Statistics:" << endl;
+		cout << "  Pixel Mappings: " << costModel->getPixelsMapped() << endl;
+		cout << "  Pixel Blends: " << costModel->getPixelsBlended() << endl;
+		cout << endl;
+
+		// Performance
+		//
+	    gettimeofday(&endTime, NULL);
+		cout << "Performance Statistics:" << endl;
+		cout << "  Average FPS: " << (double)totalUpdates / ((double)(endTime.tv_sec * 1000000
+																	  + endTime.tv_usec
+																	  - startTime.tv_sec * 1000000
+																	  - startTime.tv_usec) / 1000000.0f) << endl;
+		cout << endl;
+
+		// Quality
+		//
+		if (configPSNR) {
+			cout << "Quality Statistics:" << endl << "  MSE: " << MSE << endl << "  Total PSNR: " << PSNR << endl;
+		} else {
+			cout << "Quality Statistics: Use --psnr to enable." << endl;
+		}
+		cout << endl;
+
+		// CSV
+		//
+		cout << "CSV:" << endl;
+		cout << "Commands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written\tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended\tPSNR" << endl;
+		cout
+		<< costModel->getLinkCommandsSent() << "\t" << costModel->getLinkBytesTransmitted() << "\t"
+		<< costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) << "\t" << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << "\t"
+		<< costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << "\t" << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << "\t"
+		<< costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) << "\t" << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << "\t"
+		<< costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << "\t" << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << "\t"
+		<< costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) << "\t" << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << "\t"
+		<< costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << "\t" << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << "\t"
+		<< costModel->getTime(FRAME_VOLUME_COMPONENT) << "\t"
+		<< costModel->getPixelsMapped() << "\t" << costModel->getPixelsBlended() << "\t"
+		<< PSNR << endl;
+		cout << endl;
+
+		// Warnings about Configuration
 #if defined(SUPRESS_EXCESS_RENDERING) || defined(NO_CL) || defined(NO_GL)
-    cout << endl << "CONFIGURATION WARNINGS:" << endl;
+		cout << endl << "CONFIGURATION WARNINGS:" << endl;
 #ifdef SUPRESS_EXCESS_RENDERING
-    cout << "- Was compiled with SUPRESS_EXCESS_RENDERING, and so the numbers may be off. Recompile with \"make NO_HACKS=1\"." << endl;
+		cout << "  - Was compiled with SUPRESS_EXCESS_RENDERING, and so the numbers may be off. Recompile with \"make NO_HACKS=1\"." << endl;
 #endif
 #ifdef NO_CL
-    cout << "- Was compiled without OpenCL." << endl;
+		cout << "  - Was compiled without OpenCL." << endl;
 #endif
 #ifdef NO_GL
-    cout << "- Was compiled without OpenGL." << endl;
+		cout << "  - Was compiled without OpenGL." << endl;
 #endif
 #endif
+    }
 
     // Clean up
     if (exitNow) {
@@ -732,19 +769,23 @@ void renderFrame() {
 	static int currentFrame = 0;
 	static rewind_play_t rewindState = NOT_REWINDING;
 	
-	if (!configMaxFrames || (totalUpdates <= configMaxFrames)) {
+	if (!configMaxFrames || (totalUpdates < configMaxFrames)) {
 		// If we're not in a rewind backwards or forward state...
 		if (rewindState == NOT_REWINDING) {
+#ifdef USE_ASYNC_DECODER
 			// Get a decoded frame
             // TODO(CDE): Don't poll. Use signals instead.
             while (bufferQueue.size() == 0) {
                 usleep(5);
             }
             if ((videoBuffer = bufferQueue.front()) != NULL) {
-                
                 pthread_mutex_lock(&bufferQueueMutex);
                 bufferQueue.pop();
                 pthread_mutex_unlock(&bufferQueueMutex);
+#else
+            // Decode a frame
+            if ((videoBuffer = myPlayer->decodeFrame()) != NULL) {
+#endif
 				framesDecoded++;
 
 				// If we're past the designated start frame, then update the NDDI display
@@ -762,6 +803,12 @@ void renderFrame() {
 					
 					framesRendered++;
 					
+					// If we used a lossy mode, then calculate the Square Error for this frame
+					if (configPSNR) {
+				        Pixel* frameBuffer = myDisplay->GetFrameBuffer();
+						totalSE += calculateSE(videoBuffer, frameBuffer);
+					}
+
 					// Draw
                     glutPostRedisplay();
 					
@@ -843,7 +890,7 @@ void countChangedPixels() {
 
 	if (!configMaxFrames || (totalUpdates < configMaxFrames)) {
 		int pixel_count = myPlayer->width() * myPlayer->height();
-		
+#ifdef USE_ASYNC_DECODER
 		// Get a decoded frame
         // TODO(CDE): Don't poll. Use signals instead.
         while (bufferQueue.size() == 0) {
@@ -854,6 +901,10 @@ void countChangedPixels() {
             pthread_mutex_lock(&bufferQueueMutex);
             bufferQueue.pop();
             pthread_mutex_unlock(&bufferQueueMutex);
+#else
+            // Decode a frame
+            if ((videoBuffer = myPlayer->decodeFrame()) != NULL) {
+#endif
 			framesDecoded++;
 			
 			if (framesDecoded > configStartFrame) {
@@ -970,7 +1021,8 @@ void motion( int x, int y ) {
 
 
 void showUsage() {
-	cout << "pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--start <n>] [--frames <n>] [--rewind <n> <n>] <filename>" << endl;
+	cout << "pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <1-100>]" << endl <<
+			"            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>" << endl;
 	cout << endl;
 	cout << "  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).\n" <<
 	        "          Optional the mode can be set to count the number of pixels changed (count)." << endl;
@@ -978,9 +1030,11 @@ void showUsage() {
 	cout << "  --ts  Sets the tile size to the width and height provided." << endl;
 	cout << "  --tc  Sets the maximum number of tiles in the cache." << endl;
 	cout << "  --bits  Sets the number of significant bits per channel when computing checksums." << endl;
+	cout << "  --quality  Sets the quality for DCT mode." << endl;
 	cout << "  --start  Will start with this frame, ignoring any decoded frames prior to it." << endl;
 	cout << "  --frames  Sets the number of maximum frames that are decoded." << endl;
 	cout << "  --rewind  Sets a start point and a number of frames to play in reverse. Once finished, normal playback continues." << endl;
+	cout << "  --psnr  Calculates and outputs PSNR." << endl;
 	cout << "  --verbose  Outputs frame-by-frame statistics." << endl;
 	cout << "  --headless  Removes rendering and excessive data output. Overrides --verbose. Great for batch processing." << endl;
 }
@@ -1053,6 +1107,14 @@ bool parseArgs(int argc, char *argv[]) {
 			}
 			argc -= 2;
 			argv += 2;
+		} else if (strcmp(*argv, "--quality") == 0) {
+			configQuality = atoi(argv[1]);
+			if ( (configQuality == 0) || (configQuality > 100) ) {
+				showUsage();
+				return false;
+			}
+			argc -= 2;
+			argv += 2;
 		} else if (strcmp(*argv, "--start") == 0) {
 			configStartFrame = atoi(argv[1]);
 			if (configStartFrame == 0) {
@@ -1078,6 +1140,10 @@ bool parseArgs(int argc, char *argv[]) {
 			}
 			argc -= 3;
 			argv += 3;
+		} else if (strcmp(*argv, "--psnr") == 0) {
+			configPSNR = true;
+			argc--;
+			argv++;
 		} else if (strcmp(*argv, "--verbose") == 0) {
 			configVerbose = true;
 			argc--;
@@ -1102,6 +1168,7 @@ bool parseArgs(int argc, char *argv[]) {
 }
 
 
+#ifdef USE_ASYNC_DECODER
 void* decoderRun(void* none) {
     uint8_t* buf;
     
@@ -1119,6 +1186,7 @@ void* decoderRun(void* none) {
     
     return NULL;
 }
+#endif
 
 
 int main(int argc, char *argv[]) {
@@ -1144,8 +1212,10 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
     
+#ifdef USE_ASYNC_DECODER
     // Start decoded thread
     pthread_create(&decoderThread, NULL, decoderRun, NULL);
+#endif
     
 	// Initialize GLUT
 	glutInit( &argc, argv );
@@ -1169,8 +1239,12 @@ int main(int argc, char *argv[]) {
     
 	// Setup NDDI Display
     if (config > COUNT) {
-		// If the tile size wasn't specified, then dynamically calculate it
-		if ((configTileWidth == 0) || (configTileHeight == 0)) {
+
+    	// Force tilesize to be 8x8 for DCT since we're using 8x8 macroblocks
+    	if (config == DCT) {
+    		configTileWidth = configTileHeight = 8;
+    	// Else if the tile size wasn't specified, then dynamically calculate it
+    	} else if ((configTileWidth == 0) || (configTileHeight == 0)) {
 			configTileWidth = configTileHeight = ((displayWidth > displayHeight) ? displayWidth : displayHeight) / 40;
 		}
 		

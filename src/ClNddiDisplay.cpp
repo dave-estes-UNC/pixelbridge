@@ -417,8 +417,10 @@ void ClNddiDisplay::PutPixel(Pixel p, vector<unsigned int> &location) {
     // Set the single pixel
     clFrameVolume_->PutPixel(p, location);
 
-#ifndef SUPRESS_EXCESS_RENDERING
-    Render();
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
+	Render();
 #endif
 }
 
@@ -444,8 +446,10 @@ void ClNddiDisplay::CopyPixelStrip(Pixel* p, vector<unsigned int> &start, vector
     // Copy the pixels
     clFrameVolume_->CopyPixelStrip(p, start, end);
 
-#ifndef SUPRESS_EXCESS_RENDERING
-    Render();
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
+	Render();
 #endif
 }
 
@@ -463,8 +467,10 @@ void ClNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> &start, vector<uns
     // Copy pixels
     clFrameVolume_->CopyPixels(p, start, end);
 
-#ifndef SUPRESS_EXCESS_RENDERING
-    Render();
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
+	Render();
 #endif
 }
 
@@ -491,8 +497,10 @@ void ClNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int
 	// Copy pixels (copies to host array, sets up packet and sends it to the device
 	clFrameVolume_->CopyPixelTiles(p, starts, size);
 
-#ifndef SUPRESS_EXCESS_RENDERING
-    Render();
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
+	Render();
 #endif
 }
 
@@ -506,8 +514,10 @@ void ClNddiDisplay::FillPixel(Pixel p, vector<unsigned int> &start, vector<unsig
     // Fill pixels
     clFrameVolume_->FillPixel(p, start, end);
 
-#ifndef SUPRESS_EXCESS_RENDERING
-    Render();
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
+	Render();
 #endif
 }
 
@@ -520,8 +530,10 @@ void ClNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<unsigned
     // Copy pixels
     clFrameVolume_->CopyFrameVolume(start, end, dest);
 
-#ifndef SUPRESS_EXCESS_RENDERING
-    Render();
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
+	Render();
 #endif
 }
 
@@ -536,8 +548,10 @@ void ClNddiDisplay::UpdateInputVector(vector<int> &input) {
     // Update the input vector
     clInputVector_->UpdateInputVector(input);
 
-#ifndef SUPRESS_EXCESS_RENDERING
-    Render();
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
+	Render();
 #endif
 }
 
@@ -552,8 +566,10 @@ void ClNddiDisplay::PutCoefficientMatrix(vector< vector<int> > &coefficientMatri
     // Update the coefficient matrix
     clCoefficientPlane_->PutCoefficientMatrix(coefficientMatrix, location);
 
-#ifndef SUPRESS_EXCESS_RENDERING
-    Render();
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
+	Render();
 #endif
 }
 
@@ -568,8 +584,10 @@ void ClNddiDisplay::FillCoefficientMatrix(vector< vector<int> > &coefficientMatr
     // Fill the coefficient matrices
     clCoefficientPlane_->FillCoefficientMatrix(coefficientMatrix, start, end);
 
-#ifndef SUPRESS_EXCESS_RENDERING
-    Render();
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
+	Render();
 #endif
 }
 
@@ -591,8 +609,10 @@ void ClNddiDisplay::FillCoefficient(int coefficient,
     // Fill the coefficient matrices
     clCoefficientPlane_->FillCoefficient(coefficient, row, col, start, end);
 
-#ifndef SUPRESS_EXCESS_RENDERING
-    Render();
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
+	Render();
 #endif
 }
 
@@ -660,8 +680,10 @@ void ClNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
         Cleanup(true);
     }
 
-#ifndef SUPRESS_EXCESS_RENDERING
-    Render();
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
+	Render();
 #endif
 }
 

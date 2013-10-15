@@ -38,6 +38,11 @@
 //#define CHECKSUM_CALCULATOR TRIVIAL
 
 /*
+ * Use the narrowed data fields instead of 4-byte words for EVERYTHING.
+ */
+//#define USE_NARROW_DATA_FIELDS
+
+/*
  * Uses the nDDI extension to update groups of tiles
  */
 #define USE_COPY_PIXEL_TILES
@@ -46,5 +51,16 @@
  * Creates random frame(s) instead of decoding video.
  */
 //#define USE_RANDOM_PLAYER
+
+/*
+ * Turns on the VERY BROKEN asynchronous decoder.
+ */
+// TODO(CDE): Fix this junk
+//#define USE_ASYNC_DECODER
+
+/*
+ * Used to dramatically narrow the various data stores. Can lead to bugs, so proceed carefully.
+ */
+#define NARROW_DATA_STORES
 
 #endif /* PIXELBRIDGEFEATURES_H_ */

@@ -9,6 +9,8 @@
 
 #include "BaseNddiDisplay.h"
 
+using namespace nddi;
+
 /**
  * This class adds a public method that returns a reference to the frame buffer
  * so that a GLUT-based application can render it to the window.
@@ -29,7 +31,9 @@ public:
      *
      * @return Texture holding a rendered frame.
      */
-    GLuint GetFrameBuffer();
+    GLuint GetFrameBufferTex();
+
+    Pixel* GetFrameBuffer();
 
 private:
     void Render();
@@ -40,6 +44,7 @@ private:
 
 protected:
     GLuint texture_;
+    Pixel* frameBuffer_;
 };
 
 #endif // GL_NDDI_DISPLAY_H

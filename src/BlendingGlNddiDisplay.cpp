@@ -83,7 +83,9 @@ void BlendingGlNddiDisplay::PutCoefficientMatrix(vector< vector<int> > &coeffici
     // Update the coefficient matrix
     coefficientPlanes_[location[2]]->PutCoefficientMatrix(coefficientMatrix, location);
 	
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -112,7 +114,9 @@ void BlendingGlNddiDisplay::FillCoefficientMatrix(vector< vector<int> > &coeffic
         coefficientPlanes_[i]->FillCoefficientMatrix(coefficientMatrix, start, end);
     }
 	
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -142,7 +146,9 @@ void BlendingGlNddiDisplay::FillCoefficient(int coefficient, int row, int col, v
         coefficientPlanes_[i]->FillCoefficient(coefficient, row, col, start, end);
     }
 	
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -191,7 +197,9 @@ void BlendingGlNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<
 		} while (overflow && !copyFinished);
 		
 	} while (!copyFinished);
-#ifndef SUPRESS_EXCESS_RENDERING
+#ifdef SUPRESS_EXCESS_RENDERING
+	changed_ = true;
+#else
 	Render();
 #endif
 }
@@ -331,7 +339,11 @@ Pixel BlendingGlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* i
     for (int p = 0; p < numPlanes_; p++) {
         
         // Grab the coefficient matrix
+#ifdef NARROW_DATA_STORES
+        int16_t * cm = coefficientPlanes_[p]->getCoefficientMatrix(x, y, 0)->data();
+#else
         int * cm = coefficientPlanes_[p]->getCoefficientMatrix(x, y, 0)->data();
+#endif
         
         // Compute the position vector for the proper pixel in the frame volume.
         vector<unsigned int> fvPosition;

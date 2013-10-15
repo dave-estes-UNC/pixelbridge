@@ -61,11 +61,6 @@ namespace nddi {
         CoefficientPlane* coefficientPlane_;
         
         /**
-         * The frameBuffer_ holds the rendered pixels.
-         */
-        Pixel* frameBuffer_;
-        
-        /**
          * The current pixel byte sign mode.
          */
         SignMode pixelSignMode_;
@@ -79,6 +74,11 @@ namespace nddi {
          * Tracks whether verbose output should be used or not.
          */
         bool quiet_;
+
+        /**
+         * Used to indicate that a render was suppressed.
+         */
+        bool changed_;
 
     public:
         BaseNddiDisplay();
@@ -103,6 +103,7 @@ namespace nddi {
         void FillCoefficientTiles(vector<int> &coefficients, vector<vector<unsigned int> > &positions, vector<vector<unsigned int> > &starts, vector<unsigned int> &size);
         void FillScaler(int scaler, vector<unsigned int> &start, vector<unsigned int> &end);
         void FillScalerTiles(vector<int> &scalers, vector<vector<unsigned int> > &starts, vector<unsigned int> &size);
+        void FillScalerTileStack(vector<int> &scalers, vector<unsigned int> &start, vector<unsigned int> &size);
         void SetPixelByteSignMode(SignMode mode);
         void Mute() { quiet_ = true; }
         void Unmute() { quiet_ = false; }

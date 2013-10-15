@@ -5,8 +5,6 @@
 #include "PixelBridgeFeatures.h"
 #include "GlNddiDisplay.h"
 
-using namespace nddi;
-
 inline uint8_t CLAMP_SIGNED_BYTE(int32_t i) {
 	uint32_t ret;
 
@@ -120,18 +118,21 @@ void GlNddiDisplay::Render() {
     // Update the cost model for the in bulk now if we are using OpenMP since we bypassed the traditional
     // getters for input vector, frame volume, and coefficient matrix.
 #ifndef NO_OMP
+	// For each pixel computed with all 256 planes, the input vector (except x,y) is read
     costModel->registerBulkMemoryCharge(INPUT_VECTOR_COMPONENT,
-                                        displayWidth_ * displayHeight_ * CM_HEIGHT * (CM_WIDTH - 2),
+                                        displayWidth_ * displayHeight_ * NUM_COEFFICIENT_PLANES * CM_HEIGHT * (CM_WIDTH - 2),
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * CM_HEIGHT * (CM_WIDTH - 2) * BYTES_PER_IV_VALUE,
+                                        displayWidth_ * displayHeight_ * NUM_COEFFICIENT_PLANES * CM_HEIGHT * (CM_WIDTH - 2) * BYTES_PER_IV_VALUE,
                                         0);
+	// For each pixel computed with all 256 planes, the coefficient and scaler is read
     costModel->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
-                                        displayWidth_ * displayHeight_ * CM_HEIGHT * CM_WIDTH,
+                                        displayWidth_ * displayHeight_ * NUM_COEFFICIENT_PLANES * (CM_HEIGHT * CM_WIDTH + 1),
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * CM_HEIGHT * CM_WIDTH * BYTES_PER_COEFF,
+                                        displayWidth_ * displayHeight_ * NUM_COEFFICIENT_PLANES * (CM_HEIGHT * CM_WIDTH + 1) * BYTES_PER_COEFF,
                                         0);
+    // For each pixel computed with all 256 planes, a pixel sample is pulled from the frame volume
     costModel->registerBulkMemoryCharge(FRAME_VOLUME_COMPONENT,
                                         displayWidth_ * displayHeight_,
                                         READ_ACCESS,
@@ -152,12 +153,18 @@ void GlNddiDisplay::Render() {
 								- startTime.tv_usec) / 1000000.0f)
 		   	   );
     }
+#ifdef SUPRESS_EXCESS_RENDERING
+    changed_ = false;
+#endif
+
 }
 
 Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
 
 	int32_t    rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
-	Pixel  q;
+	Pixel      q;
+
+	q.packed = 0x00;
 
 	// Accumulate color channels for the pixels chosen by each plane
 	for (unsigned int p = 0; p < NUM_COEFFICIENT_PLANES; p++) {
@@ -223,7 +230,9 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
 Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel* fv) {
 
 	int32_t    rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
-	Pixel  q;
+	Pixel      q;
+
+	q.packed = 0x00;
 
 	// Accumulate color channels for the pixels chosen by each plane
 	for (unsigned int p = 0; p < NUM_COEFFICIENT_PLANES; p++) {
@@ -233,7 +242,11 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 		if (scaler == 0) continue;
 
 		// Grab the coefficient matrix
+#ifdef NARROW_DATA_STORES
+		int16_t * cm = coefficientPlane_->getCoefficientMatrix(x, y, p)->data();
+#else
 		int * cm = coefficientPlane_->getCoefficientMatrix(x, y, p)->data();
+#endif
 
 		// Compute the position vector for the proper pixel in the frame volume.
 		vector<unsigned int> fvPosition;
@@ -292,10 +305,11 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 }
 #endif
 
-GLuint GlNddiDisplay::GetFrameBuffer() {
+GLuint GlNddiDisplay::GetFrameBufferTex() {
 
 #ifdef SUPRESS_EXCESS_RENDERING
-	Render();
+	if (changed_)
+		Render();
 #endif
 
 // TODO(CDE): Temporarily putting this here until GlNddiDisplay and ClNddiDisplay
@@ -326,4 +340,14 @@ GLuint GlNddiDisplay::GetFrameBuffer() {
 #endif
 
 	return texture_;
+}
+
+Pixel* GlNddiDisplay::GetFrameBuffer() {
+
+#ifdef SUPRESS_EXCESS_RENDERING
+	if (changed_)
+		Render();
+#endif
+
+	return frameBuffer_;
 }

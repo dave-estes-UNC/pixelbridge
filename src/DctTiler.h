@@ -29,6 +29,7 @@ public:
 	 * @param display A pointer to the NDDI display
 	 */
 	DctTiler(BaseNddiDisplay* display,
+			 size_t quality,
 			 bool quiet);
 
 	~DctTiler() {
@@ -55,7 +56,7 @@ public:
 
 private:
     void initZigZag();
-	void initQuantizationMatrix(unsigned char quality);
+	void initQuantizationMatrix(size_t quality);
 
 public:
 	static const size_t  BLOCK_WIDTH = 8;
