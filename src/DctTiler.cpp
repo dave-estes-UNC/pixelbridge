@@ -295,6 +295,7 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 	vector<unsigned int> start(3, 0), end(3, 0);
 	vector<unsigned int> size(2, 0);
 	size_t lastNonZeroPlane;
+	static size_t largestNonZeroPlaneSeen = 0;
 
 	size[0] = BLOCK_WIDTH;
 	size[1] = BLOCK_HEIGHT;
@@ -377,6 +378,10 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 				}
 			}
 		    coefficients.resize(lastNonZeroPlane + 1);
+		    if (lastNonZeroPlane > largestNonZeroPlaneSeen) {
+		    	largestNonZeroPlaneSeen = lastNonZeroPlane;
+		    	cout << largestNonZeroPlaneSeen << endl;
+		    }
 
 			/* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
 		    start[0] = i * BLOCK_WIDTH; end[0] = (i + 1) * BLOCK_WIDTH - 1;

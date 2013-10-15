@@ -242,7 +242,11 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 		if (scaler == 0) continue;
 
 		// Grab the coefficient matrix
+#ifdef NARROW_DATA_STORES
+		int16_t * cm = coefficientPlane_->getCoefficientMatrix(x, y, p)->data();
+#else
 		int * cm = coefficientPlane_->getCoefficientMatrix(x, y, p)->data();
+#endif
 
 		// Compute the position vector for the proper pixel in the frame volume.
 		vector<unsigned int> fvPosition;

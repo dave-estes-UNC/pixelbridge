@@ -25,7 +25,11 @@ namespace nddi {
         CostModel           * costModel_;
         unsigned int          width_, height_, numPlanes_;
         CoefficientMatrix  ** coefficientMatrices_;
+#ifdef NARROW_DATA_STORES
+        int16_t             * scalers_;
+#else
         int                 * scalers_;
+#endif
 
     public:
 
@@ -46,7 +50,11 @@ namespace nddi {
 				}
             }
 
+#ifdef NARROW_DATA_STORES
+            scalers_ = (int16_t *)malloc(sizeof(int16_t) * displayWidth * displayHeight * NUM_COEFFICIENT_PLANES);
+#else
             scalers_ = (int *)malloc(sizeof(int) * displayWidth * displayHeight * NUM_COEFFICIENT_PLANES);
+#endif
         }
 
         ~CoefficientPlane() {

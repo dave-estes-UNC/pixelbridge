@@ -58,4 +58,9 @@
 // TODO(CDE): Fix this junk
 //#define USE_ASYNC_DECODER
 
+/*
+ * Used to dramatically narrow the various data stores. Can lead to bugs, so proceed carefully.
+ */
+#define NARROW_DATA_STORES
+
 #endif /* PIXELBRIDGEFEATURES_H_ */

@@ -339,7 +339,11 @@ Pixel BlendingGlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* i
     for (int p = 0; p < numPlanes_; p++) {
         
         // Grab the coefficient matrix
+#ifdef NARROW_DATA_STORES
+        int16_t * cm = coefficientPlanes_[p]->getCoefficientMatrix(x, y, 0)->data();
+#else
         int * cm = coefficientPlanes_[p]->getCoefficientMatrix(x, y, 0)->data();
+#endif
         
         // Compute the position vector for the proper pixel in the frame volume.
         vector<unsigned int> fvPosition;
