@@ -156,14 +156,14 @@ void DctTiler::InitializeCoefficientPlanes() {
 	end.push_back(0); end.push_back(0); end.push_back(0);
 
 	// Break the display into macroblocks and initialize each 8x8x193 cube of coefficients to pick out the proper block from the frame volume
-	for (int k = 0; k < DCT_FRAMEVOLUME_DEPTH; k++) {
-		for (int j = 0; j < (display_->DisplayHeight() / MACROBLOCK_HEIGHT); j++) {
-			for (int i = 0; i < (display_->DisplayWidth() / MACROBLOCK_WIDTH); i++) {
-				coeffs[2][0] = -i * MACROBLOCK_WIDTH;
-				coeffs[2][1] = -j * MACROBLOCK_HEIGHT;
+	for (int k = 0; k < FRAMEVOLUME_DEPTH; k++) {
+		for (int j = 0; j < (display_->DisplayHeight() / BLOCK_HEIGHT); j++) {
+			for (int i = 0; i < (display_->DisplayWidth() / BLOCK_WIDTH); i++) {
+				coeffs[2][0] = -i * BLOCK_WIDTH;
+				coeffs[2][1] = -j * BLOCK_HEIGHT;
 				coeffs[2][2] = k;
-				start[0] = i * MACROBLOCK_WIDTH; start[1] = j * MACROBLOCK_HEIGHT; start[2] = k;
-				end[0] = (i + 1) * MACROBLOCK_WIDTH - 1; end[1] = (j + 1) * MACROBLOCK_HEIGHT - 1; end[2] = k;
+				start[0] = i * BLOCK_WIDTH; start[1] = j * BLOCK_HEIGHT; start[2] = k;
+				end[0] = (i + 1) * BLOCK_WIDTH - 1; end[1] = (j + 1) * BLOCK_HEIGHT - 1; end[2] = k;
 				if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
 				if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
 				display_->FillCoefficientMatrix(coeffs, start, end);
@@ -179,13 +179,13 @@ void DctTiler::InitializeCoefficientPlanes() {
     display_->FillScaler(0, start, end);
 
 	// Fill the scalers for the medium gray plane to full on
-    start[2] = end[2] = DCT_FRAMEVOLUME_DEPTH - 1;
+    start[2] = end[2] = FRAMEVOLUME_DEPTH - 1;
     display_->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
 }
 
 /**
  * Initializes the Frame Volume for this tiler by pre-rendering each
- * of the 64 basis functions into 8x8 planes in the Frame Volume. They're
+ * of the 16 basis functions into 4x4 planes in the Frame Volume. They're
  * rendered for each color channel and stored in those groups of three in
  * zig-zag order.
  */
@@ -194,7 +194,7 @@ void DctTiler::InitializeFrameVolume() {
 	Pixel  *pixels;
 	size_t  pixels_size = sizeof(Pixel)            // pixel size
 						 * BLOCK_SIZE              // size of each x,y plane
-						 * DCT_FRAMEVOLUME_DEPTH;  // number of basis functions for each color channel
+						 * FRAMEVOLUME_DEPTH;      // number of basis functions for each color channel
 	                                               //   plus one medium gray plane
 
 
@@ -268,7 +268,7 @@ void DctTiler::InitializeFrameVolume() {
     // Update the frame volume with the basis function renderings and gray block in bulk.
 	vector<unsigned int> start, end;
 	start.push_back(0); start.push_back(0); start.push_back(0);
-	end.push_back(BLOCK_WIDTH - 1); end.push_back(BLOCK_HEIGHT - 1); end.push_back(DCT_FRAMEVOLUME_DEPTH - 1);
+	end.push_back(BLOCK_WIDTH - 1); end.push_back(BLOCK_HEIGHT - 1); end.push_back(FRAMEVOLUME_DEPTH - 1);
 	display_->CopyPixels(pixels, start, end);
 
     // Free the pixel memory
@@ -318,7 +318,7 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 	start[0] = 0; start[1] = 0; start[2] = 0;
 	end[0] = display_->DisplayWidth() - 1;
 	end[1] = display_->DisplayHeight() - 1;
-    end[2] = DCT_FRAMEVOLUME_DEPTH - 2;
+    end[2] = FRAMEVOLUME_DEPTH - 2;
     display_->FillScaler(0, start, end);
 
 	/*

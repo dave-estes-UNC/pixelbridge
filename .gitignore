@@ -2,3 +2,4 @@ xcode/DerivedData/
 xcode/pixelbridge.xcodeproj/project.xcworkspace/xcuserdata/cdestes.xcuserdatad/UserInterfaceState.xcuserstate
 xcode/pixelbridge.xcodeproj/xcuserdata/cdestes.xcuserdatad/xcdebugger
 build/
+.DS_Store

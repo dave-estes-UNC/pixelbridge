@@ -16,13 +16,6 @@ using namespace nddi;
 using namespace std;
 
 /**
- * Macro Block dimensions and frame volume depth
- */
-#define MACROBLOCK_WIDTH       8
-#define MACROBLOCK_HEIGHT      8
-#define DCT_FRAMEVOLUME_DEPTH  (64 * 3 + 1)
-
-/**
  * This tiler will split provided frames into macroblocks and will perform the forward DCT
  * and create coefficients that will be used as the scalers for the coefficient planes.
  */
@@ -40,9 +33,6 @@ public:
 
 	~DctTiler() {
 	}
-
-	void initZigZag();
-	void initQuantizationMatrix(unsigned char quality);
 
     /**
      * Initializes the Coefficient Planes for this tiler.
@@ -64,13 +54,19 @@ public:
 	void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 
 private:
-	static const size_t  BLOCK_WIDTH = MACROBLOCK_WIDTH;
-	static const size_t  BLOCK_HEIGHT = MACROBLOCK_HEIGHT;
+    void initZigZag();
+	void initQuantizationMatrix(unsigned char quality);
+
+public:
+	static const size_t  BLOCK_WIDTH = 8;
+	static const size_t  BLOCK_HEIGHT = 8;
+    static const size_t  FRAMEVOLUME_DEPTH  = BLOCK_WIDTH * BLOCK_HEIGHT * 3 + 1;
+    
+private:
 	static const size_t  BLOCK_SIZE = BLOCK_WIDTH * BLOCK_HEIGHT;
 	static const size_t  BASIS_BLOCKS_WIDE = 8;
 	static const size_t  BASIS_BLOCKS_TALL = 8;
 	static const size_t  MAX_DCT_COEFF = 1 << 8;
-	static const double  PI = 3.14159265;
 
 	BaseNddiDisplay*  display_;
 	bool              quiet_;
