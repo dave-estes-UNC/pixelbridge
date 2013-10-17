@@ -99,10 +99,10 @@ void DctTiler::initZigZag() {
 	bool    up = true;
 
 	// Setup the zigZag_ table
-	for (size_t i = 0; i < 64; i++) {
-		zigZag_[y * 8 + x] = i;
+	for (size_t i = 0; i < BLOCK_SIZE; i++) {
+		zigZag_[y * BLOCK_WIDTH + x] = i;
 		if (up) {
-			if (x < 7) {
+			if (x < (BLOCK_WIDTH - 1)) {
 				x++;
 				if (y > 0) {
 					y--;
@@ -114,7 +114,7 @@ void DctTiler::initZigZag() {
 				up = false;
 			}
 		} else {
-			if (y < 7) {
+			if (y < (BLOCK_HEIGHT - 1)) {
 				y++;
 				if (x > 0) {
 					x--;

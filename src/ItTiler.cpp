@@ -12,26 +12,58 @@
 #include "ItTiler.h"
 #include "PixelBridgeFeatures.h"
 
-#define DEFAULT_QUALITY        1
-
 /**
  * Using a #define because it's used for floats and ints.
  */
 #define CLAMP(x, min, max)   (x < min ? min : x >= max ? max : x)
+#define MAX(x, y)            (x > y ? x : y)
+#define MIN(x, y)            (x < y ? x : y)
+#define CEIL(x, y)           (1 + ((x - 1) / y))
 
-ItTiler::ItTiler(BaseNddiDisplay* display, bool quiet)
+ItTiler::ItTiler(BaseNddiDisplay* display, size_t quality, bool quiet)
 : display_(display),
   quiet_(quiet)
 {
     initZigZag();
-    setQuality(DEFAULT_QUALITY);
+    setQuality(quality);
 }
 
+/**
+ * See big-honking comment for DctTiler::initZigZag().
+ */
 void ItTiler::initZigZag() {
-    // TODO(CDE): Right now this is a simple one-to-one mapping. Sort out a proper ordering.
-    for (size_t i = 0; i < BLOCK_SIZE; i++) {
-        zigZag_[i] = i;
-    }
+	size_t  x = 0, y = 0;
+	bool    up = true;
+    
+	// Setup the zigZag_ table
+	for (size_t i = 0; i < BLOCK_SIZE; i++) {
+		zigZag_[y * BLOCK_WIDTH + x] = i;
+		if (up) {
+			if (x < (BLOCK_WIDTH - 1)) {
+				x++;
+				if (y > 0) {
+					y--;
+				} else {
+					up = false;
+				}
+			} else {
+				y++;
+				up = false;
+			}
+		} else {
+			if (y < (BLOCK_HEIGHT - 1)) {
+				y++;
+				if (x > 0) {
+					x--;
+				} else {
+					up = true;
+				}
+			} else {
+				x++;
+				up = true;
+			}
+		}
+	}
 }
 
 void ItTiler::setQuality(uint32_t quality) {
@@ -273,7 +305,7 @@ void ItTiler::InitializeFrameVolume() {
                 for (int x = 0; x < BLOCK_WIDTH; x++) {
                     
                     // Set the color channels
-                    uint32_t m = Z[y * BLOCK_WIDTH + x];
+                    uint32_t m = CLAMP(Z[y * BLOCK_WIDTH + x], -127, 127);
 
                     // Set the color channels with the magnitude clamped to 127
                     pixels[p + BLOCK_SIZE * 0].r = m;
@@ -301,7 +333,7 @@ void ItTiler::InitializeFrameVolume() {
 }
 
 void ItTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
-#define HACKADACK
+//#define HACKADACK
 #ifdef HACKADACK
 	///////////////////DEBUG/////////////////////
 	cout << "Update" << endl;
@@ -327,6 +359,80 @@ void ItTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
     }
 	///////////////////DEBUG/////////////////////
 #else // HACKADACK
-    // TODO(CDE): Implement
+	vector<unsigned int> start(3, 0), end(3, 0);
+	vector<unsigned int> size(2, 0);
+	size_t lastNonZeroPlane;
+	static size_t largestNonZeroPlaneSeen = 0;
+    
+	size[0] = BLOCK_WIDTH;
+	size[1] = BLOCK_HEIGHT;
+    
+	/* Clear all scalers */
+	// TODO(CDE): Don't do this in the future. Just write enough planes to overwrite the last known non-zero plane.
+	start[0] = 0; start[1] = 0; start[2] = 0;
+	end[0] = display_->DisplayWidth() - 1;
+	end[1] = display_->DisplayHeight() - 1;
+    end[2] = FRAMEVOLUME_DEPTH - 1;
+    display_->FillScaler(0, start, end);
+
+	/*
+	 * Produces the coefficients for the input buffer using a forward 4x4 integer transform
+	 */
+	for (size_t j = 0; j < CEIL(display_->DisplayHeight(), BLOCK_HEIGHT); j++) {
+		for (size_t i = 0; i < CEIL(display_->DisplayWidth(), BLOCK_WIDTH); i++) {
+            
+			/* The coefficients are stored in this array in zig-zag order */
+			vector<int> coefficients(BLOCK_WIDTH * BLOCK_HEIGHT * 3, 0);
+			lastNonZeroPlane = 0;
+            
+            /* Scratch blocks used for forwardIntegerTransform() */
+            int redImgBlock[BLOCK_SIZE];
+            int redCoeffsBlock[BLOCK_SIZE];
+            int greenImgBlock[BLOCK_SIZE];
+            int greenCoeffsBlock[BLOCK_SIZE];
+            int blueImgBlock[BLOCK_SIZE];
+            int blueCoeffsBlock[BLOCK_SIZE];
+            
+            /* Copy color channels for this block into their temporary single channel blocks. */
+			for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
+				for (size_t u = 0; u < BLOCK_WIDTH; u++) {
+                    redImgBlock[v * BLOCK_WIDTH + u] = buffer[((j * BLOCK_HEIGHT + v) * width + (i * BLOCK_WIDTH + u)) * 3 + 0];
+                    greenImgBlock[v * BLOCK_WIDTH + u] = buffer[((j * BLOCK_HEIGHT + v) * width + (i * BLOCK_WIDTH + u)) * 3 + 1];
+                    blueImgBlock[v * BLOCK_WIDTH + u] = buffer[((j * BLOCK_HEIGHT + v) * width + (i * BLOCK_WIDTH + u)) * 3 + 2];
+                }
+            }
+            
+            /* Perform Forward Integer Transform on each of the temporary single channel blocks. */
+            forwardIntegerTransform(redCoeffsBlock, redImgBlock);
+            forwardIntegerTransform(greenCoeffsBlock, greenImgBlock);
+            forwardIntegerTransform(blueCoeffsBlock, blueImgBlock);
+
+            /* Then update the coefficients */
+            for (int v = 0; v < BLOCK_HEIGHT; v++) {
+                for (int u = 0; u < BLOCK_WIDTH; u++) {
+                    size_t p = zigZag_[v * BLOCK_WIDTH + u] * 3;
+					coefficients[p + 0] = redCoeffsBlock[v * BLOCK_WIDTH + u];
+					coefficients[p + 1] = greenCoeffsBlock[v * BLOCK_WIDTH + u];
+					coefficients[p + 2] = blueCoeffsBlock[v * BLOCK_WIDTH + u];
+
+                    if (coefficients[p + 0] != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p + 0);
+                    if (coefficients[p + 1] != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p + 1);
+                    if (coefficients[p + 2] != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p + 2);
+                }
+            }
+            
+            /* Resize the coefficients vector */
+		    coefficients.resize(lastNonZeroPlane + 1);
+		    if (lastNonZeroPlane > largestNonZeroPlaneSeen) {
+		    	largestNonZeroPlaneSeen = lastNonZeroPlane;
+		    	cout << largestNonZeroPlaneSeen << endl;
+		    }
+            
+			/* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
+		    start[0] = i * BLOCK_WIDTH; end[0] = (i + 1) * BLOCK_WIDTH - 1;
+		    start[1] = j * BLOCK_HEIGHT; end[1] = (j + 1) * BLOCK_HEIGHT - 1;
+		    display_->FillScalerTileStack(coefficients, start, size);
+        }
+    }
 #endif
 }

@@ -79,6 +79,14 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--mode dct"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--mode it"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--quality 1"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -98,19 +106,19 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--start 600"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--start 10"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--frames 800"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--frames 200"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--start 600"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--start 300"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

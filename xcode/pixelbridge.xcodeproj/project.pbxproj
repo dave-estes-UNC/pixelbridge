@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C600231C180CC2DA00A59521 /* ItTiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C600231A180CC2DA00A59521 /* ItTiler.cpp */; };
 		C61B1A8A1514D0B500B63372 /* ClNddiDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C61B1A881514D0B500B63372 /* ClNddiDisplay.cpp */; };
 		C62E9145127BA5AA004FF5C9 /* CachedTiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C62E9144127BA5AA004FF5C9 /* CachedTiler.cpp */; };
 		C649EB3017B9CB4000749E59 /* DctTiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C649EB2C17B9CB4000749E59 /* DctTiler.cpp */; };
 		C649EB3117B9CB4000749E59 /* fillCoefficient.cl in Sources */ = {isa = PBXBuildFile; fileRef = C649EB2E17B9CB4000749E59 /* fillCoefficient.cl */; };
 		C66A47F217DBFBA400553271 /* BlendingGlNddiDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C66A47F017DBFBA400553271 /* BlendingGlNddiDisplay.cpp */; };
+		C67CB684180F607200A1369D /* ItTiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C67CB682180F607200A1369D /* ItTiler.cpp */; };
 		C67EB570140F1B8B0036B1E6 /* Rewinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C67EB56E140F1B8B0036B1E6 /* Rewinder.cpp */; };
 		C68F372414128562000D2DD0 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F372314128562000D2DD0 /* GLUT.framework */; };
 		C68F37261412856C000D2DD0 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C68F37251412856C000D2DD0 /* OpenGL.framework */; };
@@ -48,8 +48,6 @@
 
 /* Begin PBXFileReference section */
 		8DD76F6C0486A84900D96B5E /* pixelbridge */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pixelbridge; sourceTree = BUILT_PRODUCTS_DIR; };
-		C600231A180CC2DA00A59521 /* ItTiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ItTiler.cpp; sourceTree = "<group>"; };
-		C600231B180CC2DA00A59521 /* ItTiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ItTiler.h; sourceTree = "<group>"; };
 		C60F19FB129DE1790050044F /* Tiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tiler.h; path = ../src/Tiler.h; sourceTree = SOURCE_ROOT; };
 		C614D0C9152893A00063F103 /* ClFrameVolume.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClFrameVolume.h; path = ../src/ClFrameVolume.h; sourceTree = "<group>"; };
 		C614D0CA15289D2F0063F103 /* ClCoefficientPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClCoefficientPlane.h; path = ../src/ClCoefficientPlane.h; sourceTree = "<group>"; };
@@ -67,6 +65,8 @@
 		C66A47F017DBFBA400553271 /* BlendingGlNddiDisplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BlendingGlNddiDisplay.cpp; path = ../src/BlendingGlNddiDisplay.cpp; sourceTree = "<group>"; };
 		C66A47F117DBFBA400553271 /* BlendingGlNddiDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlendingGlNddiDisplay.h; path = ../src/BlendingGlNddiDisplay.h; sourceTree = "<group>"; };
 		C671B20C152140BA00199EDB /* ClInputVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClInputVector.h; path = ../src/ClInputVector.h; sourceTree = "<group>"; };
+		C67CB682180F607200A1369D /* ItTiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ItTiler.cpp; path = ../src/ItTiler.cpp; sourceTree = "<group>"; };
+		C67CB683180F607200A1369D /* ItTiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ItTiler.h; path = ../src/ItTiler.h; sourceTree = "<group>"; };
 		C67EB56E140F1B8B0036B1E6 /* Rewinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Rewinder.cpp; path = ../src/Rewinder.cpp; sourceTree = "<group>"; };
 		C67EB56F140F1B8B0036B1E6 /* Rewinder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Rewinder.h; path = ../src/Rewinder.h; sourceTree = "<group>"; };
 		C6859E8B029090EE04C91782 /* pixelbridge.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = pixelbridge.1; sourceTree = "<group>"; };
@@ -168,8 +168,8 @@
 				C6C28C1D127346D000919942 /* GlNddiDisplay.cpp */,
 				C6C28C1E127346D000919942 /* GlNddiDisplay.h */,
 				C6FFB63B14FF010C00B12215 /* InputVector.h */,
-				C600231A180CC2DA00A59521 /* ItTiler.cpp */,
-				C600231B180CC2DA00A59521 /* ItTiler.h */,
+				C67CB682180F607200A1369D /* ItTiler.cpp */,
+				C67CB683180F607200A1369D /* ItTiler.h */,
 				C6AEAD0512B31AD000EC5840 /* mainpage.h */,
 				C6C28C1F127346D000919942 /* NDimensionalDisplayInterface.h */,
 				C633734D14E21CEA0017B819 /* NDimensionalDisplayInterfaceExtended.h */,
@@ -267,7 +267,7 @@
 				C649EB3117B9CB4000749E59 /* fillCoefficient.cl in Sources */,
 				C690773C17D6CB4F00F76F87 /* RandomPlayer.cpp in Sources */,
 				C66A47F217DBFBA400553271 /* BlendingGlNddiDisplay.cpp in Sources */,
-				C600231C180CC2DA00A59521 /* ItTiler.cpp in Sources */,
+				C67CB684180F607200A1369D /* ItTiler.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

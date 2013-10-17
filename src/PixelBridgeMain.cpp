@@ -198,7 +198,7 @@ void setupDisplay() {
 		myDisplay->UpdateInputVector(iv);
         
 		// Setup IT Tiler and initializes Coefficient Plane and Frame Volume
-		myTiler = new ItTiler(myDisplay,
+		myTiler = new ItTiler(myDisplay, configQuality,
                               configHeadless || !configVerbose);
         
         myTiler->InitializeCoefficientPlanes();
@@ -712,9 +712,9 @@ void outputStats(bool exitNow) {
 		// Quality
 		//
 		if (configPSNR) {
-			cout << "Quality Statistics:" << endl << "  MSE: " << MSE << endl << "  Total PSNR: " << PSNR << endl;
+			cout << "Quality Statistics:" << endl << "  Setting: " << configQuality << endl << "  MSE: " << MSE << endl << "  Total PSNR: " << PSNR << endl;
 		} else {
-			cout << "Quality Statistics: Use --psnr to enable." << endl;
+			cout << "Quality Statistics:" << endl << "  Setting: " << configQuality << endl << "  Use --psnr to enable." << endl;
 		}
 		cout << endl;
 
@@ -1021,7 +1021,7 @@ void motion( int x, int y ) {
 
 
 void showUsage() {
-	cout << "pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <1-100>]" << endl <<
+	cout << "pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <0/1-100>]" << endl <<
 			"            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>" << endl;
 	cout << endl;
 	cout << "  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).\n" <<
@@ -1030,7 +1030,7 @@ void showUsage() {
 	cout << "  --ts  Sets the tile size to the width and height provided." << endl;
 	cout << "  --tc  Sets the maximum number of tiles in the cache." << endl;
 	cout << "  --bits  Sets the number of significant bits per channel when computing checksums." << endl;
-	cout << "  --quality  Sets the quality for DCT mode." << endl;
+	cout << "  --quality  Sets the quality for DCT [1-100] or IT [0-100] mode." << endl;
 	cout << "  --start  Will start with this frame, ignoring any decoded frames prior to it." << endl;
 	cout << "  --frames  Sets the number of maximum frames that are decoded." << endl;
 	cout << "  --rewind  Sets a start point and a number of frames to play in reverse. Once finished, normal playback continues." << endl;

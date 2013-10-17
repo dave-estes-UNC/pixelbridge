@@ -31,7 +31,7 @@ public:
 	 *
 	 * @param display A pointer to the NDDI display
 	 */
-	ItTiler(BaseNddiDisplay* display,
+	ItTiler(BaseNddiDisplay* display, size_t quality,
             bool quiet);
     
 	~ItTiler() {
@@ -76,7 +76,7 @@ private:
 	static const size_t  BASIS_BLOCKS_WIDE = 4;
 	static const size_t  BASIS_BLOCKS_TALL = 4;
 
-	static const size_t  MAX_IT_COEFF = 1 << 8;
+	static const size_t  MAX_IT_COEFF = 64;
     
     double Cf4[BLOCK_SIZE] = {
         1,   1,   1,   1,
