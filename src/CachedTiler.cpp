@@ -17,22 +17,39 @@
  * The CachedTiler is created based on the dimensions of the NDDI display that's passed in. If those
  * dimensions change, then the CachedTiler should be destroyed and re-created.
  */
-CachedTiler::CachedTiler (BaseNddiDisplay* display, size_t tile_width, size_t tile_height, size_t max_tiles, size_t bits, bool quiet)
-: display_(display),
-  tile_width_(tile_width),
+CachedTiler::CachedTiler (size_t display_width, size_t display_height,
+                          size_t tile_width, size_t tile_height,
+                          size_t max_tiles, size_t bits, bool quiet)
+: tile_width_(tile_width),
   tile_height_(tile_height),
   max_tiles_(max_tiles),
   bits_(bits),
   quiet_(quiet)
 {
+    
+    // 3 dimensional matching the Tile Width x Height x max tiles
+    vector<unsigned int> fvDimensions;
+    fvDimensions.push_back(tile_width);
+    fvDimensions.push_back(tile_height);
+    fvDimensions.push_back(max_tiles);
+    
+#ifndef NO_CL
+    display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
+                                 display_width, display_height, // display size
+                                 3); 						    // input vector size (x, y, and z)
+#else
+    display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
+                                 display_width, display_height, // display size
+                                 3); 						    // input vector size (x, y, and z)
+#endif
 
 	// Compute tile_map width
-	tile_map_width_ = display_->DisplayWidth() / tile_width;
-	if ((tile_map_width_ * tile_width) < display_->DisplayWidth()) { tile_map_width_++; }
+	tile_map_width_ = display_width / tile_width;
+	if ((tile_map_width_ * tile_width) < display_width) { tile_map_width_++; }
 
 	// Compute tile_map height
-	tile_map_height_ = display_->DisplayHeight() / tile_height;
-	if ((tile_map_height_ * tile_height) < display_->DisplayHeight()) { tile_map_height_++; }
+	tile_map_height_ = display_height / tile_height;
+	if ((tile_map_height_ * tile_height) < display_height) { tile_map_height_++; }
 
 	// Set up tile cache counters
 	unchanged_tiles_ = cache_hits_ = cache_misses_ = age_counter_ = 0;
@@ -44,6 +61,22 @@ CachedTiler::CachedTiler (BaseNddiDisplay* display, size_t tile_width, size_t ti
 			display_map_[i].push_back(NULL);
 		}
 	}
+    
+    // Initialize Input Vector
+    vector<int> iv;
+    iv.push_back(1);
+    display_->UpdateInputVector(iv);
+    
+    // Initialize Frame Volume
+    nddi::Pixel p;
+    p.r = p.g = p.b = p.a = 0xff;
+    vector<unsigned int> start, end;
+    start.push_back(0); start.push_back(0); start.push_back(0);
+    end.push_back(tile_width_); end.push_back(tile_height_); end.push_back(max_tiles_);
+    display_->FillPixel(p, start, end);
+    
+    // Initialize Coefficient Planes
+    InitializeCoefficientPlanes();
 }
 
 CachedTiler::~CachedTiler()
@@ -53,6 +86,13 @@ CachedTiler::~CachedTiler()
 	for (it = cache_map_.begin(); it != cache_map_.end(); it++) {
 		free(it->second);
 	}
+}
+
+/**
+ * Returns the Display created and initialized by the tiler.
+ */
+GlNddiDisplay* CachedTiler::GetDisplay() {
+    return display_;
 }
 
 /**

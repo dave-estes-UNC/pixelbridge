@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "GlNddiDisplay.h"
+
 /*
  *  Tiler.h
  *  pixelbridge
@@ -23,9 +25,9 @@ class Tiler {
 public:
 
     /**
-     * Intializes the Coefficient Planes for this tiler.
+     * Returns the Display created and initialized by the tiler.
      */
-    virtual void InitializeCoefficientPlanes() = 0;
+    virtual GlNddiDisplay* GetDisplay() = 0;
 
 	/**
 	 * Update the tile_map, tilecache, and then the NDDI display based on the frame that's passed in.

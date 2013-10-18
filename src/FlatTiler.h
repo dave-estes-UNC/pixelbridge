@@ -28,12 +28,13 @@ public:
 	 * The FlatTiler is created based on the dimensions of the NDDI display that's passed in. If those
 	 * dimensions change, then the CachedTiler should be destroyed and re-created.
 	 *
-	 * @param display A pointer to the NDDI display
+     * @param display_width The width of the display
+     * @param display_height The height of the display
 	 * @param tile_width The width of the tiles
 	 * @param tile_height The height of the tiles
 	 * @param bits The number of most significant bits to use when computing checksums for a tile match
 	 */
-	FlatTiler(BaseNddiDisplay* display,
+	FlatTiler(size_t display_width, size_t display_height,
 			  size_t tile_width, size_t tile_height,
 			  size_t bits,
 			  bool quiet);
@@ -43,9 +44,9 @@ public:
 	}
 	
     /**
-     * Initializes the Coefficient Planes for this tiler.
+     * Returns the Display created and initialized by the tiler.
      */
-    void InitializeCoefficientPlanes();
+    virtual GlNddiDisplay* GetDisplay();
     
 	/**
 	 * Update the tile_map, tilecache, and then the NDDI display based on the frame that's passed in.
@@ -57,11 +58,12 @@ public:
 	void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 	
 private:
+    void InitializeCoefficientPlanes();
 #ifndef USE_COPY_PIXEL_TILES
 	void UpdateFrameVolume(Pixel* pixels, int i_map, int j_map);
 #endif
 	
-	BaseNddiDisplay*  display_;
+	GlNddiDisplay*    display_;
 	size_t            tile_width_, tile_height_;
 	size_t            tile_map_width_, tile_map_height_;
 	size_t            bits_;

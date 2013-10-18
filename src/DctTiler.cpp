@@ -47,13 +47,45 @@
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
  * dimensions change, then the FlatTiler should be destroyed and re-created.
  */
-DctTiler::DctTiler (BaseNddiDisplay* display, size_t quality, bool quiet)
-: display_(display),
-  quiet_(quiet)
+DctTiler::DctTiler (size_t display_width, size_t display_height,
+                    size_t quality, bool quiet)
+: quiet_(quiet)
 {
+    // 3 dimensional matching the Macroblock Width x Height x 64+3+1
+    vector<unsigned int> fvDimensions;
+    fvDimensions.push_back(BLOCK_WIDTH);
+    fvDimensions.push_back(BLOCK_HEIGHT);
+    fvDimensions.push_back(FRAMEVOLUME_DEPTH);
+    
+#ifndef NO_CL
+#error CL not supported for DCT Tiler yet.
+#else
+    display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
+                                 display_width, display_height, // display size
+                                 3); 						    // input vector size (x, y, 1)
+#endif
+
     initZigZag();
     initQuantizationMatrix(quality);
     display_->SetPixelByteSignMode(SIGNED_MODE);
+    
+    // Initialize Input Vector
+    vector<int> iv;
+    iv.push_back(1);
+    display_->UpdateInputVector(iv);
+    
+    // Initialize Coefficient Planes
+    InitializeCoefficientPlanes();
+    
+    // Initialize Frame Volume
+    InitializeFrameVolume();
+}
+
+/**
+ * Returns the Display created and initialized by the tiler.
+ */
+GlNddiDisplay* DctTiler::GetDisplay() {
+    return display_;
 }
 
 /*
@@ -380,7 +412,6 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 		    coefficients.resize(lastNonZeroPlane + 1);
 		    if (lastNonZeroPlane > largestNonZeroPlaneSeen) {
 		    	largestNonZeroPlaneSeen = lastNonZeroPlane;
-		    	cout << largestNonZeroPlaneSeen << endl;
 		    }
 
 			/* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */

@@ -44,25 +44,24 @@ public:
 	 * The CachedTiler is created based on the dimensions of the NDDI display that's passed in. If those
 	 * dimensions change, then the CachedTiler should be destroyed and re-created.
 	 *
-	 * @param display A pointer to the NDDI display
+     * @param display_width The width of the display
+     * @param display_height The height of the display
 	 * @param tile_width The width of the tiles
 	 * @param tile_height The height of the tiles
 	 * @param max_tiles The maximum number of tiles in the cache
 	 * @param bits The number of most significant bits to use when computing checksums for a tile match
 	 */
-	CachedTiler(BaseNddiDisplay* display,
-				size_t tile_width, size_t tile_height,
+	CachedTiler(size_t display_width, size_t display_height,
+                size_t tile_width, size_t tile_height,
 				size_t max_tiles, size_t bits,
 				bool quiet);
 
 	~CachedTiler();
 
     /**
-     * Intializes the Coefficient Planes for this tiler.
-     *
-	 * @return The cost of this operation, including all of the NDDI operations
+     * Returns the Display created and initialized by the tiler.
      */
-    void InitializeCoefficientPlanes();
+    virtual GlNddiDisplay* GetDisplay();
     
 	/**
 	 * Update the tile_map, tilecache, and then the NDDI display based on the frame that's passed in.
@@ -76,6 +75,7 @@ public:
 	
 private:
 	
+    void InitializeCoefficientPlanes();
 	tile_t* IsTileInCache(unsigned long checksum);
 	bool IsTileInUse(tile_t *);
 	tile_t* GetExpiredCacheTile();
@@ -88,7 +88,7 @@ private:
 	void PushTile(tile_t* tile, size_t i, size_t j);
 #endif
 	
-	BaseNddiDisplay*               display_;
+	GlNddiDisplay*                 display_;
 	size_t                         tile_width_, tile_height_, max_tiles_;
 	size_t                         tile_map_width_, tile_map_height_;
 	size_t                         bits_;

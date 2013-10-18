@@ -26,24 +26,20 @@ public:
 	 * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
 	 * dimensions change, then the DctTiler should be destroyed and re-created.
 	 *
-	 * @param display A pointer to the NDDI display
+     * @param display_width The width of the display
+     * @param display_height The height of the display
+	 * @param quality The quality factor used for DCT.
+     * @param quiet Used to squelch extra information output.
 	 */
-	DctTiler(BaseNddiDisplay* display,
-			 size_t quality,
-			 bool quiet);
+	DctTiler(size_t display_width, size_t display_height, size_t quality, bool quiet);
 
 	~DctTiler() {
 	}
 
     /**
-     * Initializes the Coefficient Planes for this tiler.
+     * Returns the Display created and initialized by the tiler.
      */
-    void InitializeCoefficientPlanes();
-
-    /**
-     * Initializes the Frame Volume for this tiler.
-     */
-    void InitializeFrameVolume();
+    GlNddiDisplay* GetDisplay();
 
 	/**
 	 * Update the scalers and then the NDDI display based on the frame that's passed in.
@@ -55,21 +51,21 @@ public:
 	void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 
 private:
+    void InitializeCoefficientPlanes();
+    void InitializeFrameVolume();
     void initZigZag();
 	void initQuantizationMatrix(size_t quality);
 
-public:
+private:
 	static const size_t  BLOCK_WIDTH = 8;
 	static const size_t  BLOCK_HEIGHT = 8;
-    static const size_t  FRAMEVOLUME_DEPTH  = BLOCK_WIDTH * BLOCK_HEIGHT * 3 + 1;
-    
-private:
 	static const size_t  BLOCK_SIZE = BLOCK_WIDTH * BLOCK_HEIGHT;
+    static const size_t  FRAMEVOLUME_DEPTH  = BLOCK_SIZE * 3 + 1;
 	static const size_t  BASIS_BLOCKS_WIDE = 8;
 	static const size_t  BASIS_BLOCKS_TALL = 8;
 	static const size_t  MAX_DCT_COEFF = 256;
 
-	BaseNddiDisplay*  display_;
+	GlNddiDisplay*    display_;
 	bool              quiet_;
 	int               zigZag_[BLOCK_WIDTH * BLOCK_HEIGHT];
 	unsigned char     quantizationMatrix_[BLOCK_WIDTH * BLOCK_HEIGHT];

@@ -29,23 +29,20 @@ public:
 	 * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
 	 * dimensions change, then the DctTiler should be destroyed and re-created.
 	 *
-	 * @param display A pointer to the NDDI display
+     * @param display_width The width of the display
+     * @param display_height The height of the display
+	 * @param quality The quality factor used for DCT.
+     * @param quiet Used to squelch extra information output.
 	 */
-	ItTiler(BaseNddiDisplay* display, size_t quality,
-            bool quiet);
+	ItTiler(size_t display_width, size_t display_height, size_t quality, bool quiet);
     
 	~ItTiler() {
 	}
     
     /**
-     * Initializes the Coefficient Planes for this tiler.
+     * Returns the Display created and initialized by the tiler.
      */
-    void InitializeCoefficientPlanes();
-    
-    /**
-     * Initializes the Frame Volume for this tiler.
-     */
-    void InitializeFrameVolume();
+    GlNddiDisplay* GetDisplay();
     
 	/**
 	 * Update the scalers and then the NDDI display based on the frame that's passed in.
@@ -58,6 +55,8 @@ public:
 
 
 private:
+    void InitializeCoefficientPlanes();
+    void InitializeFrameVolume();
     void initZigZag();
     void setQuality(uint32_t quality);
     void matrixMultiply(double *D, double *S1, double *S2);
@@ -66,13 +65,11 @@ private:
     void forwardIntegerTransform(int *Y, int *X);
     void inverseIntegerTransform(int *Z, int *Y); // Added for completeness, but not used.
 
-public:
+private:
 	static const size_t  BLOCK_WIDTH = 4;
 	static const size_t  BLOCK_HEIGHT = 4;
-    static const size_t  FRAMEVOLUME_DEPTH  = BLOCK_WIDTH * BLOCK_HEIGHT * 3;
-    
-private:
 	static const size_t  BLOCK_SIZE = BLOCK_WIDTH * BLOCK_HEIGHT;
+    static const size_t  FRAMEVOLUME_DEPTH  = BLOCK_SIZE * 3;
 	static const size_t  BASIS_BLOCKS_WIDE = 4;
 	static const size_t  BASIS_BLOCKS_TALL = 4;
 
@@ -107,7 +104,7 @@ private:
     
     uint32_t qp = 0;
     
-	BaseNddiDisplay*  display_;
+	GlNddiDisplay*    display_;
 	bool              quiet_;
 	int               zigZag_[BLOCK_SIZE];
 };

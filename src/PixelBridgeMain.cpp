@@ -51,7 +51,7 @@ typedef enum {
 
 
 // General Globals
-int displayWidth = 320, displayHeight = 240;
+size_t displayWidth = 320, displayHeight = 240;
 const char* fileName = NULL;
 
 // Helper Objects
@@ -103,107 +103,40 @@ void setupDisplay() {
 	// Cached-Tiled
 	if (config == CACHE) {
 
-		// 3 dimensional matching the Tile Width x Height x max tiles
-		vector<unsigned int> fvDimensions;
-		fvDimensions.push_back(configTileWidth);
-		fvDimensions.push_back(configTileHeight);
-		fvDimensions.push_back(configMaxTiles);
-		
-#ifndef NO_CL
-		myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
-									  displayWidth, displayHeight, // display size
-									  3); 						   // input vector size (x, y, and z)
-#else
-		myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
-									  displayWidth, displayHeight, // display size
-									  3); 						   // input vector size (x, y, and z)
-#endif
-        // Grab the cost model
-        costModel = myDisplay->GetCostModel();
-        
-		// Initialize Input Vector
-		vector<int> iv;
-		iv.push_back(1);
-		myDisplay->UpdateInputVector(iv);
-		
-		// Initialize Frame Volume
-		nddi::Pixel p;
-		p.r = p.g = p.b = p.a = 0xff;
-		vector<unsigned int> start, end;
-		start.push_back(0); start.push_back(0); start.push_back(0);
-		end.push_back(configTileWidth); end.push_back(configTileHeight); end.push_back(configMaxTiles);
-		myDisplay->FillPixel(p, start, end);
-		
 		// Setup Cached Tiler which initializies Coefficient Plane
-		myTiler = new CachedTiler(myDisplay,
-								  configTileWidth, configTileHeight,
+		myTiler = new CachedTiler(displayWidth, displayHeight,
+                                  configTileWidth, configTileHeight,
 								  configMaxTiles, configSigBits,
 								  configHeadless || !configVerbose);
 
-        myTiler->InitializeCoefficientPlanes();
-
+        // Grab the display and cost model
+        myDisplay = myTiler->GetDisplay();
+        costModel = myDisplay->GetCostModel();
+        
 	// DCT-Tiled
 	} else if (config == DCT) {
 
-		// 3 dimensional matching the Macroblock Width x Height x 64+3+1
-		vector<unsigned int> fvDimensions;
-		fvDimensions.push_back(DctTiler::BLOCK_WIDTH);
-		fvDimensions.push_back(DctTiler::BLOCK_HEIGHT);
-		fvDimensions.push_back(DctTiler::FRAMEVOLUME_DEPTH);
-
-#ifndef NO_CL
-#error CL not supported for DCT Tiler yet.
-#else
-		myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
-									  displayWidth, displayHeight, // display size
-									  3); 						   // input vector size (x, y, 1)
-#endif
-        // Grab the cost model
-        costModel = myDisplay->GetCostModel();
-
-		// Initialize Input Vector
-		vector<int> iv;
-		iv.push_back(1);
-		myDisplay->UpdateInputVector(iv);
-
 		// Setup DCT Tiler and initializes Coefficient Plane and Frame Volume
-		myTiler = new DctTiler(myDisplay, configQuality,
+		myTiler = new DctTiler(displayWidth, displayHeight,
+                               configQuality,
 							   configHeadless || !configVerbose);
 
-        myTiler->InitializeCoefficientPlanes();
-        ((DctTiler *)myTiler)->InitializeFrameVolume();
-        
+        // Grab the display and cost model
+        myDisplay = myTiler->GetDisplay();
+        costModel = myDisplay->GetCostModel();
+
     // IT-Tiled
 	} else if (config == IT) {
         
-		// 3 dimensional matching the Macroblock Width x Height x 64+3+1
-		vector<unsigned int> fvDimensions;
-		fvDimensions.push_back(ItTiler::BLOCK_WIDTH);
-		fvDimensions.push_back(ItTiler::BLOCK_HEIGHT);
-		fvDimensions.push_back(ItTiler::FRAMEVOLUME_DEPTH);
-        
-#ifndef NO_CL
-#error CL not supported for IT Tiler yet.
-#else
-		myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
-									  displayWidth, displayHeight, // display size
-									  3); 						   // input vector size (x, y, 1)
-#endif
-        // Grab the cost model
-        costModel = myDisplay->GetCostModel();
-        
-		// Initialize Input Vector
-		vector<int> iv;
-		iv.push_back(1);
-		myDisplay->UpdateInputVector(iv);
-        
 		// Setup IT Tiler and initializes Coefficient Plane and Frame Volume
-		myTiler = new ItTiler(myDisplay, configQuality,
+		myTiler = new ItTiler(displayWidth, displayHeight,
+                              configQuality,
                               configHeadless || !configVerbose);
         
-        myTiler->InitializeCoefficientPlanes();
-        ((ItTiler *)myTiler)->InitializeFrameVolume();
-
+        // Grab the display and cost model
+        myDisplay = myTiler->GetDisplay();
+        costModel = myDisplay->GetCostModel();
+        
     // Frame Volume Blending
     } else if ((config == SIMPLE) && (configBlend == FRAME_VOLUME)) {
 		
@@ -361,39 +294,15 @@ void setupDisplay() {
     // Flat-Tiled
 	} else if (config == FLAT) {
 
-		// 2 dimensional matching the Video Width x Height
-		vector<unsigned int> fvDimensions;
-		
-		fvDimensions.push_back(displayWidth);
-		fvDimensions.push_back(displayHeight);
-#ifndef NO_CL
-		myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
-                                      displayWidth, displayHeight, // display size
-                                      2); 						   // input vector size (x and y only)
-#else
-		myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
-                                      displayWidth, displayHeight, // display size
-                                      2); 						   // input vector size (x and y only)
-#endif
-
-        // Grab the cost model
-        costModel = myDisplay->GetCostModel();
-        
-		// Initialize Frame Volume
-		nddi::Pixel p;
-		p.r = p.g = p.b = p.a = 0xff;
-		vector<unsigned int> start, end;
-		start.push_back(0); start.push_back(0);
-		end.push_back(displayWidth - 1); end.push_back(displayHeight - 1);
-		myDisplay->FillPixel(p, start, end);
-		
-        // Set up Flat Tiler and initialize Coefficient plane`
-        myTiler = new FlatTiler(myDisplay,
+        // Set up Flat Tiler and initialize Coefficient Planes
+        myTiler = new FlatTiler(displayWidth, displayHeight,
                                 configTileWidth, configTileHeight, configSigBits,
                                 configHeadless || !configVerbose);
         
-        myTiler->InitializeCoefficientPlanes();
-
+        // Grab the display and cost model
+        myDisplay = myTiler->GetDisplay();
+        costModel = myDisplay->GetCostModel();
+        
     // Simple Framebuffer
 	} else {
 		

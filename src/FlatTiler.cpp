@@ -18,14 +18,30 @@
  * The FlatTiler is created based on the dimensions of the NDDI display that's passed in. If those
  * dimensions change, then the FlatTiler should be destroyed and re-created.
  */
-FlatTiler::FlatTiler (BaseNddiDisplay* display, size_t tile_width, size_t tile_height, size_t bits, bool quiet)
-: display_(display),
-  tile_width_(tile_width),
+FlatTiler::FlatTiler (size_t display_width, size_t display_height,
+                      size_t tile_width, size_t tile_height,
+                      size_t bits, bool quiet)
+: tile_width_(tile_width),
   tile_height_(tile_height),
   bits_(bits),
   quiet_(quiet)
 {
 	
+    // 2 dimensional matching the Video Width x Height
+    vector<unsigned int> fvDimensions;
+    fvDimensions.push_back(display_width);
+    fvDimensions.push_back(display_height);
+
+#ifndef NO_CL
+    display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
+                                 display_width, display_height, // display size
+                                 2); 						    // input vector size (x and y only)
+#else
+    display_ = new GlNddiDisplay(fvDimensions,                   // framevolume dimensional sizes
+                                 display_width, display_height,  // display size
+                                 2); 						     // input vector size (x and y only)
+#endif
+    
 	// Compute tile_map width
 	tile_map_width_ = display_->DisplayWidth() / tile_width;
 	if ((tile_map_width_ * tile_width) < display_->DisplayWidth()) { tile_map_width_++; }
@@ -41,9 +57,29 @@ FlatTiler::FlatTiler (BaseNddiDisplay* display, size_t tile_width, size_t tile_h
 			tile_map_[i].push_back(0L);
 		}
 	}
-
+    
 	// Set tile update count to zero
 	unchanged_tiles_ = tile_updates_ = 0;
+    
+    // Not Input Vector Initialization required
+
+    // Initialize Frame Volume
+    nddi::Pixel p;
+    p.r = p.g = p.b = p.a = 0xff;
+    vector<unsigned int> start, end;
+    start.push_back(0); start.push_back(0);
+    end.push_back(display_width - 1); end.push_back(display_height - 1);
+    display_->FillPixel(p, start, end);
+    
+    // Initialize Coefficient Planes
+    InitializeCoefficientPlanes();
+}
+
+/**
+ * Returns the Display created and initialized by the tiler.
+ */
+GlNddiDisplay* FlatTiler::GetDisplay() {
+    return display_;
 }
 
 /**

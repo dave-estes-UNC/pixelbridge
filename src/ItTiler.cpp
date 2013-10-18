@@ -20,12 +20,44 @@
 #define MIN(x, y)            (x < y ? x : y)
 #define CEIL(x, y)           (1 + ((x - 1) / y))
 
-ItTiler::ItTiler(BaseNddiDisplay* display, size_t quality, bool quiet)
-: display_(display),
-  quiet_(quiet)
+ItTiler::ItTiler(size_t display_width, size_t display_height,
+                 size_t quality, bool quiet)
+: quiet_(quiet)
 {
+    // 3 dimensional matching the Macroblock Width x Height x 64+3+1
+    vector<unsigned int> fvDimensions;
+    fvDimensions.push_back(BLOCK_WIDTH);
+    fvDimensions.push_back(BLOCK_HEIGHT);
+    fvDimensions.push_back(FRAMEVOLUME_DEPTH);
+    
+#ifndef NO_CL
+#error CL not supported for IT Tiler yet.
+#else
+    display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
+                                 display_width, display_height, // display size
+                                 3);   						    // input vector size (x, y, 1)
+#endif
+
     initZigZag();
     setQuality(quality);
+    
+    // Initialize Input Vector
+    vector<int> iv;
+    iv.push_back(1);
+    display_->UpdateInputVector(iv);
+    
+    // Initialize Coefficient Planes
+    InitializeCoefficientPlanes();
+    
+    // Initialize Frame Volume
+    InitializeFrameVolume();
+}
+
+/**
+ * Returns the Display created and initialized by the tiler.
+ */
+GlNddiDisplay* ItTiler::GetDisplay() {
+    return display_;
 }
 
 /**
@@ -394,11 +426,20 @@ void ItTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
             int blueCoeffsBlock[BLOCK_SIZE];
             
             /* Copy color channels for this block into their temporary single channel blocks. */
+            size_t offset;
 			for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
 				for (size_t u = 0; u < BLOCK_WIDTH; u++) {
-                    redImgBlock[v * BLOCK_WIDTH + u] = buffer[((j * BLOCK_HEIGHT + v) * width + (i * BLOCK_WIDTH + u)) * 3 + 0];
-                    greenImgBlock[v * BLOCK_WIDTH + u] = buffer[((j * BLOCK_HEIGHT + v) * width + (i * BLOCK_WIDTH + u)) * 3 + 1];
-                    blueImgBlock[v * BLOCK_WIDTH + u] = buffer[((j * BLOCK_HEIGHT + v) * width + (i * BLOCK_WIDTH + u)) * 3 + 2];
+                    offset = ((j * BLOCK_HEIGHT + v) * width + (i * BLOCK_WIDTH + u));
+                    if (offset >= width * height) {
+                        redImgBlock[v * BLOCK_WIDTH + u] = 0;
+                        greenImgBlock[v * BLOCK_WIDTH + u] = 0;
+                        blueImgBlock[v * BLOCK_WIDTH + u] = 0;
+                    } else {
+                        offset *= 3;
+                        redImgBlock[v * BLOCK_WIDTH + u] = buffer[offset++];
+                        greenImgBlock[v * BLOCK_WIDTH + u] = buffer[offset++];
+                        blueImgBlock[v * BLOCK_WIDTH + u] = buffer[offset++];
+                    }
                 }
             }
             
@@ -425,7 +466,6 @@ void ItTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
 		    coefficients.resize(lastNonZeroPlane + 1);
 		    if (lastNonZeroPlane > largestNonZeroPlaneSeen) {
 		    	largestNonZeroPlaneSeen = lastNonZeroPlane;
-		    	cout << largestNonZeroPlaneSeen << endl;
 		    }
             
 			/* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
