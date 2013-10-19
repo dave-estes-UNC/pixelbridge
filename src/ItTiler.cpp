@@ -35,11 +35,13 @@ ItTiler::ItTiler(size_t display_width, size_t display_height,
 #else
     display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
+                                 64,                            // Number of coefficient planes
                                  3);   						    // input vector size (x, y, 1)
 #endif
 
     initZigZag();
     setQuality(quality);
+    display_->SetPixelByteSignMode(SIGNED_MODE);
     
     // Initialize Input Vector
     vector<int> iv;
@@ -295,7 +297,7 @@ void ItTiler::InitializeCoefficientPlanes() {
 	start[0] = 0; start[1] = 0; start[2] = 0;
 	end[0] = display_->DisplayWidth() - 1;
 	end[1] = display_->DisplayHeight() - 1;
-    end[2] = NUM_COEFFICIENT_PLANES - 1;
+    end[2] = display_->NumCoefficientPlanes() - 1;
     display_->FillScaler(0, start, end);
 }
 
@@ -455,7 +457,6 @@ void ItTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
 					coefficients[p + 0] = redCoeffsBlock[v * BLOCK_WIDTH + u];
 					coefficients[p + 1] = greenCoeffsBlock[v * BLOCK_WIDTH + u];
 					coefficients[p + 2] = blueCoeffsBlock[v * BLOCK_WIDTH + u];
-
                     if (coefficients[p + 0] != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p + 0);
                     if (coefficients[p + 1] != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p + 1);
                     if (coefficients[p + 2] != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p + 2);
@@ -469,8 +470,8 @@ void ItTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
 		    }
             
 			/* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
-		    start[0] = i * BLOCK_WIDTH; end[0] = (i + 1) * BLOCK_WIDTH - 1;
-		    start[1] = j * BLOCK_HEIGHT; end[1] = (j + 1) * BLOCK_HEIGHT - 1;
+		    start[0] = i * BLOCK_WIDTH;
+		    start[1] = j * BLOCK_HEIGHT;
 		    display_->FillScalerTileStack(coefficients, start, size);
         }
     }

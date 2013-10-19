@@ -36,10 +36,12 @@ CachedTiler::CachedTiler (size_t display_width, size_t display_height,
 #ifndef NO_CL
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
+                                 1,                             // number of coefficient planes in display
                                  3); 						    // input vector size (x, y, and z)
 #else
     display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
+                                 1 ,                            // number of coefficient planes in display
                                  3); 						    // input vector size (x, y, and z)
 #endif
 
@@ -130,10 +132,10 @@ void CachedTiler::InitializeCoefficientPlanes() {
 	start[0] = 0; start[1] = 0; start[2] = 0;
 	end[0] = display_->DisplayWidth() - 1;
 	end[1] = display_->DisplayHeight() - 1;
-    end[2] = NUM_COEFFICIENT_PLANES - 1;
+    end[2] = display_->NumCoefficientPlanes() - 1;
     display_->FillScaler(0, start, end);
     end[2] = 0;
-    display_->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
+    display_->FillScaler(display_->NumCoefficientPlanes(), start, end);
 }
 
 

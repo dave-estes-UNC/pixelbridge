@@ -23,6 +23,7 @@ private:
     unsigned int      matrixWidth_;
     unsigned int      matrixHeight_;
     unsigned int      matrixSize_;   // In bytes
+    unsigned int      numPlanes_;
 
     int             * coefficients_;
 
@@ -34,11 +35,13 @@ public:
 
     ClCoefficientPlane(CostModel* costModel,
                        unsigned int displayWidth, unsigned int displayHeight,
+                       unsigned int numPlanes,
                        unsigned int matrixWidth, unsigned int matrixHeight) {
 
         costModel_ = costModel;
         width_ = displayWidth;
         height_ = displayHeight;
+        numPlanes_ = numPlanes;
         coefficientMatrices_ = NULL;
 
         matrixWidth_ = matrixWidth;

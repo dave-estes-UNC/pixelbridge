@@ -20,10 +20,10 @@ class GlNddiDisplay : public nddi::BaseNddiDisplay {
 public:
     GlNddiDisplay() {}
     GlNddiDisplay(std::vector<unsigned int> &frameVolumeDimensionalSizes,
-                  int inputVectorSize);
+                  int numCoefficientPlanes, int inputVectorSize);
     GlNddiDisplay(std::vector<unsigned int> &frameVolumeDimensionalSizes,
                   int displayWidth, int displayHeight,
-                  int inputVectorSize);
+                  int numCoefficientPlanes, int inputVectorSize);
     ~GlNddiDisplay();
 
     /**
@@ -43,6 +43,7 @@ private:
 #endif
 
 protected:
+    size_t accumulatorShifter_;
     GLuint texture_;
     Pixel* frameBuffer_;
 };

@@ -62,6 +62,7 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
 #else
     display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
+                                 256,                           // Number of coefficient planes
                                  3); 						    // input vector size (x, y, 1)
 #endif
 
@@ -214,12 +215,12 @@ void DctTiler::InitializeCoefficientPlanes() {
 	start[0] = 0; start[1] = 0; start[2] = 0;
 	end[0] = display_->DisplayWidth() - 1;
 	end[1] = display_->DisplayHeight() - 1;
-    end[2] = NUM_COEFFICIENT_PLANES - 1;
+    end[2] = display_->NumCoefficientPlanes() - 1;
     display_->FillScaler(0, start, end);
 
 	// Fill the scalers for the medium gray plane to full on
     start[2] = end[2] = FRAMEVOLUME_DEPTH - 1;
-    display_->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
+    display_->FillScaler(display_->NumCoefficientPlanes(), start, end);
 }
 
 /**
@@ -246,7 +247,9 @@ void DctTiler::InitializeFrameVolume() {
 #endif
     for (int j = 0; j < BASIS_BLOCKS_TALL; j++) {
         for (int i = 0; i < BASIS_BLOCKS_WIDE; i++) {
+            
         	size_t p = zigZag_[j * BASIS_BLOCKS_WIDE + i] * BLOCK_SIZE * 3;
+            
             for (int y = 0; y < BLOCK_HEIGHT; y++) {
                 for (int x = 0; x < BLOCK_WIDTH; x++) {
                     double m = 0.0f;
@@ -415,8 +418,8 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 		    }
 
 			/* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
-		    start[0] = i * BLOCK_WIDTH; end[0] = (i + 1) * BLOCK_WIDTH - 1;
-		    start[1] = j * BLOCK_HEIGHT; end[1] = (j + 1) * BLOCK_HEIGHT - 1;
+		    start[0] = i * BLOCK_WIDTH;
+		    start[1] = j * BLOCK_HEIGHT;
 		    display_->FillScalerTileStack(coefficients, start, size);
 		}
 	}

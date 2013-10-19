@@ -38,11 +38,12 @@ namespace nddi {
 
         CoefficientPlane(CostModel* costModel,
                          unsigned int displayWidth, unsigned int displayHeight,
+                         unsigned int numPlanes,
                          unsigned int matrixWidth, unsigned int matrixHeight)
-        : costModel_(costModel), width_(displayWidth), height_(displayHeight), numPlanes_(NUM_COEFFICIENT_PLANES), coefficientMatrices_(NULL) {
+        : costModel_(costModel), width_(displayWidth), height_(displayHeight), numPlanes_(numPlanes), coefficientMatrices_(NULL) {
 
-            coefficientMatrices_ = (CoefficientMatrix **)malloc(sizeof(CoefficientMatrix *) * displayWidth * displayHeight * NUM_COEFFICIENT_PLANES);
-            for (int p = 0; p < NUM_COEFFICIENT_PLANES; p++) {
+            coefficientMatrices_ = (CoefficientMatrix **)malloc(sizeof(CoefficientMatrix *) * displayWidth * displayHeight * numPlanes_);
+            for (int p = 0; p < numPlanes_; p++) {
 				for (int y = 0; y < displayHeight; y++) {
 					for (int x = 0; x < displayWidth; x++) {
 						coefficientMatrices_[p * displayWidth * displayHeight + y * displayWidth + x] = new CoefficientMatrix(costModel_, matrixWidth, matrixHeight);
@@ -51,9 +52,9 @@ namespace nddi {
             }
 
 #ifdef NARROW_DATA_STORES
-            scalers_ = (int16_t *)malloc(sizeof(int16_t) * displayWidth * displayHeight * NUM_COEFFICIENT_PLANES);
+            scalers_ = (int16_t *)malloc(sizeof(int16_t) * displayWidth * displayHeight * numPlanes_);
 #else
-            scalers_ = (int *)malloc(sizeof(int) * displayWidth * displayHeight * NUM_COEFFICIENT_PLANES);
+            scalers_ = (int *)malloc(sizeof(int) * displayWidth * displayHeight * numPlanes_);
 #endif
         }
 

@@ -15,11 +15,6 @@ namespace nddi {
      */
     #define COFFICIENT_UNCHANGED INT_MAX
 
-	/**
-	 * The number of coefficient planes is fixed at 256.
-	 */
-	#define NUM_COEFFICIENT_PLANES 256
-
     /**
      * Struct representing an RGBA 32-bit pixel.
      */

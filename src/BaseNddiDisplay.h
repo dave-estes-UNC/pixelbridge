@@ -39,6 +39,11 @@ namespace nddi {
         int displayHeight_;
         
         /**
+         * Holds the number of coefficient planes
+         */
+        int numPlanes_;
+        
+        /**
          * The input vector
          */
         InputVector * inputVector_;
@@ -83,13 +88,14 @@ namespace nddi {
     public:
         BaseNddiDisplay();
         BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
-                        int inputVectorSize);
+                        int numCoefficientPlanes, int inputVectorSize);
         BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                         int displayWidth, int displayHeight,
-                        int inputVectorSize);
+                        int numCoefficientPlanes, int inputVectorSize);
         ~BaseNddiDisplay();
         int DisplayWidth();
         int DisplayHeight();
+        int NumCoefficientPlanes();
         void PutPixel(Pixel p, vector<unsigned int> &location);
         void CopyPixelStrip(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end);
         void CopyPixels(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end);

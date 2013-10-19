@@ -113,7 +113,7 @@ void setupDisplay() {
         myDisplay = myTiler->GetDisplay();
         costModel = myDisplay->GetCostModel();
         
-	// DCT-Tiled
+    // DCT-Tiled
 	} else if (config == DCT) {
 
 		// Setup DCT Tiler and initializes Coefficient Plane and Frame Volume
@@ -148,6 +148,7 @@ void setupDisplay() {
 		
 		myBlendingDisplay = new BlendingGlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                                       displayWidth, displayHeight, // display size
+                                                      1,                           // number of coefficient planes
                                                       3); 						   // input vector size (x, y, 1)
         myDisplay = myBlendingDisplay;
 		
@@ -182,11 +183,11 @@ void setupDisplay() {
         myDisplay->FillCoefficientMatrix(coeffs, start, end);
 
         // Turn off all planes and then set the 0 plane to full on.
-        end[2] = NUM_COEFFICIENT_PLANES - 1;
+        end[2] = myDisplay->NumCoefficientPlanes() - 1;
         myDisplay->FillScaler(0, start, end);
         end[2] = 0;
-        myDisplay->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
-
+        myDisplay->FillScaler(myDisplay->NumCoefficientPlanes(), start, end);
+        
     // Temporal Blending
     } else if ((config == SIMPLE) && (configBlend == TEMPORAL)) {
 		
@@ -198,6 +199,7 @@ void setupDisplay() {
 		
 		myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
 									  displayWidth, displayHeight, // display size
+                                      1,                           // number of coefficient planes on the display
 									  3); 						   // input vector size (x, y, t)
 		
         // Grab the cost model
@@ -231,10 +233,10 @@ void setupDisplay() {
 		myDisplay->FillCoefficientMatrix(coeffs, start, end);
         
         // Turn off all planes and then set the 0 plane to full on.
-        end[2] = NUM_COEFFICIENT_PLANES - 1;
+        end[2] = myDisplay->NumCoefficientPlanes() - 1;
         myDisplay->FillScaler(0, start, end);
         end[2] = 0;
-        myDisplay->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
+        myDisplay->FillScaler(myDisplay->NumCoefficientPlanes(), start, end);
 
     // Coefficient Plane Blending
     } else if ((config == SIMPLE) && (configBlend == COEFFICIENT_PLANE)) {
@@ -247,6 +249,7 @@ void setupDisplay() {
 		
 		myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
 									  displayWidth, displayHeight, // display size
+                                      2,                           // number of coefficient planes on the display
 									  3); 						   // input vector size (x, y, t)
 		
         // Grab the cost model
@@ -286,10 +289,10 @@ void setupDisplay() {
 		myDisplay->FillCoefficientMatrix(coeffs, start, end);
 
         // Turn off all planes and then set the 0 and 1 planes to half each.
-        end[2] = NUM_COEFFICIENT_PLANES - 1;
+        end[2] = myDisplay->NumCoefficientPlanes() - 1;
         myDisplay->FillScaler(0, start, end);
         end[2] = 1;
-        myDisplay->FillScaler(NUM_COEFFICIENT_PLANES / 2, start, end);
+        myDisplay->FillScaler(myDisplay->NumCoefficientPlanes() << 1, start, end);
 
     // Flat-Tiled
 	} else if (config == FLAT) {
@@ -314,10 +317,12 @@ void setupDisplay() {
 #ifndef NO_CL
 		myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
 									  displayWidth, displayHeight, // display size
+                                      1,                           // number of coefficient planes on the display
 									  2); 						   // input vector size (x and y only)
 #else
 		myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
 									  displayWidth, displayHeight, // display size
+                                      1,                           // number of coefficient planes on the display
 									  2); 						   // input vector size (x and y only)
 #endif		
         // Grab the cost model
@@ -345,10 +350,10 @@ void setupDisplay() {
         myDisplay->FillCoefficientMatrix(coeffs, start, end);
 
         // Turn off all planes and then set the 0 plane to full on.
-        end[2] = NUM_COEFFICIENT_PLANES - 1;
+        end[2] = myDisplay->NumCoefficientPlanes() - 1;
         myDisplay->FillScaler(0, start, end);
         end[2] = 0;
-        myDisplay->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
+        myDisplay->FillScaler(myDisplay->NumCoefficientPlanes(), start, end);
 
     }
 
@@ -543,6 +548,7 @@ void outputStats(bool exitNow) {
     	cout << "General Information" << endl;
 		cout << "  File: " << fileName << endl;
 		cout << "  Dimensions: " << displayWidth << " x " << displayHeight << endl;
+        cout << "  Coefficient Planes: " << myDisplay->NumCoefficientPlanes() << endl;
 		cout << "  Frames Rendered: " << totalUpdates << endl;
 		cout << endl;
 
@@ -565,6 +571,10 @@ void outputStats(bool exitNow) {
 				break;
 			case DCT:
 				cout << "  Configuring NDDI as DCT Tiled." << endl;
+				cout << "  Quality: " << configQuality << endl;
+				break;
+			case IT:
+				cout << "  Configuring NDDI as IT Tiled." << endl;
 				cout << "  Quality: " << configQuality << endl;
 				break;
 			case COUNT:
@@ -621,9 +631,9 @@ void outputStats(bool exitNow) {
 		// Quality
 		//
 		if (configPSNR) {
-			cout << "Quality Statistics:" << endl << "  Setting: " << configQuality << endl << "  MSE: " << MSE << endl << "  Total PSNR: " << PSNR << endl;
+			cout << "Quality Statistics:" << endl << "  MSE: " << MSE << endl << "  Total PSNR: " << PSNR << endl;
 		} else {
-			cout << "Quality Statistics:" << endl << "  Setting: " << configQuality << endl << "  Use --psnr to enable." << endl;
+			cout << "Quality Statistics:" << endl << "  Use --psnr to enable." << endl;
 		}
 		cout << endl;
 
@@ -969,7 +979,10 @@ bool parseArgs(int argc, char *argv[]) {
 				config = IT;
 			} else if (strcmp(*argv, "count") == 0) {
 				config = COUNT;
-			}
+			} else {
+				showUsage();
+				return false;
+            }
 			argc--;
 			argv++;
 		} else if (strcmp(*argv, "--blend") == 0) {

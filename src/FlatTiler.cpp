@@ -35,10 +35,12 @@ FlatTiler::FlatTiler (size_t display_width, size_t display_height,
 #ifndef NO_CL
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
+                                 1,                             // number of coefficient planes in display
                                  2); 						    // input vector size (x and y only)
 #else
     display_ = new GlNddiDisplay(fvDimensions,                   // framevolume dimensional sizes
                                  display_width, display_height,  // display size
+                                 1,                              // number of coefficient planes in display
                                  2); 						     // input vector size (x and y only)
 #endif
     
@@ -99,10 +101,10 @@ void FlatTiler::InitializeCoefficientPlanes() {
     display_->FillCoefficientMatrix(coeffs, start, end);
 
     // Turn off all planes and then set the 0 plane to full on.
-    end[2] = NUM_COEFFICIENT_PLANES - 1;
+    end[2] = display_->NumCoefficientPlanes() - 1;
     display_->FillScaler(0, start, end);
     end[2] = 0;
-    display_->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
+    display_->FillScaler(display_->NumCoefficientPlanes(), start, end);
 }
 
 /**

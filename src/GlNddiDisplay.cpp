@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <sys/time.h>
+#include <cmath>
 
 #include "PixelBridgeFeatures.h"
 #include "GlNddiDisplay.h"
@@ -42,15 +43,16 @@ inline uint8_t TRUNCATE_BYTE(int32_t i) {
 // public
 
 GlNddiDisplay::GlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
-                             int inputVectorSize) {
+                             int numCoefficientPlanes, int inputVectorSize) {
 	texture_ = 0;
-	GlNddiDisplay(frameVolumeDimensionalSizes, 320, 240, inputVectorSize);
+	GlNddiDisplay(frameVolumeDimensionalSizes, 320, 240, numCoefficientPlanes, inputVectorSize);
 }
 
 GlNddiDisplay::GlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                              int displayWidth, int displayHeight,
-                             int inputVectorSize) {
+                             int numCoefficientPlanes, int inputVectorSize) {
 
+    numPlanes_ = numCoefficientPlanes;
 	frameVolumeDimensionalSizes_ = frameVolumeDimensionalSizes;
 	displayWidth_ = displayWidth;
 	displayHeight_ = displayHeight;
@@ -67,7 +69,7 @@ GlNddiDisplay::GlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
 	frameVolume_ = new FrameVolume(costModel, frameVolumeDimensionalSizes);
 
 	// Setup coefficient plane with zeroed coefficient matrices
-	coefficientPlane_ = new CoefficientPlane(costModel, displayWidth_, displayHeight_, CM_WIDTH, CM_HEIGHT);
+	coefficientPlane_ = new CoefficientPlane(costModel, displayWidth_, displayHeight_, numCoefficientPlanes, CM_WIDTH, CM_HEIGHT);
 
     // allocate a texture name
     glGenTextures( 1, &texture_ );
@@ -75,6 +77,14 @@ GlNddiDisplay::GlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
 	// Setup framebuffer and initialize to black
 	frameBuffer_ = (Pixel*)malloc(sizeof(Pixel) * displayWidth_ * displayHeight_);
 	memset(frameBuffer_, 0x00, sizeof(Pixel) * displayWidth_ * displayHeight_);
+    
+    // Initiliaze the shifter used during accumulation
+    if (numPlanes_ & (numPlanes_ - 1)) {
+        cout << "ERROR: Number of coefficient planes specified is not a power of two." << endl;
+        exit(1);
+    }
+    double s = log2((double)numPlanes_);
+    accumulatorShifter_ = int(s);
 }
 
 // TODO(CDE): Why is the destructor for GlNddiDisplay being called when we're using a ClNddiDisplay?
@@ -120,17 +130,17 @@ void GlNddiDisplay::Render() {
 #ifndef NO_OMP
 	// For each pixel computed with all 256 planes, the input vector (except x,y) is read
     costModel->registerBulkMemoryCharge(INPUT_VECTOR_COMPONENT,
-                                        displayWidth_ * displayHeight_ * NUM_COEFFICIENT_PLANES * CM_HEIGHT * (CM_WIDTH - 2),
+                                        displayWidth_ * displayHeight_ * numPlanes_ * CM_HEIGHT * (CM_WIDTH - 2),
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * NUM_COEFFICIENT_PLANES * CM_HEIGHT * (CM_WIDTH - 2) * BYTES_PER_IV_VALUE,
+                                        displayWidth_ * displayHeight_ * numPlanes_ * CM_HEIGHT * (CM_WIDTH - 2) * BYTES_PER_IV_VALUE,
                                         0);
 	// For each pixel computed with all 256 planes, the coefficient and scaler is read
     costModel->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
-                                        displayWidth_ * displayHeight_ * NUM_COEFFICIENT_PLANES * (CM_HEIGHT * CM_WIDTH + 1),
+                                        displayWidth_ * displayHeight_ * numPlanes_ * (CM_HEIGHT * CM_WIDTH + 1),
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * NUM_COEFFICIENT_PLANES * (CM_HEIGHT * CM_WIDTH + 1) * BYTES_PER_COEFF,
+                                        displayWidth_ * displayHeight_ * numPlanes_ * (CM_HEIGHT * CM_WIDTH + 1) * BYTES_PER_COEFF,
                                         0);
     // For each pixel computed with all 256 planes, a pixel sample is pulled from the frame volume
     costModel->registerBulkMemoryCharge(FRAME_VOLUME_COMPONENT,
@@ -167,7 +177,7 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
 	q.packed = 0x00;
 
 	// Accumulate color channels for the pixels chosen by each plane
-	for (unsigned int p = 0; p < NUM_COEFFICIENT_PLANES; p++) {
+	for (unsigned int p = 0; p < numPlanes_; p++) {
 
 		// Grab the scaler for this location
 		int scaler = coefficientPlane_->getScaler(x, y, p);
@@ -203,20 +213,16 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
         }
 	}
 
-	// Make sure there are 256 planes so the shift operation (divide 256) works correctly.
 	// Note: This shift operation will be absolutely necessary when this is implemented
 	//       in hardware to avoid the division operation.
-#if (NUM_COEFFICIENT_PLANES != 256)
-#error Coefficient Plane Count must be 256
-#endif
     if (pixelSignMode_ == UNSIGNED_MODE) {
-        q.r = CLAMP_UNSIGNED_BYTE(rAccumulator >> 8);
-        q.g = CLAMP_UNSIGNED_BYTE(gAccumulator >> 8);
-        q.b = CLAMP_UNSIGNED_BYTE(bAccumulator >> 8);
+        q.r = CLAMP_UNSIGNED_BYTE(rAccumulator >> accumulatorShifter_);
+        q.g = CLAMP_UNSIGNED_BYTE(gAccumulator >> accumulatorShifter_);
+        q.b = CLAMP_UNSIGNED_BYTE(bAccumulator >> accumulatorShifter_);
     } else {
-        q.r = CLAMP_SIGNED_BYTE(rAccumulator >> 8);
-        q.g = CLAMP_SIGNED_BYTE(gAccumulator >> 8);
-        q.b = CLAMP_SIGNED_BYTE(bAccumulator >> 8);
+        q.r = CLAMP_SIGNED_BYTE(rAccumulator >> accumulatorShifter_);
+        q.g = CLAMP_SIGNED_BYTE(gAccumulator >> accumulatorShifter_);
+        q.b = CLAMP_SIGNED_BYTE(bAccumulator >> accumulatorShifter_);
     }
 	q.a = 255;
 
@@ -235,7 +241,7 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 	q.packed = 0x00;
 
 	// Accumulate color channels for the pixels chosen by each plane
-	for (unsigned int p = 0; p < NUM_COEFFICIENT_PLANES; p++) {
+	for (unsigned int p = 0; p < numPlanes_; p++) {
 
 		// Grab the scaler for this location
 		int scaler = coefficientPlane_->getScaler(x, y, p);
@@ -284,20 +290,16 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
         }
 	}
     
-	// Make sure there are 256 planes so the shift operation (divide 256) works correctly.
 	// Note: This shift operation will be absolutely necessary when this is implemented
 	//       in hardware to avoid the division operation.
-#if (NUM_COEFFICIENT_PLANES != 256)
-#error Coefficient Plane Count must be 256
-#endif
     if (pixelSignMode_ == UNSIGNED_MODE) {
-        q.r = CLAMP_UNSIGNED_BYTE(rAccumulator >> 8);
-        q.g = CLAMP_UNSIGNED_BYTE(gAccumulator >> 8);
-        q.b = CLAMP_UNSIGNED_BYTE(bAccumulator >> 8);
+        q.r = CLAMP_UNSIGNED_BYTE(rAccumulator >> accumulatorShifter_);
+        q.g = CLAMP_UNSIGNED_BYTE(gAccumulator >> accumulatorShifter_);
+        q.b = CLAMP_UNSIGNED_BYTE(bAccumulator >> accumulatorShifter_);
     } else {
-        q.r = CLAMP_SIGNED_BYTE(rAccumulator >> 8);
-        q.g = CLAMP_SIGNED_BYTE(gAccumulator >> 8);
-        q.b = CLAMP_SIGNED_BYTE(bAccumulator >> 8);
+        q.r = CLAMP_SIGNED_BYTE(rAccumulator >> accumulatorShifter_);
+        q.g = CLAMP_SIGNED_BYTE(gAccumulator >> accumulatorShifter_);
+        q.b = CLAMP_SIGNED_BYTE(bAccumulator >> accumulatorShifter_);
     }
 	q.a = 255;
 

@@ -21,19 +21,20 @@ using namespace nddi;
 // public
 
 ClNddiDisplay::ClNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
-                             int inputVectorSize) :
-		clFrameVolume_(NULL),
-		clInputVector_(NULL),
-		clKernelFillCoefficient_(0),
-		maxCommandPacketSize_(0)
+                             int numCoefficientPlanes, int inputVectorSize)
+:   clFrameVolume_(NULL),
+    clInputVector_(NULL),
+	clKernelFillCoefficient_(0),
+	maxCommandPacketSize_(0)
 {
-    ClNddiDisplay(frameVolumeDimensionalSizes, 320, 240, inputVectorSize);
+    ClNddiDisplay(frameVolumeDimensionalSizes, 320, 240, numCoefficientPlanes, inputVectorSize);
 }
 
 ClNddiDisplay::ClNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                              int displayWidth, int displayHeight,
-                             int inputVectorSize)
+                             int numCoefficientPlanes, int inputVectorSize)
 {
+    numPlanes_ = numCoefficientPlanes;
     frameVolumeDimensionalSizes_ = frameVolumeDimensionalSizes;
     displayWidth_ = displayWidth;
     displayHeight_ = displayHeight;
@@ -48,7 +49,7 @@ ClNddiDisplay::ClNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
     inputVector_ = (InputVector*)clInputVector_;
 
     // Setup coefficient plane with zeroed coefficient matrices
-    clCoefficientPlane_ = new ClCoefficientPlane(costModel, displayWidth_, displayHeight_, CM_WIDTH, CM_HEIGHT);
+    clCoefficientPlane_ = new ClCoefficientPlane(costModel, displayWidth_, displayHeight_, numCoefficientPlanes, CM_WIDTH, CM_HEIGHT);
     // TODO(CDE): NULL this out
     coefficientPlane_ = (ClCoefficientPlane*)clCoefficientPlane_;
 

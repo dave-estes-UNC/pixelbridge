@@ -22,36 +22,17 @@ class BlendingGlNddiDisplay : public GlNddiDisplay, public NDimensionalDisplayIn
     
 public:
     BlendingGlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
-                          int inputVectorSize);
+                          int numCoefficientPlanes, int inputVectorSize);
     BlendingGlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                           int displayWidth, int displayHeight,
-                          int inputVectorSize);
-    BlendingGlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
-                          int displayWidth, int displayHeight,
-                          int inputVectorSize,
-                          unsigned int planes);
+                          int numCoefficientPlanes, int inputVectorSize);
     ~BlendingGlNddiDisplay();
-    
-    // Overridden to handle multiple Coefficient Planes
-    void PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &location);
-    void FillCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &start, vector<unsigned int> &end);
-    void FillCoefficient(int coefficient, int row, int col, vector<unsigned int> &start, vector<unsigned int> &end);
     
     // To satisfy the NDimensionalDisplayInterfaceExtended interface
     void CopyFrameVolume(vector<unsigned int> &start, vector<unsigned int> &end, vector<unsigned int> &dest, bool blend);
-    void CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) {};
-    void FillCoefficientTiles(vector<int> &coefficients, vector<vector<unsigned int> > &positions, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) {};
-
-    nddi::Pixel* GetFrameBuffer();
     
 private:
     nddi::Pixel BlendPixel(nddi::Pixel pTo, nddi::Pixel pFrom);
-    nddi::Pixel ComputePixel(unsigned int x, unsigned int y);
-    nddi::Pixel ComputePixel(unsigned int x, unsigned int y, int* iv, nddi::Pixel* fv);
-    void Render();
-   
-    int numPlanes_;
-    CoefficientPlane** coefficientPlanes_;
 
 };
 

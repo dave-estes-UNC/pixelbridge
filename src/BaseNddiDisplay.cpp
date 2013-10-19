@@ -21,9 +21,10 @@ BaseNddiDisplay::BaseNddiDisplay() :
 {}
 
 BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
-                                 int inputVectorSize) :
+                                 int numCoefficientPlanes, int inputVectorSize) :
 		displayWidth_(0),
 		displayHeight_(0),
+        numPlanes_(numCoefficientPlanes),
 		inputVector_(NULL),
 		frameVolumeDimensionalSizes_(frameVolumeDimensionalSizes),
 		frameVolume_(NULL),
@@ -36,9 +37,10 @@ BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSiz
 
 BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                                  int displayWidth, int displayHeight,
-                                 int inputVectorSize) :
+                                 int numCoefficientPlanes, int inputVectorSize) :
 		displayWidth_(displayWidth),
 		displayHeight_(displayHeight),
+        numPlanes_(numCoefficientPlanes),
 		inputVector_(NULL),
 		frameVolumeDimensionalSizes_(frameVolumeDimensionalSizes),
 		frameVolume_(NULL),
@@ -57,6 +59,10 @@ int BaseNddiDisplay::DisplayWidth() {
 
 int BaseNddiDisplay::DisplayHeight() {
 	return displayHeight_;
+}
+
+int BaseNddiDisplay::NumCoefficientPlanes() {
+    return numPlanes_;
 }
 
 void BaseNddiDisplay::PutPixel(Pixel p, vector<unsigned int> &location) {
