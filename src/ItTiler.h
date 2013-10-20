@@ -59,9 +59,6 @@ private:
     void InitializeFrameVolume();
     void initZigZag();
     void setQuality(uint32_t quality);
-    void matrixMultiply(double *D, double *S1, double *S2);
-    void hadamardMultiply(double *D, double *S1, double *S2);
-    void scalarMultiply(double *D, double s1, double *S2);
     void forwardIntegerTransform(int *Y, int *X);
     void inverseIntegerTransform(int *Z, int *Y); // Added for completeness, but not used.
 
@@ -75,15 +72,16 @@ private:
 
 	static const size_t  MAX_IT_COEFF = 64;
     
-    static double Cf4[BLOCK_SIZE];
-    static double Cf4T[BLOCK_SIZE];
-    static double Ci4[BLOCK_SIZE];
-    static double Ci4T[BLOCK_SIZE];
-
-    double Mf4[BLOCK_SIZE];
-    double Vi4[BLOCK_SIZE];
+    static int Cf4[BLOCK_SIZE];
+    static int Cf4T[BLOCK_SIZE];
+    static int Ci4[BLOCK_SIZE];
+    static int Ci4T[BLOCK_SIZE];
+    
+    int Mf4[BLOCK_SIZE];
+    int Vi4[BLOCK_SIZE];
     
     uint32_t qp;
+    uint32_t qp6;
     
 	GlNddiDisplay*    display_;
 	bool              quiet_;

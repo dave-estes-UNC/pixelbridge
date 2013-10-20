@@ -21,29 +21,29 @@
 #define CEIL(x, y)           (1 + ((x - 1) / y))
 
 /* Static Initialization */
-double ItTiler::Cf4[] = {
-		1,   1,   1,   1,
+int ItTiler::Cf4[] = {
+		2,   2,   2,   2,
+        4,   2,  -2,  -4,
+        2,  -2,  -2,   2,
+        2,  -4,   4,  -2
+};
+int ItTiler::Cf4T[] = {
+        2,   4,   2,   2,
+        2,   2,  -2,  -4,
+        2,  -2,  -2,   4,
+        2,  -4,   2,  -2
+};
+int ItTiler::Ci4[] = {
+        2,   2,   2,   2,
         2,   1,  -1,  -2,
-        1,  -1,  -1,   1,
-        1,  -2,   2,  -1
+        2,  -2,  -2,   2,
+        1,  -2,  2,  -1
 };
-double ItTiler::Cf4T[] = {
-        1,   2,   1,   1,
-        1,   1,  -1,  -2,
-        1,  -1,  -1,   2,
-        1,  -2,   1,  -1
-};
-double ItTiler::Ci4[] = {
-        1,   1,   1,   1,
-        1,  .5, -.5,  -1,
-        1,  -1,  -1,   1,
-        .5,  -1,   1, -.5
-};
-double ItTiler::Ci4T[] = {
-        1,   1,   1,  .5,
-        1,  .5,  -1,  -1,
-        1, -.5,  -1,   1,
-        1,  -1,   1, -.5
+int ItTiler::Ci4T[] = {
+        2,   2,   2,   1,
+        2,   1,  -2,  -2,
+        2,  -1,  -2,   2,
+        2,  -2,   2,  -1
 };
 
 
@@ -150,6 +150,7 @@ void ItTiler::setQuality(uint32_t quality) {
     
     // Set qp (the quality)
     qp = quality;
+    qp6 = quality / 6;
     
     // Initialize Mf4 and Vi4
     Mf4[0] = m[qp % 6][0];
@@ -193,66 +194,34 @@ void ItTiler::setQuality(uint32_t quality) {
     Vi4[15] = v[qp % 6][1];
 }
 
-void ItTiler::matrixMultiply(double *D, double *S1, double *S2) {
-    double T[BLOCK_SIZE];
-    for (size_t j = 0; j < BLOCK_HEIGHT; j++) {
-        for (size_t i = 0; i < BLOCK_WIDTH; i++) {
-            T[j * BLOCK_WIDTH + i] =
-            S1[j * BLOCK_WIDTH + 0] * S2[0 * BLOCK_WIDTH + i] +
-            S1[j * BLOCK_WIDTH + 1] * S2[1 * BLOCK_WIDTH + i] +
-            S1[j * BLOCK_WIDTH + 2] * S2[2 * BLOCK_WIDTH + i] +
-            S1[j * BLOCK_WIDTH + 3] * S2[3 * BLOCK_WIDTH + i];
-        }
-    }
-    memcpy(D, T, sizeof(T));
-}
-
-void ItTiler::hadamardMultiply(double *D, double *S1, double *S2) {
-    double T[BLOCK_SIZE];
-    for (size_t i = 0; i < BLOCK_WIDTH; i++) {
-        for (size_t j = 0; j < BLOCK_HEIGHT; j++) {
-            T[j * BLOCK_WIDTH + i] =
-            S1[j * BLOCK_WIDTH + i] * S2[j * BLOCK_WIDTH + i];
-        }
-    }
-    memcpy(D, T, sizeof(T));
-}
-
-void ItTiler::scalarMultiply(double *D, double s1, double *S2) {
-    double T[BLOCK_SIZE];
-    for (size_t i = 0; i < BLOCK_WIDTH; i++) {
-        for (size_t j = 0; j < BLOCK_HEIGHT; j++) {
-            T[j * BLOCK_WIDTH + i] =
-            s1 * S2[j * BLOCK_WIDTH + i];
-        }
-    }
-    memcpy(D, T, sizeof(T));
-}
-
 /*
  * Y = round(Cf4 . X . Cf4T o Mf4 . 1/2^(15 + floor(qp/6)))
  */
 void ItTiler::forwardIntegerTransform(int *Y, int *X) {
-    double YY[BLOCK_SIZE];
-    double XX[BLOCK_SIZE];
-    int shifter;
+    int32_t T[BLOCK_SIZE];
     
-    for (size_t i = 0; i < BLOCK_SIZE; i++) {
-        XX[i] = (double)X[i];
+    // T = Cf4 . X
+    for (size_t j = 0; j < BLOCK_HEIGHT; j++) {
+        for (size_t i = 0; i < BLOCK_WIDTH; i++) {
+            T[j * BLOCK_WIDTH + i] =
+            Cf4[j * BLOCK_WIDTH + 0] * X[0 * BLOCK_WIDTH + i] +
+            Cf4[j * BLOCK_WIDTH + 1] * X[1 * BLOCK_WIDTH + i] +
+            Cf4[j * BLOCK_WIDTH + 2] * X[2 * BLOCK_WIDTH + i] +
+            Cf4[j * BLOCK_WIDTH + 3] * X[3 * BLOCK_WIDTH + i];
+        }
     }
-    
-    // 1) Y = Cf4 . X
-    matrixMultiply(YY, Cf4, XX);
-    // 2) Y = Y . Cf4T
-    matrixMultiply(YY, YY, Cf4T);
-    // 3) Y = Y o Mf4
-    hadamardMultiply(YY, YY, Mf4);
-    // 4) Y = Y . 1/2^(15 + floor(qp/6))
-    shifter = 15 + qp / 6;
-    scalarMultiply(YY, 1.0 / (double)(1 << shifter), YY);
-    // 5) round
-    for (size_t i = 0; i < BLOCK_SIZE; i++) {
-        Y[i] = (int)floor(YY[i] + .5); // TODO(CDE): Sort out this rounding...likely by converting all of the math to integer math
+    // Y = T . Cf4T o Mf4 . 1/2^(15 + floor(qp/6))
+    for (size_t j = 0; j < BLOCK_HEIGHT; j++) {
+        for (size_t i = 0; i < BLOCK_WIDTH; i++) {
+            Y[j * BLOCK_WIDTH + i] =
+            T[j * BLOCK_WIDTH + 0] * Cf4T[0 * BLOCK_WIDTH + i] +
+            T[j * BLOCK_WIDTH + 1] * Cf4T[1 * BLOCK_WIDTH + i] +
+            T[j * BLOCK_WIDTH + 2] * Cf4T[2 * BLOCK_WIDTH + i] +
+            T[j * BLOCK_WIDTH + 3] * Cf4T[3 * BLOCK_WIDTH + i];
+            Y[j * BLOCK_WIDTH + i] *= Mf4[j * BLOCK_WIDTH + i];
+            // Shift right by 2 more to compensate for the x2 performed on Cf4 and Cf4T
+            Y[j * BLOCK_WIDTH + i] >>= 15 + qp6 + 2;
+        }
     }
 }
 
@@ -260,29 +229,38 @@ void ItTiler::forwardIntegerTransform(int *Y, int *X) {
  * Z = round(Ci4T . [Y o Vi4 . 2^floor(qp/6)] . Ci4 . 1/2^6
  */
 void ItTiler::inverseIntegerTransform(int *Z, int *Y) {
-    double ZZ[BLOCK_SIZE];
-    double YY[BLOCK_SIZE];
-    int shifter;
+    int32_t T1[BLOCK_SIZE];
+    int32_t T2[BLOCK_SIZE];
     
-    for (size_t i = 0; i < BLOCK_SIZE; i++) {
-        YY[i] = (double)Y[i];
+    // T1 = Y o Vi4 . 2^floor(qp/6)
+    for (size_t i = 0; i < BLOCK_WIDTH; i++) {
+        for (size_t j = 0; j < BLOCK_HEIGHT; j++) {
+            T1[j * BLOCK_WIDTH + i] =
+            Y[j * BLOCK_WIDTH + i] * Vi4[j * BLOCK_WIDTH + i];
+            T1[j * BLOCK_WIDTH + i] <<= qp6;
+        }
     }
-    
-    // 1) Z = Y o Vi4
-    hadamardMultiply(ZZ, YY, Vi4);
-    // 2) Z = Z . 2^floor(qp/6)
-    shifter = qp/6;
-    scalarMultiply(ZZ, (double)(1 << shifter), ZZ);
-    // 3) Z = Ci4T . Z
-    matrixMultiply(ZZ, Ci4T, ZZ);
-    // 4) Z = Z . Ci4
-    matrixMultiply(ZZ, ZZ, Ci4);
-    // 5) Z = Z . 1/2^6
-    shifter = 6;
-    scalarMultiply(ZZ, 1 / (double)(1 << shifter), ZZ);
-    // 6) round
-    for (size_t i = 0; i < BLOCK_SIZE; i++) {
-        Z[i] = (int)floor(ZZ[i] + .5); // TODO(CDE): Sort out this rounding...likely by converting all of the math to integer math
+    // T2 = Ci4T . T1
+    for (size_t j = 0; j < BLOCK_HEIGHT; j++) {
+        for (size_t i = 0; i < BLOCK_WIDTH; i++) {
+            T2[j * BLOCK_WIDTH + i] =
+            Ci4T[j * BLOCK_WIDTH + 0] * T1[0 * BLOCK_WIDTH + i] +
+            Ci4T[j * BLOCK_WIDTH + 1] * T1[1 * BLOCK_WIDTH + i] +
+            Ci4T[j * BLOCK_WIDTH + 2] * T1[2 * BLOCK_WIDTH + i] +
+            Ci4T[j * BLOCK_WIDTH + 3] * T1[3 * BLOCK_WIDTH + i];
+        }
+    }
+    // Z = T2 . Ci4 . 1/2^6
+    for (size_t j = 0; j < BLOCK_HEIGHT; j++) {
+        for (size_t i = 0; i < BLOCK_WIDTH; i++) {
+            Z[j * BLOCK_WIDTH + i] =
+            T2[j * BLOCK_WIDTH + 0] * Ci4[0 * BLOCK_WIDTH + i] +
+            T2[j * BLOCK_WIDTH + 1] * Ci4[1 * BLOCK_WIDTH + i] +
+            T2[j * BLOCK_WIDTH + 2] * Ci4[2 * BLOCK_WIDTH + i] +
+            T2[j * BLOCK_WIDTH + 3] * Ci4[3 * BLOCK_WIDTH + i];
+            // Shift right by 2 more to compensate for the x2 performed on Ci4 and Ci4T
+            Z[j * BLOCK_WIDTH + i] >>= 6 + 2;
+        }
     }
 }
 
