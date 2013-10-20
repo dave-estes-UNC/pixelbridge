@@ -75,34 +75,15 @@ private:
 
 	static const size_t  MAX_IT_COEFF = 64;
     
-    double Cf4[BLOCK_SIZE] = {
-        1,   1,   1,   1,
-        2,   1,  -1,  -2,
-        1,  -1,  -1,   1,
-        1,  -2,   2,  -1
-    };
-    double Cf4T[BLOCK_SIZE] = {
-        1,   2,   1,   1,
-        1,   1,  -1,  -2,
-        1,  -1,  -1,   2,
-        1,  -2,   1,  -1
-    };
-    double Ci4[BLOCK_SIZE] = {
-        1,   1,   1,   1,
-        1,  .5, -.5,  -1,
-        1,  -1,  -1,   1,
-        .5,  -1,   1, -.5
-    };
-    double Ci4T[BLOCK_SIZE] = {
-        1,   1,   1,  .5,
-        1,  .5,  -1,  -1,
-        1, -.5,  -1,   1,
-        1,  -1,   1, -.5
-    };
+    static double Cf4[BLOCK_SIZE];
+    static double Cf4T[BLOCK_SIZE];
+    static double Ci4[BLOCK_SIZE];
+    static double Ci4T[BLOCK_SIZE];
+
     double Mf4[BLOCK_SIZE];
     double Vi4[BLOCK_SIZE];
     
-    uint32_t qp = 0;
+    uint32_t qp;
     
 	GlNddiDisplay*    display_;
 	bool              quiet_;

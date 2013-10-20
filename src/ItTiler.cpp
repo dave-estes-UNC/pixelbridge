@@ -20,9 +20,36 @@
 #define MIN(x, y)            (x < y ? x : y)
 #define CEIL(x, y)           (1 + ((x - 1) / y))
 
+/* Static Initialization */
+double ItTiler::Cf4[] = {
+		1,   1,   1,   1,
+        2,   1,  -1,  -2,
+        1,  -1,  -1,   1,
+        1,  -2,   2,  -1
+};
+double ItTiler::Cf4T[] = {
+        1,   2,   1,   1,
+        1,   1,  -1,  -2,
+        1,  -1,  -1,   2,
+        1,  -2,   1,  -1
+};
+double ItTiler::Ci4[] = {
+        1,   1,   1,   1,
+        1,  .5, -.5,  -1,
+        1,  -1,  -1,   1,
+        .5,  -1,   1, -.5
+};
+double ItTiler::Ci4T[] = {
+        1,   1,   1,  .5,
+        1,  .5,  -1,  -1,
+        1, -.5,  -1,   1,
+        1,  -1,   1, -.5
+};
+
+
 ItTiler::ItTiler(size_t display_width, size_t display_height,
                  size_t quality, bool quiet)
-: quiet_(quiet)
+: qp(0), quiet_(quiet)
 {
     // 3 dimensional matching the Macroblock Width x Height x 64+3+1
     vector<unsigned int> fvDimensions;
@@ -317,15 +344,16 @@ void ItTiler::InitializeFrameVolume() {
 	pixels = (Pixel *)malloc(pixels_size);
 	memset(pixels, 0x00, pixels_size);
     
-    int Y[BLOCK_SIZE];
-    int Z[BLOCK_SIZE];
-    
 	// Pre-render each basis function
 #ifndef NO_OMP
 #pragma omp parallel for
 #endif
     for (int j = 0; j < BASIS_BLOCKS_TALL; j++) {
         for (int i = 0; i < BASIS_BLOCKS_WIDE; i++) {
+
+        	int Y[BLOCK_SIZE];
+            int Z[BLOCK_SIZE];
+
             // Initialize the coefficients to all off except the special one
             memset(Y, 0x00, sizeof(Y));
             Y[j * BLOCK_WIDTH + i] = MAX_IT_COEFF;
@@ -367,32 +395,6 @@ void ItTiler::InitializeFrameVolume() {
 }
 
 void ItTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
-//#define HACKADACK
-#ifdef HACKADACK
-	///////////////////DEBUG/////////////////////
-	cout << "Update" << endl;
-    
-	vector<unsigned int> start(3, 0), end(3, 0);
-    
-	// Clear all scalers
-	start[0] = 0; start[1] = 0; start[2] = 0;
-	end[0] = display_->DisplayWidth() - 1;
-	end[1] = display_->DisplayHeight() - 1;
-    end[2] = NUM_COEFFICIENT_PLANES - 1;
-    display_->FillScaler(0, start, end);
-    
-	// Then select the proper planes to just render the 64 basis functions
-	for (int j = 0; j < BASIS_BLOCKS_TALL; j++) {
-    	start[1] = 4 * j * BLOCK_HEIGHT; end[1] = 4 * ((j + 1) * BLOCK_HEIGHT - 1);
-        for (int i = 0; i < BASIS_BLOCKS_WIDE; i++) {
-        	start[0] = 4 * i * BLOCK_WIDTH; end[0] = 4 * ((i + 1) * BLOCK_WIDTH - 1);
-        	size_t p = zigZag_[j * BASIS_BLOCKS_WIDE + i];
-        	start[2] = p * 3; end[2] = (p + 1) * 3 - 1;
-            display_->FillScaler(NUM_COEFFICIENT_PLANES, start, end);
-        }
-    }
-	///////////////////DEBUG/////////////////////
-#else // HACKADACK
 	vector<unsigned int> start(3, 0), end(3, 0);
 	vector<unsigned int> size(2, 0);
 	size_t lastNonZeroPlane;
@@ -475,5 +477,4 @@ void ItTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
 		    display_->FillScalerTileStack(coefficients, start, size);
         }
     }
-#endif
 }

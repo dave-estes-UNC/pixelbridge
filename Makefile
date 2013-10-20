@@ -54,6 +54,8 @@ ifeq ($(DEBUG), 1)
 	CPPFLAGS+=-g -DDEBUG
 	OBJDIR=build/objdir-debug
 else
+	CCFLAGS+= -O3
+	CPPFLAGS+= -O3
 	OBJDIR=build/objdir-release
 endif
 
@@ -74,6 +76,7 @@ _DEPS =	GlNddiDisplay.h \
 	CoefficientPlane.h \
 	CostModel.h \
 	DctTiler.h \
+	ItTiler.h \
 	FfmpegPlayer.h \
 	FlatTiler.h \
 	FrameVolume.h \
@@ -89,6 +92,7 @@ _OBJ = \
 	BlendingGlNddiDisplay.o \
 	CachedTiler.o \
 	DctTiler.o \
+	ItTiler.o \
 	FfmpegPlayer.o \
 	RandomPlayer.o \
 	FlatTiler.o \
