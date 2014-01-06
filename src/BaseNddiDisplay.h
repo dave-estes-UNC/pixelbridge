@@ -66,11 +66,6 @@ namespace nddi {
         CoefficientPlane* coefficientPlane_;
         
         /**
-         * The current pixel byte sign mode.
-         */
-        SignMode pixelSignMode_;
-        
-        /**
          * The CostModel for this display.
          */
         CostModel* costModel;
@@ -107,10 +102,9 @@ namespace nddi {
         void FillCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &start, vector<unsigned int> &end);
         void FillCoefficient(int coefficient, int row, int col, vector<unsigned int> &start, vector<unsigned int> &end);
         void FillCoefficientTiles(vector<int> &coefficients, vector<vector<unsigned int> > &positions, vector<vector<unsigned int> > &starts, vector<unsigned int> &size);
-        void FillScaler(int scaler, vector<unsigned int> &start, vector<unsigned int> &end);
-        void FillScalerTiles(vector<int> &scalers, vector<vector<unsigned int> > &starts, vector<unsigned int> &size);
-        void FillScalerTileStack(vector<int> &scalers, vector<unsigned int> &start, vector<unsigned int> &size);
-        void SetPixelByteSignMode(SignMode mode);
+        void FillScaler(Scaler scaler, vector<unsigned int> &start, vector<unsigned int> &end);
+        void FillScalerTiles(vector<uint64_t> &scalers, vector<vector<unsigned int> > &starts, vector<unsigned int> &size);
+        void FillScalerTileStack(vector<uint64_t> &scalers, vector<unsigned int> &start, vector<unsigned int> &size);
         void Mute() { quiet_ = true; }
         void Unmute() { quiet_ = false; }
         CostModel* GetCostModel();

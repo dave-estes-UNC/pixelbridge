@@ -60,7 +60,7 @@ private:
 	static const size_t  BLOCK_WIDTH = 8;
 	static const size_t  BLOCK_HEIGHT = 8;
 	static const size_t  BLOCK_SIZE = BLOCK_WIDTH * BLOCK_HEIGHT;
-    static const size_t  FRAMEVOLUME_DEPTH  = BLOCK_SIZE * 3 + 1;
+    static const size_t  FRAMEVOLUME_DEPTH = BLOCK_SIZE;
 	static const size_t  BASIS_BLOCKS_WIDE = 8;
 	static const size_t  BASIS_BLOCKS_TALL = 8;
 	static const size_t  MAX_DCT_COEFF = 256;

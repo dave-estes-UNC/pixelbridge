@@ -133,9 +133,12 @@ void CachedTiler::InitializeCoefficientPlanes() {
 	end[0] = display_->DisplayWidth() - 1;
 	end[1] = display_->DisplayHeight() - 1;
     end[2] = display_->NumCoefficientPlanes() - 1;
-    display_->FillScaler(0, start, end);
+    Scaler s;
+    s.packed = 0;
+    display_->FillScaler(s, start, end);
     end[2] = 0;
-    display_->FillScaler(display_->NumCoefficientPlanes(), start, end);
+    s.r = s.g = s.b = display_->GetFullScaler();
+    display_->FillScaler(s, start, end);
 }
 
 

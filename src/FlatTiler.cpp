@@ -102,9 +102,12 @@ void FlatTiler::InitializeCoefficientPlanes() {
 
     // Turn off all planes and then set the 0 plane to full on.
     end[2] = display_->NumCoefficientPlanes() - 1;
-    display_->FillScaler(0, start, end);
+    Scaler s;
+    s.packed = 0;
+    display_->FillScaler(s, start, end);
     end[2] = 0;
-    display_->FillScaler(display_->NumCoefficientPlanes(), start, end);
+    s.r = s.g = s.b = display_->GetFullScaler();
+    display_->FillScaler(s, start, end);
 }
 
 /**

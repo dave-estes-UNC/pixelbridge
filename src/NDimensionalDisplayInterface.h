@@ -14,19 +14,39 @@ namespace nddi {
      * same location of the destination coefficient matrix to remain unchanged.
      */
     #define COFFICIENT_UNCHANGED INT_MAX
+    
+    /**
+     * The default full scaler.
+     */
+    #define DEFAULT_FULL_SCALER 256
 
     /**
      * Struct representing an RGBA 32-bit pixel.
+     * Implementation may drop the alpha channel.
      */
     typedef union {
         struct {
-            unsigned char r;
-            unsigned char g;
-            unsigned char b;
-            unsigned char a;
+            uint8_t r;
+            uint8_t g;
+            uint8_t b;
+            uint8_t a;
         };
-        unsigned int packed;
+        uint32_t packed;
     } Pixel;
+    
+    /**
+     * Struct representing the 3-channel scaler for each coefficient matrix.
+     * Implementation may drop the alpha channel.
+     */
+    typedef union {
+        struct {
+            int16_t r;
+            int16_t g;
+            int16_t b;
+            int16_t a;
+        };
+        uint64_t packed;
+    } Scaler;
     
     /**
      * Options for pixel byte sign mode.
@@ -224,7 +244,7 @@ namespace nddi {
          * @param end This three-element vector specifies the location in the coefficient planes where the
          *            scalers will be copied to.
          */
-        virtual void FillScaler(int scaler, vector<unsigned int> &start, vector<unsigned int> &end) = 0;
+        virtual void FillScaler(Scaler scaler, vector<unsigned int> &start, vector<unsigned int> &end) = 0;
 
         /**
          * Used to copy the specified scalers to a series of 2D ranges of locations (tiles) in the coefficient planes.
@@ -233,7 +253,7 @@ namespace nddi {
          * @param starts The location (x, y, z) of the start of the tile in the coefficient planes.
          * @param size The size (w, h) of the tile.
          */
-        virtual void FillScalerTiles(vector<int> &scalers, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) = 0;
+        virtual void FillScalerTiles(vector<uint64_t> &scalers, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) = 0;
 
         /**
          * Used to copy the specified scalers to a stack of 2D ranges of locations (tiles) in the coefficient planes.
@@ -242,7 +262,7 @@ namespace nddi {
          * @param starts The location (x, y) of the start of the tile in the coefficient planes.
          * @param size The size (w, h) of the tile.
          */
-        virtual void FillScalerTileStack(vector<int> &scalers, vector<unsigned int> &start, vector<unsigned int> &size) = 0;
+        virtual void FillScalerTileStack(vector<uint64_t> &scalers, vector<unsigned int> &start, vector<unsigned int> &size) = 0;
 
         /**
          * Allows the bytes of pixel values to be interpretted as signed values when scaling, accumulating, and clamping
@@ -251,6 +271,18 @@ namespace nddi {
          */
         virtual void SetPixelByteSignMode(SignMode mode) = 0;
 
+        /**
+         * Used when a scaler is set to full on. Implies that a scaler is an
+         * integer fraction of 256, but in fact a scaler can be larger than 256,
+         * leading to planes that contribute 2.5x or even -3x for instance.
+         */
+        virtual void SetFullScaler(uint16_t scaler) = 0;
+        
+        /**
+         * Returns the current full scaler value.
+         */
+        virtual uint16_t GetFullScaler() = 0;
+        
         /**
          * Returns the CostModel for this display. The CostModel can be queried by the
          * host application to understand the cost of operations after they complete.

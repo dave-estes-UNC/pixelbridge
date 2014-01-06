@@ -100,6 +100,8 @@ pthread_mutex_t      bufferQueueMutex;
 
 void setupDisplay() {
     
+    Scaler s;
+    
 	// Cached-Tiled
 	if (config == CACHE) {
 
@@ -184,9 +186,11 @@ void setupDisplay() {
 
         // Turn off all planes and then set the 0 plane to full on.
         end[2] = myDisplay->NumCoefficientPlanes() - 1;
-        myDisplay->FillScaler(0, start, end);
+        s.packed = 0;
+        myDisplay->FillScaler(s, start, end);
         end[2] = 0;
-        myDisplay->FillScaler(myDisplay->NumCoefficientPlanes(), start, end);
+        s.r = s.g = s.b = myDisplay->GetFullScaler();
+        myDisplay->FillScaler(s, start, end);
         
     // Temporal Blending
     } else if ((config == SIMPLE) && (configBlend == TEMPORAL)) {
@@ -234,9 +238,11 @@ void setupDisplay() {
         
         // Turn off all planes and then set the 0 plane to full on.
         end[2] = myDisplay->NumCoefficientPlanes() - 1;
-        myDisplay->FillScaler(0, start, end);
+        s.packed = 0;
+        myDisplay->FillScaler(s, start, end);
         end[2] = 0;
-        myDisplay->FillScaler(myDisplay->NumCoefficientPlanes(), start, end);
+        s.r = s.g = s.b = myDisplay->GetFullScaler();
+        myDisplay->FillScaler(s, start, end);
 
     // Coefficient Plane Blending
     } else if ((config == SIMPLE) && (configBlend == COEFFICIENT_PLANE)) {
@@ -290,9 +296,11 @@ void setupDisplay() {
 
         // Turn off all planes and then set the 0 and 1 planes to half each.
         end[2] = myDisplay->NumCoefficientPlanes() - 1;
-        myDisplay->FillScaler(0, start, end);
+        s.packed = 0;
+        myDisplay->FillScaler(s, start, end);
         end[2] = 1;
-        myDisplay->FillScaler(myDisplay->NumCoefficientPlanes() << 1, start, end);
+        s.r = s.g = s.b = myDisplay->GetFullScaler() << 1;
+        myDisplay->FillScaler(s, start, end);
 
     // Flat-Tiled
 	} else if (config == FLAT) {
@@ -351,9 +359,11 @@ void setupDisplay() {
 
         // Turn off all planes and then set the 0 plane to full on.
         end[2] = myDisplay->NumCoefficientPlanes() - 1;
-        myDisplay->FillScaler(0, start, end);
+        s.packed = 0;
+        myDisplay->FillScaler(s, start, end);
         end[2] = 0;
-        myDisplay->FillScaler(myDisplay->NumCoefficientPlanes(), start, end);
+        s.r = s.g = s.b = myDisplay->GetFullScaler();
+        myDisplay->FillScaler(s, start, end);
 
     }
 
@@ -642,15 +652,23 @@ void outputStats(bool exitNow) {
 		cout << "CSV:" << endl;
 		cout << "Commands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written\tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended\tPSNR" << endl;
 		cout
-		<< costModel->getLinkCommandsSent() << "\t" << costModel->getLinkBytesTransmitted() << "\t"
-		<< costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) << "\t" << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << "\t"
-		<< costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << "\t" << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << "\t"
-		<< costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) << "\t" << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << "\t"
-		<< costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << "\t" << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << "\t"
-		<< costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) << "\t" << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << "\t"
-		<< costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << "\t" << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << "\t"
-		<< costModel->getTime(FRAME_VOLUME_COMPONENT) << "\t"
-		<< costModel->getPixelsMapped() << "\t" << costModel->getPixelsBlended() << "\t"
+		<< costModel->getLinkCommandsSent() << " \t "
+        << costModel->getLinkBytesTransmitted() << " \t "
+		<< costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) << " \t "
+        << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << " \t "
+		<< costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << " \t "
+        << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << " \t "
+		<< costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) << " \t "
+        << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << " \t "
+		<< costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << " \t "
+        << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << " \t "
+		<< costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) << " \t "
+        << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << " \t "
+		<< costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << " \t "
+        << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << " \t "
+		<< costModel->getTime(FRAME_VOLUME_COMPONENT) << " \t "
+		<< costModel->getPixelsMapped() << " \t "
+        << costModel->getPixelsBlended() << " \t "
 		<< PSNR << endl;
 		cout << endl;
 

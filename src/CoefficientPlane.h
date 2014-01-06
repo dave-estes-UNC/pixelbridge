@@ -52,9 +52,9 @@ namespace nddi {
             }
 
 #ifdef NARROW_DATA_STORES
-            scalers_ = (int16_t *)malloc(sizeof(int16_t) * displayWidth * displayHeight * numPlanes_);
+            scalers_ = (int16_t *)malloc(sizeof(int16_t) * 3 * displayWidth * displayHeight * numPlanes_);
 #else
-            scalers_ = (int *)malloc(sizeof(int) * displayWidth * displayHeight * numPlanes_);
+            scalers_ = (int *)malloc(sizeof(int) * 3 * displayWidth * displayHeight * numPlanes_);
 #endif
         }
 
@@ -152,7 +152,7 @@ namespace nddi {
             } while (!fillFinished);
         }
 
-        void FillScaler(int scaler,
+        void FillScaler(Scaler scaler,
                         vector<unsigned int> &start,
                         vector<unsigned int> &end) {
 
@@ -199,24 +199,31 @@ namespace nddi {
             return coefficientMatrices_[p * width_ * height_ + y * width_ + x];
         }
 
-        void putScaler(unsigned int x, unsigned int y, unsigned int p, int scaler) {
+        void putScaler(unsigned int x, unsigned int y, unsigned int p, Scaler scaler) {
 
             assert(x < width_);
             assert(y < height_);
 
             //costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, &scalers_[p * width_ * height_ + y * width_ + x], BYTES_PER_SCALER, 0);
 
-            scalers_[p * width_ * height_ + y * width_ + x] = scaler;
+            scalers_[(p * width_ * height_ + y * width_ + x) * 3 + 0] = scaler.r;
+            scalers_[(p * width_ * height_ + y * width_ + x) * 3 + 1] = scaler.g;
+            scalers_[(p * width_ * height_ + y * width_ + x) * 3 + 2] = scaler.b;
         }
 
-        int getScaler(unsigned int x, unsigned int y, unsigned int p) {
+        Scaler getScaler(unsigned int x, unsigned int y, unsigned int p) {
 
             assert(x < width_);
             assert(y < height_);
 
             //costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, READ_ACCESS, &scalers_[p * width_ * height_ + y * width_ + x], BYTES_PER_SCALER, 0);
 
-            return scalers_[p * width_ * height_ + y * width_ + x];
+            Scaler s;
+            s.packed = 0;
+            s.r = scalers_[(p * width_ * height_ + y * width_ + x) * 3 + 0];
+            s.g = scalers_[(p * width_ * height_ + y * width_ + x) * 3 + 1];
+            s.b = scalers_[(p * width_ * height_ + y * width_ + x) * 3 + 2];
+            return s;
         }
     };
 }

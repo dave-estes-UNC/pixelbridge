@@ -87,7 +87,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--quality 1"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--blend t"
@@ -119,6 +119,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--frames 200"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--frames 20"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

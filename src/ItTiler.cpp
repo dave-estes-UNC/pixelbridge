@@ -62,10 +62,14 @@ ItTiler::ItTiler(size_t display_width, size_t display_height,
 #else
     display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
-                                 64,                            // Number of coefficient planes
+                                 FRAMEVOLUME_DEPTH,             // Number of coefficient planes
                                  3);   						    // input vector size (x, y, 1)
 #endif
 
+    
+    // Set the full scaler value
+    display_->SetFullScaler(MAX_IT_COEFF);
+    
     initZigZag();
     setQuality(quality);
     display_->SetPixelByteSignMode(SIGNED_MODE);
@@ -303,7 +307,9 @@ void ItTiler::InitializeCoefficientPlanes() {
 	end[0] = display_->DisplayWidth() - 1;
 	end[1] = display_->DisplayHeight() - 1;
     end[2] = display_->NumCoefficientPlanes() - 1;
-    display_->FillScaler(0, start, end);
+    Scaler s;
+    s.r = s.g = s.b = 0;
+    display_->FillScaler(s, start, end);
 }
 
 /**
@@ -339,7 +345,7 @@ void ItTiler::InitializeFrameVolume() {
             // Perform the Inverse Transform
             inverseIntegerTransform(Z, Y);
             
-        	size_t p = zigZag_[j * BASIS_BLOCKS_WIDE + i] * BLOCK_SIZE * 3;
+        	size_t p = zigZag_[j * BASIS_BLOCKS_WIDE + i] * BLOCK_SIZE;
 
             for (int y = 0; y < BLOCK_HEIGHT; y++) {
                 for (int x = 0; x < BLOCK_WIDTH; x++) {
@@ -348,12 +354,10 @@ void ItTiler::InitializeFrameVolume() {
                     uint32_t m = CLAMP(Z[y * BLOCK_WIDTH + x], -127, 127);
 
                     // Set the color channels with the magnitude clamped to 127
-                    pixels[p + BLOCK_SIZE * 0].r = m;
-                    pixels[p + BLOCK_SIZE * 0].a = 0xff;
-                    pixels[p + BLOCK_SIZE * 1].g = m;
-                    pixels[p + BLOCK_SIZE * 1].a = 0xff;
-                    pixels[p + BLOCK_SIZE * 2].b = m;
-                    pixels[p + BLOCK_SIZE * 2].a = 0xff;
+                    pixels[p].r = m;
+                    pixels[p].g = m;
+                    pixels[p].b = m;
+                    pixels[p].a = 0xff;
                     
                     // Move to the next pixel
                     p++;
@@ -362,7 +366,7 @@ void ItTiler::InitializeFrameVolume() {
         }
     }
     
-    // Update the frame volume with the basis function renderings and gray block in bulk.
+    // Update the frame volume with the basis function renderings in bulk.
 	vector<unsigned int> start, end;
 	start.push_back(0); start.push_back(0); start.push_back(0);
 	end.push_back(BLOCK_WIDTH - 1); end.push_back(BLOCK_HEIGHT - 1); end.push_back(FRAMEVOLUME_DEPTH - 1);
@@ -377,6 +381,7 @@ void ItTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
 	vector<unsigned int> size(2, 0);
 	size_t lastNonZeroPlane;
 	static size_t largestNonZeroPlaneSeen = 0;
+    Scaler s;
     
 	size[0] = BLOCK_WIDTH;
 	size[1] = BLOCK_HEIGHT;
@@ -387,7 +392,8 @@ void ItTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
 	end[0] = display_->DisplayWidth() - 1;
 	end[1] = display_->DisplayHeight() - 1;
     end[2] = FRAMEVOLUME_DEPTH - 1;
-    display_->FillScaler(0, start, end);
+    s.packed = 0;
+    display_->FillScaler(s, start, end);
 
 	/*
 	 * Produces the coefficients for the input buffer using a forward 4x4 integer transform
@@ -396,7 +402,7 @@ void ItTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
 		for (size_t i = 0; i < CEIL(display_->DisplayWidth(), BLOCK_WIDTH); i++) {
             
 			/* The coefficients are stored in this array in zig-zag order */
-			vector<int> coefficients(BLOCK_WIDTH * BLOCK_HEIGHT * 3, 0);
+			vector<uint64_t> coefficients(BLOCK_WIDTH * BLOCK_HEIGHT, 0);
 			lastNonZeroPlane = 0;
             
             /* Scratch blocks used for forwardIntegerTransform() */
@@ -433,13 +439,12 @@ void ItTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
             /* Then update the coefficients */
             for (int v = 0; v < BLOCK_HEIGHT; v++) {
                 for (int u = 0; u < BLOCK_WIDTH; u++) {
-                    size_t p = zigZag_[v * BLOCK_WIDTH + u] * 3;
-					coefficients[p + 0] = redCoeffsBlock[v * BLOCK_WIDTH + u];
-					coefficients[p + 1] = greenCoeffsBlock[v * BLOCK_WIDTH + u];
-					coefficients[p + 2] = blueCoeffsBlock[v * BLOCK_WIDTH + u];
-                    if (coefficients[p + 0] != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p + 0);
-                    if (coefficients[p + 1] != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p + 1);
-                    if (coefficients[p + 2] != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p + 2);
+                    size_t p = zigZag_[v * BLOCK_WIDTH + u];
+					s.r = redCoeffsBlock[v * BLOCK_WIDTH + u];
+					s.g = greenCoeffsBlock[v * BLOCK_WIDTH + u];
+					s.b = blueCoeffsBlock[v * BLOCK_WIDTH + u];
+                    coefficients[p] = s.packed;
+                    if (s.packed != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p);
                 }
             }
             

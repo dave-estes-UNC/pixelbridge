@@ -21,7 +21,7 @@
 #define BYTES_PER_CM_COORD  1
 #define BYTES_PER_IV_VALUE  4
 #define BYTES_PER_COEFF     4
-#define BYTES_PER_SCALER    2
+#define BYTES_PER_SCALER    6
 #else
 #define BYTES_PER_PIXEL     4
 #define BYTES_PER_FV_COORD  4
@@ -29,7 +29,7 @@
 #define BYTES_PER_CM_COORD  4
 #define BYTES_PER_IV_VALUE  4
 #define BYTES_PER_COEFF     4
-#define BYTES_PER_SCALER    4
+#define BYTES_PER_SCALER    8
 #endif
 
 /*

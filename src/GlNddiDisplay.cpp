@@ -78,13 +78,8 @@ GlNddiDisplay::GlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
 	frameBuffer_ = (Pixel*)malloc(sizeof(Pixel) * displayWidth_ * displayHeight_);
 	memset(frameBuffer_, 0x00, sizeof(Pixel) * displayWidth_ * displayHeight_);
     
-    // Initiliaze the shifter used during accumulation
-    if (numPlanes_ & (numPlanes_ - 1)) {
-        cout << "ERROR: Number of coefficient planes specified is not a power of two." << endl;
-        exit(1);
-    }
-    double s = log2((double)numPlanes_);
-    accumulatorShifter_ = int(s);
+    // Set the full scaler and the accumulator
+    SetFullScaler(DEFAULT_FULL_SCALER);
 }
 
 // TODO(CDE): Why is the destructor for GlNddiDisplay being called when we're using a ClNddiDisplay?
@@ -174,14 +169,14 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
 	int32_t    rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
 	Pixel      q;
 
-	q.packed = 0x00;
+	q.packed = 0;
 
 	// Accumulate color channels for the pixels chosen by each plane
 	for (unsigned int p = 0; p < numPlanes_; p++) {
 
 		// Grab the scaler for this location
-		int scaler = coefficientPlane_->getScaler(x, y, p);
-		if (scaler == 0) continue;
+		Scaler scaler = coefficientPlane_->getScaler(x, y, p);
+		if (scaler.packed == 0) continue;
 
 		// Grab the coefficient matrix
 		CoefficientMatrix * matrix = coefficientPlane_->getCoefficientMatrix(x, y, p);
@@ -203,13 +198,13 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
 		}
 		q = frameVolume_->getPixel(fvPosition);
         if (pixelSignMode_ == UNSIGNED_MODE) {
-            rAccumulator += (uint8_t)q.r * scaler;
-            gAccumulator += (uint8_t)q.g * scaler;
-            bAccumulator += (uint8_t)q.b * scaler;
+            rAccumulator += (uint8_t)q.r * scaler.r;
+            gAccumulator += (uint8_t)q.g * scaler.g;
+            bAccumulator += (uint8_t)q.b * scaler.b;
         } else {
-            rAccumulator += (int8_t)q.r * scaler;
-            gAccumulator += (int8_t)q.g * scaler;
-            bAccumulator += (int8_t)q.b * scaler;
+            rAccumulator += (int8_t)q.r * scaler.r;
+            gAccumulator += (int8_t)q.g * scaler.g;
+            bAccumulator += (int8_t)q.b * scaler.b;
         }
 	}
 
@@ -238,14 +233,14 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 	int32_t    rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
 	Pixel      q;
 
-	q.packed = 0x00;
+	q.packed = 0;
 
 	// Accumulate color channels for the pixels chosen by each plane
 	for (unsigned int p = 0; p < numPlanes_; p++) {
 
 		// Grab the scaler for this location
-		int scaler = coefficientPlane_->getScaler(x, y, p);
-		if (scaler == 0) continue;
+		Scaler scaler = coefficientPlane_->getScaler(x, y, p);
+		if (scaler.packed == 0) continue;
 
 		// Grab the coefficient matrix
 #ifdef NARROW_DATA_STORES
@@ -280,13 +275,13 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 
 		q = fv[offset];
         if (pixelSignMode_ == UNSIGNED_MODE) {
-            rAccumulator += (uint8_t)q.r * scaler;
-            gAccumulator += (uint8_t)q.g * scaler;
-            bAccumulator += (uint8_t)q.b * scaler;
+            rAccumulator += (uint8_t)q.r * scaler.r;
+            gAccumulator += (uint8_t)q.g * scaler.g;
+            bAccumulator += (uint8_t)q.b * scaler.b;
         } else {
-            rAccumulator += (int8_t)q.r * scaler;
-            gAccumulator += (int8_t)q.g * scaler;
-            bAccumulator += (int8_t)q.b * scaler;
+            rAccumulator += (int8_t)q.r * scaler.r;
+            gAccumulator += (int8_t)q.g * scaler.g;
+            bAccumulator += (int8_t)q.b * scaler.b;
         }
 	}
     
@@ -352,4 +347,22 @@ Pixel* GlNddiDisplay::GetFrameBuffer() {
 #endif
 
 	return frameBuffer_;
+}
+
+void GlNddiDisplay::SetPixelByteSignMode(SignMode mode) {
+    assert(mode == UNSIGNED_MODE || mode == SIGNED_MODE);
+    pixelSignMode_ = mode;
+}
+
+void GlNddiDisplay::SetFullScaler(uint16_t scaler) {
+    if (scaler & (scaler- 1)) {
+        cout << "ERROR: THE FULL_SCALER specified is not a power of two." << endl;
+    } else {
+        // Set the full scaler
+        fullScaler = scaler;
+        
+        // Initiliaze the shifter used during accumulation
+        double s = log2((double)fullScaler);
+        accumulatorShifter_ = int(s);
+    }
 }

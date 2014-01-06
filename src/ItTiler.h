@@ -66,7 +66,7 @@ private:
 	static const size_t  BLOCK_WIDTH = 4;
 	static const size_t  BLOCK_HEIGHT = 4;
 	static const size_t  BLOCK_SIZE = BLOCK_WIDTH * BLOCK_HEIGHT;
-    static const size_t  FRAMEVOLUME_DEPTH  = BLOCK_SIZE * 3;
+    static const size_t  FRAMEVOLUME_DEPTH  = BLOCK_SIZE;
 	static const size_t  BASIS_BLOCKS_WIDE = 4;
 	static const size_t  BASIS_BLOCKS_TALL = 4;
 
