@@ -673,10 +673,15 @@ void outputStats(bool exitNow) {
 		cout << endl;
 
 		// Warnings about Configuration
-#if defined(SUPRESS_EXCESS_RENDERING) || defined(NO_CL) || defined(NO_GL)
+#if defined(SUPRESS_EXCESS_RENDERING) || defined(SKIP_COMPUTE_WHEN_SCALER_ZERO) || defined(NO_CL) || defined(NO_GL)
 		cout << endl << "CONFIGURATION WARNINGS:" << endl;
 #ifdef SUPRESS_EXCESS_RENDERING
 		cout << "  - Was compiled with SUPRESS_EXCESS_RENDERING, and so the numbers may be off. Recompile with \"make NO_HACKS=1\"." << endl;
+#endif
+#ifdef SKIP_COMPUTE_WHEN_SCALER_ZERO
+		cout << "  - Was compiled with SKIP_COMPUTE_WHEN_SCALER_ZERO, and so the numbers may be off when running with NO_OMP." << endl <<
+                "    When using OpenMP, the number will be fine regardless because they're register in bulk later. Recompile" << endl <<
+                "    with \"make NO_HACKS=1\"." << endl;
 #endif
 #ifdef NO_CL
 		cout << "  - Was compiled without OpenCL." << endl;
