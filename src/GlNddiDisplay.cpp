@@ -132,10 +132,12 @@ void GlNddiDisplay::Render() {
                                         0);
 	// For each pixel computed with all of the planes, the coefficient and scaler is read
     costModel->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
-                                        displayWidth_ * displayHeight_ * numPlanes_ * (CM_HEIGHT * CM_WIDTH),
+                                        displayWidth_ * displayHeight_ * numPlanes_ * (CM_HEIGHT * CM_WIDTH) +
+                                        displayWidth_ * displayHeight_ * numPlanes_ * (1),
                                         READ_ACCESS,
                                         NULL,
-                                        displayWidth_ * displayHeight_ * numPlanes_ * (CM_HEIGHT * CM_WIDTH) * BYTES_PER_COEFF,
+                                        displayWidth_ * displayHeight_ * numPlanes_ * (CM_HEIGHT * CM_WIDTH) * BYTES_PER_COEFF +
+                                        displayWidth_ * displayHeight_ * numPlanes_ * (1) * BYTES_PER_SCALER,
                                         0);
     // For each pixel computed with all of the planes, a pixel sample is pulled from the frame volume
     costModel->registerBulkMemoryCharge(FRAME_VOLUME_COMPONENT,
@@ -240,8 +242,16 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 	// Accumulate color channels for the pixels chosen by each plane
 	for (unsigned int p = 0; p < numPlanes_; p++) {
 
-		// Grab the scaler for this location
-		Scaler scaler = coefficientPlane_->getScaler(x, y, p);
+		// Grab the scaler for this location.
+#ifdef NARROW_DATA_STORES
+        int16_t * scalerData = coefficientPlane_->data();
+#else
+        int * scalerData = coefficientPlane_->data();
+#endif
+        Scaler scaler;
+        scaler.r = scalerData[(p * displayWidth_ * displayHeight_ + y * displayWidth_ + x) * 3 + 0];
+        scaler.g = scalerData[(p * displayWidth_ * displayHeight_ + y * displayWidth_ + x) * 3 + 1];
+        scaler.b = scalerData[(p * displayWidth_ * displayHeight_ + y * displayWidth_ + x) * 3 + 2];
 #ifdef SKIP_COMPUTE_WHEN_SCALER_ZERO
 		if (scaler.packed == 0) continue;
 #endif

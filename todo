@@ -17,7 +17,7 @@ x For DCT, initializing the coefficient plane is KILLING me. Fix it by:
   x Redesign it to fill the a coefficient matrix to an 8x8x192 area.
   x Then kill in the k values for each of the 192 planes.
 x Update the coefficient plane to update the cost model correctly and efficiently with OpenMP. There are descrepencies when between OpenMP and NO_OMP.
-- Update cost model for scaler access, either by just registering it ot the coefficient plane or by some more specific component.
+x Update cost model for scaler access, either by just registering it ot the coefficient plane or by some more specific component.
 - Determine if it's necessary to narrow some data values like scalers and coordinates (for transmission).
 - Re-run all of the original experiments including the new video-based tilers.
 - Revisit the Blending Experiments
@@ -31,5 +31,6 @@ x Update the coefficient plane to update the cost model correctly and efficientl
 
 
 Future Work
+- Consider breaking down the COEFFICIENT_PLANE_COMPONENT into coefficient accesses and scaler accesses.
 - Add nDDI command caching and playback mode. Will avoid the video decode and tiler calculations.
 - Modify FFMPEG's MJPEG decoder to and have it create DCT coefficients for the DctTiler automatically.
