@@ -33,7 +33,16 @@ public:
      */
     GLuint GetFrameBufferTex();
 
+    /**
+     * Use to register in bulk all of the rendering cost. This will updates the counts correctly,
+     * but any more detailed information is lost.
+     */
     Pixel* GetFrameBuffer();
+    
+    /**
+     * Triggers a simulted render that only records the cost estimated cost involved.
+     */
+    void SimulateRender();
 
     void SetPixelByteSignMode(SignMode mode);
     void SetFullScaler(uint16_t scaler);
@@ -45,6 +54,8 @@ private:
 #ifndef NO_OMP
     nddi::Pixel ComputePixel(unsigned int x, unsigned int y, int* iv, nddi::Pixel* fv);
 #endif
+    void RegisterBulkRenderCost();
+    
 
 protected:
     SignMode  pixelSignMode_;
