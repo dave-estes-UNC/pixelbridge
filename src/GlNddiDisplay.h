@@ -38,7 +38,7 @@ public:
     void SetPixelByteSignMode(SignMode mode);
     void SetFullScaler(uint16_t scaler);
     uint16_t GetFullScaler() { return fullScaler; }
-    
+
 private:
     void Render();
     nddi::Pixel ComputePixel(unsigned int x, unsigned int y);

@@ -2,6 +2,7 @@
 #define N_DIMENSIONAL_DISPLAY_INTERFACE_H
 
 #include <vector>
+#include <stdint.h>
 #include "CostModel.h"
 
 using namespace std;
@@ -14,7 +15,7 @@ namespace nddi {
      * same location of the destination coefficient matrix to remain unchanged.
      */
     #define COFFICIENT_UNCHANGED INT_MAX
-    
+
     /**
      * The default full scaler.
      */
@@ -33,7 +34,7 @@ namespace nddi {
         };
         uint32_t packed;
     } Pixel;
-    
+
     /**
      * Struct representing the 3-channel scaler for each coefficient matrix.
      * Implementation may drop the alpha channel.
@@ -47,7 +48,7 @@ namespace nddi {
         };
         uint64_t packed;
     } Scaler;
-    
+
     /**
      * Options for pixel byte sign mode.
      */
@@ -277,12 +278,12 @@ namespace nddi {
          * leading to planes that contribute 2.5x or even -3x for instance.
          */
         virtual void SetFullScaler(uint16_t scaler) = 0;
-        
+
         /**
          * Returns the current full scaler value.
          */
         virtual uint16_t GetFullScaler() = 0;
-        
+
         /**
          * Returns the CostModel for this display. The CostModel can be queried by the
          * host application to understand the cost of operations after they complete.

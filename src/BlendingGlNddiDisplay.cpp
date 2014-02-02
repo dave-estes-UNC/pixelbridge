@@ -46,11 +46,11 @@ void BlendingGlNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<
 	vector<unsigned int> positionTo = dest;
 	bool copyFinished = false;
 	int pixelsCopied = 0;
-	
+
     // Register transmission cost first
     costModel->registerTransmissionCharge(CALC_BYTES_FOR_FV_COORD_TUPLES(3), // Three Coordinate Tuples
                                           0);
-    
+
 	// Move from start to end, filling in each location with the provided pixel
 	do {
 		// Set pixel in frame volume at position
@@ -59,11 +59,11 @@ void BlendingGlNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<
         } else {
             // Register the cost of the blending
             costModel->registerPixelBlendCharge(1);
-            
+
             frameVolume_->setPixel(positionTo, BlendPixel(frameVolume_->getPixel(positionTo), frameVolume_->getPixel(positionFrom)));
         }
 		pixelsCopied++;
-		
+
 		// Move to the next position
 		int fvDim = 0;
 		bool overflow;
@@ -80,7 +80,7 @@ void BlendingGlNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<
 					copyFinished = true;
 			}
 		} while (overflow && !copyFinished);
-		
+
 	} while (!copyFinished);
 #ifdef SUPRESS_EXCESS_RENDERING
 	changed_ = true;
