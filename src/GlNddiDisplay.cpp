@@ -123,30 +123,7 @@ void GlNddiDisplay::Render() {
     // Update the cost model for the in bulk now if we are using OpenMP since we bypassed the traditional
     // getters for input vector, frame volume, and coefficient matrix.
 #ifndef NO_OMP
-	// For each pixel computed with all of the planes, the input vector (except x,y) is read
-    costModel->registerBulkMemoryCharge(INPUT_VECTOR_COMPONENT,
-                                        displayWidth_ * displayHeight_ * numPlanes_ * CM_HEIGHT * (CM_WIDTH - 2),
-                                        READ_ACCESS,
-                                        NULL,
-                                        displayWidth_ * displayHeight_ * numPlanes_ * CM_HEIGHT * (CM_WIDTH - 2) * BYTES_PER_IV_VALUE,
-                                        0);
-	// For each pixel computed with all of the planes, the coefficient and scaler is read
-    costModel->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
-                                        displayWidth_ * displayHeight_ * numPlanes_ * (CM_HEIGHT * CM_WIDTH) +
-                                        displayWidth_ * displayHeight_ * numPlanes_ * (1),
-                                        READ_ACCESS,
-                                        NULL,
-                                        displayWidth_ * displayHeight_ * numPlanes_ * (CM_HEIGHT * CM_WIDTH) * BYTES_PER_COEFF +
-                                        displayWidth_ * displayHeight_ * numPlanes_ * (1) * BYTES_PER_SCALER,
-                                        0);
-    // For each pixel computed with all of the planes, a pixel sample is pulled from the frame volume
-    costModel->registerBulkMemoryCharge(FRAME_VOLUME_COMPONENT,
-                                        displayWidth_ * displayHeight_ * numPlanes_,
-                                        READ_ACCESS,
-                                        NULL,
-                                        displayWidth_ * displayHeight_ * numPlanes_ * BYTES_PER_PIXEL,
-                                        0);
-    costModel->registerPixelMappingCharge(displayWidth_ * displayHeight_);
+    RegisterBulkRenderCost();
 #endif
 
     if (!quiet_) {
@@ -351,6 +328,43 @@ GLuint GlNddiDisplay::GetFrameBufferTex() {
 #endif
 
 	return texture_;
+}
+
+void GlNddiDisplay::RegisterBulkRenderCost() {
+    
+	// For each pixel computed with all of the planes, the input vector (except x,y) is read
+    costModel->registerBulkMemoryCharge(INPUT_VECTOR_COMPONENT,
+                                        displayWidth_ * displayHeight_ * numPlanes_ * CM_HEIGHT * (CM_WIDTH - 2),
+                                        READ_ACCESS,
+                                        NULL,
+                                        displayWidth_ * displayHeight_ * numPlanes_ * CM_HEIGHT * (CM_WIDTH - 2) * BYTES_PER_IV_VALUE,
+                                        0);
+	// For each pixel computed with all of the planes, the coefficient and scaler is read
+    costModel->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
+                                        displayWidth_ * displayHeight_ * numPlanes_ * (CM_HEIGHT * CM_WIDTH) +
+                                        displayWidth_ * displayHeight_ * numPlanes_ * (1),
+                                        READ_ACCESS,
+                                        NULL,
+                                        displayWidth_ * displayHeight_ * numPlanes_ * (CM_HEIGHT * CM_WIDTH) * BYTES_PER_COEFF +
+                                        displayWidth_ * displayHeight_ * numPlanes_ * (1) * BYTES_PER_SCALER,
+                                        0);
+    // For each pixel computed with all of the planes, a pixel sample is pulled from the frame volume
+    costModel->registerBulkMemoryCharge(FRAME_VOLUME_COMPONENT,
+                                        displayWidth_ * displayHeight_ * numPlanes_,
+                                        READ_ACCESS,
+                                        NULL,
+                                        displayWidth_ * displayHeight_ * numPlanes_ * BYTES_PER_PIXEL,
+                                        0);
+    costModel->registerPixelMappingCharge(displayWidth_ * displayHeight_);
+}
+
+void GlNddiDisplay::SimulateRender() {
+#ifdef SUPRESS_EXCESS_RENDERING
+	if (changed_) {
+        RegisterBulkRenderCost();
+        changed_ = false;
+    }
+#endif
 }
 
 Pixel* GlNddiDisplay::GetFrameBuffer() {

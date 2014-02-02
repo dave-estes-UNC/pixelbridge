@@ -483,10 +483,15 @@ void draw( void ) {
 	
 	if (config > COUNT) {
 		
-		// Grab the frame buffer from the NDDI display
-        GLuint texture = myDisplay->GetFrameBufferTex();
-		
-        if (!configHeadless) {
+        if (configHeadless) {
+            
+            myDisplay->SimulateRender();
+            
+        } else {
+
+            // Grab the frame buffer from the NDDI display
+            GLuint texture = myDisplay->GetFrameBufferTex();
+            
 // TODO(CDE): Temporarily putting this here until GlNddiDisplay and ClNddiDisplay
 //            are using the exact same kind of GL textures
 #ifndef NO_CL
@@ -532,24 +537,9 @@ void outputStats(bool exitNow) {
 	PSNR = 10.0f * log10(65025.0f / MSE);
 
 	//
-	// Just print the minimal CSV for headless
+	// Print a detailed, readable report if we're not running configHeadless
 	//
-    if (configHeadless) {
-
-		// File Name | Tile Width | Tile Height | Frame Count | PSNR | Bytes Transmitted
-		//
-		cout << fileName << "\t";
-		cout << configTileWidth << "\t" << configTileHeight << "\t";
-		cout << totalUpdates << "\t";
-		if (configPSNR) {
-			cout << PSNR << "\t";
-		}
-		cout << costModel->getLinkBytesTransmitted() << endl;;
-
-	//
-	// Otherwise print a detailed report
-	//
-    } else {
+    if (!configHeadless) {
 
     	cout << endl;
 
@@ -646,51 +636,60 @@ void outputStats(bool exitNow) {
 			cout << "Quality Statistics:" << endl << "  Use --psnr to enable." << endl;
 		}
 		cout << endl;
+    }
 
-		// CSV
-		//
-		cout << "CSV:" << endl;
-		cout << "Commands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written\tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended\tPSNR" << endl;
-		cout
-		<< costModel->getLinkCommandsSent() << " \t "
-        << costModel->getLinkBytesTransmitted() << " \t "
-		<< costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) << " \t "
-        << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << " \t "
-		<< costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << " \t "
-        << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << " \t "
-		<< costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) << " \t "
-        << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << " \t "
-		<< costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << " \t "
-        << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << " \t "
-		<< costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) << " \t "
-        << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << " \t "
-		<< costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << " \t "
-        << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << " \t "
-		<< costModel->getTime(FRAME_VOLUME_COMPONENT) << " \t "
-		<< costModel->getPixelsMapped() << " \t "
-        << costModel->getPixelsBlended() << " \t "
-		<< PSNR << endl;
-		cout << endl;
+    // CSV
+    //
+    
+    // Pretty print a heading to stdout, but for headless just spit it to stderr for reference
+    if (!configHeadless) {
+        cout << "CSV Headings:" << endl;
+        cout << "Commands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written\tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended\tPSNR\tFile Name" << endl;
+    } else {
+        cerr << "CSV Headings:" << endl;
+        cerr << "Commands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written\tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended\tPSNR\tFile Name" << endl;
+    }
+    
+    cout
+    << costModel->getLinkCommandsSent() << " \t "
+    << costModel->getLinkBytesTransmitted() << " \t "
+    << costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) << " \t "
+    << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << " \t "
+    << costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << " \t "
+    << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << " \t "
+    << costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) << " \t "
+    << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << " \t "
+    << costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << " \t "
+    << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << " \t "
+    << costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) << " \t "
+    << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << " \t "
+    << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << " \t "
+    << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << " \t "
+    << costModel->getTime(FRAME_VOLUME_COMPONENT) << " \t "
+    << costModel->getPixelsMapped() << " \t "
+    << costModel->getPixelsBlended() << " \t "
+    << PSNR << "\t"
+    << fileName << endl;
+    cout << endl;
 
-		// Warnings about Configuration
+    // Warnings about Configuration
 #if defined(SUPRESS_EXCESS_RENDERING) || defined(SKIP_COMPUTE_WHEN_SCALER_ZERO) || defined(NO_CL) || defined(NO_GL)
-		cout << endl << "CONFIGURATION WARNINGS:" << endl;
+    cerr << endl << "CONFIGURATION WARNINGS:" << endl;
 #ifdef SUPRESS_EXCESS_RENDERING
-		cout << "  - Was compiled with SUPRESS_EXCESS_RENDERING, and so the numbers may be off. Recompile with \"make NO_HACKS=1\"." << endl;
+    cerr << "  - Was compiled with SUPRESS_EXCESS_RENDERING, and so the numbers may be off. Recompile with \"make NO_HACKS=1\"." << endl;
 #endif
 #ifdef SKIP_COMPUTE_WHEN_SCALER_ZERO
-		cout << "  - Was compiled with SKIP_COMPUTE_WHEN_SCALER_ZERO, and so the numbers may be off when running with NO_OMP." << endl <<
-                "    When using OpenMP, the number will be fine regardless because they're register in bulk later. Recompile" << endl <<
-                "    with \"make NO_HACKS=1\"." << endl;
+    cerr << "  - Was compiled with SKIP_COMPUTE_WHEN_SCALER_ZERO, and so the numbers may be off when running with NO_OMP." << endl <<
+            "    When using OpenMP, the number will be fine regardless because they're register in bulk later. Recompile" << endl <<
+            "    with \"make NO_HACKS=1\"." << endl;
 #endif
 #ifdef NO_CL
-		cout << "  - Was compiled without OpenCL." << endl;
+    cerr << "  - Was compiled without OpenCL." << endl;
 #endif
 #ifdef NO_GL
-		cout << "  - Was compiled without OpenGL." << endl;
+    cerr << "  - Was compiled without OpenGL." << endl;
 #endif
 #endif
-    }
 
     // Clean up
     if (exitNow) {
