@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "PixelBridgeFeatures.h"
+#include "Configuration.h"
 #include "DctTiler.h"
 
 #define PI 3.14159265
@@ -48,9 +49,10 @@
  * dimensions change, then the FlatTiler should be destroyed and re-created.
  */
 DctTiler::DctTiler (size_t display_width, size_t display_height,
-                    size_t quality, bool quiet)
-: quiet_(quiet)
+                    size_t quality)
 {
+    quiet_ = globalConfiguration.headless || !globalConfiguration.verbose;
+
     // 3 dimensional matching the Macroblock Width x Height x 64
     vector<unsigned int> fvDimensions;
     fvDimensions.push_back(BLOCK_WIDTH);

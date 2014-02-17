@@ -36,8 +36,7 @@ public:
 	 */
 	FlatTiler(size_t display_width, size_t display_height,
 			  size_t tile_width, size_t tile_height,
-			  size_t bits,
-			  bool quiet);
+			  size_t bits);
 	
 	~FlatTiler() {
 		tile_map_.clear();

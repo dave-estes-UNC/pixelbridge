@@ -74,9 +74,8 @@ void setupDisplay() {
 
         // Setup Cached Tiler which initializies Coefficient Plane
         myTiler = new CachedTiler(displayWidth, displayHeight,
-        		globalConfiguration.tileWidth, globalConfiguration.tileHeight,
-        		globalConfiguration.maxTiles, globalConfiguration.sigBits,
-        		globalConfiguration.headless || !globalConfiguration.verbose);
+                globalConfiguration.tileWidth, globalConfiguration.tileHeight,
+                globalConfiguration.maxTiles, globalConfiguration.sigBits);
 
         // Grab the display and cost model
         myDisplay = myTiler->GetDisplay();
@@ -87,8 +86,7 @@ void setupDisplay() {
 
         // Setup DCT Tiler and initializes Coefficient Plane and Frame Volume
         myTiler = new DctTiler(displayWidth, displayHeight,
-                               globalConfiguration.quality,
-                               globalConfiguration.headless || !globalConfiguration.verbose);
+                               globalConfiguration.quality);
 
         // Grab the display and cost model
         myDisplay = myTiler->GetDisplay();
@@ -99,8 +97,7 @@ void setupDisplay() {
 
         // Setup IT Tiler and initializes Coefficient Plane and Frame Volume
         myTiler = new ItTiler(displayWidth, displayHeight,
-                              globalConfiguration.quality,
-                              globalConfiguration.headless || !globalConfiguration.verbose);
+                              globalConfiguration.quality);
 
         // Grab the display and cost model
         myDisplay = myTiler->GetDisplay();
@@ -274,8 +271,9 @@ void setupDisplay() {
 
         // Set up Flat Tiler and initialize Coefficient Planes
         myTiler = new FlatTiler(displayWidth, displayHeight,
-                                globalConfiguration.tileWidth, globalConfiguration.tileHeight, globalConfiguration.sigBits,
-                                globalConfiguration.headless || !globalConfiguration.verbose);
+                                globalConfiguration.tileWidth,
+                                globalConfiguration.tileHeight,
+                                globalConfiguration.sigBits);
 
         // Grab the display and cost model
         myDisplay = myTiler->GetDisplay();
