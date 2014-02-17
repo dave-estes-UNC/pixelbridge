@@ -56,32 +56,32 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
     fvDimensions.push_back(BLOCK_WIDTH);
     fvDimensions.push_back(BLOCK_HEIGHT);
     fvDimensions.push_back(FRAMEVOLUME_DEPTH);
-    
+
 #ifndef NO_CL
 #error CL not supported for DCT Tiler yet.
 #else
     display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
-                                 3); 						    // input vector size (x, y, 1)
+                                 3);                            //   Input vector size (x, y, 1)
 #endif
 
     // Set the full scaler value
     display_->SetFullScaler(MAX_DCT_COEFF);
 
-    
+
     initZigZag();
     initQuantizationMatrix(quality);
     display_->SetPixelByteSignMode(SIGNED_MODE);
-    
+
     // Initialize Input Vector
     vector<int> iv;
     iv.push_back(1);
     display_->UpdateInputVector(iv);
-    
+
     // Initialize Coefficient Planes
     InitializeCoefficientPlanes();
-    
+
     // Initialize Frame Volume
     InitializeFrameVolume();
 }
@@ -132,49 +132,49 @@ GlNddiDisplay* DctTiler::GetDisplay() {
  * multiplied by 3 and then the proper frames for that color are chosen independently.
  */
 void DctTiler::initZigZag() {
-	size_t  x = 0, y = 0;
-	bool    up = true;
+    size_t  x = 0, y = 0;
+    bool    up = true;
 
-	// Setup the zigZag_ table
-	for (size_t i = 0; i < BLOCK_SIZE; i++) {
-		zigZag_[y * BLOCK_WIDTH + x] = i;
-		if (up) {
-			if (x < (BLOCK_WIDTH - 1)) {
-				x++;
-				if (y > 0) {
-					y--;
-				} else {
-					up = false;
-				}
-			} else {
-				y++;
-				up = false;
-			}
-		} else {
-			if (y < (BLOCK_HEIGHT - 1)) {
-				y++;
-				if (x > 0) {
-					x--;
-				} else {
-					up = true;
-				}
-			} else {
-				x++;
-				up = true;
-			}
-		}
-	}
+    // Setup the zigZag_ table
+    for (size_t i = 0; i < BLOCK_SIZE; i++) {
+        zigZag_[y * BLOCK_WIDTH + x] = i;
+        if (up) {
+            if (x < (BLOCK_WIDTH - 1)) {
+                x++;
+                if (y > 0) {
+                    y--;
+                } else {
+                    up = false;
+                }
+            } else {
+                y++;
+                up = false;
+            }
+        } else {
+            if (y < (BLOCK_HEIGHT - 1)) {
+                y++;
+                if (x > 0) {
+                    x--;
+                } else {
+                    up = true;
+                }
+            } else {
+                x++;
+                up = true;
+            }
+        }
+    }
 }
 
 /*
  * Uses simple algorithm from M. Nelson, "The Data Compression Book," San Mateo, CA, M&T Books, 1992.
  */
 void DctTiler::initQuantizationMatrix(size_t quality) {
-	for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
-		for (size_t u = 0; u < BLOCK_WIDTH; u++) {
-			quantizationMatrix_[v * BLOCK_WIDTH + u] = 1 + (1 + u + v) * quality;
-		}
-	}
+    for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
+        for (size_t u = 0; u < BLOCK_WIDTH; u++) {
+            quantizationMatrix_[v * BLOCK_WIDTH + u] = 1 + (1 + u + v) * quality;
+        }
+    }
 }
 
 /**
@@ -185,47 +185,47 @@ void DctTiler::InitializeCoefficientPlanes() {
 
     Scaler s;
 
-	// Setup the coefficient matrix to complete 3x3 identity initially
-	vector< vector<int> > coeffs;
+    // Setup the coefficient matrix to complete 3x3 identity initially
+    vector< vector<int> > coeffs;
     coeffs.resize(3);
     coeffs[0].push_back(1); coeffs[0].push_back(0); coeffs[0].push_back(0);
     coeffs[1].push_back(0); coeffs[1].push_back(1); coeffs[1].push_back(0);
     coeffs[2].push_back(0); coeffs[2].push_back(0); coeffs[2].push_back(0);
 
-	// Setup start and end points to (0,0,0) initially
-	vector<unsigned int> start, end;
-	start.push_back(0); start.push_back(0); start.push_back(0);
-	end.push_back(0); end.push_back(0); end.push_back(0);
+    // Setup start and end points to (0,0,0) initially
+    vector<unsigned int> start, end;
+    start.push_back(0); start.push_back(0); start.push_back(0);
+    end.push_back(0); end.push_back(0); end.push_back(0);
 
-	// Break the display into macroblocks and initialize each 8x8x64 cube of coefficients to pick out the proper block from the frame volume
-	for (int j = 0; j < CEIL(display_->DisplayHeight(), BLOCK_HEIGHT); j++) {
-		for (int i = 0; i < CEIL(display_->DisplayWidth(), BLOCK_WIDTH); i++) {
-			coeffs[2][0] = -i * BLOCK_WIDTH;
-			coeffs[2][1] = -j * BLOCK_HEIGHT;
-			start[0] = i * BLOCK_WIDTH; start[1] = j * BLOCK_HEIGHT; start[2] = 0;
-			end[0] = (i + 1) * BLOCK_WIDTH - 1; end[1] = (j + 1) * BLOCK_HEIGHT - 1; end[2] = FRAMEVOLUME_DEPTH - 1;
-			if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
-			if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
-			display_->FillCoefficientMatrix(coeffs, start, end);
-		}
-	}
-	// Finish up by setting the proper k for every plane
-	start[0] = 0; start[1] = 0;
-	end[0] = display_->DisplayWidth() - 1; end[1] = display_->DisplayHeight() - 1;
-	for (int k = 0; k < FRAMEVOLUME_DEPTH; k++) {
-		start[2] = k; end[2] = k;
-		display_->FillCoefficient(k, 2, 2, start, end);
-	}
+    // Break the display into macroblocks and initialize each 8x8x64 cube of coefficients to pick out the proper block from the frame volume
+    for (int j = 0; j < CEIL(display_->DisplayHeight(), BLOCK_HEIGHT); j++) {
+        for (int i = 0; i < CEIL(display_->DisplayWidth(), BLOCK_WIDTH); i++) {
+            coeffs[2][0] = -i * BLOCK_WIDTH;
+            coeffs[2][1] = -j * BLOCK_HEIGHT;
+            start[0] = i * BLOCK_WIDTH; start[1] = j * BLOCK_HEIGHT; start[2] = 0;
+            end[0] = (i + 1) * BLOCK_WIDTH - 1; end[1] = (j + 1) * BLOCK_HEIGHT - 1; end[2] = FRAMEVOLUME_DEPTH - 1;
+            if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
+            if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
+            display_->FillCoefficientMatrix(coeffs, start, end);
+        }
+    }
+    // Finish up by setting the proper k for every plane
+    start[0] = 0; start[1] = 0;
+    end[0] = display_->DisplayWidth() - 1; end[1] = display_->DisplayHeight() - 1;
+    for (int k = 0; k < FRAMEVOLUME_DEPTH; k++) {
+        start[2] = k; end[2] = k;
+        display_->FillCoefficient(k, 2, 2, start, end);
+    }
 
-	// Fill each scaler in every plane with 0
-	start[0] = 0; start[1] = 0; start[2] = 0;
-	end[0] = display_->DisplayWidth() - 1;
-	end[1] = display_->DisplayHeight() - 1;
+    // Fill each scaler in every plane with 0
+    start[0] = 0; start[1] = 0; start[2] = 0;
+    end[0] = display_->DisplayWidth() - 1;
+    end[1] = display_->DisplayHeight() - 1;
     end[2] = display_->NumCoefficientPlanes() - 1;
     s.packed = 0;
     display_->FillScaler(s, start, end);
 
-	// Fill the scalers for the medium gray plane to full on
+    // Fill the scalers for the medium gray plane to full on
     start[2] = display_->NumCoefficientPlanes() - 1;
     s.r = s.g = s.b = display_->GetFullScaler();
     display_->FillScaler(s, start, end);
@@ -239,28 +239,28 @@ void DctTiler::InitializeCoefficientPlanes() {
  */
 void DctTiler::InitializeFrameVolume() {
 
-	Pixel  *pixels;
-	size_t  pixels_size = sizeof(Pixel)            // pixel size
-						 * BLOCK_SIZE              // size of each x,y plane
-						 * FRAMEVOLUME_DEPTH;      // number of basis functions for each color channel
-	                                               //   plus one medium gray plane
+    Pixel  *pixels;
+    size_t  pixels_size = sizeof(Pixel)            // pixel size
+                         * BLOCK_SIZE              // size of each x,y plane
+                         * FRAMEVOLUME_DEPTH;      // number of basis functions for each color channel
+                                                   //   plus one medium gray plane
 
 
-	pixels = (Pixel *)malloc(pixels_size);
-	memset(pixels, 0x00, pixels_size);
+    pixels = (Pixel *)malloc(pixels_size);
+    memset(pixels, 0x00, pixels_size);
 
-	// Pre-render each basis function
+    // Pre-render each basis function
 #ifndef NO_OMP
 #pragma omp parallel for
 #endif
     for (int j = 0; j < BASIS_BLOCKS_TALL; j++) {
         for (int i = 0; i < BASIS_BLOCKS_WIDE; i++) {
-            
+
             // Don't process the final basis glock.
             if (i == BASIS_BLOCKS_WIDE - 1 && j == BASIS_BLOCKS_TALL) continue;
-            
-        	size_t p = zigZag_[j * BASIS_BLOCKS_WIDE + i] * BLOCK_SIZE;
-            
+
+            size_t p = zigZag_[j * BASIS_BLOCKS_WIDE + i] * BLOCK_SIZE;
+
             for (int y = 0; y < BLOCK_HEIGHT; y++) {
                 for (int x = 0; x < BLOCK_WIDTH; x++) {
                     double m = 0.0f;
@@ -307,20 +307,20 @@ void DctTiler::InitializeFrameVolume() {
     size_t p = zigZag_[BASIS_BLOCKS_WIDE * BASIS_BLOCKS_TALL - 1] * BLOCK_SIZE;
     for (int y = 0; y < BLOCK_HEIGHT; y++) {
         for (int x = 0; x < BLOCK_WIDTH; x++) {
-        	unsigned int c = 0x7f;
-        	pixels[p].r = c;
-        	pixels[p].g = c;
-        	pixels[p].b = c;
-        	pixels[p].a = 0xff;
-        	p++;
+            unsigned int c = 0x7f;
+            pixels[p].r = c;
+            pixels[p].g = c;
+            pixels[p].b = c;
+            pixels[p].a = 0xff;
+            p++;
         }
     }
 
     // Update the frame volume with the basis function renderings and gray block in bulk.
-	vector<unsigned int> start, end;
-	start.push_back(0); start.push_back(0); start.push_back(0);
-	end.push_back(BLOCK_WIDTH - 1); end.push_back(BLOCK_HEIGHT - 1); end.push_back(FRAMEVOLUME_DEPTH - 1);
-	display_->CopyPixels(pixels, start, end);
+    vector<unsigned int> start, end;
+    start.push_back(0); start.push_back(0); start.push_back(0);
+    end.push_back(BLOCK_WIDTH - 1); end.push_back(BLOCK_HEIGHT - 1); end.push_back(FRAMEVOLUME_DEPTH - 1);
+    display_->CopyPixels(pixels, start, end);
 
     // Free the pixel memory
     free(pixels);
@@ -336,111 +336,111 @@ void DctTiler::InitializeFrameVolume() {
  */
 void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 {
-	vector<unsigned int> start(3, 0), end(3, 0);
-	vector<unsigned int> size(2, 0);
-	size_t lastNonZeroPlane;
-	static size_t largestNonZeroPlaneSeen = 0;
+    vector<unsigned int> start(3, 0), end(3, 0);
+    vector<unsigned int> size(2, 0);
+    size_t lastNonZeroPlane;
+    static size_t largestNonZeroPlaneSeen = 0;
     Scaler s;
 
-	size[0] = BLOCK_WIDTH;
-	size[1] = BLOCK_HEIGHT;
+    size[0] = BLOCK_WIDTH;
+    size[1] = BLOCK_HEIGHT;
 
-	/* Clear all scalers up to but not including the medium gray plane. */
-	// TODO(CDE): Don't do this in the future. Just write enough planes to overwrite the last known non-zero plane.
-	start[0] = 0; start[1] = 0; start[2] = 0;
-	end[0] = display_->DisplayWidth() - 1;
-	end[1] = display_->DisplayHeight() - 1;
+    /* Clear all scalers up to but not including the medium gray plane. */
+    // TODO(CDE): Don't do this in the future. Just write enough planes to overwrite the last known non-zero plane.
+    start[0] = 0; start[1] = 0; start[2] = 0;
+    end[0] = display_->DisplayWidth() - 1;
+    end[1] = display_->DisplayHeight() - 1;
     end[2] = FRAMEVOLUME_DEPTH - 2;
     s.packed = 0;
     display_->FillScaler(s, start, end);
 
-	/*
-	 * Produces the de-quantized coefficients for the input buffer using the following steps:
-	 *
-	 * 1. Shift by subtracting 128
-	 * 2. Take the 2D DCT
-	 * 3. Quantize
-	 * 4. De-quantize
-	 */
-	for (size_t j = 0; j < CEIL(display_->DisplayHeight(), BLOCK_HEIGHT); j++) {
-		for (size_t i = 0; i < CEIL(display_->DisplayWidth(), BLOCK_WIDTH); i++) {
+    /*
+     * Produces the de-quantized coefficients for the input buffer using the following steps:
+     *
+     * 1. Shift by subtracting 128
+     * 2. Take the 2D DCT
+     * 3. Quantize
+     * 4. De-quantize
+     */
+    for (size_t j = 0; j < CEIL(display_->DisplayHeight(), BLOCK_HEIGHT); j++) {
+        for (size_t i = 0; i < CEIL(display_->DisplayWidth(), BLOCK_WIDTH); i++) {
 
-			/* The coefficients are stored in this array in zig-zag order */
-			vector<uint64_t> coefficients(BLOCK_SIZE, 0);
-			lastNonZeroPlane = 0;
+            /* The coefficients are stored in this array in zig-zag order */
+            vector<uint64_t> coefficients(BLOCK_SIZE, 0);
+            lastNonZeroPlane = 0;
 
 #ifndef NO_OMP
 #pragma omp parallel for ordered
 #endif
-			for (size_t v = 0; v < BLOCK_HEIGHT; v++)
+            for (size_t v = 0; v < BLOCK_HEIGHT; v++)
 #ifndef NO_OMP
 #pragma omp ordered
 #endif
-			{
-				for (size_t u = 0; u < BLOCK_WIDTH; u++) {
+            {
+                for (size_t u = 0; u < BLOCK_WIDTH; u++) {
 
-					double c_r = 0.0f, c_g = 0.0f, c_b = 0.0f;
+                    double c_r = 0.0f, c_g = 0.0f, c_b = 0.0f;
 
-					/* Calculate G for each u, v using g(x,y) shifted (1. and 2.) */
-					for (size_t y = 0; y < BLOCK_HEIGHT; y++) {
-						for (size_t x = 0; x < BLOCK_WIDTH; x++) {
+                    /* Calculate G for each u, v using g(x,y) shifted (1. and 2.) */
+                    for (size_t y = 0; y < BLOCK_HEIGHT; y++) {
+                        for (size_t x = 0; x < BLOCK_WIDTH; x++) {
 
-							double p = 1.0f;
+                            double p = 1.0f;
 
-							p *= (u == 0) ? sqrt((double)0.125) : sqrt((double)0.25);                                            // alpha(u)
-							p *= (v == 0) ? sqrt((double)0.125) : sqrt((double)0.25);                                            // alpha(v)
-							p *= cos(PI / 8.0 * ((double)x + 0.5) * (double)u);                                                  // cos with x, u
-							p *= cos(PI / 8.0 * ((double)y + 0.5) * (double)v);                                                  // cos with y, v
-							/* Fetch each channel, multiply by product p and then shift */
-							if ( ((i * BLOCK_WIDTH + x) < display_->DisplayWidth())
-									&& ((j * BLOCK_HEIGHT + y) < display_->DisplayHeight()) ) {
-								c_r += p * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 0] - 128.0); // red: g(x,y) - 128
-								c_g += p * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 1] - 128.0); // green: g(x,y) - 128
-								c_b += p * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 2] - 128.0); // blue: g(x,y) - 128
-							}
-						}
-					}
+                            p *= (u == 0) ? sqrt((double)0.125) : sqrt((double)0.25);                                            // alpha(u)
+                            p *= (v == 0) ? sqrt((double)0.125) : sqrt((double)0.25);                                            // alpha(v)
+                            p *= cos(PI / 8.0 * ((double)x + 0.5) * (double)u);                                                  // cos with x, u
+                            p *= cos(PI / 8.0 * ((double)y + 0.5) * (double)v);                                                  // cos with y, v
+                            /* Fetch each channel, multiply by product p and then shift */
+                            if ( ((i * BLOCK_WIDTH + x) < display_->DisplayWidth())
+                                    && ((j * BLOCK_HEIGHT + y) < display_->DisplayHeight()) ) {
+                                c_r += p * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 0] - 128.0); // red: g(x,y) - 128
+                                c_g += p * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 1] - 128.0); // green: g(x,y) - 128
+                                c_b += p * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 2] - 128.0); // blue: g(x,y) - 128
+                            }
+                        }
+                    }
 
-					int g_r, g_g, g_b;
+                    int g_r, g_g, g_b;
 
-					/* Quantize G(u,v) (3.) */
-					g_r = (int)int(c_r / double(quantizationMatrix_[v * BLOCK_WIDTH + u]) + 0.5);
-					g_g = (int)int(c_g / double(quantizationMatrix_[v * BLOCK_WIDTH + u]) + 0.5);
-					g_b = (int)int(c_b / double(quantizationMatrix_[v * BLOCK_WIDTH + u]) + 0.5);
+                    /* Quantize G(u,v) (3.) */
+                    g_r = (int)int(c_r / double(quantizationMatrix_[v * BLOCK_WIDTH + u]) + 0.5);
+                    g_g = (int)int(c_g / double(quantizationMatrix_[v * BLOCK_WIDTH + u]) + 0.5);
+                    g_b = (int)int(c_b / double(quantizationMatrix_[v * BLOCK_WIDTH + u]) + 0.5);
 
-					/* De-quantized G(u,v) (4.) */
-					g_r *= (int)quantizationMatrix_[v * BLOCK_WIDTH + u];
-					g_g *= (int)quantizationMatrix_[v * BLOCK_WIDTH + u];
-					g_b *= (int)quantizationMatrix_[v * BLOCK_WIDTH + u];
+                    /* De-quantized G(u,v) (4.) */
+                    g_r *= (int)quantizationMatrix_[v * BLOCK_WIDTH + u];
+                    g_g *= (int)quantizationMatrix_[v * BLOCK_WIDTH + u];
+                    g_b *= (int)quantizationMatrix_[v * BLOCK_WIDTH + u];
 
-					/* Set the coefficient in zig-zag order. */
-					size_t p = zigZag_[v * BLOCK_WIDTH + u];
-                    
+                    /* Set the coefficient in zig-zag order. */
+                    size_t p = zigZag_[v * BLOCK_WIDTH + u];
+
                     /* Skip the last block, because we've used it for the medium gray block */
                     if (p == BLOCK_SIZE - 1) continue;
-                    
+
                     /* Build the scaler from the three coefficients */
                     s.packed = 0;
-					s.r = g_r;
-					s.g = g_g;
-					s.b = g_b;
+                    s.r = g_r;
+                    s.g = g_g;
+                    s.b = g_b;
                     coefficients[p] = s.packed;
-                    
-                    /* Update the lastNonZeroPlane for shortening the coefficients sent over the wire. */
-					if (s.packed != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p);
-				}
-			}
-            
-            /* Resize the coefficients vector */
-		    coefficients.resize(lastNonZeroPlane + 1);
-		    if (lastNonZeroPlane > largestNonZeroPlaneSeen) {
-		    	largestNonZeroPlaneSeen = lastNonZeroPlane;
-		    }
 
-			/* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
-		    start[0] = i * BLOCK_WIDTH;
-		    start[1] = j * BLOCK_HEIGHT;
-		    display_->FillScalerTileStack(coefficients, start, size);
-		}
-	}
+                    /* Update the lastNonZeroPlane for shortening the coefficients sent over the wire. */
+                    if (s.packed != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p);
+                }
+            }
+
+            /* Resize the coefficients vector */
+            coefficients.resize(lastNonZeroPlane + 1);
+            if (lastNonZeroPlane > largestNonZeroPlaneSeen) {
+                largestNonZeroPlaneSeen = lastNonZeroPlane;
+            }
+
+            /* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
+            start[0] = i * BLOCK_WIDTH;
+            start[1] = j * BLOCK_HEIGHT;
+            display_->FillScalerTileStack(coefficients, start, size);
+        }
+    }
 }
