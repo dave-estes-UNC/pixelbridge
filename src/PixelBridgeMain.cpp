@@ -12,6 +12,7 @@
 #endif
 
 #include "PixelBridgeFeatures.h"
+#include "Configuration.h"
 #include "CostModel.h"
 #include "GlNddiDisplay.h"
 #include "ClNddiDisplay.h"
@@ -26,33 +27,15 @@
 
 
 typedef enum {
-    COUNT,  // Just count (aka Perfect Pixel Latching)
-    SIMPLE, // Simple Framebuffer
-    FLAT,   // Tiled, but not cached
-    CACHE,  // Tiled and cached
-    DCT,    // 8x8 Macroblocks and DCT coefficients
-    IT      // 4x4 Macroblocks and integer transform coefficients
-} config_t;
-
-typedef enum {
-    NONE = 0,         // No blending
-    FRAME_VOLUME,     // Uses frame volume blending operations
-    TEMPORAL,         // Uses the input vector to switch rapidly between planes
-    COEFFICIENT_PLANE // Uses multiple coefficient planes
-} blend_t;
-
-#define TEMPORAL_FLIP_PER_FRAME_COUNT 4
-
-typedef enum {
     NOT_REWINDING,  // Normal playback, not rewinding
     PLAY_BACKWARDS, // Rewinding frame by frame backwards
     PLAY_FORWARD    // Finished rewinding, playing forward from memory
 } rewind_play_t;
 
-
 // General Globals
 size_t displayWidth = 320, displayHeight = 240;
 const char* fileName = NULL;
+Configuration globalConfiguration = Configuration();
 
 // Helper Objects
 Player*  myPlayer;
@@ -63,22 +46,6 @@ Rewinder* myRewinder = NULL;
 
 // Decoder thread
 pthread_t           decoderThread;
-
-// Configuration Options
-config_t config = CACHE;
-blend_t configBlend = NONE;
-size_t configTileWidth = 0;
-size_t configTileHeight = 0;
-size_t configMaxTiles = 1000;
-size_t configSigBits = 8;
-size_t configQuality = 4;
-size_t configStartFrame = 0;
-size_t configMaxFrames = 0;
-size_t configRewindStartFrame = 0;
-size_t configRewindFrames = 0;
-bool configPSNR = false;
-bool configVerbose = false;
-bool configHeadless = false;
 
 // Statistical Instrumentation
 CostModel* costModel;
@@ -103,44 +70,44 @@ void setupDisplay() {
     Scaler s;
 
     // Cached-Tiled
-    if (config == CACHE) {
+    if (globalConfiguration.tiler == CACHE) {
 
         // Setup Cached Tiler which initializies Coefficient Plane
         myTiler = new CachedTiler(displayWidth, displayHeight,
-                                  configTileWidth, configTileHeight,
-                                  configMaxTiles, configSigBits,
-                                  configHeadless || !configVerbose);
+        		globalConfiguration.tileWidth, globalConfiguration.tileHeight,
+        		globalConfiguration.maxTiles, globalConfiguration.sigBits,
+        		globalConfiguration.headless || !globalConfiguration.verbose);
 
         // Grab the display and cost model
         myDisplay = myTiler->GetDisplay();
         costModel = myDisplay->GetCostModel();
 
     // DCT-Tiled
-    } else if (config == DCT) {
+    } else if (globalConfiguration.tiler == DCT) {
 
         // Setup DCT Tiler and initializes Coefficient Plane and Frame Volume
         myTiler = new DctTiler(displayWidth, displayHeight,
-                               configQuality,
-                               configHeadless || !configVerbose);
+                               globalConfiguration.quality,
+                               globalConfiguration.headless || !globalConfiguration.verbose);
 
         // Grab the display and cost model
         myDisplay = myTiler->GetDisplay();
         costModel = myDisplay->GetCostModel();
 
     // IT-Tiled
-    } else if (config == IT) {
+    } else if (globalConfiguration.tiler == IT) {
 
         // Setup IT Tiler and initializes Coefficient Plane and Frame Volume
         myTiler = new ItTiler(displayWidth, displayHeight,
-                              configQuality,
-                              configHeadless || !configVerbose);
+                              globalConfiguration.quality,
+                              globalConfiguration.headless || !globalConfiguration.verbose);
 
         // Grab the display and cost model
         myDisplay = myTiler->GetDisplay();
         costModel = myDisplay->GetCostModel();
 
     // Frame Volume Blending
-    } else if ((config == SIMPLE) && (configBlend == FRAME_VOLUME)) {
+    } else if ((globalConfiguration.tiler == SIMPLE) && (globalConfiguration.blend == FRAME_VOLUME)) {
 
         // 3 dimensional matching the Video Width x Height x 3
         vector<unsigned int> fvDimensions;
@@ -193,7 +160,7 @@ void setupDisplay() {
         myDisplay->FillScaler(s, start, end);
 
     // Temporal Blending
-    } else if ((config == SIMPLE) && (configBlend == TEMPORAL)) {
+    } else if ((globalConfiguration.tiler == SIMPLE) && (globalConfiguration.blend == TEMPORAL)) {
 
         // 3 dimensional matching the Video Width x Height x 2
         vector<unsigned int> fvDimensions;
@@ -245,7 +212,7 @@ void setupDisplay() {
         myDisplay->FillScaler(s, start, end);
 
     // Coefficient Plane Blending
-    } else if ((config == SIMPLE) && (configBlend == COEFFICIENT_PLANE)) {
+    } else if ((globalConfiguration.tiler == SIMPLE) && (globalConfiguration.blend == COEFFICIENT_PLANE)) {
 
         // 3 dimensional matching the Video Width x Height x 2
         vector<unsigned int> fvDimensions;
@@ -303,12 +270,12 @@ void setupDisplay() {
         myDisplay->FillScaler(s, start, end);
 
     // Flat-Tiled
-    } else if (config == FLAT) {
+    } else if (globalConfiguration.tiler == FLAT) {
 
         // Set up Flat Tiler and initialize Coefficient Planes
         myTiler = new FlatTiler(displayWidth, displayHeight,
-                                configTileWidth, configTileHeight, configSigBits,
-                                configHeadless || !configVerbose);
+                                globalConfiguration.tileWidth, globalConfiguration.tileHeight, globalConfiguration.sigBits,
+                                globalConfiguration.headless || !globalConfiguration.verbose);
 
         // Grab the display and cost model
         myDisplay = myTiler->GetDisplay();
@@ -367,7 +334,7 @@ void setupDisplay() {
 
     }
 
-    if (configVerbose)
+    if (globalConfiguration.verbose)
         myDisplay->Unmute();
 
     // Renders the initial display
@@ -378,7 +345,7 @@ void setupDisplay() {
 void updateDisplay(uint8_t* buffer, size_t width, size_t height) {
 
     // CACHE, DCT, IT, or FLAT
-    if ( (config == CACHE) || (config == DCT) || (config == IT) || (config == FLAT) ) {
+    if ( (globalConfiguration.tiler == CACHE) || (globalConfiguration.tiler == DCT) || (globalConfiguration.tiler == IT) || (globalConfiguration.tiler == FLAT) ) {
         // Update the display with the Tiler
         myTiler->UpdateDisplay(buffer, width, height);
     // SIMPLE
@@ -403,14 +370,14 @@ void updateDisplay(uint8_t* buffer, size_t width, size_t height) {
         vector<unsigned int> start, end, dest;
 
         // Not Blending
-        if (configBlend == NONE) {
+        if (globalConfiguration.blend == NONE) {
             // Just send the pixels to the single plane
             start.push_back(0); start.push_back(0);
             end.push_back(displayWidth - 1); end.push_back(displayHeight - 1);
             myDisplay->CopyPixels(frameBuffer, start, end);
 
         // Frame Volume Blending
-        } else if (configBlend == FRAME_VOLUME) {
+        } else if (globalConfiguration.blend == FRAME_VOLUME) {
 
             // Set the plane that we're working on. Alternates between 0 and 1
             int plane = totalUpdates & 1;
@@ -430,7 +397,7 @@ void updateDisplay(uint8_t* buffer, size_t width, size_t height) {
             iv.push_back(plane);
             myDisplay->UpdateInputVector(iv);
         // Temporal Blending
-        } else if (configBlend == TEMPORAL) {
+        } else if (globalConfiguration.blend == TEMPORAL) {
 
             // Send the pixels to the 0 plane
             start.push_back(0); start.push_back(0); start.push_back(0);
@@ -441,14 +408,14 @@ void updateDisplay(uint8_t* buffer, size_t width, size_t height) {
             // Note: This is a loose simulation. Actual temporal blending would carefully
             // drive the input vector, perhaps flipping back and forth several times per frame.
             vector<int> iv;
-            for (int c = 0; c < TEMPORAL_FLIP_PER_FRAME_COUNT; c++) {
+            for (int c = 0; c < globalConfiguration.temporalFlipCountPerFrame; c++) {
                 iv.push_back(0);
                 myDisplay->UpdateInputVector(iv);
                 iv.push_back(1);
                 myDisplay->UpdateInputVector(iv);
             }
         // Coefficient Plane Blending
-        } else if (configBlend == COEFFICIENT_PLANE) {
+        } else if (globalConfiguration.blend == COEFFICIENT_PLANE) {
             // Send the pixels to the 0 plane
             start.push_back(0); start.push_back(0); start.push_back(0);
             end.push_back(displayWidth - 1); end.push_back(displayHeight - 1); end.push_back(0);
@@ -481,9 +448,9 @@ long calculateSE(uint8_t* videoIn, Pixel* frameOut) {
 
 void draw( void ) {
 
-    if (config > COUNT) {
+    if (globalConfiguration.tiler > COUNT) {
 
-        if (configHeadless) {
+        if (globalConfiguration.headless) {
 
             myDisplay->SimulateRender();
 
@@ -539,7 +506,7 @@ void outputStats(bool exitNow) {
     //
     // Print a detailed, readable report if we're not running configHeadless
     //
-    if (!configHeadless) {
+    if (!globalConfiguration.headless) {
 
         cout << endl;
 
@@ -556,26 +523,26 @@ void outputStats(bool exitNow) {
         //
         cout << "Configuration Information:" << endl;
 
-        switch (config) {
+        switch (globalConfiguration.tiler) {
             case SIMPLE:
                 cout << "  Configuring NDDI as a simple Framebuffer." << endl;
                 break;
             case FLAT:
                 cout << "  Configuring NDDI as Flat Tiled." << endl;
-                cout << "  Tile Dimensions: " << configTileWidth << "x" << configTileHeight << endl;
+                cout << "  Tile Dimensions: " << globalConfiguration.tileWidth << "x" << globalConfiguration.tileHeight << endl;
                 break;
             case CACHE:
                 cout << "  Configuring NDDI as Cached Tiled." << endl;
-                cout << "  Tile Dimensions: " << configTileWidth << "x" << configTileHeight << endl;
-                cout << "  Significant Bits: " << configSigBits << endl;
+                cout << "  Tile Dimensions: " << globalConfiguration.tileWidth << "x" << globalConfiguration.tileHeight << endl;
+                cout << "  Significant Bits: " << globalConfiguration.sigBits << endl;
                 break;
             case DCT:
                 cout << "  Configuring NDDI as DCT Tiled." << endl;
-                cout << "  Quality: " << configQuality << endl;
+                cout << "  Quality: " << globalConfiguration.quality << endl;
                 break;
             case IT:
                 cout << "  Configuring NDDI as IT Tiled." << endl;
-                cout << "  Quality: " << configQuality << endl;
+                cout << "  Quality: " << globalConfiguration.quality << endl;
                 break;
             case COUNT:
                 cout << "  Configuring NDDI to just count." << endl;
@@ -630,7 +597,7 @@ void outputStats(bool exitNow) {
 
         // Quality
         //
-        if (configPSNR) {
+        if (globalConfiguration.PSNR) {
             cout << "Quality Statistics:" << endl << "  MSE: " << MSE << endl << "  Total PSNR: " << PSNR << endl;
         } else {
             cout << "Quality Statistics:" << endl << "  Use --psnr to enable." << endl;
@@ -642,7 +609,7 @@ void outputStats(bool exitNow) {
     //
 
     // Pretty print a heading to stdout, but for headless just spit it to stderr for reference
-    if (!configHeadless) {
+    if (!globalConfiguration.headless) {
         cout << "CSV Headings:" << endl;
         cout << "Frames\tCommands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written\tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended\tPSNR\tFile Name" << endl;
     } else {
@@ -711,7 +678,7 @@ void renderFrame() {
     static int currentFrame = 0;
     static rewind_play_t rewindState = NOT_REWINDING;
 
-    if (!configMaxFrames || (totalUpdates < configMaxFrames)) {
+    if (!globalConfiguration.maxFrames || (totalUpdates < globalConfiguration.maxFrames)) {
         // If we're not in a rewind backwards or forward state...
         if (rewindState == NOT_REWINDING) {
 #ifdef USE_ASYNC_DECODER
@@ -731,12 +698,12 @@ void renderFrame() {
                 framesDecoded++;
 
                 // If we're past the designated start frame, then update the NDDI display
-                if (framesDecoded >= configStartFrame) {
+                if (framesDecoded >= globalConfiguration.startFrame) {
                     // If configured to rewind, then check to see if this decoded frame should be stored.
                     if ( myRewinder &&
-                        (currentFrame >= (configRewindStartFrame - configRewindFrames)) &&
-                        (currentFrame < configRewindStartFrame) ) {
-                        myRewinder->CopyFrame(videoBuffer, currentFrame - (configRewindStartFrame - configRewindFrames));
+                        (currentFrame >= (globalConfiguration.rewindStartFrame - globalConfiguration.rewindFrames)) &&
+                        (currentFrame < globalConfiguration.rewindStartFrame) ) {
+                        myRewinder->CopyFrame(videoBuffer, currentFrame - (globalConfiguration.rewindStartFrame - globalConfiguration.rewindFrames));
                     }
 
                     // Update NDDI Display
@@ -746,7 +713,7 @@ void renderFrame() {
                     framesRendered++;
 
                     // If we used a lossy mode, then calculate the Square Error for this frame
-                    if (configPSNR) {
+                    if (globalConfiguration.PSNR) {
                         Pixel* frameBuffer = myDisplay->GetFrameBuffer();
                         totalSE += calculateSE(videoBuffer, frameBuffer);
                     }
@@ -756,7 +723,7 @@ void renderFrame() {
 
 
                     // If this is the final frame stored, then set the rewindState to PLAY_BACKWARDS
-                    if (myRewinder && currentFrame == configRewindStartFrame) {
+                    if (myRewinder && currentFrame == globalConfiguration.rewindStartFrame) {
                         rewindState = PLAY_BACKWARDS;
                         currentFrame--;
                     } else {
@@ -771,7 +738,7 @@ void renderFrame() {
         // Else if we're in the rewind placy backwards state...
         } else if (rewindState == PLAY_BACKWARDS) {
             // Update NDDI Display
-            updateDisplay(myRewinder->GetFrame(currentFrame - (configRewindStartFrame - configRewindFrames)),
+            updateDisplay(myRewinder->GetFrame(currentFrame - (globalConfiguration.rewindStartFrame - globalConfiguration.rewindFrames)),
                           myPlayer->width(), myPlayer->height());
 
             framesRendered++;
@@ -780,7 +747,7 @@ void renderFrame() {
             glutPostRedisplay();
 
             // If this is the final frame stored, then set the rewindState to PLAY_BACKWARDS
-            if (currentFrame == (configRewindStartFrame - configRewindFrames)) {
+            if (currentFrame == (globalConfiguration.rewindStartFrame - globalConfiguration.rewindFrames)) {
                 rewindState = PLAY_FORWARD;
                 currentFrame++;
             } else {
@@ -789,7 +756,7 @@ void renderFrame() {
         // Else if we're in the rewind play forward state...
         } else if (rewindState == PLAY_FORWARD) {
             // Update NDDI Display
-            updateDisplay(myRewinder->GetFrame(currentFrame - (configRewindStartFrame - configRewindFrames)),
+            updateDisplay(myRewinder->GetFrame(currentFrame - (globalConfiguration.rewindStartFrame - globalConfiguration.rewindFrames)),
                           myPlayer->width(), myPlayer->height());
 
             framesRendered++;
@@ -801,14 +768,14 @@ void renderFrame() {
             currentFrame++;
 
             // If this is the final frame stored, then set the rewindState to PLAY_BACKWARDS
-            if (currentFrame == configRewindStartFrame) {
+            if (currentFrame == globalConfiguration.rewindStartFrame) {
                 rewindState = NOT_REWINDING;
                 delete(myRewinder);
             }
 
         }
 
-        if (!configHeadless && configVerbose) {
+        if (!globalConfiguration.headless && globalConfiguration.verbose) {
             cout << "PixelBidge Statistics:" << endl << "  Decoded Frames: " << framesDecoded << " - Rendered Frames: " << framesRendered << endl;
         }
 
@@ -830,7 +797,7 @@ void countChangedPixels() {
     static int framesDecoded = 0;
     static int framesCounted = 0;
 
-    if (!configMaxFrames || (totalUpdates < configMaxFrames)) {
+    if (!globalConfiguration.maxFrames || (totalUpdates < globalConfiguration.maxFrames)) {
         int pixel_count = myPlayer->width() * myPlayer->height();
 #ifdef USE_ASYNC_DECODER
         // Get a decoded frame
@@ -849,10 +816,10 @@ void countChangedPixels() {
 #endif
             framesDecoded++;
 
-            if (framesDecoded > configStartFrame) {
+            if (framesDecoded > globalConfiguration.startFrame) {
                 // If we're in a rewind period, then we'll be incrementing diffs as well as frame count by 3 instead of 1
                 int inc;
-                if ( (framesDecoded > (configRewindStartFrame - configRewindFrames)) && (framesDecoded <= configRewindStartFrame) ) {
+                if ( (framesDecoded > (globalConfiguration.rewindStartFrame - globalConfiguration.rewindFrames)) && (framesDecoded <= globalConfiguration.rewindStartFrame) ) {
                     inc = 3;
                 } else {
                     inc = 1;
@@ -911,7 +878,7 @@ void countChangedPixels() {
             outputStats(true);
         }
 
-        if (!configHeadless && configVerbose) {
+        if (!globalConfiguration.headless && globalConfiguration.verbose) {
             cout << "PixelBidge Statistics:" << endl << "  Decoded Frames: " << framesDecoded << " - Counted Frames: " << framesCounted << endl;
         }
 
@@ -991,17 +958,17 @@ bool parseArgs(int argc, char *argv[]) {
             argc--;
             argv++;
             if (strcmp(*argv, "fb") == 0) {
-                config = SIMPLE;
+                globalConfiguration.tiler = SIMPLE;
             } else if (strcmp(*argv, "flat") == 0) {
-                config = FLAT;
+                globalConfiguration.tiler = FLAT;
             } else if (strcmp(*argv, "cache") == 0) {
-                config = CACHE;
+                globalConfiguration.tiler = CACHE;
             } else if (strcmp(*argv, "dct") == 0) {
-                config = DCT;
+                globalConfiguration.tiler = DCT;
             } else if (strcmp(*argv, "it") == 0) {
-                config = IT;
+                globalConfiguration.tiler = IT;
             } else if (strcmp(*argv, "count") == 0) {
-                config = COUNT;
+                globalConfiguration.tiler = COUNT;
             } else {
                 showUsage();
                 return false;
@@ -1009,18 +976,18 @@ bool parseArgs(int argc, char *argv[]) {
             argc--;
             argv++;
         } else if (strcmp(*argv, "--blend") == 0) {
-            if (config != SIMPLE) {
+            if (globalConfiguration.tiler != SIMPLE) {
                 showUsage();
                 return false;
             }
             argc--;
             argv++;
             if (strcmp(*argv, "fv") == 0) {
-                configBlend = FRAME_VOLUME;
+                globalConfiguration.blend = FRAME_VOLUME;
             } else if (strcmp(*argv, "t") == 0) {
-                configBlend = TEMPORAL;
+                globalConfiguration.blend = TEMPORAL;
             } else if (strcmp(*argv, "cp") == 0) {
-                configBlend = COEFFICIENT_PLANE;
+                globalConfiguration.blend = COEFFICIENT_PLANE;
             } else {
                 showUsage();
                 return false;
@@ -1028,73 +995,73 @@ bool parseArgs(int argc, char *argv[]) {
             argc--;
             argv++;
         } else if (strcmp(*argv, "--ts") == 0) {
-            configTileWidth = atoi(argv[1]);
-            configTileHeight = atoi(argv[2]);
-            if ((configTileWidth == 0) || (configTileHeight == 0)) {
+            globalConfiguration.tileWidth = atoi(argv[1]);
+            globalConfiguration.tileHeight = atoi(argv[2]);
+            if ((globalConfiguration.tileWidth == 0) || (globalConfiguration.tileHeight == 0)) {
                 showUsage();
                 return false;
             }
             argc -= 3;
             argv += 3;
         } else if (strcmp(*argv, "--tc") == 0) {
-            configMaxTiles = atoi(argv[1]);
-            if (configMaxTiles == 0) {
+            globalConfiguration.maxTiles = atoi(argv[1]);
+            if (globalConfiguration.maxTiles == 0) {
                 showUsage();
                 return false;
             }
             argc -= 2;
             argv += 2;
         } else if (strcmp(*argv, "--bits") == 0) {
-            configSigBits = atoi(argv[1]);
-            if ( (configSigBits == 0) || (configSigBits > 8) ) {
+            globalConfiguration.sigBits = atoi(argv[1]);
+            if ( (globalConfiguration.sigBits == 0) || (globalConfiguration.sigBits > 8) ) {
                 showUsage();
                 return false;
             }
             argc -= 2;
             argv += 2;
         } else if (strcmp(*argv, "--quality") == 0) {
-            configQuality = atoi(argv[1]);
-            if ( (configQuality == 0) || (configQuality > 100) ) {
+            globalConfiguration.quality = atoi(argv[1]);
+            if ( (globalConfiguration.quality == 0) || (globalConfiguration.quality > 100) ) {
                 showUsage();
                 return false;
             }
             argc -= 2;
             argv += 2;
         } else if (strcmp(*argv, "--start") == 0) {
-            configStartFrame = atoi(argv[1]);
-            if (configStartFrame == 0) {
+            globalConfiguration.startFrame = atoi(argv[1]);
+            if (globalConfiguration.startFrame == 0) {
                 showUsage();
                 return false;
             }
             argc -= 2;
             argv += 2;
         } else if (strcmp(*argv, "--frames") == 0) {
-            configMaxFrames = atoi(argv[1]);
-            if (configMaxFrames == 0) {
+            globalConfiguration.maxFrames = atoi(argv[1]);
+            if (globalConfiguration.maxFrames == 0) {
                 showUsage();
                 return false;
             }
             argc -= 2;
             argv += 2;
         } else if (strcmp(*argv, "--rewind") == 0) {
-            configRewindStartFrame = atoi(argv[1]);
-            configRewindFrames = atoi(argv[2]);
-            if ((configRewindStartFrame == 0) || (configRewindFrames == 0) || (configRewindFrames > configRewindStartFrame)) {
+            globalConfiguration.rewindStartFrame = atoi(argv[1]);
+            globalConfiguration.rewindFrames = atoi(argv[2]);
+            if ((globalConfiguration.rewindStartFrame == 0) || (globalConfiguration.rewindFrames == 0) || (globalConfiguration.rewindFrames > globalConfiguration.rewindStartFrame)) {
                 showUsage();
                 return false;
             }
             argc -= 3;
             argv += 3;
         } else if (strcmp(*argv, "--psnr") == 0) {
-            configPSNR = true;
+            globalConfiguration.PSNR = true;
             argc--;
             argv++;
         } else if (strcmp(*argv, "--verbose") == 0) {
-            configVerbose = true;
+            globalConfiguration.verbose = true;
             argc--;
             argv++;
         } else if (strcmp(*argv, "--headless") == 0) {
-            configHeadless = true;
+            globalConfiguration.headless = true;
             argc--;
             argv++;
         } else {
@@ -1149,8 +1116,8 @@ int main(int argc, char *argv[]) {
 #endif
     displayWidth = myPlayer->width();
     displayHeight = myPlayer->height();
-    if (configRewindStartFrame > 0) {
-        myRewinder = new Rewinder(configRewindStartFrame - configRewindFrames, displayWidth, displayHeight);
+    if (globalConfiguration.rewindStartFrame > 0) {
+        myRewinder = new Rewinder(globalConfiguration.rewindStartFrame - globalConfiguration.rewindFrames, displayWidth, displayHeight);
     }
     if ( (displayWidth == 0) || (displayHeight == 0) ) {
         cout << "Error: Could not get video dimensions." << endl;
@@ -1176,21 +1143,21 @@ int main(int argc, char *argv[]) {
 
     glEnable( GL_TEXTURE_2D );
 
-    if (config > COUNT) {
+    if (globalConfiguration.tiler > COUNT) {
         glutIdleFunc(renderFrame);
     } else {
         glutIdleFunc(countChangedPixels);
     }
 
     // Setup NDDI Display
-    if (config > COUNT) {
+    if (globalConfiguration.tiler > COUNT) {
 
         // Force tilesize to be 8x8 for DCT since we're using 8x8 macroblocks
-        if (config == DCT) {
-            configTileWidth = configTileHeight = 8;
+        if (globalConfiguration.tiler == DCT) {
+            globalConfiguration.tileWidth = globalConfiguration.tileHeight = 8;
         // Else if the tile size wasn't specified, then dynamically calculate it
-        } else if ((configTileWidth == 0) || (configTileHeight == 0)) {
-            configTileWidth = configTileHeight = ((displayWidth > displayHeight) ? displayWidth : displayHeight) / 40;
+        } else if ((globalConfiguration.tileWidth == 0) || (globalConfiguration.tileHeight == 0)) {
+            globalConfiguration.tileWidth = globalConfiguration.tileHeight = ((displayWidth > displayHeight) ? displayWidth : displayHeight) / 40;
         }
 
         // Setup the GlNddiDisplay and Tiler if required

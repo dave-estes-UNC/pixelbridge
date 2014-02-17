@@ -82,6 +82,7 @@ _DEPS =	GlNddiDisplay.h \
 	FrameVolume.h \
 	CostModel.h \
 	PixelBridgeFeatures.h \
+	Configuration.h \
 	Player.h \
 	RandomPlayer.h
 
