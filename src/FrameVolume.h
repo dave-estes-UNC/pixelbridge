@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <cassert>
 
+#include "Configuration.h"
 #include "NDimensionalDisplayInterface.h"
 
 using namespace std;
@@ -36,8 +37,10 @@ namespace nddi {
             for (int i = 0; i < dimensionalSizes_.size(); i++) {
                 size_ *= dimensionalSizes_[i];
             }
-            pixels_ = (Pixel *)malloc(sizeof(Pixel) * size_);
-            memset(pixels_, 0x00, sizeof(Pixel) * size_);
+            if (!globalConfiguration.headless) {
+                pixels_ = (Pixel *)malloc(sizeof(Pixel) * size_);
+                memset(pixels_, 0x00, sizeof(Pixel) * size_);
+            }
         }
 
         ~FrameVolume() {
@@ -56,7 +59,16 @@ namespace nddi {
         }
 
         void PutPixel(Pixel p, vector<unsigned int> &location) {
-            setPixel(location, p);
+            if (!globalConfiguration.headless) {
+                setPixel(location, p);
+            } else {
+                costModel_->registerBulkMemoryCharge(FRAME_VOLUME_COMPONENT,
+                                                     1,
+                                                     WRITE_ACCESS,
+                                                     NULL,
+                                                     1 * BYTES_PER_PIXEL,
+                                                     0);
+            }
         }
 
         void CopyPixelStrip(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end) {
@@ -71,10 +83,19 @@ namespace nddi {
                 }
             }
 
-            vector<unsigned int> position = start;
-            for (int j = 0; j <= end[dimensionToCopyAlong] - start[dimensionToCopyAlong]; j++) {
-                setPixel(position, p[j]);
-                position[dimensionToCopyAlong]++;
+            if (!globalConfiguration.headless) {
+                vector<unsigned int> position = start;
+                for (int j = 0; j <= end[dimensionToCopyAlong] - start[dimensionToCopyAlong]; j++) {
+                    setPixel(position, p[j]);
+                    position[dimensionToCopyAlong]++;
+                }
+            } else {
+                costModel_->registerBulkMemoryCharge(FRAME_VOLUME_COMPONENT,
+                                                     end[dimensionToCopyAlong] - start[dimensionToCopyAlong] + 1,
+                                                     WRITE_ACCESS,
+                                                     NULL,
+                                                     (end[dimensionToCopyAlong] - start[dimensionToCopyAlong] + 1) * BYTES_PER_PIXEL,
+                                                     0);
             }
         }
 
@@ -87,7 +108,8 @@ namespace nddi {
             // Move from start to end, filling in each location with the provided pixel
             do {
                 // Set pixel in frame volume at position
-                setPixel(position, p[pixelsCopied]);
+                if (!globalConfiguration.headless)
+                    setPixel(position, p[pixelsCopied]);
                 pixelsCopied++;
 
                 // Move to the next position
@@ -106,6 +128,14 @@ namespace nddi {
                 } while (overflow && !copyFinished);
 
             } while (!copyFinished);
+
+            if (globalConfiguration.headless)
+                costModel_->registerBulkMemoryCharge(FRAME_VOLUME_COMPONENT,
+                                                     pixelsCopied,
+                                                     WRITE_ACCESS,
+                                                     NULL,
+                                                     pixelsCopied * BYTES_PER_PIXEL,
+                                                     0);
         }
 
         void FillPixel(Pixel p, vector<unsigned int> &start, vector<unsigned int> &end) {
@@ -117,7 +147,8 @@ namespace nddi {
             // Move from start to end, filling in each location with the provided pixel
             do {
                 // Set pixel in frame volume at position
-                setPixel(position, p);
+                if (!globalConfiguration.headless)
+                    setPixel(position, p);
                 pixelsFilled++;
 
                 // Move to the next position
@@ -136,11 +167,20 @@ namespace nddi {
                 } while (overflow && !fillFinished);
 
             } while (!fillFinished);
+
+            if (globalConfiguration.headless)
+                costModel_->registerBulkMemoryCharge(FRAME_VOLUME_COMPONENT,
+                                                     pixelsFilled,
+                                                     WRITE_ACCESS,
+                                                     NULL,
+                                                     pixelsFilled * BYTES_PER_PIXEL,
+                                                     0);
+
         }
 
         void CopyFrameVolume(vector<unsigned int> &start, vector<unsigned int> &end, vector<unsigned int> &dest) {
 
-        	vector<unsigned int> positionFrom = start;
+            vector<unsigned int> positionFrom = start;
             vector<unsigned int> positionTo = dest;
             bool copyFinished = false;
             int pixelsCopied = 0;
@@ -148,7 +188,8 @@ namespace nddi {
             // Move from start to end, filling in each location with the provided pixel
             do {
                 // Set pixel in frame volume at position
-                setPixel(positionFrom, getPixel(positionTo));
+                if (!globalConfiguration.headless)
+                    setPixel(positionFrom, getPixel(positionTo));
                 pixelsCopied++;
 
                 // Move to the next position
@@ -169,6 +210,15 @@ namespace nddi {
                 } while (overflow && !copyFinished);
 
             } while (!copyFinished);
+
+            if (globalConfiguration.headless)
+                costModel_->registerBulkMemoryCharge(FRAME_VOLUME_COMPONENT,
+                                                     pixelsCopied,
+                                                     WRITE_ACCESS,
+                                                     NULL,
+                                                     pixelsCopied * BYTES_PER_PIXEL,
+                                                     0);
+
         }
 
         void setPixel(vector<unsigned int> &location, Pixel pixel) {
@@ -177,6 +227,7 @@ namespace nddi {
             unsigned int  multiplier = 1;
 
             assert(dimensionalSizes_.size() == location.size());
+            assert(!globalConfiguration.headless);
 
             for (int i = 0; i < location.size(); i++) {
                 assert(location[i] < dimensionalSizes_[i]);
@@ -197,6 +248,7 @@ namespace nddi {
             unsigned int  multiplier = 1;
 
             assert(dimensionalSizes_.size() == location.size());
+            assert(!globalConfiguration.headless);
 
             for (int i = 0; i < location.size(); i++) {
                 assert(location[i] < dimensionalSizes_[i]);

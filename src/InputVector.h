@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <cassert>
 
+#include "Configuration.h"
 #include "NDimensionalDisplayInterface.h"
 
 using namespace std;
@@ -32,8 +33,10 @@ namespace nddi {
                     unsigned int size)
         : size_(0), values_(NULL), costModel_(costModel) {
 
-            values_ = (int *)malloc(sizeof(int) * size);
-            memset(values_, 0x00, sizeof(int) * size);
+            if (!globalConfiguration.headless) {
+                values_ = (int *)malloc(sizeof(int) * size);
+                memset(values_, 0x00, sizeof(int) * size);
+            }
             size_ = size;
         }
 
@@ -53,14 +56,24 @@ namespace nddi {
 
             assert(input.size() + 2 == size_);
 
-            for (int i = 0; (i < input.size()) && ((i + 2) < size_); i++) {
-                setValue(i+2, input[i]);
+            if (!globalConfiguration.headless) {
+                for (int i = 0; (i < input.size()) && ((i + 2) < size_); i++) {
+                    setValue(i+2, input[i]);
+                }
+            } else {
+                costModel_->registerBulkMemoryCharge(INPUT_VECTOR_COMPONENT,
+                                                     input.size(),
+                                                     WRITE_ACCESS,
+                                                     NULL,
+                                                     input.size() * BYTES_PER_IV_VALUE,
+                                                     0);
             }
         }
 
         void setValue(unsigned int location, int value) {
 
             assert(location < size_);
+            assert(!globalConfiguration.headless);
 
             costModel_->registerMemoryCharge(INPUT_VECTOR_COMPONENT, WRITE_ACCESS, values_ + location, BYTES_PER_IV_VALUE, 0);
 
@@ -71,6 +84,7 @@ namespace nddi {
 
             assert(location > 1);
             assert(location < size_);
+            assert(!globalConfiguration.headless);
 
             costModel_->registerMemoryCharge(INPUT_VECTOR_COMPONENT, READ_ACCESS, values_ + location, BYTES_PER_IV_VALUE, 0);
 

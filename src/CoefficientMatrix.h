@@ -31,26 +31,30 @@ namespace nddi {
                           unsigned int width, unsigned int height)
         : costModel_(costModel), width_(width), height_(height), coefficients_(NULL) {
 
+            if (!globalConfiguration.headless) {
 #ifdef NARROW_DATA_STORES
-            coefficients_ = (int16_t *)malloc(sizeof(int16_t) * width * height);
-            memset(coefficients_, 0x00, sizeof(int16_t) * width * height);
+                coefficients_ = (int16_t *)malloc(sizeof(int16_t) * width * height);
+                memset(coefficients_, 0x00, sizeof(int16_t) * width * height);
 #else
-            coefficients_ = (int *)malloc(sizeof(int) * width * height);
-            memset(coefficients_, 0x00, sizeof(int) * width * height);
+                coefficients_ = (int *)malloc(sizeof(int) * width * height);
+                memset(coefficients_, 0x00, sizeof(int) * width * height);
 #endif
+            }
         }
 
         // Copy constructor
         CoefficientMatrix(CoefficientMatrix* cm)
         : costModel_(cm->costModel_), width_(cm->width_), height_(cm->height_), coefficients_(NULL) {
 
+            if (!globalConfiguration.headless) {
 #ifdef NARROW_DATA_STORES
-            coefficients_ = (int16_t *)malloc(sizeof(int16_t) * cm->width_ * cm->height_);
-            memcpy(coefficients_, cm->coefficients_, sizeof(int16_t) * cm->width_ * cm->height_);
+                coefficients_ = (int16_t *)malloc(sizeof(int16_t) * cm->width_ * cm->height_);
+                memcpy(coefficients_, cm->coefficients_, sizeof(int16_t) * cm->width_ * cm->height_);
 #else
-            coefficients_ = (int *)malloc(sizeof(int) * cm->width_ * cm->height_);
-            memcpy(coefficients_, cm->coefficients_, sizeof(int) * cm->width_ * cm->height_);
+                coefficients_ = (int *)malloc(sizeof(int) * cm->width_ * cm->height_);
+                memcpy(coefficients_, cm->coefficients_, sizeof(int) * cm->width_ * cm->height_);
 #endif
+            }
         }
 
         ~CoefficientMatrix() {
@@ -91,22 +95,26 @@ namespace nddi {
 #ifdef NARROW_DATA_STORES
             assert(value >= SHRT_MIN && value <= SHRT_MAX);
 #endif
+            assert(!globalConfiguration.headless);
+
             coefficients_[y * width_ + x] = value;
+            costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, &coefficients_[y * width_ + x], BYTES_PER_COEFF, 0);
         }
 
         void setCoefficients(vector< vector<int> > &coefficientVector) {
 
             assert(coefficientVector.size() == width_);
             assert(coefficientVector[0].size() == height_);
+            assert(!globalConfiguration.headless);
 
             // Examine each coefficient in the coefficient matrix vector and use it unless it's a COFFICIENT_UNCHANGED
             for (int y = 0; y < height_; y++) {
                 for (int x = 0; x < width_; x++) {
                     if (coefficientVector[x][y] != COFFICIENT_UNCHANGED) {
 #ifdef NARROW_DATA_STORES
-                    	assert(coefficientVector[x][y] >= SHRT_MIN && coefficientVector[x][y] <= SHRT_MAX);
+                        assert(coefficientVector[x][y] >= SHRT_MIN && coefficientVector[x][y] <= SHRT_MAX);
 #endif
-                    	coefficients_[y * width_ + x] = coefficientVector[x][y];
+                        coefficients_[y * width_ + x] = coefficientVector[x][y];
                         costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, &coefficients_[y * width_ + x], BYTES_PER_COEFF, 0);
                     }
                 }
@@ -117,9 +125,9 @@ namespace nddi {
 
             assert(x < width_);
             assert(y < height_);
+            assert(!globalConfiguration.headless);
 
             costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, READ_ACCESS, &coefficients_[y * width_ + x], BYTES_PER_COEFF, 0);
-
             return coefficients_[y * width_ + x];
         }
 

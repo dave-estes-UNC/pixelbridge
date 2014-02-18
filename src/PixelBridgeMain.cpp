@@ -336,7 +336,10 @@ void setupDisplay() {
         myDisplay->Unmute();
 
     // Renders the initial display
-    myDisplay->GetFrameBufferTex();
+    if (!globalConfiguration.headless)
+        myDisplay->GetFrameBufferTex();
+    else
+        myDisplay->SimulateRender();
 }
 
 
@@ -609,10 +612,10 @@ void outputStats(bool exitNow) {
     // Pretty print a heading to stdout, but for headless just spit it to stderr for reference
     if (!globalConfiguration.headless) {
         cout << "CSV Headings:" << endl;
-        cout << "Frames\tCommands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written\tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended\tPSNR\tFile Name" << endl;
+        cout << "Frames\tCommands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written \tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended\tPSNR\tFile Name" << endl;
     } else {
         cerr << "CSV Headings:" << endl;
-        cerr << "Frames\tCommands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written\tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended\tPSNR\tFile Name" << endl;
+        cerr << "Frames\tCommands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written   \tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended\tPSNR\tFile Name" << endl;
     }
 
     cout
