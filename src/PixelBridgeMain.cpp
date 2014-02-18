@@ -612,34 +612,35 @@ void outputStats(bool exitNow) {
     // Pretty print a heading to stdout, but for headless just spit it to stderr for reference
     if (!globalConfiguration.headless) {
         cout << "CSV Headings:" << endl;
-        cout << "Frames\tCommands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written \tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended\tPSNR\tFile Name" << endl;
+        cout << "Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name" << endl;
     } else {
         cerr << "CSV Headings:" << endl;
-        cerr << "Frames\tCommands Sent\tBytes Transmitted\tIV Num Reads\tIV Bytes Read\tIV Num Writes\tIV Bytes Written\tCP Num Reads\tCP Bytes Read\tCP Num Writes\tCP Bytes Written   \tFV Num Reads\tFV Bytes Read\tFV Num Writes\tFV Bytes Written\tFV Time\tPixels Mapped\tPixels Blended\tPSNR\tFile Name" << endl;
+        cerr << "Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name" << endl;
     }
 
     cout
-    << totalUpdates << " \t "
-    << costModel->getLinkCommandsSent() << " \t "
-    << costModel->getLinkBytesTransmitted() << " \t "
-    << costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) << " \t "
-    << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << " \t "
-    << costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << " \t "
-    << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << " \t "
-    << costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) << " \t "
-    << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << " \t "
-    << costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << " \t "
-    << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << " \t "
-    << costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) << " \t "
-    << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << " \t "
-    << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << " \t "
-    << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << " \t "
-    << costModel->getTime(FRAME_VOLUME_COMPONENT) << " \t "
-    << costModel->getPixelsMapped() << " \t "
-    << costModel->getPixelsBlended() << " \t "
-    << PSNR << "\t"
+    << totalUpdates << " , "
+    << costModel->getLinkCommandsSent() << " , "
+    << costModel->getLinkBytesTransmitted() << " , "
+    << costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) << " , "
+    << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << " , "
+    << costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << " , "
+    << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << " , "
+    << costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) << " , "
+    << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << " , "
+    << costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << " , "
+    << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << " , "
+    << costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) << " , "
+    << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << " , "
+    << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << " , "
+    << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << " , "
+    << costModel->getTime(FRAME_VOLUME_COMPONENT) << " , "
+    << costModel->getPixelsMapped() << " , "
+    << costModel->getPixelsBlended() << " , "
+    << PSNR << ","
     << fileName << endl;
-    cout << endl;
+
+    cerr << endl;
 
     // Warnings about Configuration
 #if defined(SUPRESS_EXCESS_RENDERING) || defined(SKIP_COMPUTE_WHEN_SCALER_ZERO) || defined(NO_CL) || defined(NO_GL)
