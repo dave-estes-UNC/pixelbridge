@@ -240,15 +240,16 @@ namespace nddi {
          * Used to copy the specified scaler to a range of locations in the coefficient planes.
          *
          * @param scaler This single scaler will be copied to each location in the range of coefficient planes.
-         * @param start This three-element vector specifies the location in the coefficient planes where the
-         *              scaler will be copied to.
-         * @param end This three-element vector specifies the location in the coefficient planes where the
-         *            scalers will be copied to.
+         * @param start This three-element vector specifies the start of the range in the coefficient planes
+         *              where the scaler will be copied to.
+         * @param end This three-element vector specifies the end of the range in the coefficient planes where
+         *            the scalers will be copied to.
          */
         virtual void FillScaler(Scaler scaler, vector<unsigned int> &start, vector<unsigned int> &end) = 0;
 
         /**
          * Used to copy the specified scalers to a series of 2D ranges of locations (tiles) in the coefficient planes.
+         * This is accomplished with a set of scalers, an equal number of tile starts, and one tile size.
          *
          * @param scalers Each scaler in this list will be filled to its own tile, which is a 2D range of coefficient matrices.
          * @param starts The location (x, y, z) of the start of the tile in the coefficient planes.
@@ -258,9 +259,13 @@ namespace nddi {
 
         /**
          * Used to copy the specified scalers to a stack of 2D ranges of locations (tiles) in the coefficient planes.
+         * This is accomplished with with a set of scalers, a single tile stack location, and one tile size.
+         * The stack includes the top-most tile on the coefficient plane indicated by the tile start as well as
+         * the tiles for the planes under (higher plane coordinates) the start tile. The height of the stack to be
+         * filled is determined by the number of scalers provided.
          *
-         * @param scaler This single scaler will be copied to each location in the range of coefficient planes.
-         * @param starts The location (x, y) of the start of the tile in the coefficient planes.
+         * @param scalers Each scaler in this list will be filled to its own tile (2D range of coefficient matrices) in the stack.
+         * @param start The location (x, y) of the start of the tile stack in the coefficient planes.
          * @param size The size (w, h) of the tile.
          */
         virtual void FillScalerTileStack(vector<uint64_t> &scalers, vector<unsigned int> &start, vector<unsigned int> &size) = 0;

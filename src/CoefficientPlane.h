@@ -231,6 +231,12 @@ namespace nddi {
                                                      0);
         }
 
+        void FillScalerStack(vector<uint64_t> &scalers,
+                             vector<unsigned int> &start,
+                             vector<unsigned int> &size) {
+
+        }
+
         CoefficientMatrix* getCoefficientMatrix(unsigned int x, unsigned int y, unsigned int p) {
 
             assert(x < width_);
@@ -252,6 +258,10 @@ namespace nddi {
             scalers_[(p * width_ * height_ + y * width_ + x) * 3 + 0] = scaler.r;
             scalers_[(p * width_ * height_ + y * width_ + x) * 3 + 1] = scaler.g;
             scalers_[(p * width_ * height_ + y * width_ + x) * 3 + 2] = scaler.b;
+        }
+
+        void putScalerStack(unsigned int x, unsigned int y, unsigned int h, Scaler *scaler) {
+
         }
 
         Scaler getScaler(unsigned int x, unsigned int y, unsigned int p) {
