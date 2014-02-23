@@ -5,7 +5,8 @@
 #include "Configuration.h"
 #include "DctTiler.h"
 
-#define PI 3.14159265
+#define PI    3.14159265
+#define PI_8  0.392699081
 
 /*
  * Frame Volume
@@ -43,6 +44,9 @@
 #define MAX(x, y)            (x > y ? x : y)
 #define MIN(x, y)            (x < y ? x : y)
 #define CEIL(x, y)           (1 + ((x - 1) / y))
+#define SQRT_125             0.353553391
+#define SQRT_250             0.5
+
 
 /**
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
@@ -265,17 +269,17 @@ void DctTiler::InitializeFrameVolume() {
 
             for (int y = 0; y < BLOCK_HEIGHT; y++) {
                 for (int x = 0; x < BLOCK_WIDTH; x++) {
-                    double m = 0.0f;
+                    double m = 0.0;
                     bool neg = false;
 
                     for (int v = 0; v < BLOCK_HEIGHT; v++) {
                         for (int u = 0; u < BLOCK_WIDTH; u++) {
-                            double px = 1.0f;
-                            px *= (u == 0) ? sqrt((double)0.125) : sqrt((double)0.25);   // alpha(u)
-                            px *= (v == 0) ? sqrt((double)0.125) : sqrt((double)0.25);   // alpha(v)
+                            double px = 1.0;
+                            px *= (u == 0) ? SQRT_125 : SQRT_250;   // alpha(u)
+                            px *= (v == 0) ? SQRT_125 : SQRT_250;   // alpha(v)
                             px *= ((u == i) && (v == j)) ? double(MAX_DCT_COEFF) : 0.0;  // DCT coefficient (maximum on or off)
-                            px *= cos(PI / 8.0 * ((double)x + 0.5) * (double)u);         // cos with x, u
-                            px *= cos(PI / 8.0 * ((double)y + 0.5) * (double)v);         // cos with y, v
+                            px *= cos(PI_8 * ((double)x + 0.5) * (double)u);         // cos with x, u
+                            px *= cos(PI_8 * ((double)y + 0.5) * (double)v);         // cos with y, v
                             m += px;
                         }
                     }
@@ -340,8 +344,6 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 {
     vector<unsigned int> start(3, 0), end(3, 0);
     vector<unsigned int> size(2, 0);
-    size_t lastNonZeroPlane;
-    static size_t largestNonZeroPlaneSeen = 0;
     Scaler s;
 
     size[0] = BLOCK_WIDTH;
@@ -369,54 +371,53 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 
             /* The coefficients are stored in this array in zig-zag order */
             vector<uint64_t> coefficients(BLOCK_SIZE, 0);
-            lastNonZeroPlane = 0;
 
+            for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
 #ifndef NO_OMP
 #pragma omp parallel for ordered
 #endif
-            for (size_t v = 0; v < BLOCK_HEIGHT; v++)
-#ifndef NO_OMP
-#pragma omp ordered
-#endif
-            {
                 for (size_t u = 0; u < BLOCK_WIDTH; u++) {
 
-                    double c_r = 0.0f, c_g = 0.0f, c_b = 0.0f;
+                    double c_r = 0.0, c_g = 0.0, c_b = 0.0;
 
                     /* Calculate G for each u, v using g(x,y) shifted (1. and 2.) */
                     for (size_t y = 0; y < BLOCK_HEIGHT; y++) {
+                        size_t bufPos = ((j * BLOCK_HEIGHT + y) * width + i * BLOCK_WIDTH + 0) * 3;
                         for (size_t x = 0; x < BLOCK_WIDTH; x++) {
 
-                            double p = 1.0f;
+                            double p = 1.0;
 
-                            p *= (u == 0) ? sqrt((double)0.125) : sqrt((double)0.25);                                            // alpha(u)
-                            p *= (v == 0) ? sqrt((double)0.125) : sqrt((double)0.25);                                            // alpha(v)
-                            p *= cos(PI / 8.0 * ((double)x + 0.5) * (double)u);                                                  // cos with x, u
-                            p *= cos(PI / 8.0 * ((double)y + 0.5) * (double)v);                                                  // cos with y, v
+                            p *= (u == 0) ? SQRT_125 : SQRT_250;                                 // alpha(u)
+                            p *= (v == 0) ? SQRT_125 : SQRT_250;                                 // alpha(v)
+                            p *= cos(PI_8 * ((double)x + 0.5) * (double)u);                      // cos with x, u
+                            p *= cos(PI_8 * ((double)y + 0.5) * (double)v);                      // cos with y, v
                             /* Fetch each channel, multiply by product p and then shift */
                             if ( ((i * BLOCK_WIDTH + x) < display_->DisplayWidth())
                                     && ((j * BLOCK_HEIGHT + y) < display_->DisplayHeight()) ) {
-                                c_r += p * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 0] - 128.0); // red: g(x,y) - 128
-                                c_g += p * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 1] - 128.0); // green: g(x,y) - 128
-                                c_b += p * ((double)buffer[((j * BLOCK_HEIGHT + y) * width + (i * BLOCK_WIDTH + x)) * 3 + 2] - 128.0); // blue: g(x,y) - 128
+                                c_r += p * ((double)buffer[bufPos] - 128.0); bufPos++;           // red: g(x,y) - 128
+                                c_g += p * ((double)buffer[bufPos] - 128.0); bufPos++;           // green: g(x,y) - 128
+                                c_b += p * ((double)buffer[bufPos] - 128.0); bufPos++;           // blue: g(x,y) - 128
+                            } else {
+                                bufPos += 3;
                             }
                         }
                     }
 
                     int g_r, g_g, g_b;
+                    size_t matPos = v * BLOCK_WIDTH + u;
 
                     /* Quantize G(u,v) (3.) */
-                    g_r = (int)int(c_r / double(quantizationMatrix_[v * BLOCK_WIDTH + u]) + 0.5);
-                    g_g = (int)int(c_g / double(quantizationMatrix_[v * BLOCK_WIDTH + u]) + 0.5);
-                    g_b = (int)int(c_b / double(quantizationMatrix_[v * BLOCK_WIDTH + u]) + 0.5);
+                    g_r = (int)int(c_r / double(quantizationMatrix_[matPos]) + 0.5);
+                    g_g = (int)int(c_g / double(quantizationMatrix_[matPos]) + 0.5);
+                    g_b = (int)int(c_b / double(quantizationMatrix_[matPos]) + 0.5);
 
                     /* De-quantized G(u,v) (4.) */
-                    g_r *= (int)quantizationMatrix_[v * BLOCK_WIDTH + u];
-                    g_g *= (int)quantizationMatrix_[v * BLOCK_WIDTH + u];
-                    g_b *= (int)quantizationMatrix_[v * BLOCK_WIDTH + u];
+                    g_r *= (int)quantizationMatrix_[matPos];
+                    g_g *= (int)quantizationMatrix_[matPos];
+                    g_b *= (int)quantizationMatrix_[matPos];
 
                     /* Set the coefficient in zig-zag order. */
-                    size_t p = zigZag_[v * BLOCK_WIDTH + u];
+                    size_t p = zigZag_[matPos];
 
                     /* Skip the last block, because we've used it for the medium gray block */
                     if (p == BLOCK_SIZE - 1) continue;
@@ -427,17 +428,18 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                     s.g = g_g;
                     s.b = g_b;
                     coefficients[p] = s.packed;
-
-                    /* Update the lastNonZeroPlane for shortening the coefficients sent over the wire. */
-                    if (s.packed != 0) lastNonZeroPlane = MAX(lastNonZeroPlane, p);
                 }
             }
 
-            /* Resize the coefficients vector */
-            coefficients.resize(lastNonZeroPlane + 1);
-            if (lastNonZeroPlane > largestNonZeroPlaneSeen) {
-                largestNonZeroPlaneSeen = lastNonZeroPlane;
+            /* Find the last non-zero plane then resize the coeffients vector */
+            size_t lastNonZeroPlane = 0;
+            for (size_t k = BLOCK_SIZE - 1; k >= 0; k--) {
+                if (coefficients[k] != 0) {
+                    lastNonZeroPlane = k;
+                    break;
+                }
             }
+            coefficients.resize(lastNonZeroPlane + 1);
 
             /* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
             start[0] = i * BLOCK_WIDTH;

@@ -54,8 +54,8 @@ ifeq ($(DEBUG), 1)
 	CPPFLAGS+=-g -DDEBUG
 	OBJDIR=build/objdir-debug
 else
-	CCFLAGS+= -O3
-	CPPFLAGS+= -O3
+	CCFLAGS+= -O3 -ffast-math
+	CPPFLAGS+= -O3 -ffast-math
 	OBJDIR=build/objdir-release
 endif
 

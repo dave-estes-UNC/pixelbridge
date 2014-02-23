@@ -688,7 +688,7 @@ void renderFrame() {
             // TODO(CDE): Don't poll. Use signals instead.
             while (bufferQueue.size() == 0) {
                 usleep(5);
-            }
+             }
             if ((videoBuffer = bufferQueue.front()) != NULL) {
                 pthread_mutex_lock(&bufferQueueMutex);
                 bufferQueue.pop();
