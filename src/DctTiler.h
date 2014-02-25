@@ -26,14 +26,16 @@ public:
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
  * dimensions change, then the DctTiler should be destroyed and re-created.
  *
-     * @param display_width The width of the display
-     * @param display_height The height of the display
+ * @param display_width The width of the display
+ * @param display_height The height of the display
  * @param quality The quality factor used for DCT.
-     * @param quiet Used to squelch extra information output.
+ * @param quiet Used to squelch extra information output.
  */
 DctTiler(size_t display_width, size_t display_height, size_t quality);
 
 ~DctTiler() {
+    if (tileStackHeights_)
+        free(tileStackHeights_);
 }
 
     /**
@@ -65,9 +67,12 @@ static const size_t  BASIS_BLOCKS_WIDE = 8;
 static const size_t  BASIS_BLOCKS_TALL = 8;
 static const size_t  MAX_DCT_COEFF = 256;
 
-GlNddiDisplay*    display_;
-bool              quiet_;
-int               zigZag_[BLOCK_WIDTH * BLOCK_HEIGHT];
-unsigned char     quantizationMatrix_[BLOCK_WIDTH * BLOCK_HEIGHT];
+GlNddiDisplay  *display_;
+bool            quiet_;
+int             zigZag_[BLOCK_WIDTH * BLOCK_HEIGHT];
+uint8_t         quantizationMatrix_[BLOCK_WIDTH * BLOCK_HEIGHT];
+
+uint32_t        displayTilesWide_, displayTilesHigh_;
+uint8_t        *tileStackHeights_;
 };
 #endif // DCT_TILER_H

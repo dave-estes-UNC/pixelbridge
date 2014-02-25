@@ -57,13 +57,22 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
 {
     quiet_ = globalConfiguration.headless || !globalConfiguration.verbose;
 
-    // 3 dimensional matching the Macroblock Width x Height x 64
+    /* 3 dimensional matching the Macroblock Width x Height x 64 */
     vector<unsigned int> fvDimensions;
     fvDimensions.push_back(BLOCK_WIDTH);
     fvDimensions.push_back(BLOCK_HEIGHT);
     fvDimensions.push_back(FRAMEVOLUME_DEPTH);
 
-#ifndef NO_CL
+    /*
+     * Pre-calculate the number of tile used for the display and initialize
+     * the tile stack heights that are used to efficiently update the scalers
+     * making sure to not update more than needed.
+     */
+    displayTilesWide_ = CEIL(display_width, BLOCK_WIDTH);
+    displayTilesHigh_ = CEIL(display_height, BLOCK_HEIGHT);
+    tileStackHeights_ = (uint8_t*)calloc(displayTilesWide_ * displayTilesHigh_, sizeof(uint8_t));
+
+    #ifndef NO_CL
 #error CL not supported for DCT Tiler yet.
 #else
     display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
@@ -72,23 +81,26 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
                                  3);                            //   Input vector size (x, y, 1)
 #endif
 
-    // Set the full scaler value
+    /* Set the full scaler value and the sign mode */
     display_->SetFullScaler(MAX_DCT_COEFF);
-
-
-    initZigZag();
-    initQuantizationMatrix(quality);
     display_->SetPixelByteSignMode(SIGNED_MODE);
 
-    // Initialize Input Vector
+    /*
+     * Initialize the zig-zag order used throughout and the calculate
+     * the quantization matrix
+     */
+    initZigZag();
+    initQuantizationMatrix(quality);
+
+    /* Initialize Input Vector */
     vector<int> iv;
     iv.push_back(1);
     display_->UpdateInputVector(iv);
 
-    // Initialize Coefficient Planes
+    /* Initialize Coefficient Planes */
     InitializeCoefficientPlanes();
 
-    // Initialize Frame Volume
+    /* Initialize Frame Volume */
     InitializeFrameVolume();
 }
 
@@ -204,8 +216,8 @@ void DctTiler::InitializeCoefficientPlanes() {
     end.push_back(0); end.push_back(0); end.push_back(0);
 
     // Break the display into macroblocks and initialize each 8x8x64 cube of coefficients to pick out the proper block from the frame volume
-    for (int j = 0; j < CEIL(display_->DisplayHeight(), BLOCK_HEIGHT); j++) {
-        for (int i = 0; i < CEIL(display_->DisplayWidth(), BLOCK_WIDTH); i++) {
+    for (int j = 0; j < displayTilesHigh_; j++) {
+        for (int i = 0; i < displayTilesWide_; i++) {
             coeffs[2][0] = -i * BLOCK_WIDTH;
             coeffs[2][1] = -j * BLOCK_HEIGHT;
             start[0] = i * BLOCK_WIDTH; start[1] = j * BLOCK_HEIGHT; start[2] = 0;
@@ -342,21 +354,13 @@ void DctTiler::InitializeFrameVolume() {
  */
 void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 {
-    vector<unsigned int> start(3, 0), end(3, 0);
+    vector<unsigned int> start(3, 0);
     vector<unsigned int> size(2, 0);
     Scaler s;
 
+    start[0] = 0; start[1] = 0; start[2] = 0;
     size[0] = BLOCK_WIDTH;
     size[1] = BLOCK_HEIGHT;
-
-    /* Clear all scalers up to but not including the medium gray plane. */
-    // TODO(CDE): Don't do this in the future. Just write enough planes to overwrite the last known non-zero plane.
-    start[0] = 0; start[1] = 0; start[2] = 0;
-    end[0] = display_->DisplayWidth() - 1;
-    end[1] = display_->DisplayHeight() - 1;
-    end[2] = FRAMEVOLUME_DEPTH - 2;
-    s.packed = 0;
-    display_->FillScaler(s, start, end);
 
     /*
      * Produces the de-quantized coefficients for the input buffer using the following steps:
@@ -366,8 +370,8 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
      * 3. Quantize
      * 4. De-quantize
      */
-    for (size_t j = 0; j < CEIL(display_->DisplayHeight(), BLOCK_HEIGHT); j++) {
-        for (size_t i = 0; i < CEIL(display_->DisplayWidth(), BLOCK_WIDTH); i++) {
+    for (size_t j = 0; j < displayTilesHigh_; j++) {
+        for (size_t i = 0; i < displayTilesWide_; i++) {
 
             /* The coefficients are stored in this array in zig-zag order */
             vector<uint64_t> coefficients(BLOCK_SIZE, 0);
@@ -431,15 +435,22 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                 }
             }
 
-            /* Find the last non-zero plane then resize the coeffients vector */
-            size_t lastNonZeroPlane = 0;
-            for (size_t k = BLOCK_SIZE - 1; k >= 0; k--) {
-                if (coefficients[k] != 0) {
-                    lastNonZeroPlane = k;
-                    break;
-                }
-            }
-            coefficients.resize(lastNonZeroPlane + 1);
+            /*
+             * Determine the minimum height of the stack that needs to be sent and
+             * update the coefficients vector size. The minimum stack height is
+             * determined by the non-zero planes in this update, but it might be
+             * slightly larger if we need to overwrite the larger non-zero planes from
+             * the last update. So the stack height is the largest of the old stack height
+             * and the current stack height.
+             */
+            size_t h = BLOCK_SIZE - 2;
+            while (h >= 0 && coefficients[h] == 0)
+                 h--;
+            if (h < tileStackHeights_[j * displayTilesWide_ + i])
+                coefficients.resize(tileStackHeights_[j * displayTilesWide_ + i] + 1);
+            else
+                coefficients.resize(h + 1);
+            tileStackHeights_[j * displayTilesWide_ + i] = h;
 
             /* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
             start[0] = i * BLOCK_WIDTH;

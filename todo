@@ -23,14 +23,14 @@ x Determine if it's necessary to narrow some data values like scalers and coordi
 x Speed up DCT
   x Modify headless display to do a light-weight simulation.
   x Turn OpenMP back on after fixing the slowdown
-
-- Refactor NDDI API for speed
-  - Update the ENTIRE NDDI API to use standard arrays over vectors
-  - Support packed data for pixels and scalars (no alpha channel for either)
-  - Use straight memcpy's when implementing NDDI operations when possible
+  - Modify DCT Tiler to not update tiles that haven't changed significantly enough
 
 - Optimize Coefficient Planes data layout
+  x Analyze fb, flat, cache, and dct in terms of data reads and writes in order to characterize each.
+  x Run perf to get a baseline of cache misses for fb, flat, cache, and dct.
+  - Should I internally store scalars as Scalar with the unused alpha channel? Leaning towards yes.
   - Re-arrange coefficient planes, arranging coefficient matrices by stacks and then scalars as stacks per pixel
+  - If necessary, update NDimensionalDisplayInterface::FillScalerTileStack to use regular array of Scalars and not a vector
   - Implement CoefficientPlane::fillScalarTileStack and directly call it from the BaseNddiDisplay::fillScalarTileStack
   - Implement CoefficientPlane::setScalarStack which is used in CoefficientPlane::fillScalarTileStack
 
