@@ -49,9 +49,9 @@ ClNddiDisplay::ClNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
     inputVector_ = (InputVector*)clInputVector_;
 
     // Setup coefficient plane with zeroed coefficient matrices
-    clCoefficientPlane_ = new ClCoefficientPlane(costModel, displayWidth_, displayHeight_, numCoefficientPlanes, CM_WIDTH, CM_HEIGHT);
+    clCoefficientPlane_ = new ClCoefficientPlanes(costModel, displayWidth_, displayHeight_, numCoefficientPlanes, CM_WIDTH, CM_HEIGHT);
     // TODO(CDE): NULL this out
-    coefficientPlane_ = (ClCoefficientPlane*)clCoefficientPlane_;
+    coefficientPlanes_ = (ClCoefficientPlanes*)clCoefficientPlane_;
 
     // Setup framevolume and initialize to black
     clFrameVolume_ = new ClFrameVolume(costModel, frameVolumeDimensionalSizes);
@@ -60,7 +60,7 @@ ClNddiDisplay::ClNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
 
     // We won't be using the base components or frameBuffer_, so make them null.
     //inputVector_ = NULL;
-    //coefficientPlane_ = NULL;
+    //coefficientPlanes_ = NULL;
     //frameVolume_ = NULL;
     frameBuffer_ = NULL;
 
@@ -478,7 +478,7 @@ void ClNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> &start, vector<uns
 void ClNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) {
 
 	size_t tile_count = p.size();
-    
+
 	// Ensure parameter vectors' sizes match
 	assert(starts.size() == tile_count);
 	assert(starts[0].size() == frameVolumeDimensionalSizes_.size());
@@ -600,7 +600,7 @@ void ClNddiDisplay::FillCoefficient(int coefficient,
     assert(col >= 0 && col < CM_WIDTH);
     assert(start.size() == 3);
     assert(end.size() == 3);
-    
+
     // Register transmission cost first
     costModel->registerTransmissionCharge(BYTES_PER_COEFF * 1 +                // One coefficient
                                           CALC_BYTES_FOR_CM_COORD_DOUBLES(1) + // One Coefficient Matrix Coordinate double
@@ -637,7 +637,7 @@ void ClNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
                                           CALC_BYTES_FOR_CP_COORD_TRIPLES(tile_count) +  // t Coefficient Plane Coordinate triples
                                           CALC_BYTES_FOR_TILE_COORD_DOUBLES(1),          // 1 X by Y tile dimension double
                                           0);
-    
+
 	// Build the packet
 	if (packet) free(packet);
 	packet = (coefficient_update_t*)malloc(sizeof(coefficient_update_t) * tile_count);

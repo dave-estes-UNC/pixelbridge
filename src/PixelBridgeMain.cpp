@@ -945,9 +945,9 @@ void showUsage() {
     cout << "  --start  Will start with this frame, ignoring any decoded frames prior to it." << endl;
     cout << "  --frames  Sets the number of maximum frames that are decoded." << endl;
     cout << "  --rewind  Sets a start point and a number of frames to play in reverse. Once finished, normal playback continues." << endl;
-    cout << "  --psnr  Calculates and outputs PSNR." << endl;
+    cout << "  --psnr  Calculates and outputs PSNR. Cannot use with headless." << endl;
     cout << "  --verbose  Outputs frame-by-frame statistics." << endl;
-    cout << "  --headless  Removes rendering and excessive data output. Overrides --verbose. Great for batch processing." << endl;
+    cout << "  --headless  Removes rendering and excessive data output. Overrides --verbose. Cannot use with psnr." << endl;
 }
 
 
@@ -1055,6 +1055,10 @@ bool parseArgs(int argc, char *argv[]) {
             argc -= 3;
             argv += 3;
         } else if (strcmp(*argv, "--psnr") == 0) {
+            if (globalConfiguration.headless) {
+                showUsage();
+                return false;
+            }
             globalConfiguration.PSNR = true;
             argc--;
             argv++;
@@ -1063,6 +1067,10 @@ bool parseArgs(int argc, char *argv[]) {
             argc--;
             argv++;
         } else if (strcmp(*argv, "--headless") == 0) {
+            if (globalConfiguration.PSNR) {
+                showUsage();
+                return false;
+            }
             globalConfiguration.headless = true;
             argc--;
             argv++;

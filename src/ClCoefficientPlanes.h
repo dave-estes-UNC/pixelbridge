@@ -1,19 +1,19 @@
 //
-//  ClCoefficientPlane.h
+//  ClCoefficientPlanes.h
 //  pixelbridge
 //
 //  Created by Dave Estes on 4/1/12.
 //  Copyright 2012 Dave Estes. All rights reserved.
 //
 
-#ifndef pixelbridge_ClCoefficientPlane_h
-#define pixelbridge_ClCoefficientPlane_h
+#ifndef pixelbridge_ClCoefficientPlanes_h
+#define pixelbridge_ClCoefficientPlanes_h
 
-#include "CoefficientPlane.h"
+#include "CoefficientPlanes.h"
 
 using namespace nddi;
 
-class ClCoefficientPlane : public CoefficientPlane {
+class ClCoefficientPlanes : public CoefficientPlanes {
 
 private:
     cl_mem            clBuffer_;
@@ -33,7 +33,7 @@ private:
 
 public:
 
-    ClCoefficientPlane(CostModel* costModel,
+    ClCoefficientPlanes(CostModel* costModel,
                        unsigned int displayWidth, unsigned int displayHeight,
                        unsigned int numPlanes,
                        unsigned int matrixWidth, unsigned int matrixHeight) {
@@ -51,7 +51,7 @@ public:
         coefficients_ = (int *)malloc(matrixSize_ * width_ * height_);
     }
 
-    ~ClCoefficientPlane() {
+    ~ClCoefficientPlanes() {
 
         if (coefficients_)
             free(coefficients_);
@@ -64,7 +64,7 @@ public:
     void PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &location) {
 
         // TODO(CDE): Add future support for multiple planes
-        assert(location.size() == 2);
+        //assert(location.size() == 2);
         assert(location[0] < width_);
         assert(location[1] < height_);
 
@@ -96,10 +96,10 @@ public:
                                vector<unsigned int> &end) {
 
         // TODO(CDE): Add future support for multiple planes
-        assert(start.size() == 2);
+        //assert(start.size() == 2);
         assert(start[0] < width_);
         assert(start[1] < height_);
-        assert(end.size() == 2);
+        //assert(end.size() == 2);
         assert(end[0] < width_);
         assert(end[1] < height_);
 

@@ -68,12 +68,12 @@ _DEPS =	GlNddiDisplay.h \
 	BaseNddiDisplay.h \
 	BlendingGlNddiDisplay.h \
 	CachedTiler.h \
-	ClCoefficientPlane.h \
+	ClCoefficientPlanes.h \
 	ClFrameVolume.h \
 	ClInputVector.h \
 	ClNddiDisplay.h \
 	CoefficientMatrix.h \
-	CoefficientPlane.h \
+	CoefficientPlanes.h \
 	CostModel.h \
 	DctTiler.h \
 	ItTiler.h \

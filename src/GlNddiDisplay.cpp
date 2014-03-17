@@ -69,7 +69,7 @@ GlNddiDisplay::GlNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
     frameVolume_ = new FrameVolume(costModel, frameVolumeDimensionalSizes);
 
     // Setup coefficient plane with zeroed coefficient matrices
-    coefficientPlane_ = new CoefficientPlane(costModel, displayWidth_, displayHeight_, numCoefficientPlanes, CM_WIDTH, CM_HEIGHT);
+    coefficientPlanes_ = new CoefficientPlanes(costModel, displayWidth_, displayHeight_, numCoefficientPlanes, CM_WIDTH, CM_HEIGHT);
 
     // allocate a texture name
     glGenTextures( 1, &texture_ );
@@ -87,7 +87,7 @@ GlNddiDisplay::~GlNddiDisplay() {
 
     delete(inputVector_);
     delete(frameVolume_);
-    delete(coefficientPlane_);
+    delete(coefficientPlanes_);
 
     if (frameBuffer_)
         free(frameBuffer_);
@@ -154,13 +154,13 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
     for (unsigned int p = 0; p < numPlanes_; p++) {
 
         // Grab the scaler for this location
-        Scaler scaler = coefficientPlane_->getScaler(x, y, p);
+        Scaler scaler = coefficientPlanes_->getScaler(x, y, p);
 #ifdef SKIP_COMPUTE_WHEN_SCALER_ZERO
         if (scaler.packed == 0) continue;
 #endif
 
         // Grab the coefficient matrix
-        CoefficientMatrix * matrix = coefficientPlane_->getCoefficientMatrix(x, y, p);
+        CoefficientMatrix * matrix = coefficientPlanes_->getCoefficientMatrix(x, y, p);
         assert(matrix);
 
         // Compute the position vector for the proper pixel in the frame volume.
@@ -221,23 +221,24 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 
         // Grab the scaler for this location.
 #ifdef NARROW_DATA_STORES
-        int16_t * scalerData = coefficientPlane_->data();
+        int16_t * scalerData = coefficientPlanes_->dataScaler();
 #else
-        int * scalerData = coefficientPlane_->data();
+        int * scalerData = coefficientPlanes_->dataScaler();
 #endif
         Scaler scaler;
-        scaler.r = scalerData[(p * displayWidth_ * displayHeight_ + y * displayWidth_ + x) * 3 + 0];
-        scaler.g = scalerData[(p * displayWidth_ * displayHeight_ + y * displayWidth_ + x) * 3 + 1];
-        scaler.b = scalerData[(p * displayWidth_ * displayHeight_ + y * displayWidth_ + x) * 3 + 2];
+        size_t so = coefficientPlanes_->computeScalerOffset(x, y, p);
+        scaler.r = scalerData[so + 0];
+        scaler.g = scalerData[so + 1];
+        scaler.b = scalerData[so + 2];
 #ifdef SKIP_COMPUTE_WHEN_SCALER_ZERO
         if (scaler.packed == 0) continue;
 #endif
 
         // Grab the coefficient matrix
 #ifdef NARROW_DATA_STORES
-        int16_t * cm = coefficientPlane_->getCoefficientMatrix(x, y, p)->data();
+        int16_t * cm = coefficientPlanes_->dataCoefficient(x, y, p);
 #else
-        int * cm = coefficientPlane_->getCoefficientMatrix(x, y, p)->data();
+        int * cm = coefficientPlanes_->dataCoefficient(x, y, p)
 #endif
 
         // Compute the position vector for the proper pixel in the frame volume.

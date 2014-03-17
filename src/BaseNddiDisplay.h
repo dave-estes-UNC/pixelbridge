@@ -3,7 +3,7 @@
 
 #include "NDimensionalDisplayInterface.h"
 #include "InputVector.h"
-#include "CoefficientPlane.h"
+#include "CoefficientPlanes.h"
 #include "FrameVolume.h"
 
 #define CM_WIDTH   (inputVector_->getSize())
@@ -12,64 +12,64 @@
 #define CM_STORAGE (sizeof(int) * CM_SIZE)
 
 namespace nddi {
-    
+
     /**
      * This base class implements the NDimensionalDisplayInterface API and is meant,
      * to be extended by various other forms of an NDDI Display, such as a test display
      * and an OpenGL display that will display the framebuffer in a window.
      */
     class BaseNddiDisplay : public NDimensionalDisplayInterface {
-        
+
     protected:
-        
+
         /**
          * Renders each pixel of the frame buffer by setting the x, y in the input vector and computing which
          * frame volume pixel to use.
          */
         virtual void Render() = 0;
-        
+
         /**
          * Holds the Display Width
          */
         int displayWidth_;
-        
+
         /**
          * Holds the Display Height
          */
         int displayHeight_;
-        
+
         /**
          * Holds the number of coefficient planes
          */
         int numPlanes_;
-        
+
         /**
          * The input vector
          */
         InputVector * inputVector_;
-        
+
         /**
          * Holds the sizes of each dimension of the Frame Volume.
          */
         vector<unsigned int> frameVolumeDimensionalSizes_;
-        
+
         /**
          * The frameVolume_ is physcially a flat buffer of Pixels, but it logically managed based on the configured
          * dimensions in the constructor.
          */
         FrameVolume * frameVolume_;
-        
+
         /**
-         * The coefficientPlane_ is a flat buffer of coefficient matrices that are logically
+         * The coefficientPlanes_ is a flat buffer of coefficient matrices that are logically
          * arranged into rows and columns maching the dimenions of the display.
          */
-        CoefficientPlane* coefficientPlane_;
-        
+        CoefficientPlanes* coefficientPlanes_;
+
         /**
          * The CostModel for this display.
          */
         CostModel* costModel;
-        
+
         /**
          * Tracks whether verbose output should be used or not.
          */
@@ -109,7 +109,7 @@ namespace nddi {
         void Unmute() { quiet_ = false; }
         CostModel* GetCostModel();
     };
-    
+
 }
 
 #endif // BASE_NDDI_DISPLAY_H

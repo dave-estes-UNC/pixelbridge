@@ -12,7 +12,7 @@
 #include "GlNddiDisplay.h"
 #include "NDimensionalDisplayInterfaceExtended.h"
 #include "ClInputVector.h"
-#include "ClCoefficientPlane.h"
+#include "ClCoefficientPlanes.h"
 #include "ClFrameVolume.h"
 
 // Must match struct in fillCoefficient.cl
@@ -66,7 +66,7 @@ private:
     void Cleanup(bool shouldExit);
 
     ClInputVector       *clInputVector_;
-    ClCoefficientPlane  *clCoefficientPlane_;
+    ClCoefficientPlanes  *clCoefficientPlane_;
     ClFrameVolume       *clFrameVolume_;
 
     cl_platform_id       clPlatformId_;

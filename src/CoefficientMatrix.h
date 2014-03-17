@@ -19,14 +19,19 @@ namespace nddi {
         CostModel     * costModel_;
         unsigned int    width_, height_;
 #ifdef NARROW_DATA_STORES
-        int16_t        * coefficients_;
+        int16_t       * coefficients_;
 #else
         int           * coefficients_;
 #endif
+        bool            preallocated;
 
     public:
 
-        // Basic contructor
+        /**
+         * Basic contructor for a coefficent matrix. Will allocate the memory for the
+         * coefficients, this setting the preallocated flag to false since there was not
+         * memory previously allocated for this coefficient matrix.
+         */
         CoefficientMatrix(CostModel* costModel,
                           unsigned int width, unsigned int height)
         : costModel_(costModel), width_(width), height_(height), coefficients_(NULL) {
@@ -40,9 +45,30 @@ namespace nddi {
                 memset(coefficients_, 0x00, sizeof(int) * width * height);
 #endif
             }
+            preallocated = false;
         }
 
-        // Copy constructor
+        /**
+         * Alternative constructor that will not allocate its own memory
+         * for the coefficients. Using the contructor is ideal if the memory
+         * layout for all of the coefficient planes is being carefully controlled.
+         */
+        CoefficientMatrix(CostModel* costModel,
+                          unsigned int width, unsigned int height,
+                          void* memory)
+        : costModel_(costModel), width_(width), height_(height), coefficients_(NULL) {
+
+#ifdef NARROW_DATA_STORES
+            coefficients_ = (int16_t *)memory;
+#else
+            coefficients_ = (int *)memory;
+#endif
+            preallocated = true;
+        }
+
+        /**
+         * Copy constructor
+         */
         CoefficientMatrix(CoefficientMatrix* cm)
         : costModel_(cm->costModel_), width_(cm->width_), height_(cm->height_), coefficients_(NULL) {
 
@@ -59,7 +85,7 @@ namespace nddi {
 
         ~CoefficientMatrix() {
 
-            if (coefficients_) {
+            if (!preallocated && coefficients_) {
                 free(coefficients_);
             }
         }
@@ -136,8 +162,22 @@ namespace nddi {
 #else
         int * data() {
 #endif
+            assert(!globalConfiguration.headless);
 
             return coefficients_;
+        }
+
+        /**
+         * When using preallocated memory, this function is first called to
+         * determine how much memory the coefficient matrix needs.
+         */
+        static size_t memoryRequired(unsigned int width, unsigned int height) {
+#ifdef NARROW_DATA_STORES
+                return sizeof(int16_t) * width * height;
+#else
+                return sizeof(int) * width * height;
+#endif
+
         }
     };
 }

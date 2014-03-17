@@ -13,7 +13,7 @@ BaseNddiDisplay::BaseNddiDisplay() :
         displayHeight_(0),
         inputVector_(NULL),
         frameVolume_(NULL),
-        coefficientPlane_(NULL),
+        coefficientPlanes_(NULL),
         costModel(NULL),
         quiet_(false),
         changed_(false)
@@ -27,7 +27,7 @@ BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSiz
         inputVector_(NULL),
         frameVolumeDimensionalSizes_(frameVolumeDimensionalSizes),
         frameVolume_(NULL),
-        coefficientPlane_(NULL),
+        coefficientPlanes_(NULL),
         costModel(NULL),
         quiet_(false),
         changed_(false)
@@ -42,7 +42,7 @@ BaseNddiDisplay::BaseNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSiz
         inputVector_(NULL),
         frameVolumeDimensionalSizes_(frameVolumeDimensionalSizes),
         frameVolume_(NULL),
-        coefficientPlane_(NULL),
+        coefficientPlanes_(NULL),
         costModel(NULL),
         quiet_(false),
         changed_(false)
@@ -229,7 +229,7 @@ void BaseNddiDisplay::PutCoefficientMatrix(vector< vector<int> > &coefficientMat
                                           0);
 
     // Update the coefficient matrix
-    coefficientPlane_->PutCoefficientMatrix(coefficientMatrix, location);
+    coefficientPlanes_->PutCoefficientMatrix(coefficientMatrix, location);
 
 #ifdef SUPRESS_EXCESS_RENDERING
     changed_ = true;
@@ -247,7 +247,7 @@ void BaseNddiDisplay::FillCoefficientMatrix(vector< vector<int> > &coefficientMa
                                           0);
 
     // Fill the coefficient matrices
-    coefficientPlane_->FillCoefficientMatrix(coefficientMatrix, start, end);
+    coefficientPlanes_->FillCoefficientMatrix(coefficientMatrix, start, end);
 
 #ifdef SUPRESS_EXCESS_RENDERING
     changed_ = true;
@@ -272,7 +272,7 @@ void BaseNddiDisplay::FillCoefficient(int coefficient,
                                           0);
 
     // Fill the coefficient matrices
-    coefficientPlane_->FillCoefficient(coefficient, row, col, start, end);
+    coefficientPlanes_->FillCoefficient(coefficient, row, col, start, end);
 
 #ifdef SUPRESS_EXCESS_RENDERING
     changed_ = true;
@@ -308,7 +308,7 @@ void BaseNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
         assert(starts[i].size() == 3);
         end[0] = starts[i][0] + size[0] - 1; if (end[0] >= displayWidth_) end[0] = displayWidth_ - 1;
         end[1] = starts[i][1] + size[1] - 1; if (end[1] >= displayHeight_) end[1] = displayHeight_ - 1;
-        coefficientPlane_->FillCoefficient(coefficients[i], positions[i][0], positions[i][1], starts[i], end);
+        coefficientPlanes_->FillCoefficient(coefficients[i], positions[i][0], positions[i][1], starts[i], end);
     }
 
 #ifdef SUPRESS_EXCESS_RENDERING
@@ -330,7 +330,7 @@ void BaseNddiDisplay::FillScaler(Scaler scaler,
                                           0);
 
     // Fill the coefficient matrices
-    coefficientPlane_->FillScaler(scaler, start, end);
+    coefficientPlanes_->FillScaler(scaler, start, end);
 
 #ifdef SUPRESS_EXCESS_RENDERING
     changed_ = true;
@@ -363,7 +363,7 @@ void BaseNddiDisplay::FillScalerTiles(vector<uint64_t> &scalers,
         end[1] = starts[i][1] + size[1] - 1; if (end[1] >= displayHeight_) end[1] = displayHeight_ - 1;
         end[2] = starts[i][2];
         s.packed = scalers[i];
-        coefficientPlane_->FillScaler(s, starts[i], end);
+        coefficientPlanes_->FillScaler(s, starts[i], end);
     }
 
 #ifdef SUPRESS_EXCESS_RENDERING
@@ -397,7 +397,7 @@ void BaseNddiDisplay::FillScalerTileStack(vector<uint64_t> &scalers,
         end[1] = start[1] + size[1] - 1; if (end[1] >= displayHeight_) end[1] = displayHeight_ - 1;
         end[2] = start[2];
         s.packed = scalers[i];
-        coefficientPlane_->FillScaler(s, st, end);
+        coefficientPlanes_->FillScaler(s, st, end);
         st[2]++;
     }
 
