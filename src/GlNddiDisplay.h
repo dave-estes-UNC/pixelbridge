@@ -38,9 +38,9 @@ public:
      * but any more detailed information is lost.
      */
     Pixel* GetFrameBuffer();
-    
+
     /**
-     * Triggers a simulted render that only records the cost estimated cost involved.
+     * Triggers a simulated render that only records the cost estimated cost involved.
      */
     void SimulateRender();
 
@@ -55,7 +55,7 @@ private:
     nddi::Pixel ComputePixel(unsigned int x, unsigned int y, int* iv, nddi::Pixel* fv);
 #endif
     void RegisterBulkRenderCost();
-    
+
 
 protected:
     SignMode  pixelSignMode_;

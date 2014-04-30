@@ -35,10 +35,10 @@ x Speed up DCT
   - Implement CoefficientPlane::fillScalarTileStack and directly call it from the BaseNddiDisplay::fillScalarTileStack
   - Implement CoefficientPlane::setScalarStack which is used in CoefficientPlane::fillScalarTileStack
 
-- Re-run all of the original experiments including the new video-based tilers.
+x Re-run all of the original experiments including the new video-based tilers.
   x Run them all headless
-  - Run the lossy modes for PSNR
-    NOTE: Waiting on RAM
+  x Run the lossy modes for PSNR
+    NOTE: Waited` on RAM
 
 - Revisit the Blending Experiments
   - Get Temporal Blending working

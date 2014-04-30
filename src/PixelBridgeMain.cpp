@@ -168,7 +168,7 @@ void setupDisplay() {
         myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       1,                           // number of coefficient planes on the display
-                                      3);                            // input vector size (x, y, t)
+                                      3);                          // input vector size (x, y, t)
 
         // Grab the cost model
         costModel = myDisplay->GetCostModel();
@@ -220,7 +220,7 @@ void setupDisplay() {
         myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       2,                           // number of coefficient planes on the display
-                                      3);                            // input vector size (x, y, t)
+                                      3);                          // input vector size (x, y, 1)
 
         // Grab the cost model
         costModel = myDisplay->GetCostModel();
@@ -232,7 +232,7 @@ void setupDisplay() {
 
         // Initialize Frame Volume
         nddi::Pixel p;
-        p.r = p.g = p.b = 0x00; p.a = 0x7f;
+        p.r = p.g = p.b = 0x00; p.a = 0xff;
         vector<unsigned int> start, end;
         start.push_back(0); start.push_back(0); start.push_back(0);
         end.push_back(displayWidth - 1); end.push_back(displayHeight - 1); end.push_back(1);
@@ -259,11 +259,12 @@ void setupDisplay() {
         myDisplay->FillCoefficientMatrix(coeffs, start, end);
 
         // Turn off all planes and then set the 0 and 1 planes to half each.
+        start[2] = 0;
         end[2] = myDisplay->NumCoefficientPlanes() - 1;
         s.packed = 0;
         myDisplay->FillScaler(s, start, end);
         end[2] = 1;
-        s.r = s.g = s.b = myDisplay->GetFullScaler() << 1;
+        s.r = s.g = s.b = myDisplay->GetFullScaler() >> 1;
         myDisplay->FillScaler(s, start, end);
 
     // Flat-Tiled
@@ -408,11 +409,11 @@ void updateDisplay(uint8_t* buffer, size_t width, size_t height) {
             // Render the new frame and then render the black frame.
             // Note: This is a loose simulation. Actual temporal blending would carefully
             // drive the input vector, perhaps flipping back and forth several times per frame.
-            vector<int> iv;
+            vector<int> iv(1);
             for (int c = 0; c < globalConfiguration.temporalFlipCountPerFrame; c++) {
-                iv.push_back(0);
+                iv[0] = 1;
                 myDisplay->UpdateInputVector(iv);
-                iv.push_back(1);
+                iv[0] = 0;
                 myDisplay->UpdateInputVector(iv);
             }
         // Coefficient Plane Blending
