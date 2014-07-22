@@ -154,7 +154,8 @@ public:
     void FillScaler(Scaler scaler,
                     vector<unsigned int> &start,
                     vector<unsigned int> &end) {
-        // TODO(CDE): Implement this #MultiPlaneCL    }
+        // TODO(CDE): Implement this #MultiPlaneCL
+    }
 
     void FillScalerStack(vector<uint64_t> &scalers,
                          vector<unsigned int> &start,
