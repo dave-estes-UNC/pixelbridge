@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "GlNddiDisplay.h"
+#include "ClNddiDisplay.h"
 
 /*
  *  Tiler.h

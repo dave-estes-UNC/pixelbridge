@@ -72,13 +72,16 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
     displayTilesHigh_ = CEIL(display_height, BLOCK_HEIGHT);
     tileStackHeights_ = (uint8_t*)calloc(displayTilesWide_ * displayTilesHigh_, sizeof(uint8_t));
 
-    #ifndef NO_CL
-#error CL not supported for DCT Tiler yet.
+#ifndef NO_CL
+    display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
+                                 display_width, display_height, // display size
+                                 FRAMEVOLUME_DEPTH,             // Number of coefficient planes
+                                 3);                            // Input vector size (x, y, 1)
 #else
     display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
-                                 3);                            //   Input vector size (x, y, 1)
+                                 3);                            // Input vector size (x, y, 1)
 #endif
 
     /* Set the full scaler value and the sign mode */

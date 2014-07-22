@@ -151,6 +151,33 @@ public:
     	assert(false);
     }
 
+    void FillScaler(Scaler scaler,
+                    vector<unsigned int> &start,
+                    vector<unsigned int> &end) {
+        // TODO(CDE): Implement this #MultiPlaneCL    }
+
+    void FillScalerStack(vector<uint64_t> &scalers,
+                         vector<unsigned int> &start,
+                         vector<unsigned int> &size) {
+        // TODO(CDE): Implement this #MultiPlaneCL
+    }
+
+    void putScaler(unsigned int x, unsigned int y, unsigned int p, Scaler scaler) {
+        // TODO(CDE): Implement this #MultiPlaneCL
+    }
+
+    void putScalerStack(unsigned int x, unsigned int y, unsigned int h, Scaler *scaler) {
+        // TODO(CDE): Implement this #MultiPlaneCL
+    }
+
+    Scaler getScaler(unsigned int x, unsigned int y, unsigned int p) {
+        // TODO(CDE): Implement this #MultiPlaneCL
+
+        Scaler s;
+        s.packed = 0;
+        return s;
+    }
+
     cl_mem initializeCl(cl_context context, cl_command_queue queue) {
 
         // Set CL variables

@@ -292,12 +292,12 @@ void setupDisplay() {
         myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       1,                           // number of coefficient planes on the display
-                                      2);                            // input vector size (x and y only)
+                                      2);                          // input vector size (x and y only)
 #else
         myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       1,                           // number of coefficient planes on the display
-                                      2);                            // input vector size (x and y only)
+                                      2);                          // input vector size (x and y only)
 #endif
         // Grab the cost model
         costModel = myDisplay->GetCostModel();

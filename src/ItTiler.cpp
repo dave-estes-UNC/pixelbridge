@@ -61,12 +61,15 @@ ItTiler::ItTiler(size_t display_width, size_t display_height,
     fvDimensions.push_back(FRAMEVOLUME_DEPTH);
 
 #ifndef NO_CL
-#error CL not supported for IT Tiler yet.
+    display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
+                                 display_width, display_height, // display size
+                                 FRAMEVOLUME_DEPTH,             // Number of coefficient planes
+                                 3);                            // input vector size (x, y, 1)
 #else
     display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
-                                 3);                               // input vector size (x, y, 1)
+                                 3);                            // input vector size (x, y, 1)
 #endif
 
 

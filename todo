@@ -38,18 +38,20 @@ x Speed up DCT
 x Re-run all of the original experiments including the new video-based tilers.
   x Run them all headless
   x Run the lossy modes for PSNR
-    NOTE: Waited` on RAM
+    NOTE: Waited on RAM
 
 - Revisit the Blending Experiments
-  - Get Temporal Blending working
-  - Get FrameVolume Blending working again
+  x Get Temporal Blending working
+  x Get FrameVolume Blending working again
   - Devise some experiments for blending, perhaps a HUD on top of video.
 
 - Update CL implementation
+  x Remove #errors when using OpenCL in the DCT and IT tilers.
+  - Add the ClCoefficientPlanes support for multiple coefficient planes
+  - Add the ClCoefficientPlanes support for scalers
   - Implement FillScaler API for ClNddiDisplay.
   - Implement FillScalerTiles API for ClNddiDisplay.
   - Implement FillScalerTileStack API for ClNddiDisplay.
-  - Update ClNddiDisplay to use multiple coefficient planes.
 
 
 Future Work

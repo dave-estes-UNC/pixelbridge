@@ -24,8 +24,8 @@ ClNddiDisplay::ClNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
                              int numCoefficientPlanes, int inputVectorSize)
 :   clFrameVolume_(NULL),
     clInputVector_(NULL),
-	clKernelFillCoefficient_(0),
-	maxCommandPacketSize_(0)
+    clKernelFillCoefficient_(0),
+    maxCommandPacketSize_(0)
 {
     ClNddiDisplay(frameVolumeDimensionalSizes, 320, 240, numCoefficientPlanes, inputVectorSize);
 }
@@ -105,7 +105,7 @@ void ClNddiDisplay::Cleanup(bool shouldExit)
         clReleaseMemObject(clFrameBuffer_);
 
     if (clCommandPacket_ != 0)
-    	clReleaseMemObject(clCommandPacket_);
+        clReleaseMemObject(clCommandPacket_);
 
     if( texture_ != 0 )
     {
@@ -171,14 +171,14 @@ void ClNddiDisplay::InitializeCl() {
     // Create the context
     cl_context_properties clContextProperties[] =
     {
-	CL_CONTEXT_PLATFORM, (cl_context_properties)clPlatformId_,
+    CL_CONTEXT_PLATFORM, (cl_context_properties)clPlatformId_,
 #ifdef __APPLE__
 #ifndef NO_CL
 #error OpenCL Not supported on Mac OS X Perfectly yet.
 #endif
 #else
-	CL_GL_CONTEXT_KHR, (cl_context_properties)glXGetCurrentContext(),
-	CL_GLX_DISPLAY_KHR, (cl_context_properties)glXGetCurrentDisplay(),
+    CL_GL_CONTEXT_KHR, (cl_context_properties)glXGetCurrentContext(),
+    CL_GLX_DISPLAY_KHR, (cl_context_properties)glXGetCurrentDisplay(),
 #endif
         0
     };
@@ -239,7 +239,7 @@ void ClNddiDisplay::InitializeCl() {
 
     // Create the command packet buffer
     clCommandPacket_ = clCreateBuffer(clContext_, CL_MEM_READ_ONLY,
-    		                          maxCommandPacketSize_, NULL, NULL);
+                                      maxCommandPacketSize_, NULL, NULL);
     clFrameVolume_->setCommandPacket(clCommandPacket_, maxCommandPacketSize_);
 
     cl_uint cm_dims[2] = { CM_WIDTH, CM_HEIGHT };
@@ -318,7 +318,7 @@ void ClNddiDisplay::LoadKernel(char *path, char *file, char *name, cl_program *p
     ifstream kernelFile;
     kernelFile.open(filename, ifstream::in);
     if (!kernelFile.is_open()) {
-    	kernelFile.open(filename, ios::in);
+        kernelFile.open(filename, ios::in);
     }
     if (!kernelFile.is_open())
     {
@@ -363,7 +363,7 @@ void ClNddiDisplay::Render() {
 
     timeval startTime, endTime; // Used for timing data
     if (!quiet_)
-    	gettimeofday(&startTime, NULL);
+        gettimeofday(&startTime, NULL);
 
     int err;            // Holds return value of CL calls
     unsigned int count; // Number of pixels to compute
@@ -396,15 +396,15 @@ void ClNddiDisplay::Render() {
     clFinish(clQueue_);
 
     if (!quiet_) {
-    	gettimeofday(&endTime, NULL);
-		printf("Render Statistics:\n  Size: %dx%d - FPS: %f\n",
-			   displayWidth_,
-			   displayHeight_,
-			   1.0f / ((double)(endTime.tv_sec * 1000000
-								+ endTime.tv_usec
-								- startTime.tv_sec * 1000000
-								- startTime.tv_usec) / 1000000.0f)
-			   );
+        gettimeofday(&endTime, NULL);
+        printf("Render Statistics:\n  Size: %dx%d - FPS: %f\n",
+               displayWidth_,
+               displayHeight_,
+               1.0f / ((double)(endTime.tv_sec * 1000000
+                                + endTime.tv_usec
+                                - startTime.tv_sec * 1000000
+                                - startTime.tv_usec) / 1000000.0f)
+               );
     }
 }
 
@@ -419,9 +419,9 @@ void ClNddiDisplay::PutPixel(Pixel p, vector<unsigned int> &location) {
     clFrameVolume_->PutPixel(p, location);
 
 #ifdef SUPRESS_EXCESS_RENDERING
-	changed_ = true;
+    changed_ = true;
 #else
-	Render();
+    Render();
 #endif
 }
 
@@ -448,9 +448,9 @@ void ClNddiDisplay::CopyPixelStrip(Pixel* p, vector<unsigned int> &start, vector
     clFrameVolume_->CopyPixelStrip(p, start, end);
 
 #ifdef SUPRESS_EXCESS_RENDERING
-	changed_ = true;
+    changed_ = true;
 #else
-	Render();
+    Render();
 #endif
 }
 
@@ -469,22 +469,22 @@ void ClNddiDisplay::CopyPixels(Pixel* p, vector<unsigned int> &start, vector<uns
     clFrameVolume_->CopyPixels(p, start, end);
 
 #ifdef SUPRESS_EXCESS_RENDERING
-	changed_ = true;
+    changed_ = true;
 #else
-	Render();
+    Render();
 #endif
 }
 
 void ClNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int> > &starts, vector<unsigned int> &size) {
 
-	size_t tile_count = p.size();
+    size_t tile_count = p.size();
 
-	// Ensure parameter vectors' sizes match
-	assert(starts.size() == tile_count);
-	assert(starts[0].size() == frameVolumeDimensionalSizes_.size());
-	assert(size.size() == 2);
+    // Ensure parameter vectors' sizes match
+    assert(starts.size() == tile_count);
+    assert(starts[0].size() == frameVolumeDimensionalSizes_.size());
+    assert(size.size() == 2);
 
-	// Register transmission cost first
+    // Register transmission cost first
     int pixelsToCopy = 1;
     for (int i = 0; i < size.size(); i++) {
         pixelsToCopy *= size[i];
@@ -495,13 +495,13 @@ void ClNddiDisplay::CopyPixelTiles(vector<Pixel*> &p, vector<vector<unsigned int
                                           CALC_BYTES_FOR_TILE_COORD_DOUBLES(1),            // 1 X by Y tile dimension double
                                           0);
 
-	// Copy pixels (copies to host array, sets up packet and sends it to the device
-	clFrameVolume_->CopyPixelTiles(p, starts, size);
+    // Copy pixels (copies to host array, sets up packet and sends it to the device
+    clFrameVolume_->CopyPixelTiles(p, starts, size);
 
 #ifdef SUPRESS_EXCESS_RENDERING
-	changed_ = true;
+    changed_ = true;
 #else
-	Render();
+    Render();
 #endif
 }
 
@@ -516,9 +516,9 @@ void ClNddiDisplay::FillPixel(Pixel p, vector<unsigned int> &start, vector<unsig
     clFrameVolume_->FillPixel(p, start, end);
 
 #ifdef SUPRESS_EXCESS_RENDERING
-	changed_ = true;
+    changed_ = true;
 #else
-	Render();
+    Render();
 #endif
 }
 
@@ -532,9 +532,9 @@ void ClNddiDisplay::CopyFrameVolume(vector<unsigned int> &start, vector<unsigned
     clFrameVolume_->CopyFrameVolume(start, end, dest);
 
 #ifdef SUPRESS_EXCESS_RENDERING
-	changed_ = true;
+    changed_ = true;
 #else
-	Render();
+    Render();
 #endif
 }
 
@@ -550,9 +550,9 @@ void ClNddiDisplay::UpdateInputVector(vector<int> &input) {
     clInputVector_->UpdateInputVector(input);
 
 #ifdef SUPRESS_EXCESS_RENDERING
-	changed_ = true;
+    changed_ = true;
 #else
-	Render();
+    Render();
 #endif
 }
 
@@ -568,9 +568,9 @@ void ClNddiDisplay::PutCoefficientMatrix(vector< vector<int> > &coefficientMatri
     clCoefficientPlane_->PutCoefficientMatrix(coefficientMatrix, location);
 
 #ifdef SUPRESS_EXCESS_RENDERING
-	changed_ = true;
+    changed_ = true;
 #else
-	Render();
+    Render();
 #endif
 }
 
@@ -586,9 +586,9 @@ void ClNddiDisplay::FillCoefficientMatrix(vector< vector<int> > &coefficientMatr
     clCoefficientPlane_->FillCoefficientMatrix(coefficientMatrix, start, end);
 
 #ifdef SUPRESS_EXCESS_RENDERING
-	changed_ = true;
+    changed_ = true;
 #else
-	Render();
+    Render();
 #endif
 }
 
@@ -611,25 +611,25 @@ void ClNddiDisplay::FillCoefficient(int coefficient,
     clCoefficientPlane_->FillCoefficient(coefficient, row, col, start, end);
 
 #ifdef SUPRESS_EXCESS_RENDERING
-	changed_ = true;
+    changed_ = true;
 #else
-	Render();
+    Render();
 #endif
 }
 
 // TODO(CDE): Consider moving this to ClCoefficientPlane even though it executes a kernel
 void ClNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
-										 vector<vector<unsigned int> > &positions,
-										 vector<vector<unsigned int> > &starts,
-										 vector<unsigned int> &size) {
+                                         vector<vector<unsigned int> > &positions,
+                                         vector<vector<unsigned int> > &starts,
+                                         vector<unsigned int> &size) {
 
     cl_int   err;
     static coefficient_update_t *packet = NULL;
 
-	// Set the number of instances for kernel
-	size_t tile_count = coefficients.size();
-	assert(positions.size() == tile_count);
-	assert(starts.size() == tile_count);
+    // Set the number of instances for kernel
+    size_t tile_count = coefficients.size();
+    assert(positions.size() == tile_count);
+    assert(starts.size() == tile_count);
 
     // Register transmission cost first
     costModel->registerTransmissionCharge(BYTES_PER_COEFF * tile_count +                 // t coefficients
@@ -638,28 +638,28 @@ void ClNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
                                           CALC_BYTES_FOR_TILE_COORD_DOUBLES(1),          // 1 X by Y tile dimension double
                                           0);
 
-	// Build the packet
-	if (packet) free(packet);
-	packet = (coefficient_update_t*)malloc(sizeof(coefficient_update_t) * tile_count);
-	for (int i = 0; i < tile_count; i++) {
-		packet[i].coefficient = coefficients[i];
-		packet[i].posCol = positions[i][0];
-		packet[i].posRow = positions[i][1];
-		packet[i].startX = starts[i][0];
-		packet[i].startY = starts[i][1];
-		packet[i].sizeW = size[0];
-		packet[i].sizeH = size[1];
-	}
+    // Build the packet
+    if (packet) free(packet);
+    packet = (coefficient_update_t*)malloc(sizeof(coefficient_update_t) * tile_count);
+    for (int i = 0; i < tile_count; i++) {
+        packet[i].coefficient = coefficients[i];
+        packet[i].posCol = positions[i][0];
+        packet[i].posRow = positions[i][1];
+        packet[i].startX = starts[i][0];
+        packet[i].startY = starts[i][1];
+        packet[i].sizeW = size[0];
+        packet[i].sizeH = size[1];
+    }
 
-	// Enqueue command to write the packet
-	err = clEnqueueWriteBuffer(clQueue_, clCommandPacket_, CL_FALSE,
-	                           0, sizeof(coefficient_update_t) * tile_count, packet,
-	                           0, NULL, NULL); // TODO(CDE): Set the event param when I move it to ClCoefficientPlane
-	if (err != CL_SUCCESS) {
-		cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << err << endl;
-	}
+    // Enqueue command to write the packet
+    err = clEnqueueWriteBuffer(clQueue_, clCommandPacket_, CL_FALSE,
+                               0, sizeof(coefficient_update_t) * tile_count, packet,
+                               0, NULL, NULL); // TODO(CDE): Set the event param when I move it to ClCoefficientPlane
+    if (err != CL_SUCCESS) {
+        cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << err << endl;
+    }
 
-	// Set the num kernel arg
+    // Set the num kernel arg
     err = clSetKernelArg(clKernelFillCoefficient_, 6, sizeof(cl_uint), &tile_count);
     if (err != CL_SUCCESS) {
         cout << "Failed to set fillCoefficient kernel argument." << endl;
@@ -682,21 +682,26 @@ void ClNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
     }
 
 #ifdef SUPRESS_EXCESS_RENDERING
-	changed_ = true;
+    changed_ = true;
 #else
-	Render();
+    Render();
 #endif
 }
 
-void ClNddiDisplay::FillScaler(int scaler,
+void ClNddiDisplay::FillScaler(Scaler scaler,
                                vector<unsigned int> &start,
                                vector<unsigned int> &end) {
-	// TODO(CDE): Implement
+    // TODO(CDE): Implement #MultiPlaneCL
 }
 
 
-void ClNddiDisplay::FillScalerTiles(vector<int> &scalers,
+void ClNddiDisplay::FillScalerTiles(vector<uint64_t> &scalers,
                                     vector<vector<unsigned int> > &starts,
                                     vector<unsigned int> &size) {
-	// TODO(CDE): Implement
+    // TODO(CDE): Implement #MultiPlaneCL
+}
+void ClNddiDisplay::FillScalerTileStack(vector<uint64_t> &scalers,
+                                        vector<unsigned int> &start,
+                                        vector<unsigned int> &size) {
+    // TODO(CDE): Implement #MultiPlaneCL
 }
