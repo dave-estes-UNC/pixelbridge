@@ -312,9 +312,21 @@ void ClNddiDisplay::LoadKernel(char *path, char *file, char *name, cl_program *p
     cl_int   err;
     char filename[256];
 
-    sprintf(filename, "%s/%s", path, file);
+    // Read feature header file
+    sprintf(filename, "%s/%s", path, "PixelBridgeFeatures.h");
+    ifstream headerFile;
+    headerFile.open(filename, ifstream::in);
+    if (!headerFile.is_open()) {
+        headerFile.open(filename, ios::in);
+    }
+    if (!headerFile.is_open())
+    {
+        cerr << "Failed to open PixelBridgeFeatures.h." << endl;
+        Cleanup(true);
+    }
 
     // Read program file
+    sprintf(filename, "%s/%s", path, file);
     ifstream kernelFile;
     kernelFile.open(filename, ifstream::in);
     if (!kernelFile.is_open()) {
@@ -325,7 +337,10 @@ void ClNddiDisplay::LoadKernel(char *path, char *file, char *name, cl_program *p
         cerr << "Failed to open program file: " << filename << "." << endl;
         Cleanup(true);
     }
+
+    // Create the combined stream for both the header and kernel files.
     ostringstream oss;
+    oss << headerFile.rdbuf();
     oss << kernelFile.rdbuf();
     string srcStdStr = oss.str();
     const char *srcStr = srcStdStr.c_str();

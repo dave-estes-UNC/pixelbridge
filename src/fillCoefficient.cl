@@ -1,6 +1,10 @@
 // Must match struct in ClNddiDisplay.h
 typedef struct {
+#ifdef NARROW_DATA_STORES
+    short  coefficient;
+#else
     int  coefficient;
+#endif
     uint posCol;
     uint posRow;
     uint startX;
@@ -10,7 +14,11 @@ typedef struct {
 } coefficient_update_t;
 
 __kernel void fillCoefficient(__global coefficient_update_t* packet,
+#ifdef NARROW_DATA_STORES
+                              __global short* coefficientPlane,
+#else
                               __global int* coefficientPlane,
+#endif
                               const uint cm_width,
                               const uint cm_height,
                               const uint display_width,
@@ -20,7 +28,7 @@ __kernel void fillCoefficient(__global coefficient_update_t* packet,
     uint i = get_global_id(0);
     uint cpOffset;
     coefficient_update_t upd;
-    
+
     if (i < num) {
         upd = packet[i];
         for (uint y = upd.startY; y < upd.startY + upd.sizeH; y++) {

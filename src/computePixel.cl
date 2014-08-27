@@ -1,5 +1,9 @@
 __kernel void computePixel(__global int* inputVector,
+#ifdef NARROW_DATA_STORES
+                           __global short* coefficientPlane,
+#else
                            __global int* coefficientPlane,
+#endif
                            __global uint* frameVolume,
                            __global uint* frameVolumeDims,
                            __write_only image2d_t frameBuffer,

@@ -25,7 +25,13 @@ private:
     unsigned int      matrixSize_;   // In bytes
     unsigned int      numPlanes_;
 
-    int             * coefficients_;
+#ifdef NARROW_DATA_STORES
+        int16_t             * coefficients_;
+        int16_t             * scalers_;
+#else
+        int                 * coefficients_;
+        int                 * scalers_;
+#endif
 
     inline unsigned int calcOffset(vector<unsigned int> &location) {
         return (location[1] * width_ + location[0]) * matrixWidth_ * matrixHeight_;
@@ -46,9 +52,19 @@ public:
 
         matrixWidth_ = matrixWidth;
         matrixHeight_ = matrixHeight;
+#ifdef NARROW_DATA_STORES
+        matrixSize_ = matrixWidth_ * matrixHeight_ * sizeof(int16_t);
+#else
         matrixSize_ = matrixWidth_ * matrixHeight_ * sizeof(int);
+#endif
 
-        coefficients_ = (int *)malloc(matrixSize_ * width_ * height_);
+#ifdef NARROW_DATA_STORES
+                coefficients_ = (int16_t *)malloc(CoefficientMatrix::memoryRequired(matrixWidth, matrixHeight) * displayWidth * displayHeight * numPlanes_);
+                scalers_ = (int16_t *)malloc(sizeof(int16_t) * 3 * displayWidth * displayHeight * numPlanes_);
+#else
+                coefficients_ = (int *)malloc(CoefficientMatrix::memoryRequired(matrixWidth, matrixHeight) * displayWidth * displayHeight * numPlanes_);
+                scalers_ = (int *)malloc(sizeof(int) * 3 * displayWidth * displayHeight * numPlanes_);
+#endif
     }
 
     ~ClCoefficientPlanes() {
@@ -69,7 +85,11 @@ public:
         assert(location[1] < height_);
 
         unsigned int offset = calcOffset(location);
+#ifdef NARROW_DATA_STORES
+        int16_t * coefficientPtr = coefficients_ + offset;
+#else
         int * coefficientPtr = coefficients_ + offset;
+#endif
 
         for (int y = 0; y < matrixHeight_; y++) {
             for (int x = 0; x < matrixWidth_; x++) {
@@ -125,14 +145,14 @@ public:
 
         // Copy the rectangular region of coefficients to the compute device
         size_t row_pitch = matrixSize_ * width_;
-    	size_t slice_pitch = matrixSize_ * width_ * height_;
+        size_t slice_pitch = matrixSize_ * width_ * height_;
         const size_t origin[3] = {start[0] * matrixSize_, start[1], 0};
         const size_t region[3] = {(end[0] - start[0] + 1) * matrixSize_, end[1] - start[1] + 1, 1};
 
         int err = clEnqueueWriteBufferRect(clQueue_, clBuffer_, CL_FALSE,
-        								   origin, origin, region,
-        								   row_pitch, slice_pitch, row_pitch, slice_pitch,
-        								   coefficients_, 0, NULL, NULL);
+                                           origin, origin, region,
+                                           row_pitch, slice_pitch, row_pitch, slice_pitch,
+                                           coefficients_, 0, NULL, NULL);
         if (err != CL_SUCCESS) {
             cout << __FUNCTION__ << " - Failed to create enqueue write buffer rect command." << endl;
         }
@@ -147,8 +167,8 @@ public:
                          vector<unsigned int> &start,
                          vector<unsigned int> &end) {
 
-    	// Shouldn't be used since the functionality is implemented directly in ClNddiDisplay
-    	assert(false);
+        // TODO(CDE): Implement #MultiPlaneCL
+        assert(false && "Needed for DCT Tiler.");
     }
 
     void FillScaler(Scaler scaler,
