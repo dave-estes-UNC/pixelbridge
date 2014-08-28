@@ -48,11 +48,15 @@ x Re-run all of the original experiments including the new video-based tilers.
 - Update CL implementation
   x Remove #errors when using OpenCL in the DCT and IT tilers.
   x Update the CL variants of the display elements to support the narrowed data structures.
-  - Add the ClCoefficientPlanes support for multiple coefficient planes
+  x Add the ClCoefficientPlanes support for multiple coefficient planes
+  - Test:
+    - ClCoefficientPlanes.PutCoefficientMatrix()
+    - ClCoefficientPlanes.FillCoefficientMatrix()
+    - ClCoefficientPlanes.FillCoefficient()
   - Add the ClCoefficientPlanes support for scalers
-  - Implement FillScaler API for ClNddiDisplay.
-  - Implement FillScalerTiles API for ClNddiDisplay.
-  - Implement FillScalerTileStack API for ClNddiDisplay.
+    - Implement FillScaler API for ClNddiDisplay.
+    - Implement FillScalerTiles API for ClNddiDisplay.
+    - Implement FillScalerTileStack API for ClNddiDisplay.
 
 
 Future Work
