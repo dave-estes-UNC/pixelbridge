@@ -161,7 +161,7 @@ public:
                                            row_pitch, slice_pitch, row_pitch, slice_pitch,
                                            coefficients_, 0, NULL, NULL);
         if (err != CL_SUCCESS) {
-            cout << __FUNCTION__ << " - Failed to create enqueue write buffer rect command." << endl;
+            cout << __FUNCTION__ << " - Err: (" << err << ") - Failed to create enqueue write buffer rect command." << endl;
         }
 
         // Update Cost Model
@@ -211,7 +211,7 @@ public:
                                            row_pitch, slice_pitch, row_pitch, slice_pitch,
                                            coefficients_, 0, NULL, NULL);
         if (err != CL_SUCCESS) {
-            cout << __FUNCTION__ << " - Failed to create enqueue write buffer rect command." << endl;
+            cout << __FUNCTION__ <<  " - Err: (" << err << ") - Failed to create enqueue write buffer rect command." << endl;
         }
 
         // Update Cost Model
@@ -255,7 +255,7 @@ public:
 
         // Create CL mem buffer
         clBuffer_ = clCreateBuffer(clContext_, CL_MEM_READ_ONLY,
-                                   matrixSize_ * width_ * height_, NULL, NULL);
+                                   matrixSize_ * width_ * height_ * numPlanes_, NULL, NULL);
         return clBuffer_ ;
     }
 
