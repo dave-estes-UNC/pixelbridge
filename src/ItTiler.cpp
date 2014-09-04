@@ -389,6 +389,9 @@ void ItTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
     static size_t largestNonZeroPlaneSeen = 0;
     Scaler s;
 
+    assert(width >= display_->DisplayWidth());
+    assert(height >= display_->DisplayHeight());
+
     size[0] = BLOCK_WIDTH;
     size[1] = BLOCK_HEIGHT;
 

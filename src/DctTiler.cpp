@@ -361,6 +361,9 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
     vector<unsigned int> size(2, 0);
     Scaler s;
 
+    assert(width >= display_->DisplayWidth());
+    assert(height >= display_->DisplayHeight());
+
     start[0] = 0; start[1] = 0; start[2] = 0;
     size[0] = BLOCK_WIDTH;
     size[1] = BLOCK_HEIGHT;

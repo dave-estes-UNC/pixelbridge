@@ -131,6 +131,9 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
     vector<vector<unsigned int> >  starts;
 #endif
 
+    assert(width >= display_->DisplayWidth());
+    assert(height >= display_->DisplayHeight());
+
     // Break up the passed in buffer into one tile at a time
 #ifndef NO_OMP
 #pragma omp parallel for ordered
@@ -148,10 +151,10 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                 // Use locals for this tile's width and height in case they need to be adjust at the edges
                 int tw = tile_width_, th = tile_height_;
                 if (i_tile_map == (tile_map_width_ - 1)) {
-                    tw -= tile_map_width_ * tile_width_ - width;
+                    tw -= tile_map_width_ * tile_width_ - display_->DisplayWidth();
                 }
                 if (j_tile_map == (tile_map_height_ - 1)) {
-                    th -= tile_map_height_ * tile_height_ - height;
+                    th -= tile_map_height_ * tile_height_ - display_->DisplayHeight();
                 }
 
                 // Allocate tiles is necessary. Sometimes they're re-used.

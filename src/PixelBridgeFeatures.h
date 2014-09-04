@@ -67,4 +67,9 @@
  */
 #define NARROW_DATA_STORES
 
+/*
+ * Used to reduce the rendered frame to a much smaller region for testing on memory contrained devices.
+ */
+//#define USE_SMALLER_WINDOW
+
 #endif /* PIXELBRIDGEFEATURES_H_ */

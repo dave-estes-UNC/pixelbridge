@@ -158,6 +158,9 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
     Pixel                         *tile_pixels = NULL;
     Pixel                         *tile_pixels_sig_bits = NULL;
 
+    assert(width >= display_->DisplayWidth());
+    assert(height >= display_->DisplayHeight());
+
     // Break up the passed in buffer into one tile at a time
     for (size_t j_tile_map = 0; j_tile_map < tile_map_height_; j_tile_map++) {
         for (size_t i_tile_map = 0; i_tile_map < tile_map_width_; i_tile_map++) {
@@ -187,8 +190,8 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                         Pixel p, psb;
 
                         // Just use a black pixel if our tile is hanging off the edge of the buffer
-                        if ((j_tile_map * tile_height_ + j_tile >= height) ||
-                            (i_tile_map * tile_width_ + i_tile >= width) ) {
+                        if ((j_tile_map * tile_height_ + j_tile >= display_->DisplayHeight()) ||
+                            (i_tile_map * tile_width_ + i_tile >= display_->DisplayWidth()) ) {
                             p.r = p.g = p.b = 0; p.a = 255;
                         } else {
                             p.r = buffer[bufferOffset++];

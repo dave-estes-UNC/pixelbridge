@@ -33,7 +33,7 @@ typedef enum {
 } rewind_play_t;
 
 // General Globals
-size_t displayWidth = 320, displayHeight = 240;
+size_t displayWidth = 40, displayHeight = 32;
 const char* fileName = NULL;
 Configuration globalConfiguration = Configuration();
 
@@ -356,15 +356,19 @@ void updateDisplay(uint8_t* buffer, size_t width, size_t height) {
         size_t bufferPos = 0;
 
         // Array of pixels used for framebuffer mode.
-        Pixel* frameBuffer = (Pixel*)malloc(sizeof(Pixel) * width * height);
+        Pixel* frameBuffer = (Pixel*)malloc(sizeof(Pixel) * displayWidth * displayHeight);
 
         // Transform the buffer into pixels
-        for (int j = 0; j < height; j++) {
-            for (int i = 0; i < width; i++) {
-                frameBuffer[j * width + i].r = buffer[bufferPos++];
-                frameBuffer[j * width + i].g = buffer[bufferPos++];
-                frameBuffer[j * width + i].b = buffer[bufferPos++];
-                frameBuffer[j * width + i].a = 0xff;
+        for (int j = 0; j < displayHeight; j++) {
+#ifdef USE_SMALLER_WINDOW
+            // Set the bufferPos to the beginning of the next row
+            bufferPos = j * width * 3;
+#endif
+            for (int i = 0; i < displayWidth; i++) {
+                frameBuffer[j * displayWidth + i].r = buffer[bufferPos++];
+                frameBuffer[j * displayWidth + i].g = buffer[bufferPos++];
+                frameBuffer[j * displayWidth + i].b = buffer[bufferPos++];
+                frameBuffer[j * displayWidth + i].a = 0xff;
             }
         }
 
@@ -1125,8 +1129,10 @@ int main(int argc, char *argv[]) {
 #else
     myPlayer = (Player*)new RandomPlayer();
 #endif
+#ifndef USE_SMALLER_WINDOW
     displayWidth = myPlayer->width();
     displayHeight = myPlayer->height();
+#endif
     if (globalConfiguration.rewindStartFrame > 0) {
         myRewinder = new Rewinder(globalConfiguration.rewindStartFrame - globalConfiguration.rewindFrames, displayWidth, displayHeight);
     }
@@ -1168,7 +1174,12 @@ int main(int argc, char *argv[]) {
             globalConfiguration.tileWidth = globalConfiguration.tileHeight = 8;
         // Else if the tile size wasn't specified, then dynamically calculate it
         } else if ((globalConfiguration.tileWidth == 0) || (globalConfiguration.tileHeight == 0)) {
-            globalConfiguration.tileWidth = globalConfiguration.tileHeight = ((displayWidth > displayHeight) ? displayWidth : displayHeight) / 40;
+            // Calculate the tile as a square who's edge is 1/40 of the longest display dimension
+            size_t edge = ((displayWidth > displayHeight) ? displayWidth : displayHeight) / 40;
+            // But don't go smaller than 8x8 when automatically calculating the tile size
+            if (edge < 8)
+                edge = 8;
+            globalConfiguration.tileWidth = globalConfiguration.tileHeight = edge;
         }
 
         // Setup the GlNddiDisplay and Tiler if required

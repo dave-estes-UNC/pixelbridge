@@ -28,41 +28,41 @@ class Configuration {
 
 public:
 
-	tiler_t tiler;
-	blend_t blend;
-	size_t tileWidth;
-	size_t tileHeight;
-	size_t maxTiles;
-	size_t sigBits;
-	size_t quality;
-	size_t startFrame;
-	size_t maxFrames;
-	size_t rewindStartFrame;
-	size_t rewindFrames;
-	size_t temporalFlipCountPerFrame;
-	bool PSNR;
-	bool verbose;
-	bool headless;
+    tiler_t tiler;
+    blend_t blend;
+    size_t tileWidth;
+    size_t tileHeight;
+    size_t maxTiles;
+    size_t sigBits;
+    size_t quality;
+    size_t startFrame;
+    size_t maxFrames;
+    size_t rewindStartFrame;
+    size_t rewindFrames;
+    size_t temporalFlipCountPerFrame;
+    bool PSNR;
+    bool verbose;
+    bool headless;
 
 public:
 
-	Configuration() {
-		tiler = CACHE;
-		blend = NONE;
-		tileWidth = 0;
-		tileHeight = 0;
-		maxTiles = 1000;
-		sigBits = 8;
-		quality = 4;
-		startFrame = 0;
-		maxFrames = 0;
-		rewindStartFrame = 0;
-		rewindFrames = 0;
-		temporalFlipCountPerFrame = 4;
-		PSNR = false;
-		verbose = false;
-		headless = false;
-	}
+    Configuration() {
+        tiler = CACHE;
+        blend = NONE;
+        tileWidth = 0;
+        tileHeight = 0;
+        maxTiles = 1000;
+        sigBits = 8;
+        quality = 4;
+        startFrame = 0;
+        maxFrames = 0;
+        rewindStartFrame = 0;
+        rewindFrames = 0;
+        temporalFlipCountPerFrame = 4;
+        PSNR = false;
+        verbose = false;
+        headless = false;
+    }
 
 };
 
