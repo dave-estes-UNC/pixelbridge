@@ -37,12 +37,12 @@ FlatTiler::FlatTiler (size_t display_width, size_t display_height,
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  1,                             // number of coefficient planes in display
-                                 2);                             // input vector size (x and y only)
+                                 2);                            // input vector size (x and y only)
 #else
     display_ = new GlNddiDisplay(fvDimensions,                   // framevolume dimensional sizes
                                  display_width, display_height,  // display size
                                  1,                              // number of coefficient planes in display
-                                 2);                              // input vector size (x and y only)
+                                 2);                             // input vector size (x and y only)
 #endif
 
     // Compute tile_map width
@@ -135,103 +135,87 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
     assert(height >= display_->DisplayHeight());
 
     // Break up the passed in buffer into one tile at a time
+    for (int j_tile_map = 0; j_tile_map < tile_map_height_; j_tile_map++) {
+        for (int i_tile_map = 0; i_tile_map < tile_map_width_; i_tile_map++) {
+            // Initialize a tile's checksum
+            unsigned long tile_checksum = 0L;
+
+            // Use locals for this tile's width and height in case they need to be adjust at the edges
+            int tw = tile_width_, th = tile_height_;
+            if (i_tile_map == (tile_map_width_ - 1)) {
+                tw -= tile_map_width_ * tile_width_ - display_->DisplayWidth();
+            }
+            if (j_tile_map == (tile_map_height_ - 1)) {
+                th -= tile_map_height_ * tile_height_ - display_->DisplayHeight();
+            }
+
+            // Allocate tiles is necessary. Sometimes they're re-used.
+            if (!tile_pixels)
+                tile_pixels = (Pixel*)malloc(tw * th * sizeof(Pixel));
+            if (!tile_pixels_sig_bits)
+                tile_pixels_sig_bits = (Pixel*)malloc(tw * th * sizeof(Pixel));
+
+            // Build the tile's pixel array while computing the checksum in an alternative tile which only
+            // holds the significant bits
 #ifndef NO_OMP
 #pragma omp parallel for ordered
 #endif // !NO_OMP
-    for (int j_tile_map = 0; j_tile_map < tile_map_height_; j_tile_map++) {
+            for (int j_tile = 0; j_tile < th; j_tile++) {
+                // Compute the offset into the RGB buffer for this row in this tile
+                int bufferOffset = 3 * ((j_tile_map * tile_height_ + j_tile) * width + (i_tile_map * tile_width_));
 
-#ifndef NO_OMP
-#pragma omp ordered
-#endif
-        {
-            for (int i_tile_map = 0; i_tile_map < tile_map_width_; i_tile_map++) {
-                // Initialize a tile's checksum
-                unsigned long tile_checksum = 0L;
+                for (int i_tile = 0; i_tile < tw; i_tile++) {
+                    Pixel p, psb;
 
-                // Use locals for this tile's width and height in case they need to be adjust at the edges
-                int tw = tile_width_, th = tile_height_;
-                if (i_tile_map == (tile_map_width_ - 1)) {
-                    tw -= tile_map_width_ * tile_width_ - display_->DisplayWidth();
+                    p.r = buffer[bufferOffset++];
+                    p.g = buffer[bufferOffset++];
+                    p.b = buffer[bufferOffset++];
+                    p.a = 0xff;
+                    tile_pixels[j_tile * tw + i_tile].packed = p.packed;
+
+                    psb.r = p.r & mask;
+                    psb.g = p.g & mask;
+                    psb.b = p.b & mask;
+                    psb.a = p.a & mask;
+                    tile_pixels_sig_bits[j_tile * tw + i_tile].packed = psb.packed;
                 }
-                if (j_tile_map == (tile_map_height_ - 1)) {
-                    th -= tile_map_height_ * tile_height_ - display_->DisplayHeight();
-                }
-
-                // Allocate tiles is necessary. Sometimes they're re-used.
-                if (!tile_pixels)
-                    tile_pixels = (Pixel*)malloc(tw * th * sizeof(Pixel));
-                if (!tile_pixels_sig_bits)
-                    tile_pixels_sig_bits = (Pixel*)malloc(tw * th * sizeof(Pixel));
-
-                // Build the tile's pixel array while computing the checksum in an alternative tile which only
-                // holds the significant bits
-                for (int j_tile = 0; j_tile < th; j_tile++) {
-                    // Compute the offset into the RGB buffer for this row in this tile
-                    int bufferOffset = 3 * ((j_tile_map * tile_height_ + j_tile) * width + (i_tile_map * tile_width_));
-
-                    for (int i_tile = 0; i_tile < tw; i_tile++) {
-                        Pixel p, psb;
-
-                        p.r = buffer[bufferOffset++];
-                        p.g = buffer[bufferOffset++];
-                        p.b = buffer[bufferOffset++];
-                        p.a = 0xff;
-                        tile_pixels[j_tile * tw + i_tile].packed = p.packed;
-
-                        psb.r = p.r & mask;
-                        psb.g = p.g & mask;
-                        psb.b = p.b & mask;
-                        psb.a = p.a & mask;
-                        tile_pixels_sig_bits[j_tile * tw + i_tile].packed = psb.packed;
-                    }
-                }
+            }
 
 #if (CHECKSUM_CALCULATOR == TRIVIAL)
-                tile_checksum  = (unsigned long)tile_pixels_sig_bits[0].packed << 32;
-                tile_checksum |= (unsigned long)tile_pixels_sig_bits[tw * th - 1].packed;
+            tile_checksum  = (unsigned long)tile_pixels_sig_bits[0].packed << 32;
+            tile_checksum |= (unsigned long)tile_pixels_sig_bits[tw * th - 1].packed;
 #else
-                unsigned long crc = crc32(0L, Z_NULL, 0);
+            unsigned long crc = crc32(0L, Z_NULL, 0);
 #if (CHECKSUM_CALCULATOR == CRC)
-                tile_checksum = crc32(crc, (unsigned char*)tile_pixels_sig_bits, tw * th * sizeof(Pixel));
+            tile_checksum = crc32(crc, (unsigned char*)tile_pixels_sig_bits, tw * th * sizeof(Pixel));
 #elif (CHECKSUM_CALCULATOR == ADLER)
-                tile_checksum = adler32(crc, (unsigned char*)tile_pixels_sig_bits, tw * th * sizeof(Pixel));
+            tile_checksum = adler32(crc, (unsigned char*)tile_pixels_sig_bits, tw * th * sizeof(Pixel));
 #endif
 #endif
 
-                // If the checksum in the tile map doesn't match, then update the frame volume
-                if (tile_map_[i_tile_map][j_tile_map] != tile_checksum) {
-                    tile_map_[i_tile_map][j_tile_map] = tile_checksum;
+            // If the checksum in the tile map doesn't match, then update the frame volume
+            if (tile_map_[i_tile_map][j_tile_map] != tile_checksum) {
+
+                tile_map_[i_tile_map][j_tile_map] = tile_checksum;
 #ifdef USE_COPY_PIXEL_TILES
-#ifndef NO_OMP
-#pragma omp critical
-#endif
-                    {
-                        // Push the tile
-                        tiles.push_back(tile_pixels);
+                // Push the tile
+                tiles.push_back(tile_pixels);
 
-                        // Force new tile to be allocated. This one will be freed after it's copied
-                        tile_pixels = NULL;
+                // Force new tile to be allocated. This one will be freed after it's copied
+                tile_pixels = NULL;
 
-                        // Create and push the start coordinates
-                        vector<unsigned int> start;
-                        start.push_back(i_tile_map * tile_width_); start.push_back(j_tile_map * tile_height_);
-                        starts.push_back(start);
-                    }
+                // Create and push the start coordinates
+                vector<unsigned int> start;
+                start.push_back(i_tile_map * tile_width_); start.push_back(j_tile_map * tile_height_);
+                starts.push_back(start);
 
 #else
-                    UpdateFrameVolume(tile_pixels, i_tile_map, j_tile_map);
+                UpdateFrameVolume(tile_pixels, i_tile_map, j_tile_map);
 #endif
 
-#ifndef NO_OMP
-#pragma omp atomic
-#endif
-                    updates++;
-                } else {
-#ifndef NO_OMP
-#pragma omp atomic
-#endif
-                    unchanged++;
-                }
+                updates++;
+            } else {
+                unchanged++;
             }
         }
     }

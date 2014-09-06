@@ -38,7 +38,7 @@ x Speed up DCT
 x Re-run all of the original experiments including the new video-based tilers.
   x Run them all headless
   x Run the lossy modes for PSNR
-    NOTE: Waited on RAM
+    NOTE: Waited on RAM even for the SW mode because I only had 32 MB.
 
 - Revisit the Blending Experiments
   x Get Temporal Blending working
@@ -58,6 +58,11 @@ x Re-run all of the original experiments including the new video-based tilers.
     - Implement FillScaler API for ClNddiDisplay.
     - Implement FillScalerTiles API for ClNddiDisplay.
     - Implement FillScalerTileStack API for ClNddiDisplay.
+
+- Add multi-scale DCT support
+
+- Narrow pixel size to three channels
+  - Look for all of the places where we do offsets like with sizeof(unsigned int) and replace with pixelSize_;
 
 
 Future Work

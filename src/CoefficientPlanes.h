@@ -279,14 +279,11 @@ namespace nddi {
             scalers_[SC_OFF(x, y, p, 2)] = scaler.b;
         }
 
-        void putScalerStack(unsigned int x, unsigned int y, unsigned int h, Scaler *scaler) {
-
-        }
-
         Scaler getScaler(unsigned int x, unsigned int y, unsigned int p) {
 
             assert(x < width_);
             assert(y < height_);
+            assert(p < numPlanes_);
             assert(!globalConfiguration.headless);
 
             // TODO(CDE): Get this working properly

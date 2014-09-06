@@ -24,6 +24,7 @@ private:
     unsigned int      matrixHeight_;
     unsigned int      matrixSize_;      // In bytes
     unsigned int      coefficientSize_; // In bytes
+    unsigned int      scalerSize_;      // In bytes
     unsigned int      numPlanes_;
 
 #ifdef NARROW_DATA_STORES
@@ -56,17 +57,19 @@ public:
         matrixHeight_ = matrixHeight;
 #ifdef NARROW_DATA_STORES
         coefficientSize_ = sizeof(int16_t);
+        scalerSize_ = sizeof(int16_t) * 3;
 #else
         coefficientSize_ = sizeof(int);
+        scalerSize_ = sizeof(int) * 3;
 #endif
         matrixSize_ = matrixWidth_ * matrixHeight_ * coefficientSize_;
 
 #ifdef NARROW_DATA_STORES
         coefficients_ = (int16_t *)malloc(CoefficientMatrix::memoryRequired(matrixWidth, matrixHeight) * displayWidth * displayHeight * numPlanes_);
-        scalers_ = (int16_t *)malloc(sizeof(int16_t) * 3 * displayWidth * displayHeight * numPlanes_);
+        scalers_ = (int16_t *)malloc(scalerSize_ * displayWidth * displayHeight * numPlanes_);
 #else
         coefficients_ = (int *)malloc(CoefficientMatrix::memoryRequired(matrixWidth, matrixHeight) * displayWidth * displayHeight * numPlanes_);
-        scalers_ = (int *)malloc(sizeof(int) * 3 * displayWidth * displayHeight * numPlanes_);
+        scalers_ = (int *)malloc(scalerSize_ * displayWidth * displayHeight * numPlanes_);
 #endif
     }
 
@@ -104,7 +107,11 @@ public:
         }
 
         // Enqueue CL commands
-        int err = clEnqueueWriteBuffer(clQueue_, clBuffer_, CL_TRUE, offset, matrixSize_, coefficients_, 0, NULL, NULL);
+        int err = clEnqueueWriteBuffer(clQueue_, clBuffer_, CL_TRUE,
+                                       offset * coefficientSize_,
+                                       matrixSize_,
+                                       coefficients_,
+                                       0, NULL, NULL);
         if (err != CL_SUCCESS) {
             cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << endl;
         }
@@ -229,22 +236,6 @@ public:
                          vector<unsigned int> &start,
                          vector<unsigned int> &size) {
         // TODO(CDE): Implement this #MultiPlaneCL
-    }
-
-    void putScaler(unsigned int x, unsigned int y, unsigned int p, Scaler scaler) {
-        // TODO(CDE): Implement this #MultiPlaneCL
-    }
-
-    void putScalerStack(unsigned int x, unsigned int y, unsigned int h, Scaler *scaler) {
-        // TODO(CDE): Implement this #MultiPlaneCL
-    }
-
-    Scaler getScaler(unsigned int x, unsigned int y, unsigned int p) {
-        // TODO(CDE): Implement this #MultiPlaneCL
-
-        Scaler s;
-        s.packed = 0;
-        return s;
     }
 
     cl_mem initializeCl(cl_context context, cl_command_queue queue) {
