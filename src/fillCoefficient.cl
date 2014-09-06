@@ -9,6 +9,7 @@ typedef struct {
     uint posRow;
     uint startX;
     uint startY;
+    uint startP;
     uint sizeW;
     uint sizeH;
 } coefficient_update_t;
@@ -33,7 +34,10 @@ __kernel void fillCoefficient(__global coefficient_update_t* packet,
         upd = packet[i];
         for (uint y = upd.startY; y < upd.startY + upd.sizeH; y++) {
             for (uint x = upd.startX; x < upd.startX + upd.sizeW; x++) {
-                cpOffset = (cm_width * cm_height) * (y * display_width + x) + upd.posRow * cm_width + upd.posCol;
+                uint p = upd.startP;
+                cpOffset = (cm_width * cm_height)
+                             * (p * display_height * display_width + y * display_width + x)
+                           +  upd.posRow * cm_width + upd.posCol;
                 coefficientPlane[cpOffset] = upd.coefficient;
             }
         }

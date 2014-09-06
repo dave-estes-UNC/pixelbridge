@@ -22,6 +22,7 @@ typedef struct {
     unsigned int posRow;
     unsigned int startX;
     unsigned int startY;
+    unsigned int startP;
     unsigned int sizeW;
     unsigned int sizeH;
 } coefficient_update_t;

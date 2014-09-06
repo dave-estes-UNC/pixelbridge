@@ -50,16 +50,20 @@ x Re-run all of the original experiments including the new video-based tilers.
   x Update the CL variants of the display elements to support the narrowed data structures.
   x Add the ClCoefficientPlanes support for multiple coefficient planes
   x Implement reduced window size for testing
+  x Update fillCoefficient.cl to use start coordinates with a plane component
   - Test:
     - ClCoefficientPlanes.PutCoefficientMatrix()
     - ClCoefficientPlanes.FillCoefficientMatrix()
     - ClCoefficientPlanes.FillCoefficient()
+    - ClCoefficientPlanes.FillScaler()
   - Add the ClCoefficientPlanes support for scalers
-    - Implement FillScaler API for ClNddiDisplay.
-    - Implement FillScalerTiles API for ClNddiDisplay.
     - Implement FillScalerTileStack API for ClNddiDisplay.
+  - Change computePixel.cl to blend the planes. Test blending mode before dct.
 
 - Add multi-scale DCT support
+
+- Implement FillScalerTiles API for ClNddiDisplay.
+
 
 - Narrow pixel size to three channels
   - Look for all of the places where we do offsets like with sizeof(unsigned int) and replace with pixelSize_;

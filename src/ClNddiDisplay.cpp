@@ -216,8 +216,9 @@ void ClNddiDisplay::InitializeCl() {
     // Initialize the CL NDDI components
     cl_mem inputVectorBuffer = clInputVector_->initializeCl(clContext_, clQueue_);
     cl_mem coefficientPlaneBuffer = clCoefficientPlane_->initializeCl(clContext_, clQueue_);
+    cl_mem scalersBuffer = clCoefficientPlane_->getClScalerBuffer(); // Was initialized in the preceding call
     cl_mem frameVolumeBuffer = clFrameVolume_->initializeCl(clContext_, clQueue_);
-    if (!inputVectorBuffer || !coefficientPlaneBuffer || !frameVolumeBuffer) {
+    if (!inputVectorBuffer || !coefficientPlaneBuffer || !scalersBuffer || !frameVolumeBuffer) {
         cout << "Failed to do the CL initialization of the NDDI components." << endl;
         Cleanup(true);
     }
@@ -248,13 +249,14 @@ void ClNddiDisplay::InitializeCl() {
     // Set the arguments to our computePixel kernel
     err  = clSetKernelArg(clKernelComputePixel_, 0, sizeof(cl_mem), &inputVectorBuffer);
     err |= clSetKernelArg(clKernelComputePixel_, 1, sizeof(cl_mem), &coefficientPlaneBuffer);
-    err |= clSetKernelArg(clKernelComputePixel_, 2, sizeof(cl_mem), &frameVolumeBuffer);
-    err |= clSetKernelArg(clKernelComputePixel_, 3, sizeof(cl_mem), &clFrameVolumeDims_);
-    err |= clSetKernelArg(clKernelComputePixel_, 4, sizeof(cl_mem), &clFrameBuffer_);
-    err |= clSetKernelArg(clKernelComputePixel_, 5, sizeof(cl_uint), &cm_dims[0]);
-    err |= clSetKernelArg(clKernelComputePixel_, 6, sizeof(cl_uint), &cm_dims[1]);
-    err |= clSetKernelArg(clKernelComputePixel_, 7, sizeof(cl_uint), &display_dims[0]);
-    err |= clSetKernelArg(clKernelComputePixel_, 8, sizeof(cl_uint), &display_dims[1]);
+    err |= clSetKernelArg(clKernelComputePixel_, 2, sizeof(cl_mem), &scalersBuffer);
+    err |= clSetKernelArg(clKernelComputePixel_, 3, sizeof(cl_mem), &frameVolumeBuffer);
+    err |= clSetKernelArg(clKernelComputePixel_, 4, sizeof(cl_mem), &clFrameVolumeDims_);
+    err |= clSetKernelArg(clKernelComputePixel_, 5, sizeof(cl_mem), &clFrameBuffer_);
+    err |= clSetKernelArg(clKernelComputePixel_, 6, sizeof(cl_uint), &cm_dims[0]);
+    err |= clSetKernelArg(clKernelComputePixel_, 7, sizeof(cl_uint), &cm_dims[1]);
+    err |= clSetKernelArg(clKernelComputePixel_, 8, sizeof(cl_uint), &display_dims[0]);
+    err |= clSetKernelArg(clKernelComputePixel_, 9, sizeof(cl_uint), &display_dims[1]);
     if (err != CL_SUCCESS) {
         cout << "Failed to set computePixel kernel arguments." << endl;
         Cleanup(true);
@@ -281,7 +283,7 @@ void ClNddiDisplay::InitializeCl() {
         globalComputePixel_[1] += localComputePixel_[1];
     cout << "computePixel Global Size: " << globalComputePixel_[0] << " " << globalComputePixel_[1] << " and Local Workgroup Size: " << localComputePixel_[0] << " " << localComputePixel_[1] << endl;
 
-    // Set the arguments to our computePixel kernel
+    // Set the arguments to our fillCoefficient kernel
     err  = clSetKernelArg(clKernelFillCoefficient_, 0, sizeof(cl_mem), &clCommandPacket_);
     err |= clSetKernelArg(clKernelFillCoefficient_, 1, sizeof(cl_mem), &coefficientPlaneBuffer);
     err |= clSetKernelArg(clKernelFillCoefficient_, 2, sizeof(cl_uint), &cm_dims[0]);
@@ -572,7 +574,7 @@ void ClNddiDisplay::UpdateInputVector(vector<int> &input) {
 }
 
 void ClNddiDisplay::PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix,
-                                           vector<unsigned int> &location) {
+                                         vector<unsigned int> &location) {
 
     // Register transmission cost first
     costModel->registerTransmissionCharge(CALC_BYTES_FOR_CMS(1) +             // One coefficient matrix
@@ -590,8 +592,8 @@ void ClNddiDisplay::PutCoefficientMatrix(vector< vector<int> > &coefficientMatri
 }
 
 void ClNddiDisplay::FillCoefficientMatrix(vector< vector<int> > &coefficientMatrix,
-                                            vector<unsigned int> &start,
-                                            vector<unsigned int> &end) {
+                                          vector<unsigned int> &start,
+                                          vector<unsigned int> &end) {
     // Register transmission cost first
     costModel->registerTransmissionCharge(CALC_BYTES_FOR_CMS(1) +             // One coefficient matrix
                                           CALC_BYTES_FOR_CP_COORD_TRIPLES(2), // Two Coefficient Plane Coordinate triples
@@ -608,9 +610,9 @@ void ClNddiDisplay::FillCoefficientMatrix(vector< vector<int> > &coefficientMatr
 }
 
 void ClNddiDisplay::FillCoefficient(int coefficient,
-                                      int row, int col,
-                                      vector<unsigned int> &start,
-                                      vector<unsigned int> &end) {
+                                    int row, int col,
+                                    vector<unsigned int> &start,
+                                    vector<unsigned int> &end) {
     assert(row >= 0 && row < CM_HEIGHT);
     assert(col >= 0 && col < CM_WIDTH);
     assert(start.size() == 3);
@@ -645,6 +647,7 @@ void ClNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
     size_t tile_count = coefficients.size();
     assert(positions.size() == tile_count);
     assert(starts.size() == tile_count);
+    assert(size.size() == 2);
 
     // Register transmission cost first
     costModel->registerTransmissionCharge(BYTES_PER_COEFF * tile_count +                 // t coefficients
@@ -657,11 +660,14 @@ void ClNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
     if (packet) free(packet);
     packet = (coefficient_update_t*)malloc(sizeof(coefficient_update_t) * tile_count);
     for (int i = 0; i < tile_count; i++) {
+        assert(positions[i].size() == 2);
+        assert(starts[i].size() == 3);
         packet[i].coefficient = coefficients[i];
         packet[i].posCol = positions[i][0];
         packet[i].posRow = positions[i][1];
         packet[i].startX = starts[i][0];
         packet[i].startY = starts[i][1];
+        packet[i].startP = starts[i][2];
         packet[i].sizeW = size[0];
         packet[i].sizeH = size[1];
     }
@@ -706,17 +712,49 @@ void ClNddiDisplay::FillCoefficientTiles(vector<int> &coefficients,
 void ClNddiDisplay::FillScaler(Scaler scaler,
                                vector<unsigned int> &start,
                                vector<unsigned int> &end) {
-    // TODO(CDE): Implement #MultiPlaneCL
+    assert(start.size() == 3);
+    assert(end.size() == 3);
+
+    // Register transmission cost first
+    costModel->registerTransmissionCharge(BYTES_PER_SCALER * 1 +               // One scaler
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(2),  // Two Coefficient Plane Coordinate triples
+                                          0);
+
+    // Fill the coefficient matrices
+    clCoefficientPlane_->FillScaler(scaler, start, end);
+
+#ifdef SUPRESS_EXCESS_RENDERING
+    changed_ = true;
+#else
+    Render();
+#endif
 }
 
 
 void ClNddiDisplay::FillScalerTiles(vector<uint64_t> &scalers,
                                     vector<vector<unsigned int> > &starts,
                                     vector<unsigned int> &size) {
-    // TODO(CDE): Implement #MultiPlaneCL
+    // TODO(CDE): Implement
+    assert(0 && "Not yet implemented.");
 }
+
 void ClNddiDisplay::FillScalerTileStack(vector<uint64_t> &scalers,
                                         vector<unsigned int> &start,
                                         vector<unsigned int> &size) {
-    // TODO(CDE): Implement #MultiPlaneCL
+    assert(start.size() == 3);
+    assert(size.size() == 2);
+
+    // Register transmission cost first
+    costModel->registerTransmissionCharge(BYTES_PER_SCALER * size[2] +         // One tile for each tile in the stack
+                                          CALC_BYTES_FOR_CP_COORD_TRIPLES(2),  // Two Coefficient Plane Coordinate triples
+                                          0);
+
+    // TODO(CDE): Finish implementing
+    assert(0 && "Not yet implemented.");
+
+#ifdef SUPRESS_EXCESS_RENDERING
+    changed_ = true;
+#else
+    Render();
+#endif
 }

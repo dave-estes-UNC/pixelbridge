@@ -16,7 +16,8 @@ using namespace nddi;
 class ClCoefficientPlanes : public CoefficientPlanes {
 
 private:
-    cl_mem            clBuffer_;
+    cl_mem            clCoeffBuffer_;
+    cl_mem            clScalerBuffer_;
     cl_context        clContext_;
     cl_command_queue  clQueue_;
 
@@ -78,9 +79,11 @@ public:
         if (coefficients_)
             free(coefficients_);
 
-        // Release CL mem buffer
-        if (clBuffer_ != 0)
-            clReleaseMemObject(clBuffer_);
+        // Release CL mem buffers
+        if (clCoeffBuffer_ != 0)
+            clReleaseMemObject(clCoeffBuffer_);
+        if (clScalerBuffer_ != 0)
+            clReleaseMemObject(clScalerBuffer_);
     }
 
     void PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &location) {
@@ -107,7 +110,7 @@ public:
         }
 
         // Enqueue CL commands
-        int err = clEnqueueWriteBuffer(clQueue_, clBuffer_, CL_TRUE,
+        int err = clEnqueueWriteBuffer(clQueue_, clCoeffBuffer_, CL_TRUE,
                                        offset * coefficientSize_,
                                        matrixSize_,
                                        coefficients_,
@@ -163,7 +166,7 @@ public:
         const size_t origin[3] = {start[0] * matrixSize_, start[1], start[2]};
         const size_t region[3] = {(end[0] - start[0] + 1) * matrixSize_, end[1] - start[1] + 1, end[2] - start[2] + 1};
 
-        int err = clEnqueueWriteBufferRect(clQueue_, clBuffer_, CL_FALSE,
+        int err = clEnqueueWriteBufferRect(clQueue_, clCoeffBuffer_, CL_FALSE,
                                            origin, origin, region,
                                            row_pitch, slice_pitch, row_pitch, slice_pitch,
                                            coefficients_, 0, NULL, NULL);
@@ -213,7 +216,7 @@ public:
         const size_t origin[3] = {start[0] * matrixSize_, start[1], start[2]};
         const size_t region[3] = {(end[0] - start[0] + 1) * matrixSize_, end[1] - start[1] + 1, end[2] - start[2] + 1};
 
-        int err = clEnqueueWriteBufferRect(clQueue_, clBuffer_, CL_FALSE,
+        int err = clEnqueueWriteBufferRect(clQueue_, clCoeffBuffer_, CL_FALSE,
                                            origin, origin, region,
                                            row_pitch, slice_pitch, row_pitch, slice_pitch,
                                            coefficients_, 0, NULL, NULL);
@@ -229,13 +232,51 @@ public:
     void FillScaler(Scaler scaler,
                     vector<unsigned int> &start,
                     vector<unsigned int> &end) {
-        // TODO(CDE): Implement this #MultiPlaneCL
-    }
 
-    void FillScalerStack(vector<uint64_t> &scalers,
-                         vector<unsigned int> &start,
-                         vector<unsigned int> &size) {
-        // TODO(CDE): Implement this #MultiPlaneCL
+        assert(start.size() == 3);
+        assert(start[0] < width_);
+        assert(start[1] < height_);
+        assert(start[2] < numPlanes_);
+        assert(end.size() == 3);
+        assert(end[0] < width_);
+        assert(end[1] < height_);
+        assert(end[2] < numPlanes_);
+
+        vector<unsigned int> position = start;
+        unsigned int stride = end[0] - start[0] + 1;
+        unsigned int rowCount = end[1] - start[1] + 1;
+        unsigned int planeCount = end[2] - start[2] + 1;
+
+        // Copy matrices into coefficients_ and enqueue as one large write
+        unsigned int offset;
+        for (size_t p = start[2]; p <= end[2]; p++) {
+            for (size_t y = start[1]; y <= end[1]; y++) {
+                for (size_t x = start[0]; x <= end[0]; x++) {
+                    offset = p * height_ * width_ + y * width_ + x;
+                    scalers_[offset] = scaler.r; offset++;
+                    scalers_[offset] = scaler.g; offset++;
+                    scalers_[offset] = scaler.b; offset++;
+                }
+            }
+        }
+
+        // Copy the rectangular region of scalers to the compute device
+        size_t row_pitch = matrixSize_ * width_;
+        size_t slice_pitch = matrixSize_ * width_ * height_;
+        const size_t origin[3] = {start[0] * scalerSize_, start[1], start[2]};
+        const size_t region[3] = {(end[0] - start[0] + 1) * scalerSize_, end[1] - start[1] + 1, end[2] - start[2] + 1};
+
+        int err = clEnqueueWriteBufferRect(clQueue_, clScalerBuffer_, CL_FALSE,
+                                           origin, origin, region,
+                                           row_pitch, slice_pitch, row_pitch, slice_pitch,
+                                           scalers_, 0, NULL, NULL);
+        if (err != CL_SUCCESS) {
+            cout << __FUNCTION__ <<  " - Err: (" << err << ") - Failed to create enqueue write buffer rect command." << endl;
+        }
+
+        // Update Cost Model
+        costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, READ_ACCESS, scalers_, scalerSize_* stride * rowCount * planeCount, 0);
+        costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, scalers_, scalerSize_* stride * rowCount * planeCount, 0);
     }
 
     cl_mem initializeCl(cl_context context, cl_command_queue queue) {
@@ -244,15 +285,23 @@ public:
         clContext_ = context;
         clQueue_ = queue;
 
-        // Create CL mem buffer
-        clBuffer_ = clCreateBuffer(clContext_, CL_MEM_READ_ONLY,
+        // Create CL mem buffers
+        clCoeffBuffer_ = clCreateBuffer(clContext_, CL_MEM_READ_ONLY,
                                    matrixSize_ * width_ * height_ * numPlanes_, NULL, NULL);
-        return clBuffer_ ;
+        clScalerBuffer_ = clCreateBuffer(clContext_, CL_MEM_READ_ONLY,
+                                   scalerSize_ * width_ * height_ * numPlanes_, NULL, NULL);
+
+        return clCoeffBuffer_ ;
     }
 
     // TODO(CDE): Remove this garbage
-    cl_mem getClBuffer() {
-        return clBuffer_;
+    cl_mem getClCoeffBuffer() {
+        return clCoeffBuffer_;
+    }
+
+    // TODO(CDE): Remove this garbage
+    cl_mem getClScalerBuffer() {
+        return clScalerBuffer_;
     }
 
 };
