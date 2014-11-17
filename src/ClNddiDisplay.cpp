@@ -68,6 +68,9 @@ ClNddiDisplay::ClNddiDisplay(vector<unsigned int> &frameVolumeDimensionalSizes,
     // TODO(CDE): Revisit this maximum when I start using the command packet to update the coefficient plane
     maxCommandPacketSize_ = (4 * 2) + (displayWidth_ / 8 + 1) * (displayHeight / 8 + 1) * (4 * (8 * 8 + 3));
 
+    // Set the full scaler and the accumulator
+    SetFullScaler(DEFAULT_FULL_SCALER);
+
     // Initialize GL Texture
     InitializeGl();
 
@@ -244,7 +247,7 @@ void ClNddiDisplay::InitializeCl() {
     clFrameVolume_->setCommandPacket(clCommandPacket_, maxCommandPacketSize_);
 
     cl_uint cm_dims[2] = { CM_WIDTH, CM_HEIGHT };
-    cl_uint display_dims[2] = { displayWidth_, displayHeight_ };
+    cl_uint display_dims[3] = { displayWidth_, displayHeight_, numPlanes_ };
 
     // Set the arguments to our computePixel kernel
     err  = clSetKernelArg(clKernelComputePixel_, 0, sizeof(cl_mem), &inputVectorBuffer);
@@ -257,6 +260,9 @@ void ClNddiDisplay::InitializeCl() {
     err |= clSetKernelArg(clKernelComputePixel_, 7, sizeof(cl_uint), &cm_dims[1]);
     err |= clSetKernelArg(clKernelComputePixel_, 8, sizeof(cl_uint), &display_dims[0]);
     err |= clSetKernelArg(clKernelComputePixel_, 9, sizeof(cl_uint), &display_dims[1]);
+    err |= clSetKernelArg(clKernelComputePixel_, 10, sizeof(cl_uint), &display_dims[2]);
+    err |= clSetKernelArg(clKernelComputePixel_, 11, sizeof(cl_uint), &accumulatorShifter_);
+    err |= clSetKernelArg(clKernelComputePixel_, 12, sizeof(cl_bool), &pixelSignMode_);
     if (err != CL_SUCCESS) {
         cout << "Failed to set computePixel kernel arguments." << endl;
         Cleanup(true);

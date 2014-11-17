@@ -44,10 +44,6 @@ public:
      */
     void SimulateRender();
 
-    void SetPixelByteSignMode(SignMode mode);
-    void SetFullScaler(uint16_t scaler);
-    uint16_t GetFullScaler() { return fullScaler; }
-
 private:
     void Render();
     nddi::Pixel ComputePixel(unsigned int x, unsigned int y);
@@ -58,9 +54,6 @@ private:
 
 
 protected:
-    SignMode  pixelSignMode_;
-    uint16_t  fullScaler;
-    size_t    accumulatorShifter_;
     GLuint    texture_;
     Pixel    *frameBuffer_;
 };

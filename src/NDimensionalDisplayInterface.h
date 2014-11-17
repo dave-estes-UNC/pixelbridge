@@ -53,8 +53,8 @@ namespace nddi {
      * Options for pixel byte sign mode.
      */
     typedef enum {
-        UNSIGNED_MODE,
-        SIGNED_MODE
+        UNSIGNED_MODE = 0,
+        SIGNED_MODE = 1
     } SignMode;
 
     /**

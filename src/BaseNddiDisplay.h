@@ -66,6 +66,23 @@ namespace nddi {
         CoefficientPlanes* coefficientPlanes_;
 
         /**
+         * Holds the setting that determines if accumulation math is signed or not.
+         */
+        SignMode  pixelSignMode_;
+
+        /**
+         * The current setting for a Full Scaler. For example, if it was 256, then a value
+         * of 256 is full on, a value of 128 is half on, etc. Must be a power of two.
+         */
+        uint16_t  fullScaler_;
+
+        /**
+         * The fullScaler is used to set this shift amount, which is used once an entire stack of
+         * pixels is accumulated.
+         */
+        size_t    accumulatorShifter_;
+
+        /**
          * The CostModel for this display.
          */
         CostModel* costModel;
@@ -105,6 +122,9 @@ namespace nddi {
         void FillScaler(Scaler scaler, vector<unsigned int> &start, vector<unsigned int> &end);
         void FillScalerTiles(vector<uint64_t> &scalers, vector<vector<unsigned int> > &starts, vector<unsigned int> &size);
         void FillScalerTileStack(vector<uint64_t> &scalers, vector<unsigned int> &start, vector<unsigned int> &size);
+        void SetPixelByteSignMode(SignMode mode);
+        void SetFullScaler(uint16_t scaler);
+        uint16_t GetFullScaler() { return fullScaler_; }
         void Mute() { quiet_ = true; }
         void Unmute() { quiet_ = false; }
         CostModel* GetCostModel();

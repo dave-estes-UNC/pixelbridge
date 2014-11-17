@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cassert>
+#include <cmath>
 
 #include "PixelBridgeFeatures.h"
 #include "BaseNddiDisplay.h"
@@ -406,6 +407,24 @@ void BaseNddiDisplay::FillScalerTileStack(vector<uint64_t> &scalers,
 #else
     Render();
 #endif
+}
+
+void BaseNddiDisplay::SetPixelByteSignMode(SignMode mode) {
+    assert(mode == UNSIGNED_MODE || mode == SIGNED_MODE);
+    pixelSignMode_ = mode;
+}
+
+void BaseNddiDisplay::SetFullScaler(uint16_t scaler) {
+    if (scaler & (scaler- 1)) {
+        cout << "ERROR: THE FULL_SCALER specified is not a power of two." << endl;
+    } else {
+        // Set the full scaler
+        fullScaler_ = scaler;
+
+        // Initialize the shifter used during accumulation
+        double s = log2((double)fullScaler_);
+        accumulatorShifter_ = int(s);
+    }
 }
 
 CostModel* BaseNddiDisplay::GetCostModel() {

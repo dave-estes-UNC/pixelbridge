@@ -166,7 +166,7 @@ public:
 
     void CopyPixels(Pixel* p, vector<unsigned int> &start, vector<unsigned int> &end) {
 
-        vector<unsigned int>  position = start;
+        vector<unsigned int>       position = start;
         bool                       copyFinished = false;
         int                        pixelsCopied = 0;
         unsigned long              time = 0;
@@ -389,12 +389,13 @@ public:
         costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * pixelsCopied, 0);
     }
 
-    // TODO(CDE): Implement for CL
     void FillPixel(Pixel p, vector<unsigned int> &start, vector<unsigned int> &end) {
 
-        vector<unsigned int> position = start;
-        bool fillFinished = false;
-        int pixelsFilled = 0;
+        vector<unsigned int>       position = start;
+        bool                       fillFinished = false;
+        int                        pixelsFilled = 0;
+        unsigned long              time = 0;
+        cl_event *                 pEvent = NULL;
 
         // Move from start to end, filling in each location with the provided pixel
         do {
@@ -420,6 +421,105 @@ public:
         } while (!fillFinished);
 
         // Enqueue CL commands
+        size_t buffer_origin[3] = { 0, 0, 0 };
+        size_t host_origin[3] = { 0, 0, 0 };
+        size_t region[3] = { 1, 1, 1 };
+        size_t p_row_pitch = 0, p_slice_pitch = 0;
+
+        // Setup enqueue parameters that are unchanged within the loop
+        switch (position.size()) {
+            case 3:
+                buffer_origin[2] = position[2];
+                region[2] = end[2] - start[2] + 1;
+                // slice pitch is effectively region[1] * region[0] * sizeof(Pixel)
+                p_slice_pitch = (end[1] - start[1] + 1) * (end[0] - start[0] + 1) * sizeof(Pixel);
+                // No break
+            case 2:
+                buffer_origin[1] = position[1];
+                region[1] = end[1] - start[1] + 1;
+                // row pitch is effectively region[0] * sizeof(Pixel)
+                p_row_pitch = (end[0] - start[0] + 1) * sizeof(Pixel);
+                // No break
+            case 1:
+                buffer_origin[0] = position[0] * sizeof(Pixel);
+                region[0] = (end[0] - start[0] + 1) * sizeof(Pixel);
+                // No break
+            default:
+                break;
+        }
+
+        // Copy 3D volumes at a time
+        fillFinished = false;
+        do {
+            // Enqueue CL command
+            if (clQueue_ && clBuffer_) {
+
+#ifdef CL_PROFILING_ENABLED
+                cl_event event;
+                cl_ulong startTime, endTime;
+
+                pEvent = &event;
+#endif
+
+                int err = clEnqueueWriteBufferRect(clQueue_, clBuffer_, CL_FALSE,
+                                                   buffer_origin,
+                                                   host_origin,
+                                                   region,
+                                                   fv_row_pitch_, fv_slice_pitch_,
+                                                   p_row_pitch, p_slice_pitch,
+                                                   pixels_, 0, NULL, pEvent);
+                if (err != CL_SUCCESS) {
+                    cout << __FUNCTION__ << " - Failed to create enqueue write buffer command." << err << endl;
+                }
+
+#ifdef CL_PROFILING_ENABLED
+                // TODO(CDE): Consider not calling clFinish() here and instead just track each individual even for every command
+                //            we send for a frame update. Then after clFinish() is called for rendering, go back and fetch the
+                //            profile information for each event.
+                clFinish(clQueue_);
+                clGetEventProfilingInfo(event,
+                                        CL_PROFILING_COMMAND_START,
+                                        sizeof(cl_ulong),
+                                        &startTime,
+                                        NULL);
+                clGetEventProfilingInfo(event,
+                                        CL_PROFILING_COMMAND_END,
+                                        sizeof(cl_ulong),
+                                        &endTime,
+                                        NULL);
+                time += (unsigned long)(endTime - startTime);
+#endif
+
+            } else {
+                cout << __FUNCTION__ << " - Still null?." << endl;
+            }
+
+            if (dimensionalSizes_.size() <= 3) {
+                fillFinished = true;
+            } else {
+                // Move to the next position
+                int fvDim = 3; // Starting at 4th dimension since we're copying full xyz volumes at a time
+                bool overflow;
+                do {
+                    overflow = false;
+                    position[fvDim]++;
+                    if ( (position[fvDim] >= dimensionalSizes_[fvDim])
+                        || (position[fvDim] > end[fvDim]) ) {
+                        overflow = true;
+                        position[fvDim] = start[fvDim];
+                        if (++fvDim >= dimensionalSizes_.size())
+                            fillFinished = true;
+                    }
+                } while (overflow && !fillFinished);
+
+                // Update host_origin[2] and buffer_origin[2] to copy the next cubic region
+                host_origin[2] += p_slice_pitch * region[2];
+                buffer_origin[2] += fv_slice_pitch_ * region[2];
+            }
+        } while (!fillFinished);
+
+        // Register memory charge
+        costModel_->registerMemoryCharge(FRAME_VOLUME_COMPONENT, WRITE_ACCESS, NULL, 4 * pixelsFilled, time);
     }
 
     // TODO(CDE): Implement for CL

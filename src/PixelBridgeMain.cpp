@@ -112,10 +112,14 @@ void setupDisplay() {
         fvDimensions.push_back(displayHeight);
         fvDimensions.push_back(3);
 
+#ifndef NO_CL
+        assert(0 && "FrameVolume blending mode not supported in the OpenCL version of NDDI display.");
+#else
         myBlendingDisplay = new BlendingGlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                                       displayWidth, displayHeight, // display size
                                                       1,                           // number of coefficient planes
                                                       3);                            // input vector size (x, y, 1)
+#endif
         myDisplay = myBlendingDisplay;
 
         // Grab the cost model
@@ -165,10 +169,17 @@ void setupDisplay() {
         fvDimensions.push_back(displayHeight);
         fvDimensions.push_back(2);
 
+#ifndef NO_CL
+        myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
+                                      displayWidth, displayHeight, // display size
+                                      1,                           // number of coefficient planes on the display
+                                      3);                          // input vector size (x, y, t)
+#else
         myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       1,                           // number of coefficient planes on the display
                                       3);                          // input vector size (x, y, t)
+#endif
 
         // Grab the cost model
         costModel = myDisplay->GetCostModel();
@@ -217,10 +228,17 @@ void setupDisplay() {
         fvDimensions.push_back(displayHeight);
         fvDimensions.push_back(2);
 
+#ifndef NO_CL
+        myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
+                                      displayWidth, displayHeight, // display size
+                                      2,                           // number of coefficient planes on the display
+                                      3);                          // input vector size (x, y, 1)
+#else
         myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       2,                           // number of coefficient planes on the display
                                       3);                          // input vector size (x, y, 1)
+#endif
 
         // Grab the cost model
         costModel = myDisplay->GetCostModel();

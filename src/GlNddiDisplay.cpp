@@ -1,7 +1,6 @@
 #include <iostream>
 #include <stdio.h>
 #include <sys/time.h>
-#include <cmath>
 
 #include "PixelBridgeFeatures.h"
 #include "GlNddiDisplay.h"
@@ -376,22 +375,4 @@ Pixel* GlNddiDisplay::GetFrameBuffer() {
 #endif
 
     return frameBuffer_;
-}
-
-void GlNddiDisplay::SetPixelByteSignMode(SignMode mode) {
-    assert(mode == UNSIGNED_MODE || mode == SIGNED_MODE);
-    pixelSignMode_ = mode;
-}
-
-void GlNddiDisplay::SetFullScaler(uint16_t scaler) {
-    if (scaler & (scaler- 1)) {
-        cout << "ERROR: THE FULL_SCALER specified is not a power of two." << endl;
-    } else {
-        // Set the full scaler
-        fullScaler = scaler;
-
-        // Initiliaze the shifter used during accumulation
-        double s = log2((double)fullScaler);
-        accumulatorShifter_ = int(s);
-    }
 }

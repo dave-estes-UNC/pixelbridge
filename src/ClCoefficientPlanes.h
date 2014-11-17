@@ -261,8 +261,8 @@ public:
         }
 
         // Copy the rectangular region of scalers to the compute device
-        size_t row_pitch = matrixSize_ * width_;
-        size_t slice_pitch = matrixSize_ * width_ * height_;
+        size_t row_pitch = scalerSize_ * width_;
+        size_t slice_pitch = scalerSize_ * width_ * height_;
         const size_t origin[3] = {start[0] * scalerSize_, start[1], start[2]};
         const size_t region[3] = {(end[0] - start[0] + 1) * scalerSize_, end[1] - start[1] + 1, end[2] - start[2] + 1};
 

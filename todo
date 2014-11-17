@@ -56,9 +56,9 @@ x Re-run all of the original experiments including the new video-based tilers.
     - ClCoefficientPlanes.FillCoefficientMatrix()
     - ClCoefficientPlanes.FillCoefficient()
     - ClCoefficientPlanes.FillScaler()
+  - Change computePixel.cl to blend the planes. Test blending mode before dct.
   - Add the ClCoefficientPlanes support for scalers
     - Implement FillScalerTileStack API for ClNddiDisplay.
-  - Change computePixel.cl to blend the planes. Test blending mode before dct.
 
 - Add multi-scale DCT support
 
