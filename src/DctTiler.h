@@ -16,6 +16,21 @@ using namespace nddi;
 using namespace std;
 
 /**
+ * Multiscale Support allows the DCT Tiler to use scaled 8x8 super-macroblocks
+ * at multiple scales. The frame will be first approximated by the larger
+ * scales and then refined slowly with the lower scales. The scale_config_t pairs
+ * designate each of the scales supported, started with the top-most planes (plane 0).
+ *
+ * Note: The last plane is still reserved for medium gray, and therefore is not available
+ *       as part of this configuration.
+ */
+typedef struct {
+    size_t scale_multiplier;
+    size_t first_plane_idx;
+    size_t plane_count;
+} scale_config_t;
+
+/**
  * This tiler will split provided frames into macroblocks and will perform the forward DCT
  * and create coefficients that will be used as the scalers for the coefficient planes.
  */
@@ -53,10 +68,17 @@ DctTiler(size_t display_width, size_t display_height, size_t quality);
 void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 
 private:
-    void InitializeCoefficientPlanes();
-    void InitializeFrameVolume();
-    void initZigZag();
+void InitializeCoefficientPlanes();
+void InitializeFrameVolume();
+void initZigZag();
 void initQuantizationMatrix(size_t quality);
+uint8_t* DownSample(size_t factor, uint8_t* buffer, size_t width, size_t height);
+uint8_t* UpSample(size_t factor, uint8_t* buffer, size_t width, size_t height);
+vector<uint64_t> BuildCoefficients(size_t i, size_t j, uint8_t* buffer, size_t width, size_t height);
+void FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, scale_config_t config);
+void PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, uint8_t* buffer, size_t width, size_t height);
+void UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height);
+
 
 private:
 static const size_t  BLOCK_WIDTH = 8;

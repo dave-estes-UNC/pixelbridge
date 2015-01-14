@@ -37,7 +37,7 @@
  * channel as the final step of this NDDI-based IDCT.
  */
 
-/**
+/*
  * Using a #define because it's used for floats and ints.
  */
 #define CLAMP(x, min, max)   (x < min ? min : x >= max ? max : x)
@@ -47,6 +47,10 @@
 #define SQRT_125             0.353553391
 #define SQRT_250             0.5
 
+/*
+ * The current configuration. See comment for scale_config_t in DctTiler.h for more info.
+ */
+scale_config_t multiscale_configuration[] = {{1, 0, 63}};
 
 /**
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
@@ -206,6 +210,11 @@ void DctTiler::InitializeCoefficientPlanes() {
 
     Scaler s;
 
+    /*
+     * Perform the basic initialization, which ignores the scaling. Will
+     * adjust those coefficients afterwards.
+     */
+
     // Setup the coefficient matrix to complete 3x3 identity initially
     vector< vector<int> > coeffs;
     coeffs.resize(3);
@@ -218,7 +227,7 @@ void DctTiler::InitializeCoefficientPlanes() {
     start.push_back(0); start.push_back(0); start.push_back(0);
     end.push_back(0); end.push_back(0); end.push_back(0);
 
-    // Break the display into macroblocks and initialize each 8x8x64 cube of coefficients to pick out the proper block from the frame volume
+    // Break the display into macroblocks and initialize each cube of coefficients to pick out the proper block from the frame volume
     for (int j = 0; j < displayTilesHigh_; j++) {
         for (int i = 0; i < displayTilesWide_; i++) {
             coeffs[2][0] = -i * BLOCK_WIDTH;
@@ -250,6 +259,58 @@ void DctTiler::InitializeCoefficientPlanes() {
     start[2] = display_->NumCoefficientPlanes() - 1;
     s.r = s.g = s.b = display_->GetFullScaler();
     display_->FillScaler(s, start, end);
+
+
+    /*
+     * Now go through the multiscale configuration and adjust the coefficients.
+     */
+
+    // For each of the configurations
+    size_t p = 0;
+    for (int c = 0; c < sizeof(multiscale_configuration) / sizeof(*multiscale_configuration); c++) {
+
+        scale_config_t config = multiscale_configuration[c];
+
+        // Adjust the tx and ty coefficients for each supermacroblock
+        if (config.scale_multiplier > 1) {
+
+            // Break up the display into supermacroblocks at this current scale
+            for (int j = 0; j < displayTilesHigh_ / config.scale_multiplier; j++) {
+                for (int i = 0; i < displayTilesWide_ / config.scale_multiplier; i++) {
+                    for (int y = 0; y < BLOCK_HEIGHT * config.scale_multiplier; y++) {
+                        for (int x = 0; x < BLOCK_WIDTH * config.scale_multiplier; x++) {
+                            start[0] = i * BLOCK_WIDTH * config.scale_multiplier + x;
+                            start[1] = j * BLOCK_HEIGHT * config.scale_multiplier + y;
+                            start[2] = p;
+                            end[0] = i * BLOCK_WIDTH * config.scale_multiplier + x;
+                            end[1] = j * BLOCK_HEIGHT * config.scale_multiplier + y;
+                            end[2] = p + config.plane_count - 1;
+                            display_->FillCoefficient(-i * BLOCK_WIDTH * config.scale_multiplier - x + x / config.scale_multiplier,
+                                                      2, 0, start, end);
+                            display_->FillCoefficient(-j * BLOCK_HEIGHT * config.scale_multiplier - y + y / config.scale_multiplier,
+                                                      2, 1, start, end);
+                        }
+                    }
+                }
+            }
+
+        }
+
+        // Adjust the k coefficient for each supermacroblock. This will be done one plane
+        // at a time starting with the topmost plane (0) and the first configuration. The
+        // k used won't necessarily match the plane, because of the configuration.
+        start[0] = 0; start[1] = 0;
+        end[0] = display_->DisplayWidth() - 1; end[1] = display_->DisplayHeight() - 1;
+        for (int k = config.first_plane_idx;
+             k < config.first_plane_idx + config.plane_count;
+             k++)
+        {
+            start[2] = p; end[2] = p;
+            display_->FillCoefficient(k, 2, 2, start, end);
+            p++;
+        }
+    }
+
 }
 
 /**
@@ -345,6 +406,153 @@ void DctTiler::InitializeFrameVolume() {
 
     // Free the pixel memory
     free(pixels);
+}
+
+
+/**
+ * Takes a 24-bit pixel buffer and downsamples it by a factor with simple averaging. The source
+ * buffer is likely not an even multiple of the factor provided, so edge "blocks" will use black
+ * for any overscan pixels.
+ *
+ * @param factor The positive integer to scale by. Should likely be a power of two.
+ * @param buffer The 24-bit RGB buffer.
+ * @param width The width of the source buffer.
+ * @param height The height of the source buffer.
+ * @return The newly malloc'd buffer. Callee must free.
+ */
+uint8_t* DctTiler::DownSample(size_t factor, uint8_t* buffer, size_t width, size_t height) {
+
+    size_t scaledHeight = CEIL(height, factor);
+    size_t scaledWidth = CEIL(width, factor);
+    uint8_t* ret = (uint8_t*)malloc(sizeof(uint8_t) * 3 * scaledWidth * scaledHeight);
+
+    for (size_t j = 0; j < scaledHeight; j++) {
+        for (size_t i = 0; i < scaledWidth; i++) {
+            unsigned int r, g, b, a;
+            r = g = b = a = 0;
+
+            // Sum the pixels over the larger region
+            for (size_t y = j * scaledHeight; y < j * scaledHeight + factor && y < height; y++) {
+                for (size_t x = i * scaledWidth; x < i * scaledWidth + factor && x < width; x++) {
+                    size_t p = (y * width + x) * 3;
+                    r += buffer[p + 0];
+                    g += buffer[p + 1];
+                    b += buffer[p + 2];
+                }
+            }
+
+            // And take the average as the return pixel for (i, j)
+            size_t p = (j * scaledWidth + i) * 3;
+            ret[p + 0] = r / factor;
+            ret[p + 1] = g / factor;
+            ret[p + 2] = b / factor;
+        }
+    }
+
+    return ret;
+}
+
+/**
+ * Takes a previously downsampled 24-bit pixel buffer and upsamples it by a factor. The destination
+ * buffer is likely not an even multiple of the factor provided, so any overscanned pixels will
+ * be clamped.
+ *
+ * @param factor The positive integer to scale by. Should likely be a power of two.
+ * @param buffer The 24-bit RGB source buffer.
+ * @param width The width of the *destination* buffer.
+ * @param height The height of the *destination* buffer.
+ * @return The newly malloc'd destination buffer. Callee must free.
+ */
+uint8_t* DctTiler::UpSample(size_t factor, uint8_t* buffer, size_t width, size_t height) {
+
+    size_t scaledHeight = CEIL(height, factor);
+    size_t scaledWidth = CEIL(width, factor);
+    uint8_t* ret = (uint8_t*)malloc(sizeof(uint8_t) * 3 * width * height);
+
+    for (size_t j = 0; j < scaledHeight; j++) {
+        for (size_t i = 0; i < scaledWidth; i++) {
+            uint8_t r, g, b;
+
+            size_t p = (j * scaledWidth + i) * 3;
+            r = buffer[p + 0];
+            g = buffer[p + 1];
+            b = buffer[p + 2];
+
+            for (size_t y = j * scaledHeight; y < j * scaledHeight + factor && y < height; y++) {
+                for (size_t x = i * scaledWidth; x < i * scaledWidth + factor && x < width; x++) {
+                    size_t p = (y * width + x) * 3;
+
+                    ret[p + 0] = r;
+                    ret[p + 1] = b;
+                    ret[p + 2] = g;
+                }
+            }
+       }
+    }
+
+    return ret;
+}
+
+/**
+ * Builds the coefficients for the macroblock specified by (i, j) using the source buffer.
+ *
+ * @param i The column component of the macroblock
+ * @param j The row component of the macroblock
+ * @param buffer The source buffer. Note this may or may not be a downscaled image.
+ * @param width The width of the source buffer
+ * @param height The height of the source buffer
+ * @return The vector (in zig-zag order) of 4-channel scalers.
+ */
+vector<uint64_t> DctTiler::BuildCoefficients(size_t i, size_t j, uint8_t* buffer, size_t width, size_t height) {
+    // TODO(CDE): Implement
+
+    vector<uint64_t> coefficients(BLOCK_SIZE, 0);
+
+    return coefficients;
+}
+
+/**
+ * Takes the coefficients computed for a macroblock and fills them to a region of the display.
+ * If a factor greater than one is provided in the config, then this implies that the coefficients were built
+ * for a particular macroblock size, but that they are being filled to a larger region of the
+ * the display. e.g. Given an 8x8 macroblock, a macroblock location (i, j) of (2, 1) and a factor of
+ * 4: the region of the display that will be updated is from (64, 32) to (95, 63) inclusive.
+ *
+ * @param coefficients The vector (in zig-zag order) of coefficients for the macroblock
+ * @param i The column component of the macroblock
+ * @param j The row component of the macroblock
+ * @param config Information about the factor by which we're scaling and which planes to fill
+ */
+void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, scale_config_t config) {
+    // TODO(CDE): Implement
+}
+
+/**
+ * Given the set of coefficients, this routine will simulate a rendering using the specified set of planes.
+ * The result is rendered back to the buffer provided into the macroblock specified by (i, j).
+ *
+ * @param coefficients The vector (in zig-zag order) of coefficients for the macroblock
+ * @param i The column component of the macroblock
+ * @param j The row component of the macroblock
+ * @param buffer The destination buffer
+ * @param width The width of the destination buffer
+ * @param width The height of the destination buffer
+ */
+void DctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, uint8_t* buffer, size_t width, size_t height) {
+    // TODO(CDE): Implement
+}
+
+void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height) {
+    // TODO(CDE): Implement
+
+    // For each scale level
+    // 1. Downsample the image - DownSample()
+    // 2. For each macroblock in downsampled image
+    //   a. Build coefficients - BuildCoefficients()
+    //   b. Fill coefficients to super-macroblock's coefficient scalers - FillCoefficients()
+    //   c. Perform simulated blending of basis functions and store back to downsampled image - PrerenderCoefficients()
+    // 3. Upsample the image - UpSample()
+    // 4. Subtract the results from the original image - AdjustImage()
 }
 
 /**
