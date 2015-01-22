@@ -1,4 +1,7 @@
-TODO
+##############
+###  TODO  ###
+##############
+
 x Create new nDDI APIs to update the scaler for each coefficient matrix.
 x Correctly initialize the coefficient planes with 0 scalers (PixelBridgeMain, FlatTiler, and CachedTiler).
 x Update GlNddiDisplay rendering to use multiple coefficient planes.
@@ -60,10 +63,24 @@ x Re-run all of the original experiments including the new video-based tilers.
   - Add the ClCoefficientPlanes support for scalers
     - Implement FillScalerTileStack API for ClNddiDisplay.
 
-- Add multi-scale DCT support
-
 - Implement FillScalerTiles API for ClNddiDisplay.
 
+
+- Add multi-scale DCT support
+  - Change DCT to support to only resend middle portion of changed scalers. See TODO in DctTiler.cpp.
+  - Mode A: Fixed set of super-macro-block levels and planes per each level
+    x Add configuration mechanism to set the scales and number of planes each
+    x Set up the Coefficient Planes based on the multiscale configuration
+    - For a super-macro-block
+      x Blend groups of pixels to create 8x8 macroblock (bilinear interpolation)
+      x Perform DCT to build most significant coefficients
+      - Perform iDCT to get the output super-macro-block and subtract that from the source video to get the new current frame.
+    - Repeat at the lower levels until we're operating on normal macroblocks
+  - Mode B: Variable set of super-macro-block levels
+    - Use a heuristic to determine entropy in regions of pixels and pick a set of levels for that region.
+  - When filling coefficients, don't fill the first n set of most significant coefficients if they're zero.
+  - Implement metric to track how many most significant coefficients are not filled. Use this to tune the fixed levels for
+    Mode A and to develop the best heuristic for Mode B.
 
 - Narrow pixel size to three channels
   - Look for all of the places where we do offsets like with sizeof(unsigned int) and replace with pixelSize_;

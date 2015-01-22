@@ -50,7 +50,10 @@
 /*
  * The current configuration. See comment for scale_config_t in DctTiler.h for more info.
  */
-scale_config_t multiscale_configuration[] = {{1, 0, 63}};
+//scale_config_t multiscale_configuration[] = {{1, 0, 63}};
+//scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};
+//scale_config_t multiscale_configuration[] = {{8, 0, 8}};
+scale_config_t multiscale_configuration[] = {{4, 0, 8}};
 
 /**
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
@@ -266,7 +269,6 @@ void DctTiler::InitializeCoefficientPlanes() {
      */
 
     // For each of the configurations
-    size_t p = 0;
     for (int c = 0; c < sizeof(multiscale_configuration) / sizeof(*multiscale_configuration); c++) {
 
         scale_config_t config = multiscale_configuration[c];
@@ -274,21 +276,33 @@ void DctTiler::InitializeCoefficientPlanes() {
         // Adjust the tx and ty coefficients for each supermacroblock
         if (config.scale_multiplier > 1) {
 
+            size_t scaledBlockWidth = BLOCK_WIDTH * config.scale_multiplier;
+            size_t scaledBlockHeight = BLOCK_HEIGHT * config.scale_multiplier;
+            size_t scaledTilesWide = CEIL(display_->DisplayWidth(), scaledBlockWidth);
+            size_t scaledTilesHigh = CEIL(display_->DisplayHeight(), scaledBlockHeight);
+
             // Break up the display into supermacroblocks at this current scale
-            for (int j = 0; j < displayTilesHigh_ / config.scale_multiplier; j++) {
-                for (int i = 0; i < displayTilesWide_ / config.scale_multiplier; i++) {
-                    for (int y = 0; y < BLOCK_HEIGHT * config.scale_multiplier; y++) {
-                        for (int x = 0; x < BLOCK_WIDTH * config.scale_multiplier; x++) {
-                            start[0] = i * BLOCK_WIDTH * config.scale_multiplier + x;
-                            start[1] = j * BLOCK_HEIGHT * config.scale_multiplier + y;
-                            start[2] = p;
-                            end[0] = i * BLOCK_WIDTH * config.scale_multiplier + x;
-                            end[1] = j * BLOCK_HEIGHT * config.scale_multiplier + y;
-                            end[2] = p + config.plane_count - 1;
-                            display_->FillCoefficient(-i * BLOCK_WIDTH * config.scale_multiplier - x + x / config.scale_multiplier,
-                                                      2, 0, start, end);
-                            display_->FillCoefficient(-j * BLOCK_HEIGHT * config.scale_multiplier - y + y / config.scale_multiplier,
-                                                      2, 1, start, end);
+            for (int j = 0; j < scaledTilesHigh; j++) {
+                for (int i = 0; i < scaledTilesWide; i++) {
+                    for (int y = 0; y < scaledBlockHeight && j * scaledBlockHeight + y < display_->DisplayHeight(); y++) {
+                        for (int x = 0; x < scaledBlockWidth && i * scaledBlockWidth + x < display_->DisplayWidth(); x++) {
+
+                            start[0] = i * scaledBlockWidth + x;
+                            start[1] = j * scaledBlockHeight + y;
+                            start[2] = config.first_plane_idx;
+
+                            end[0] = i * scaledBlockWidth + x;
+                            end[1] = j * scaledBlockHeight + y;
+                            end[2] = config.first_plane_idx + config.plane_count - 1;
+
+                            int tx = -i * scaledBlockWidth - x + x / config.scale_multiplier;
+                            int ty = -j * scaledBlockHeight - y + y / config.scale_multiplier;
+
+                            assert(start[0] + tx >= 0 && start[0] + tx < BLOCK_WIDTH);
+                            assert(start[1] + ty >= 0 && start[1] + ty < BLOCK_HEIGHT);
+
+                            display_->FillCoefficient(tx, 0, 2, start, end);
+                            display_->FillCoefficient(ty, 1, 2, start, end);
                         }
                     }
                 }
@@ -301,12 +315,13 @@ void DctTiler::InitializeCoefficientPlanes() {
         // k used won't necessarily match the plane, because of the configuration.
         start[0] = 0; start[1] = 0;
         end[0] = display_->DisplayWidth() - 1; end[1] = display_->DisplayHeight() - 1;
+        int p = 0;
         for (int k = config.first_plane_idx;
              k < config.first_plane_idx + config.plane_count;
              k++)
         {
-            start[2] = p; end[2] = p;
-            display_->FillCoefficient(k, 2, 2, start, end);
+            start[2] = k; end[2] = k;
+            display_->FillCoefficient(p, 2, 2, start, end);
             p++;
         }
     }
@@ -321,15 +336,14 @@ void DctTiler::InitializeCoefficientPlanes() {
  */
 void DctTiler::InitializeFrameVolume() {
 
-    Pixel  *pixels;
     size_t  pixels_size = sizeof(Pixel)            // pixel size
                          * BLOCK_SIZE              // size of each x,y plane
                          * FRAMEVOLUME_DEPTH;      // number of basis functions for each color channel
                                                    //   plus one medium gray plane
 
 
-    pixels = (Pixel *)malloc(pixels_size);
-    memset(pixels, 0x00, pixels_size);
+    basisFunctions_ = (Pixel *)malloc(pixels_size);
+    memset(basisFunctions_, 0x00, pixels_size);
 
     // Pre-render each basis function
 #ifndef NO_OMP
@@ -373,10 +387,10 @@ void DctTiler::InitializeFrameVolume() {
                     }
 
                     // Set the color channels with the magnitude clamped to 127
-                    pixels[p].r = c;
-                    pixels[p].g = c;
-                    pixels[p].b = c;
-                    pixels[p].a = 0xff;
+                    basisFunctions_[p].r = c;
+                    basisFunctions_[p].g = c;
+                    basisFunctions_[p].b = c;
+                    basisFunctions_[p].a = 0xff;
 
                     // Move to the next pixel
                     p++;
@@ -390,10 +404,10 @@ void DctTiler::InitializeFrameVolume() {
     for (int y = 0; y < BLOCK_HEIGHT; y++) {
         for (int x = 0; x < BLOCK_WIDTH; x++) {
             unsigned int c = 0x7f;
-            pixels[p].r = c;
-            pixels[p].g = c;
-            pixels[p].b = c;
-            pixels[p].a = 0xff;
+            basisFunctions_[p].r = c;
+            basisFunctions_[p].g = c;
+            basisFunctions_[p].b = c;
+            basisFunctions_[p].a = 0xff;
             p++;
         }
     }
@@ -402,10 +416,7 @@ void DctTiler::InitializeFrameVolume() {
     vector<unsigned int> start, end;
     start.push_back(0); start.push_back(0); start.push_back(0);
     end.push_back(BLOCK_WIDTH - 1); end.push_back(BLOCK_HEIGHT - 1); end.push_back(FRAMEVOLUME_DEPTH - 1);
-    display_->CopyPixels(pixels, start, end);
-
-    // Free the pixel memory
-    free(pixels);
+    display_->CopyPixels(basisFunctions_, start, end);
 }
 
 
@@ -422,9 +433,10 @@ void DctTiler::InitializeFrameVolume() {
  */
 uint8_t* DctTiler::DownSample(size_t factor, uint8_t* buffer, size_t width, size_t height) {
 
-    size_t scaledHeight = CEIL(height, factor);
     size_t scaledWidth = CEIL(width, factor);
-    uint8_t* ret = (uint8_t*)malloc(sizeof(uint8_t) * 3 * scaledWidth * scaledHeight);
+    size_t scaledHeight = CEIL(height, factor);
+
+    uint8_t* downBuf = (uint8_t*)malloc(sizeof(uint8_t) * 3 * scaledWidth * scaledHeight);
 
     for (size_t j = 0; j < scaledHeight; j++) {
         for (size_t i = 0; i < scaledWidth; i++) {
@@ -432,24 +444,26 @@ uint8_t* DctTiler::DownSample(size_t factor, uint8_t* buffer, size_t width, size
             r = g = b = a = 0;
 
             // Sum the pixels over the larger region
-            for (size_t y = j * scaledHeight; y < j * scaledHeight + factor && y < height; y++) {
-                for (size_t x = i * scaledWidth; x < i * scaledWidth + factor && x < width; x++) {
+            size_t count = 0;
+            for (size_t y = j * factor; y < j * factor + factor && y < height; y++) {
+                for (size_t x = i * factor; x < i * factor + factor && x < width; x++) {
                     size_t p = (y * width + x) * 3;
                     r += buffer[p + 0];
                     g += buffer[p + 1];
                     b += buffer[p + 2];
+                    count++;
                 }
             }
 
             // And take the average as the return pixel for (i, j)
             size_t p = (j * scaledWidth + i) * 3;
-            ret[p + 0] = r / factor;
-            ret[p + 1] = g / factor;
-            ret[p + 2] = b / factor;
+            downBuf[p + 0] = r / count;
+            downBuf[p + 1] = g / count;
+            downBuf[p + 2] = b / count;
         }
     }
 
-    return ret;
+    return downBuf;
 }
 
 /**
@@ -467,7 +481,8 @@ uint8_t* DctTiler::UpSample(size_t factor, uint8_t* buffer, size_t width, size_t
 
     size_t scaledHeight = CEIL(height, factor);
     size_t scaledWidth = CEIL(width, factor);
-    uint8_t* ret = (uint8_t*)malloc(sizeof(uint8_t) * 3 * width * height);
+
+    uint8_t* upBuf = (uint8_t*)malloc(sizeof(uint8_t) * 3 * width * height);
 
     for (size_t j = 0; j < scaledHeight; j++) {
         for (size_t i = 0; i < scaledWidth; i++) {
@@ -478,19 +493,18 @@ uint8_t* DctTiler::UpSample(size_t factor, uint8_t* buffer, size_t width, size_t
             g = buffer[p + 1];
             b = buffer[p + 2];
 
-            for (size_t y = j * scaledHeight; y < j * scaledHeight + factor && y < height; y++) {
-                for (size_t x = i * scaledWidth; x < i * scaledWidth + factor && x < width; x++) {
+            for (size_t y = j * factor; y < j * factor + factor && y < height; y++) {
+                for (size_t x = i * factor; x < i * factor + factor && x < width; x++) {
                     size_t p = (y * width + x) * 3;
-
-                    ret[p + 0] = r;
-                    ret[p + 1] = b;
-                    ret[p + 2] = g;
+                    upBuf[p + 0] = r;
+                    upBuf[p + 1] = b;
+                    upBuf[p + 2] = g;
                 }
             }
        }
     }
 
-    return ret;
+    return upBuf;
 }
 
 /**
@@ -504,9 +518,79 @@ uint8_t* DctTiler::UpSample(size_t factor, uint8_t* buffer, size_t width, size_t
  * @return The vector (in zig-zag order) of 4-channel scalers.
  */
 vector<uint64_t> DctTiler::BuildCoefficients(size_t i, size_t j, uint8_t* buffer, size_t width, size_t height) {
-    // TODO(CDE): Implement
 
+    /*
+     * Produces the de-quantized coefficients for the input buffer using the following steps:
+     *
+     * 1. Shift by subtracting 128
+     * 2. Take the 2D DCT
+     * 3. Quantize
+     * 4. De-quantize
+     */
+
+    Scaler s;
+
+    /* The coefficients are stored in this array in zig-zag order */
     vector<uint64_t> coefficients(BLOCK_SIZE, 0);
+
+    for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
+#ifndef NO_OMP
+#pragma omp parallel for ordered
+#endif
+        for (size_t u = 0; u < BLOCK_WIDTH; u++) {
+
+            double c_r = 0.0, c_g = 0.0, c_b = 0.0;
+
+            /* Calculate G for each u, v using g(x,y) shifted (1. and 2.) */
+            for (size_t y = 0; y < BLOCK_HEIGHT; y++) {
+                size_t bufPos = ((j * BLOCK_HEIGHT + y) * width + i * BLOCK_WIDTH + 0) * 3;
+                for (size_t x = 0; x < BLOCK_WIDTH; x++) {
+
+                    double p = 1.0;
+
+                    p *= (u == 0) ? SQRT_125 : SQRT_250;                                 // alpha(u)
+                    p *= (v == 0) ? SQRT_125 : SQRT_250;                                 // alpha(v)
+                    p *= cos(PI_8 * ((double)x + 0.5) * (double)u);                      // cos with x, u
+                    p *= cos(PI_8 * ((double)y + 0.5) * (double)v);                      // cos with y, v
+                    /* Fetch each channel, multiply by product p and then shift */
+                    if ( ((i * BLOCK_WIDTH + x) < width)
+                            && ((j * BLOCK_HEIGHT + y) < height) ) {
+                        c_r += p * ((double)buffer[bufPos] - 128.0); bufPos++;           // red: g(x,y) - 128
+                        c_g += p * ((double)buffer[bufPos] - 128.0); bufPos++;           // green: g(x,y) - 128
+                        c_b += p * ((double)buffer[bufPos] - 128.0); bufPos++;           // blue: g(x,y) - 128
+                    } else {
+                        bufPos += 3;
+                    }
+                }
+            }
+
+            int g_r, g_g, g_b;
+            size_t matPos = v * BLOCK_WIDTH + u;
+
+            /* Quantize G(u,v) (3.) */
+            g_r = (int)int(c_r / double(quantizationMatrix_[matPos]) + 0.5);
+            g_g = (int)int(c_g / double(quantizationMatrix_[matPos]) + 0.5);
+            g_b = (int)int(c_b / double(quantizationMatrix_[matPos]) + 0.5);
+
+            /* De-quantized G(u,v) (4.) */
+            g_r *= (int)quantizationMatrix_[matPos];
+            g_g *= (int)quantizationMatrix_[matPos];
+            g_b *= (int)quantizationMatrix_[matPos];
+
+            /* Set the coefficient in zig-zag order. */
+            size_t p = zigZag_[matPos];
+
+            /* Skip the last block, because we've used it for the medium gray block */
+            if (p == BLOCK_SIZE - 1) continue;
+
+            /* Build the scaler from the three coefficients */
+            s.packed = 0;
+            s.r = g_r;
+            s.g = g_g;
+            s.b = g_b;
+            coefficients[p] = s.packed;
+        }
+    }
 
     return coefficients;
 }
@@ -524,7 +608,24 @@ vector<uint64_t> DctTiler::BuildCoefficients(size_t i, size_t j, uint8_t* buffer
  * @param config Information about the factor by which we're scaling and which planes to fill
  */
 void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, scale_config_t config) {
-    // TODO(CDE): Implement
+
+    vector<unsigned int> start(3, 0);
+    vector<unsigned int> size(2, 0);
+
+    start[0] = i * BLOCK_WIDTH * config.scale_multiplier;
+    start[1] = j * BLOCK_HEIGHT * config.scale_multiplier;
+    start[2] = config.first_plane_idx;
+
+    size[0] = BLOCK_WIDTH * config.scale_multiplier;
+    size[1] = BLOCK_HEIGHT * config.scale_multiplier;
+
+    coefficients.resize(config.plane_count);
+
+    // TODO(CDE): Only update the scalers for this tile that are necessary. For instance, it might not be necessary to
+    //            to send over the most significant and/or least significant coefficients if they haven't changed.
+
+    /* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
+    display_->FillScalerTileStack(coefficients, start, size);
 }
 
 /**
@@ -539,20 +640,91 @@ void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t
  * @param width The height of the destination buffer
  */
 void DctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, uint8_t* buffer, size_t width, size_t height) {
-    // TODO(CDE): Implement
+#ifndef NO_OMP
+#pragma omp parallel for ordered
+#endif
+    for (size_t y = 0; y < BLOCK_HEIGHT; y++) {
+        for (size_t x = 0; x < BLOCK_WIDTH; x++) {
+            uint64_t rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
+            for (size_t p = 0; p > coefficients.size(); p++) {
+                size_t offset = p * BLOCK_WIDTH * BLOCK_HEIGHT + y * BLOCK_WIDTH + x;
+                rAccumulator += basisFunctions_[offset].r * coefficients[p];
+                gAccumulator += basisFunctions_[offset].g * coefficients[p];
+                bAccumulator += basisFunctions_[offset].b * coefficients[p];
+            }
+            size_t p = (j * BLOCK_HEIGHT * width + i * BLOCK_WIDTH) * 3;
+            buffer[p + 0] = rAccumulator / MAX_DCT_COEFF;
+            buffer[p + 1] = gAccumulator / MAX_DCT_COEFF;
+            buffer[p + 2] = bAccumulator / MAX_DCT_COEFF;
+        }
+    }
+}
+
+/**
+ * Subtracts the pre-rendered buffer from the original buffer.
+ *
+ * @param buffer The original buffer and also the destination buffer
+ * @param renderedBuffer The pre-rendered buffer from the previous scale
+ * @param width The width of both buffers
+ * @param height The height of both buffers
+ */
+void DctTiler::AdjustFrame(uint8_t* buffer, uint8_t* renderedBuffer, size_t width, size_t height) {
+#ifndef NO_OMP
+#pragma omp parallel for ordered
+#endif
+    for (size_t i = 0; i < (width * height * 3); i++) {
+        buffer[i] -= renderedBuffer[i];
+    }
 }
 
 void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height) {
-    // TODO(CDE): Implement
+
+    assert(width >= display_->DisplayWidth());
+    assert(height >= display_->DisplayHeight());
 
     // For each scale level
-    // 1. Downsample the image - DownSample()
-    // 2. For each macroblock in downsampled image
-    //   a. Build coefficients - BuildCoefficients()
-    //   b. Fill coefficients to super-macroblock's coefficient scalers - FillCoefficients()
-    //   c. Perform simulated blending of basis functions and store back to downsampled image - PrerenderCoefficients()
-    // 3. Upsample the image - UpSample()
-    // 4. Subtract the results from the original image - AdjustImage()
+    for (int c = 0; c < sizeof(multiscale_configuration) / sizeof(*multiscale_configuration); c++) {
+
+        scale_config_t config = multiscale_configuration[c];
+
+        // 1. Downsample the image - DownSample()
+        uint8_t* downBuf = DownSample(config.scale_multiplier, buffer, width, height);
+        size_t downW = CEIL(width, config.scale_multiplier);
+        size_t downH = CEIL(height, config.scale_multiplier);
+
+        // 2. For each macroblock in downsampled image
+        //   a. Build coefficients - BuildCoefficients()
+        //   b. Fill coefficients to super-macroblock's coefficient scalers - FillCoefficients()
+        //   c. Perform simulated blending of basis functions and store back to downsampled image - PrerenderCoefficients()
+        uint8_t* rendBuf = (uint8_t*)malloc(sizeof(uint8_t) * 3 * downW * downH);
+
+        size_t tilesWide = CEIL(downW, BLOCK_WIDTH);
+        size_t tilesHigh = CEIL(downH, BLOCK_HEIGHT);
+
+        for (size_t j = 0; j < tilesHigh; j++) {
+            for (size_t i = 0; i < tilesWide; i++) {
+                // a. Build coefficients - BuildCoefficients()
+                vector<uint64_t> coefficients = BuildCoefficients(i, j, downBuf, downW, downH);
+
+                // b. Fill coefficients to super-macroblock's coefficient scalers - FillCoefficients()
+                FillCoefficients(coefficients, i, j, config);
+
+                // c. Perform simulated blending of basis functions and store back to downsampled image - PrerenderCoefficients()
+                PrerenderCoefficients(coefficients, i, j, rendBuf, downW, downH);
+            }
+        }
+
+        // 3. Upsample the image - UpSample()
+        uint8_t* upBuf = UpSample(config.scale_multiplier, rendBuf, width, height);
+
+        // 4. Subtract the results from the original image - AdjustFrame()
+        AdjustFrame(buffer, upBuf, width, height);
+
+        // 5. Cleanup
+        free(downBuf);
+        free(rendBuf);
+        free(upBuf);
+    }
 }
 
 /**
@@ -565,6 +737,9 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
  */
 void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 {
+#ifdef USE_MULTISCALE_DCT
+    UpdateScaledDisplay(buffer, width, height);
+#else
     vector<unsigned int> start(3, 0);
     vector<unsigned int> size(2, 0);
     Scaler s;
@@ -672,4 +847,5 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
             display_->FillScalerTileStack(coefficients, start, size);
         }
     }
+#endif
 }

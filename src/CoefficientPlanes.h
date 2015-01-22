@@ -260,7 +260,8 @@ namespace nddi {
 
             assert(x < width_);
             assert(y < height_);
-            assert(!globalConfiguration.headless);
+            assert(p < numPlanes_);
+           assert(!globalConfiguration.headless);
 
             return coefficientMatrices_[p * width_ * height_ + y * width_ + x];
         }

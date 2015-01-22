@@ -415,7 +415,7 @@ void BaseNddiDisplay::SetPixelByteSignMode(SignMode mode) {
 }
 
 void BaseNddiDisplay::SetFullScaler(uint16_t scaler) {
-    if (scaler & (scaler- 1)) {
+    if (scaler & (scaler - 1)) {
         cout << "ERROR: THE FULL_SCALER specified is not a power of two." << endl;
     } else {
         // Set the full scaler

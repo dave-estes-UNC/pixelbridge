@@ -51,6 +51,8 @@ DctTiler(size_t display_width, size_t display_height, size_t quality);
 ~DctTiler() {
     if (tileStackHeights_)
         free(tileStackHeights_);
+    if (basisFunctions_)
+        free(basisFunctions_);
 }
 
     /**
@@ -68,33 +70,35 @@ DctTiler(size_t display_width, size_t display_height, size_t quality);
 void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 
 private:
-void InitializeCoefficientPlanes();
-void InitializeFrameVolume();
-void initZigZag();
-void initQuantizationMatrix(size_t quality);
-uint8_t* DownSample(size_t factor, uint8_t* buffer, size_t width, size_t height);
-uint8_t* UpSample(size_t factor, uint8_t* buffer, size_t width, size_t height);
-vector<uint64_t> BuildCoefficients(size_t i, size_t j, uint8_t* buffer, size_t width, size_t height);
-void FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, scale_config_t config);
-void PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, uint8_t* buffer, size_t width, size_t height);
-void UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height);
+    void InitializeCoefficientPlanes();
+    void InitializeFrameVolume();
+    void initZigZag();
+    void initQuantizationMatrix(size_t quality);
+    uint8_t* DownSample(size_t factor, uint8_t* buffer, size_t width, size_t height);
+    uint8_t* UpSample(size_t factor, uint8_t* buffer, size_t width, size_t height);
+    vector<uint64_t> BuildCoefficients(size_t i, size_t j, uint8_t* buffer, size_t width, size_t height);
+    void FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, scale_config_t config);
+    void PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, uint8_t* renderedBuffer, size_t width, size_t height);
+    void AdjustFrame(uint8_t* buffer, uint8_t* renderedBuffer, size_t width, size_t height);
+    void UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height);
 
 
 private:
-static const size_t  BLOCK_WIDTH = 8;
-static const size_t  BLOCK_HEIGHT = 8;
-static const size_t  BLOCK_SIZE = BLOCK_WIDTH * BLOCK_HEIGHT;
+    static const size_t  BLOCK_WIDTH = 8;
+    static const size_t  BLOCK_HEIGHT = 8;
+    static const size_t  BLOCK_SIZE = BLOCK_WIDTH * BLOCK_HEIGHT;
     static const size_t  FRAMEVOLUME_DEPTH = BLOCK_SIZE;
-static const size_t  BASIS_BLOCKS_WIDE = 8;
-static const size_t  BASIS_BLOCKS_TALL = 8;
-static const size_t  MAX_DCT_COEFF = 256;
+    static const size_t  BASIS_BLOCKS_WIDE = 8;
+    static const size_t  BASIS_BLOCKS_TALL = 8;
+    static const size_t  MAX_DCT_COEFF = 256;
 
-GlNddiDisplay  *display_;
-bool            quiet_;
-int             zigZag_[BLOCK_WIDTH * BLOCK_HEIGHT];
-uint8_t         quantizationMatrix_[BLOCK_WIDTH * BLOCK_HEIGHT];
+    GlNddiDisplay  *display_;
+    bool            quiet_;
+    int             zigZag_[BLOCK_WIDTH * BLOCK_HEIGHT];
+    uint8_t         quantizationMatrix_[BLOCK_WIDTH * BLOCK_HEIGHT];
+    Pixel          *basisFunctions_;
 
-uint32_t        displayTilesWide_, displayTilesHigh_;
-uint8_t        *tileStackHeights_;
+    uint32_t        displayTilesWide_, displayTilesHigh_;
+    uint8_t        *tileStackHeights_;
 };
 #endif // DCT_TILER_H

@@ -13,7 +13,7 @@
  */
 //#define NO_OMP
 //#define NO_GL
-//#define NO_CL
+#define NO_CL
 
 /*
  * Running make with NO_HACKS=1 should turn these off if using the Makefile for Linux,
@@ -52,6 +52,11 @@
 #define USE_COPY_PIXEL_TILES
 
 /*
+ * Uses multiple scales for DCT
+ */
+//#define USE_MULTISCALE_DCT
+
+/*
  * Creates random frame(s) instead of decoding video.
  */
 //#define USE_RANDOM_PLAYER
@@ -70,6 +75,6 @@
 /*
  * Used to reduce the rendered frame to a much smaller region for testing on memory constrained devices.
  */
-#define USE_SMALLER_WINDOW
+//#define USE_SMALLER_WINDOW
 
 #endif /* PIXELBRIDGEFEATURES_H_ */
