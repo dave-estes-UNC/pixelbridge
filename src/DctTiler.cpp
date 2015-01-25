@@ -51,9 +51,9 @@
  * The current configuration. See comment for scale_config_t in DctTiler.h for more info.
  */
 //scale_config_t multiscale_configuration[] = {{1, 0, 63}};
-//scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};
-//scale_config_t multiscale_configuration[] = {{8, 0, 8}};
-scale_config_t multiscale_configuration[] = {{4, 0, 8}};
+//scale_config_t multiscale_configuration[] = {{4, 0, 8}};
+scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};
+//scale_config_t multiscale_configuration[] = {{4, 0, 8}, {2, 8, 8}, {1, 16, 47}};
 
 /**
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
@@ -336,14 +336,7 @@ void DctTiler::InitializeCoefficientPlanes() {
  */
 void DctTiler::InitializeFrameVolume() {
 
-    size_t  pixels_size = sizeof(Pixel)            // pixel size
-                         * BLOCK_SIZE              // size of each x,y plane
-                         * FRAMEVOLUME_DEPTH;      // number of basis functions for each color channel
-                                                   //   plus one medium gray plane
-
-
-    basisFunctions_ = (Pixel *)malloc(pixels_size);
-    memset(basisFunctions_, 0x00, pixels_size);
+    basisFunctions_ = (Pixel *)calloc(BLOCK_SIZE * FRAMEVOLUME_DEPTH, sizeof(Pixel));
 
     // Pre-render each basis function
 #ifndef NO_OMP
@@ -421,6 +414,27 @@ void DctTiler::InitializeFrameVolume() {
 
 
 /**
+ * Converts an unsigned byte buffer to a signed byte buffer; which is nothing more than
+ * copying each byte to a short.
+ *
+ * @param buffer The input byte buffer
+ * @param width The width of the buffers
+ * @param weight The height of the buffers
+ * @return mallocs and returns the signed buffer
+ */
+int16_t* DctTiler::ConvertToSignedPixels(uint8_t* buffer, size_t width, size_t height) {
+
+    int16_t* signedBuf = (int16_t*)calloc(width * height * 3, sizeof(int16_t));
+
+    for (size_t i = 0; i < (width * height * 3); i++) {
+        signedBuf[i] = (int16_t)buffer[i];
+    }
+
+    return signedBuf;
+}
+
+
+/**
  * Takes a 24-bit pixel buffer and downsamples it by a factor with simple averaging. The source
  * buffer is likely not an even multiple of the factor provided, so edge "blocks" will use black
  * for any overscan pixels.
@@ -431,12 +445,12 @@ void DctTiler::InitializeFrameVolume() {
  * @param height The height of the source buffer.
  * @return The newly malloc'd buffer. Callee must free.
  */
-uint8_t* DctTiler::DownSample(size_t factor, uint8_t* buffer, size_t width, size_t height) {
+int16_t* DctTiler::DownSample(size_t factor, int16_t* buffer, size_t width, size_t height) {
 
     size_t scaledWidth = CEIL(width, factor);
     size_t scaledHeight = CEIL(height, factor);
 
-    uint8_t* downBuf = (uint8_t*)malloc(sizeof(uint8_t) * 3 * scaledWidth * scaledHeight);
+    int16_t* downBuf = (int16_t*)calloc(scaledWidth * scaledHeight* 3, sizeof(int16_t));
 
     for (size_t j = 0; j < scaledHeight; j++) {
         for (size_t i = 0; i < scaledWidth; i++) {
@@ -477,12 +491,12 @@ uint8_t* DctTiler::DownSample(size_t factor, uint8_t* buffer, size_t width, size
  * @param height The height of the *destination* buffer.
  * @return The newly malloc'd destination buffer. Callee must free.
  */
-uint8_t* DctTiler::UpSample(size_t factor, uint8_t* buffer, size_t width, size_t height) {
+int16_t* DctTiler::UpSample(size_t factor, int16_t* buffer, size_t width, size_t height) {
 
     size_t scaledHeight = CEIL(height, factor);
     size_t scaledWidth = CEIL(width, factor);
 
-    uint8_t* upBuf = (uint8_t*)malloc(sizeof(uint8_t) * 3 * width * height);
+    int16_t* upBuf = (int16_t*)calloc(width * height * 3, sizeof(int16_t));
 
     for (size_t j = 0; j < scaledHeight; j++) {
         for (size_t i = 0; i < scaledWidth; i++) {
@@ -517,7 +531,7 @@ uint8_t* DctTiler::UpSample(size_t factor, uint8_t* buffer, size_t width, size_t
  * @param height The height of the source buffer
  * @return The vector (in zig-zag order) of 4-channel scalers.
  */
-vector<uint64_t> DctTiler::BuildCoefficients(size_t i, size_t j, uint8_t* buffer, size_t width, size_t height) {
+vector<uint64_t> DctTiler::BuildCoefficients(size_t i, size_t j, int16_t* buffer, size_t width, size_t height, bool shift) {
 
     /*
      * Produces the de-quantized coefficients for the input buffer using the following steps:
@@ -555,9 +569,15 @@ vector<uint64_t> DctTiler::BuildCoefficients(size_t i, size_t j, uint8_t* buffer
                     /* Fetch each channel, multiply by product p and then shift */
                     if ( ((i * BLOCK_WIDTH + x) < width)
                             && ((j * BLOCK_HEIGHT + y) < height) ) {
-                        c_r += p * ((double)buffer[bufPos] - 128.0); bufPos++;           // red: g(x,y) - 128
-                        c_g += p * ((double)buffer[bufPos] - 128.0); bufPos++;           // green: g(x,y) - 128
-                        c_b += p * ((double)buffer[bufPos] - 128.0); bufPos++;           // blue: g(x,y) - 128
+                        if (shift) {
+                            c_r += p * ((double)buffer[bufPos] - 128.0); bufPos++;           // red: g(x,y) - 128
+                            c_g += p * ((double)buffer[bufPos] - 128.0); bufPos++;           // green: g(x,y) - 128
+                            c_b += p * ((double)buffer[bufPos] - 128.0); bufPos++;           // blue: g(x,y) - 128
+                        } else {
+                            c_r += p * (double)buffer[bufPos]; bufPos++;           // red: g(x,y)
+                            c_g += p * (double)buffer[bufPos]; bufPos++;           // green: g(x,y)
+                            c_b += p * (double)buffer[bufPos]; bufPos++;           // blue: g(x,y)
+                        }
                     } else {
                         bufPos += 3;
                     }
@@ -568,7 +588,7 @@ vector<uint64_t> DctTiler::BuildCoefficients(size_t i, size_t j, uint8_t* buffer
             size_t matPos = v * BLOCK_WIDTH + u;
 
             /* Quantize G(u,v) (3.) */
-            g_r = (int)int(c_r / double(quantizationMatrix_[matPos]) + 0.5);
+            g_r = (int)int(c_r / double(quantizationMatrix_[matPos]) + 0.5); // 0.5 is for rounding
             g_g = (int)int(c_g / double(quantizationMatrix_[matPos]) + 0.5);
             g_b = (int)int(c_b / double(quantizationMatrix_[matPos]) + 0.5);
 
@@ -639,23 +659,37 @@ void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t
  * @param width The width of the destination buffer
  * @param width The height of the destination buffer
  */
-void DctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, uint8_t* buffer, size_t width, size_t height) {
-#ifndef NO_OMP
-#pragma omp parallel for ordered
-#endif
+void DctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, int16_t* buffer, size_t width, size_t height, bool shift) {
+
     for (size_t y = 0; y < BLOCK_HEIGHT; y++) {
         for (size_t x = 0; x < BLOCK_WIDTH; x++) {
-            uint64_t rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
-            for (size_t p = 0; p > coefficients.size(); p++) {
-                size_t offset = p * BLOCK_WIDTH * BLOCK_HEIGHT + y * BLOCK_WIDTH + x;
-                rAccumulator += basisFunctions_[offset].r * coefficients[p];
-                gAccumulator += basisFunctions_[offset].g * coefficients[p];
-                bAccumulator += basisFunctions_[offset].b * coefficients[p];
+
+            if (i * BLOCK_WIDTH + x >= width || j * BLOCK_HEIGHT + y >= height)
+                continue;
+
+            int rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
+
+            for (size_t p = 0; p < coefficients.size(); p++) {
+                Scaler s;
+                s.packed = coefficients[p];
+
+                size_t bfo = p * BLOCK_WIDTH * BLOCK_HEIGHT + y * BLOCK_WIDTH + x;
+                rAccumulator += (int8_t)(basisFunctions_[bfo].r) * s.r;
+                gAccumulator += (int8_t)(basisFunctions_[bfo].g) * s.g;
+                bAccumulator += (int8_t)(basisFunctions_[bfo].b) * s.b;
             }
-            size_t p = (j * BLOCK_HEIGHT * width + i * BLOCK_WIDTH) * 3;
-            buffer[p + 0] = rAccumulator / MAX_DCT_COEFF;
-            buffer[p + 1] = gAccumulator / MAX_DCT_COEFF;
-            buffer[p + 2] = bAccumulator / MAX_DCT_COEFF;
+
+            size_t offset = ((j * BLOCK_HEIGHT + y) * width + i * BLOCK_WIDTH + x) * 3;
+
+            if (shift) {
+                buffer[offset + 0] = rAccumulator / display_->GetFullScaler() + 128;
+                buffer[offset + 1] = gAccumulator / display_->GetFullScaler() + 128;
+                buffer[offset + 2] = bAccumulator / display_->GetFullScaler() + 128;
+            } else {
+                buffer[offset + 0] = rAccumulator / display_->GetFullScaler();
+                buffer[offset + 1] = gAccumulator / display_->GetFullScaler();
+                buffer[offset + 2] = bAccumulator / display_->GetFullScaler();
+            }
         }
     }
 }
@@ -668,13 +702,19 @@ void DctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, s
  * @param width The width of both buffers
  * @param height The height of both buffers
  */
-void DctTiler::AdjustFrame(uint8_t* buffer, uint8_t* renderedBuffer, size_t width, size_t height) {
-#ifndef NO_OMP
-#pragma omp parallel for ordered
-#endif
+void DctTiler::AdjustFrame(int16_t* buffer, int16_t* renderedBuffer, size_t width, size_t height) {
+    int b = 0, r = 0, cummulativeAdjustment = 0;
+
     for (size_t i = 0; i < (width * height * 3); i++) {
-        buffer[i] -= renderedBuffer[i];
+        int16_t adjustedChannel = buffer[i] - renderedBuffer[i];
+
+        b += buffer[i] - 128; r += renderedBuffer[i] - 128;
+        cummulativeAdjustment += adjustedChannel;
+
+        buffer[i] = adjustedChannel;
     }
+    // TODO(CDE): Remove DEBUG code
+    cerr << b << " - " << r << " = " << b - r << endl;
 }
 
 void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height) {
@@ -682,13 +722,16 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
     assert(width >= display_->DisplayWidth());
     assert(height >= display_->DisplayHeight());
 
+    // 0. Convert image to signed pixels if we don't already have
+    int16_t* signedBuf = ConvertToSignedPixels(buffer, width, height);
+
     // For each scale level
     for (int c = 0; c < sizeof(multiscale_configuration) / sizeof(*multiscale_configuration); c++) {
 
         scale_config_t config = multiscale_configuration[c];
 
         // 1. Downsample the image - DownSample()
-        uint8_t* downBuf = DownSample(config.scale_multiplier, buffer, width, height);
+        int16_t* downBuf = DownSample(config.scale_multiplier, signedBuf, width, height);
         size_t downW = CEIL(width, config.scale_multiplier);
         size_t downH = CEIL(height, config.scale_multiplier);
 
@@ -696,7 +739,7 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
         //   a. Build coefficients - BuildCoefficients()
         //   b. Fill coefficients to super-macroblock's coefficient scalers - FillCoefficients()
         //   c. Perform simulated blending of basis functions and store back to downsampled image - PrerenderCoefficients()
-        uint8_t* rendBuf = (uint8_t*)malloc(sizeof(uint8_t) * 3 * downW * downH);
+        int16_t* rendBuf = (int16_t*)calloc(downW * downH * 3, sizeof(int16_t));
 
         size_t tilesWide = CEIL(downW, BLOCK_WIDTH);
         size_t tilesHigh = CEIL(downH, BLOCK_HEIGHT);
@@ -704,27 +747,33 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
         for (size_t j = 0; j < tilesHigh; j++) {
             for (size_t i = 0; i < tilesWide; i++) {
                 // a. Build coefficients - BuildCoefficients()
-                vector<uint64_t> coefficients = BuildCoefficients(i, j, downBuf, downW, downH);
+                // Only shift pixels by 128 for this first configuration. Subsequent configurations
+                // will only build only address the differences.
+                vector<uint64_t> coefficients = BuildCoefficients(i, j, downBuf, downW, downH, c == 0);
 
                 // b. Fill coefficients to super-macroblock's coefficient scalers - FillCoefficients()
                 FillCoefficients(coefficients, i, j, config);
 
-                // c. Perform simulated blending of basis functions and store back to downsampled image - PrerenderCoefficients()
-                PrerenderCoefficients(coefficients, i, j, rendBuf, downW, downH);
+                // c. Perform simulated blending of basis functions - PrerenderCoefficients()
+                // Again, only shift on the first plane
+                PrerenderCoefficients(coefficients, i, j, rendBuf, downW, downH, c == 0);
             }
         }
 
         // 3. Upsample the image - UpSample()
-        uint8_t* upBuf = UpSample(config.scale_multiplier, rendBuf, width, height);
+        int16_t* upBuf = UpSample(config.scale_multiplier, rendBuf, width, height);
 
         // 4. Subtract the results from the original image - AdjustFrame()
-        AdjustFrame(buffer, upBuf, width, height);
+        AdjustFrame(signedBuf, upBuf, width, height);
 
         // 5. Cleanup
         free(downBuf);
         free(rendBuf);
         free(upBuf);
     }
+
+    // Finally clean the signedBuf that we've been using throughout
+    free(signedBuf);
 }
 
 /**

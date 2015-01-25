@@ -74,12 +74,13 @@ private:
     void InitializeFrameVolume();
     void initZigZag();
     void initQuantizationMatrix(size_t quality);
-    uint8_t* DownSample(size_t factor, uint8_t* buffer, size_t width, size_t height);
-    uint8_t* UpSample(size_t factor, uint8_t* buffer, size_t width, size_t height);
-    vector<uint64_t> BuildCoefficients(size_t i, size_t j, uint8_t* buffer, size_t width, size_t height);
+    int16_t* ConvertToSignedPixels(uint8_t* buffer, size_t width, size_t height);
+    int16_t* DownSample(size_t factor, int16_t* buffer, size_t width, size_t height);
+    int16_t* UpSample(size_t factor, int16_t* buffer, size_t width, size_t height);
+    vector<uint64_t> BuildCoefficients(size_t i, size_t j, int16_t* buffer, size_t width, size_t height, bool adjustPixels);
     void FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, scale_config_t config);
-    void PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, uint8_t* renderedBuffer, size_t width, size_t height);
-    void AdjustFrame(uint8_t* buffer, uint8_t* renderedBuffer, size_t width, size_t height);
+    void PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, int16_t* renderedBuffer, size_t width, size_t height, bool shift);
+    void AdjustFrame(int16_t* buffer, int16_t* renderedBuffer, size_t width, size_t height);
     void UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height);
 
 
