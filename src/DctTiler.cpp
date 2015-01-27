@@ -52,8 +52,9 @@
  */
 //scale_config_t multiscale_configuration[] = {{1, 0, 63}};
 //scale_config_t multiscale_configuration[] = {{4, 0, 8}};
-scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};
-//scale_config_t multiscale_configuration[] = {{4, 0, 8}, {2, 8, 8}, {1, 16, 47}};
+//scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};
+//scale_config_t multiscale_configuration[] = {{8, 0, 8}, {2, 8, 55}};
+scale_config_t multiscale_configuration[] = {{4, 0, 8}, {2, 8, 8}, {1, 16, 47}};
 
 /**
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
@@ -450,17 +451,17 @@ int16_t* DctTiler::DownSample(size_t factor, int16_t* buffer, size_t width, size
     size_t scaledWidth = CEIL(width, factor);
     size_t scaledHeight = CEIL(height, factor);
 
-    int16_t* downBuf = (int16_t*)calloc(scaledWidth * scaledHeight* 3, sizeof(int16_t));
+    int16_t* downBuf = (int16_t*)calloc(scaledWidth * scaledHeight * 3, sizeof(int16_t));
 
     for (size_t j = 0; j < scaledHeight; j++) {
         for (size_t i = 0; i < scaledWidth; i++) {
-            unsigned int r, g, b, a;
-            r = g = b = a = 0;
+            int64_t r, g, b;
+            r = g = b = 0;
 
             // Sum the pixels over the larger region
             size_t count = 0;
-            for (size_t y = j * factor; y < j * factor + factor && y < height; y++) {
-                for (size_t x = i * factor; x < i * factor + factor && x < width; x++) {
+            for (size_t y = j * factor; y < (j + 1) * factor && y < height; y++) {
+                for (size_t x = i * factor; x < (i + 1) * factor && x < width; x++) {
                     size_t p = (y * width + x) * 3;
                     r += buffer[p + 0];
                     g += buffer[p + 1];
@@ -500,15 +501,15 @@ int16_t* DctTiler::UpSample(size_t factor, int16_t* buffer, size_t width, size_t
 
     for (size_t j = 0; j < scaledHeight; j++) {
         for (size_t i = 0; i < scaledWidth; i++) {
-            uint8_t r, g, b;
+            int16_t r, g, b;
 
             size_t p = (j * scaledWidth + i) * 3;
             r = buffer[p + 0];
             g = buffer[p + 1];
             b = buffer[p + 2];
 
-            for (size_t y = j * factor; y < j * factor + factor && y < height; y++) {
-                for (size_t x = i * factor; x < i * factor + factor && x < width; x++) {
+            for (size_t y = j * factor; y < (j + 1) * factor && y < height; y++) {
+                for (size_t x = i * factor; x < (i + 1) * factor && x < width; x++) {
                     size_t p = (y * width + x) * 3;
                     upBuf[p + 0] = r;
                     upBuf[p + 1] = b;
@@ -682,13 +683,13 @@ void DctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, s
             size_t offset = ((j * BLOCK_HEIGHT + y) * width + i * BLOCK_WIDTH + x) * 3;
 
             if (shift) {
-                buffer[offset + 0] = rAccumulator / display_->GetFullScaler() + 128;
-                buffer[offset + 1] = gAccumulator / display_->GetFullScaler() + 128;
-                buffer[offset + 2] = bAccumulator / display_->GetFullScaler() + 128;
+                CLAMP(buffer[offset + 0] = rAccumulator / display_->GetFullScaler() + 128, 0, 255);
+                CLAMP(buffer[offset + 1] = gAccumulator / display_->GetFullScaler() + 128, 0, 255);
+                CLAMP(buffer[offset + 2] = bAccumulator / display_->GetFullScaler() + 128, 0, 255);
             } else {
-                buffer[offset + 0] = rAccumulator / display_->GetFullScaler();
-                buffer[offset + 1] = gAccumulator / display_->GetFullScaler();
-                buffer[offset + 2] = bAccumulator / display_->GetFullScaler();
+                CLAMP(buffer[offset + 0] = rAccumulator / display_->GetFullScaler(), -128, 127);
+                CLAMP(buffer[offset + 1] = gAccumulator / display_->GetFullScaler(), -128, 127);
+                CLAMP(buffer[offset + 2] = bAccumulator / display_->GetFullScaler(), -128, 127);
             }
         }
     }
@@ -706,15 +707,15 @@ void DctTiler::AdjustFrame(int16_t* buffer, int16_t* renderedBuffer, size_t widt
     int b = 0, r = 0, cummulativeAdjustment = 0;
 
     for (size_t i = 0; i < (width * height * 3); i++) {
-        int16_t adjustedChannel = buffer[i] - renderedBuffer[i];
+        int16_t adjustedChannel = CLAMP(buffer[i] - renderedBuffer[i], -128, 127);
 
-        b += buffer[i] - 128; r += renderedBuffer[i] - 128;
+        b += buffer[i]; r += renderedBuffer[i];
         cummulativeAdjustment += adjustedChannel;
 
         buffer[i] = adjustedChannel;
     }
     // TODO(CDE): Remove DEBUG code
-    cerr << b << " - " << r << " = " << b - r << endl;
+    cerr << b << " - " << r << " = " << cummulativeAdjustment << endl;
 }
 
 void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height) {
