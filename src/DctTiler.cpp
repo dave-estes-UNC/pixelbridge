@@ -52,9 +52,9 @@
  */
 //scale_config_t multiscale_configuration[] = {{1, 0, 63}};
 //scale_config_t multiscale_configuration[] = {{4, 0, 8}};
-//scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};
+scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};
 //scale_config_t multiscale_configuration[] = {{8, 0, 8}, {2, 8, 55}};
-scale_config_t multiscale_configuration[] = {{4, 0, 8}, {2, 8, 8}, {1, 16, 47}};
+//scale_config_t multiscale_configuration[] = {{4, 0, 4}, {2, 4, 8}, {1, 12, 51}};
 
 /**
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
@@ -427,6 +427,9 @@ int16_t* DctTiler::ConvertToSignedPixels(uint8_t* buffer, size_t width, size_t h
 
     int16_t* signedBuf = (int16_t*)calloc(width * height * 3, sizeof(int16_t));
 
+#ifndef NO_OMP
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < (width * height * 3); i++) {
         signedBuf[i] = (int16_t)buffer[i];
     }
@@ -453,7 +456,10 @@ int16_t* DctTiler::DownSample(size_t factor, int16_t* buffer, size_t width, size
 
     int16_t* downBuf = (int16_t*)calloc(scaledWidth * scaledHeight * 3, sizeof(int16_t));
 
-    for (size_t j = 0; j < scaledHeight; j++) {
+#ifndef NO_OMP
+#pragma omp parallel for
+#endif
+   for (size_t j = 0; j < scaledHeight; j++) {
         for (size_t i = 0; i < scaledWidth; i++) {
             int64_t r, g, b;
             r = g = b = 0;
@@ -499,6 +505,9 @@ int16_t* DctTiler::UpSample(size_t factor, int16_t* buffer, size_t width, size_t
 
     int16_t* upBuf = (int16_t*)calloc(width * height * 3, sizeof(int16_t));
 
+#ifndef NO_OMP
+#pragma omp parallel for
+#endif
     for (size_t j = 0; j < scaledHeight; j++) {
         for (size_t i = 0; i < scaledWidth; i++) {
             int16_t r, g, b;
@@ -513,7 +522,7 @@ int16_t* DctTiler::UpSample(size_t factor, int16_t* buffer, size_t width, size_t
                     size_t p = (y * width + x) * 3;
                     upBuf[p + 0] = r;
                     upBuf[p + 1] = g;
-                    upBuf[p + 2] = b;
+                    upBuf[p + 2] = b ;
                 }
             }
        }
@@ -616,6 +625,20 @@ vector<uint64_t> DctTiler::BuildCoefficients(size_t i, size_t j, int16_t* buffer
     return coefficients;
 }
 
+void DctTiler::ClearCoefficients() {
+    vector<unsigned int> start(3, 0);
+    vector<unsigned int> end(3, 0);
+
+    start[0] = start[1] = start[2] = 0;
+    end[0] = display_->DisplayWidth() - 1;
+    end[1] = display_->DisplayHeight() - 1;
+    end[2] = display_->NumCoefficientPlanes() - 2;
+
+    Scaler s;
+    s.packed = 0;
+    display_->FillScaler(s, start, end);
+}
+
 /**
  * Takes the coefficients computed for a macroblock and fills them to a region of the display.
  * If a factor greater than one is provided in the config, then this implies that the coefficients were built
@@ -644,9 +667,25 @@ void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t
 
     // TODO(CDE): Only update the scalers for this tile that are necessary. For instance, it might not be necessary to
     //            to send over the most significant and/or least significant coefficients if they haven't changed.
+    vector<uint64_t> newCs;
+    bool skip = true;
+    size_t s = 0;
+    for (size_t i = 0; i < coefficients.size(); i++) {
+        if (skip && coefficients[i] != 0) {
+            skip = false;
+            start[2] += i;
+        }
+        if (!skip) {
+            newCs.push_back(coefficients[i]);
+            if (coefficients[i] != 0)
+                s = newCs.size();
+        }
+    }
+    while (newCs.size() != s)
+        newCs.pop_back();
 
     /* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
-    display_->FillScalerTileStack(coefficients, start, size);
+    display_->FillScalerTileStack(newCs, start, size);
 }
 
 /**
@@ -662,6 +701,9 @@ void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t
  */
 void DctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, int16_t* buffer, size_t width, size_t height, bool shift) {
 
+#ifndef NO_OMP
+#pragma omp parallel for
+#endif
     for (size_t y = 0; y < BLOCK_HEIGHT; y++) {
         for (size_t x = 0; x < BLOCK_WIDTH; x++) {
 
@@ -704,18 +746,14 @@ void DctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, s
  * @param height The height of both buffers
  */
 void DctTiler::AdjustFrame(int16_t* buffer, int16_t* renderedBuffer, size_t width, size_t height) {
-    int b = 0, r = 0, cummulativeAdjustment = 0;
-
+#ifndef NO_OMP
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < (width * height * 3); i++) {
         int16_t adjustedChannel = buffer[i] - renderedBuffer[i];
 
-        b += buffer[i]; r += renderedBuffer[i];
-        cummulativeAdjustment += adjustedChannel;
-
         buffer[i] = adjustedChannel;
     }
-    // TODO(CDE): Remove DEBUG code
-    cerr << b << " - " << r << " = " << cummulativeAdjustment << endl;
 }
 
 void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height) {
@@ -726,15 +764,22 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
     // 0. Convert image to signed pixels if we don't already have
     int16_t* signedBuf = ConvertToSignedPixels(buffer, width, height);
 
+    // 0.1. Clear all of the coefficients
+    ClearCoefficients();
+
     // For each scale level
     for (int c = 0; c < sizeof(multiscale_configuration) / sizeof(*multiscale_configuration); c++) {
 
         scale_config_t config = multiscale_configuration[c];
 
         // 1. Downsample the image - DownSample()
-        int16_t* downBuf = DownSample(config.scale_multiplier, signedBuf, width, height);
+        int16_t* downBuf;
         size_t downW = CEIL(width, config.scale_multiplier);
         size_t downH = CEIL(height, config.scale_multiplier);
+        if (config.scale_multiplier == 1)
+            downBuf = signedBuf;
+        else
+            downBuf = DownSample(config.scale_multiplier, signedBuf, width, height);
 
         // 2. For each macroblock in downsampled image
         //   a. Build coefficients - BuildCoefficients()
@@ -762,15 +807,21 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
         }
 
         // 3. Upsample the image - UpSample()
-        int16_t* upBuf = UpSample(config.scale_multiplier, rendBuf, width, height);
+        int16_t* upBuf;
+        if (config.scale_multiplier == 1)
+            upBuf = rendBuf;
+        else
+            upBuf = UpSample(config.scale_multiplier, rendBuf, width, height);
 
         // 4. Subtract the results from the original image - AdjustFrame()
         AdjustFrame(signedBuf, upBuf, width, height);
 
         // 5. Cleanup
-        free(downBuf);
         free(rendBuf);
-        free(upBuf);
+        if (config.scale_multiplier > 1) {
+            free(downBuf);
+            free(upBuf);
+        }
     }
 
     // Finally clean the signedBuf that we've been using throughout
