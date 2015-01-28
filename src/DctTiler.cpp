@@ -512,8 +512,8 @@ int16_t* DctTiler::UpSample(size_t factor, int16_t* buffer, size_t width, size_t
                 for (size_t x = i * factor; x < (i + 1) * factor && x < width; x++) {
                     size_t p = (y * width + x) * 3;
                     upBuf[p + 0] = r;
-                    upBuf[p + 1] = b;
-                    upBuf[p + 2] = g;
+                    upBuf[p + 1] = g;
+                    upBuf[p + 2] = b;
                 }
             }
        }
@@ -683,13 +683,13 @@ void DctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, s
             size_t offset = ((j * BLOCK_HEIGHT + y) * width + i * BLOCK_WIDTH + x) * 3;
 
             if (shift) {
-                CLAMP(buffer[offset + 0] = rAccumulator / display_->GetFullScaler() + 128, 0, 255);
-                CLAMP(buffer[offset + 1] = gAccumulator / display_->GetFullScaler() + 128, 0, 255);
-                CLAMP(buffer[offset + 2] = bAccumulator / display_->GetFullScaler() + 128, 0, 255);
+                buffer[offset + 0] = rAccumulator / display_->GetFullScaler() + 128;
+                buffer[offset + 1] = gAccumulator / display_->GetFullScaler() + 128;
+                buffer[offset + 2] = bAccumulator / display_->GetFullScaler() + 128;
             } else {
-                CLAMP(buffer[offset + 0] = rAccumulator / display_->GetFullScaler(), -128, 127);
-                CLAMP(buffer[offset + 1] = gAccumulator / display_->GetFullScaler(), -128, 127);
-                CLAMP(buffer[offset + 2] = bAccumulator / display_->GetFullScaler(), -128, 127);
+                buffer[offset + 0] = rAccumulator / display_->GetFullScaler();
+                buffer[offset + 1] = gAccumulator / display_->GetFullScaler();
+                buffer[offset + 2] = bAccumulator / display_->GetFullScaler();
             }
         }
     }
@@ -707,7 +707,7 @@ void DctTiler::AdjustFrame(int16_t* buffer, int16_t* renderedBuffer, size_t widt
     int b = 0, r = 0, cummulativeAdjustment = 0;
 
     for (size_t i = 0; i < (width * height * 3); i++) {
-        int16_t adjustedChannel = CLAMP(buffer[i] - renderedBuffer[i], -128, 127);
+        int16_t adjustedChannel = buffer[i] - renderedBuffer[i];
 
         b += buffer[i]; r += renderedBuffer[i];
         cummulativeAdjustment += adjustedChannel;
