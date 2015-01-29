@@ -50,11 +50,20 @@
 /*
  * The current configuration. See comment for scale_config_t in DctTiler.h for more info.
  */
-//scale_config_t multiscale_configuration[] = {{1, 0, 63}};
-//scale_config_t multiscale_configuration[] = {{4, 0, 8}};
-scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};
-//scale_config_t multiscale_configuration[] = {{8, 0, 8}, {2, 8, 55}};
-//scale_config_t multiscale_configuration[] = {{4, 0, 4}, {2, 4, 8}, {1, 12, 51}};
+// Stats for the first 100 frames of Bourne 10                                        Ratio     PSNR
+//                                                                                    -----------------
+//scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // 0.201587  42.3866
+//scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};             // 0.246539  39.936
+//scale_config_t multiscale_configuration[] = {{8, 0, 8}, {1, 8, 55}};             // 0.202793  40.5105
+//scale_config_t multiscale_configuration[] = {{8, 0, 4}, {1, 4, 59}};             // 0.200975  40.5258
+//scale_config_t multiscale_configuration[] = {{8, 0, 1}, {1, 1, 62}};             // 0.194188  40.7303
+//scale_config_t multiscale_configuration[] = {{8, 0, 1}, {4, 1, 1}, {1, 2, 61}};  // 0.194291  40.2574
+//scale_config_t multiscale_configuration[] = {{16, 0, 1}, {4, 1, 1}, {1, 2, 61}};  // 0.191575 40.2569
+scale_config_t multiscale_configuration[] = {{16, 0, 1}, {1, 1, 62}};             // 0.188427 40.8292
+//scale_config_t multiscale_configuration[] = {{4, 0, 4}, {2, 4, 8}, {1, 12, 51}}; // 0.276193  39.6099
+//scale_config_t multiscale_configuration[] = {{8, 0, 8}, {2, 8, 55}};             // 0.0824013 36.8457
+//scale_config_t multiscale_configuration[] = {{8, 0, 4}, {2, 4, 59}};             // 0.073577  37.0355
+//scale_config_t multiscale_configuration[] = {{4, 0, 8}};                         // 0.0160014 32.7517
 
 /**
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those

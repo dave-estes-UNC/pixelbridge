@@ -354,6 +354,10 @@ void setupDisplay() {
     if (globalConfiguration.verbose)
         myDisplay->Unmute();
 
+#ifdef CLEAR_COST_MODEL_AFTER_SETUP
+    costModel->clearCosts();
+#endif
+
     // Renders the initial display
     if (!globalConfiguration.headless)
         myDisplay->GetFrameBufferTex();
@@ -666,7 +670,7 @@ void outputStats(bool exitNow) {
     cerr << endl;
 
     // Warnings about Configuration
-#if defined(SUPRESS_EXCESS_RENDERING) || defined(SKIP_COMPUTE_WHEN_SCALER_ZERO) || defined(NO_CL) || defined(NO_GL)
+#if defined(SUPRESS_EXCESS_RENDERING) || defined(SKIP_COMPUTE_WHEN_SCALER_ZERO) || defined(NO_CL) || defined(NO_GL) || defined(CLEAR_COST_MODEL_AFTER_SETUP)
     cerr << endl << "CONFIGURATION WARNINGS:" << endl;
 #ifdef SUPRESS_EXCESS_RENDERING
     cerr << "  - Was compiled with SUPRESS_EXCESS_RENDERING, and so the numbers may be off. Recompile with \"make NO_HACKS=1\"." << endl;
@@ -681,6 +685,9 @@ void outputStats(bool exitNow) {
 #endif
 #ifdef NO_GL
     cerr << "  - Was compiled without OpenGL." << endl;
+#endif
+#ifdef CLEAR_COST_MODEL_AFTER_SETUP
+    cerr << "  - Was compiled with CLEAR_COST_MODEL_AFTER_SETUP, affecting the true cost." << endl;
 #endif
 #endif
 

@@ -47,12 +47,12 @@
 namespace nddi {
 
     typedef enum {
-    	NDDI_LINK_COMPONENT,
+        NDDI_LINK_COMPONENT,
         INPUT_VECTOR_COMPONENT,
         COEFFICIENT_PLANE_COMPONENT,
         FRAME_VOLUME_COMPONENT
     } component_t;
-    
+
     /**
      * Types of charges. Each NDDI Command is first assessed a link charge,
      * The the memory, pixel blends, and pixel mappings resulting from that command
@@ -64,12 +64,12 @@ namespace nddi {
         PIXEL_BLEND_CHARGE,
         PIXEL_MAPPING_CHARGE
     } charge_type_t;
-    
+
     typedef enum {
         READ_ACCESS,
         WRITE_ACCESS
     } memory_access_t;
-    
+
     /**
      * Represents number of bytes read from or written to a component.
      */
@@ -118,13 +118,13 @@ namespace nddi {
         } u;
     } charge_t;
 
-    
+
     /**
      * The CostModel allows different types of charges to be made and will run reports
      * later.
      */
     class CostModel {
-        
+
     private:
 
         unsigned long linkCommandsSent;
@@ -133,10 +133,10 @@ namespace nddi {
 
         unsigned long pixelsBlended;
         unsigned long pixelBlendingTime;
-        
+
         unsigned long pixelsMapped;
         unsigned long pixelMappingTime;
-        
+
         unsigned long inputVectorReads;
         unsigned long inputVectorWrites;
         unsigned long inputVectorBytesRead;
@@ -156,36 +156,40 @@ namespace nddi {
         unsigned long frameVolumeTime;
 
     public:
-        
-        CostModel()
-        : linkCommandsSent(0),
-          linkBytesSent(0),
-          linkTime(0),
-          pixelsBlended(0),
-          pixelBlendingTime(0),
-          pixelsMapped(0),
-          pixelMappingTime(0),
-          inputVectorReads(0),
-          inputVectorWrites(0),
-          inputVectorBytesRead(0),
-          inputVectorBytesWritten(0),
-          inputVectorTime(0),
-          coefficientPlaneReads(0),
-          coefficientPlaneWrites(0),
-          coefficientPlaneBytesRead(0),
-          coefficientPlaneBytesWritten(0),
-          coefficientPlaneTime(0),
-          frameVolumeReads(0),
-          frameVolumeWrites(0),
-          frameVolumeBytesRead(0),
-          frameVolumeBytesWritten(0),
-          frameVolumeTime(0) {
+
+        CostModel() {
+            clearCosts();
         }
-        
+
+        void clearCosts() {
+            linkCommandsSent = 0;
+            linkBytesSent = 0;
+            linkTime = 0;
+            pixelsBlended = 0;
+            pixelBlendingTime = 0;
+            pixelsMapped = 0;
+            pixelMappingTime = 0;
+            inputVectorReads = 0;
+            inputVectorWrites = 0;
+            inputVectorBytesRead = 0;
+            inputVectorBytesWritten = 0;
+            inputVectorTime = 0;
+            coefficientPlaneReads = 0;
+            coefficientPlaneWrites = 0;
+            coefficientPlaneBytesRead = 0;
+            coefficientPlaneBytesWritten = 0;
+            coefficientPlaneTime = 0;
+            frameVolumeReads = 0;
+            frameVolumeWrites = 0;
+            frameVolumeBytesRead = 0;
+            frameVolumeBytesWritten = 0;
+            frameVolumeTime = 0;
+        }
+
         void registerMemoryCharge(component_t component,
                                   memory_access_t access,
                                   void* address,
-                          	      unsigned long numBytes,
+                                    unsigned long numBytes,
                                   unsigned long time) {
 
             switch (component) {
@@ -238,14 +242,14 @@ namespace nddi {
                     break;
             }
         }
-        
+
         void registerBulkMemoryCharge(component_t component,
                                       unsigned long accessCount,
                                       memory_access_t access,
                                       void* address,
                                       unsigned long numBytes,
                                       unsigned long time) {
-            
+
             switch (component) {
                 case INPUT_VECTOR_COMPONENT:
                     if (access == READ_ACCESS) {
@@ -293,28 +297,28 @@ namespace nddi {
                     break;
             }
         }
-        
+
         void registerTransmissionCharge(unsigned long numBytes, unsigned long time) {
 #pragma omp atomic
             linkCommandsSent++;
-            
+
 #pragma omp atomic
             linkBytesSent += numBytes;
 
 #pragma omp atomic
             linkTime += time;
         }
-        
+
         void registerPixelBlendCharge(unsigned long numBlends) {
 #pragma omp atomic
             pixelsBlended += numBlends;
         }
-        
+
         void registerPixelMappingCharge(unsigned long numMappings) {
 #pragma omp atomic
             pixelsMapped += numMappings;
         }
-        
+
         unsigned long getLinkCommandsSent() {
             return linkCommandsSent;
         }
@@ -324,9 +328,9 @@ namespace nddi {
         }
 
         unsigned long getReadAccessCount(component_t component) {
-            
+
             unsigned long count = 0;
-            
+
             switch (component) {
                 case INPUT_VECTOR_COMPONENT:
                     count = inputVectorReads;
@@ -344,9 +348,9 @@ namespace nddi {
         }
 
         unsigned long getWriteAccessCount(component_t component) {
-            
+
             unsigned long count = 0;
-            
+
             switch (component) {
                 case INPUT_VECTOR_COMPONENT:
                     count = inputVectorWrites;
@@ -364,9 +368,9 @@ namespace nddi {
         }
 
         unsigned long getBytesRead(component_t component) {
-            
-        	unsigned long count = 0;
-            
+
+            unsigned long count = 0;
+
             switch (component) {
                 case INPUT_VECTOR_COMPONENT:
                     count = inputVectorBytesRead;
@@ -382,11 +386,11 @@ namespace nddi {
             }
             return count;
         }
-        
+
         unsigned long getBytesWritten(component_t component) {
-            
-        	unsigned long count = 0;
-            
+
+            unsigned long count = 0;
+
             switch (component) {
                 case INPUT_VECTOR_COMPONENT:
                     count = inputVectorBytesWritten;
@@ -405,12 +409,12 @@ namespace nddi {
 
         unsigned long getTime(component_t component) {
 
-        	unsigned long time = 0;
+            unsigned long time = 0;
 
             switch (component) {
-            	case NDDI_LINK_COMPONENT:
-            		time = linkTime;
-            		break;
+                case NDDI_LINK_COMPONENT:
+                    time = linkTime;
+                    break;
                 case INPUT_VECTOR_COMPONENT:
                     time = inputVectorTime;
                     break;
@@ -429,7 +433,7 @@ namespace nddi {
         unsigned long getPixelsBlended() {
             return pixelsBlended;
         }
-        
+
         unsigned long getPixelsMapped() {
             return pixelsMapped;
         }
