@@ -2,6 +2,10 @@
 ###  TODO  ###
 ##############
 
++---------+
+| General |
+----------+
+
 x Create new nDDI APIs to update the scaler for each coefficient matrix.
 x Correctly initialize the coefficient planes with 0 scalers (PixelBridgeMain, FlatTiler, and CachedTiler).
 x Update GlNddiDisplay rendering to use multiple coefficient planes.
@@ -23,10 +27,19 @@ x Update the coefficient plane to update the cost model correctly and efficientl
 x Update cost model for scaler access, either by just registering it ot the coefficient plane or by some more specific component.
 x Determine if it's necessary to narrow some data values like scalers and coordinates (for transmission).
 
+x Re-run all of the original experiments including the new video-based tilers.
+  x Run them all headless
+  x Run the lossy modes for PSNR
+    NOTE: Waited on RAM even for the SW mode because I only had 32 MB.
+
+
++--------------+
+| Optimization |
++--------------+
+
 x Speed up DCT
   x Modify headless display to do a light-weight simulation.
   x Turn OpenMP back on after fixing the slowdown
-  - Modify DCT Tiler to not update tiles that haven't changed significantly enough
 
 - Optimize Coefficient Planes data layout
   x Analyze fb, flat, cache, and dct in terms of data reads and writes in order to characterize each.
@@ -38,15 +51,20 @@ x Speed up DCT
   - Implement CoefficientPlane::fillScalarTileStack and directly call it from the BaseNddiDisplay::fillScalarTileStack
   - Implement CoefficientPlane::setScalarStack which is used in CoefficientPlane::fillScalarTileStack
 
-x Re-run all of the original experiments including the new video-based tilers.
-  x Run them all headless
-  x Run the lossy modes for PSNR
-    NOTE: Waited on RAM even for the SW mode because I only had 32 MB.
+
++----------+
+| Blending |
++----------+
 
 - Revisit the Blending Experiments
   x Get Temporal Blending working
   x Get FrameVolume Blending working again
   - Devise some experiments for blending, perhaps a HUD on top of video.
+
+
++--------+
+| OpenCL |
++--------+
 
 - Update CL implementation
   x Remove #errors when using OpenCL in the DCT and IT tilers.
@@ -66,27 +84,56 @@ x Re-run all of the original experiments including the new video-based tilers.
 - Implement FillScalerTiles API for ClNddiDisplay.
 
 
++-------+
+| Video |
++-------+
+
+- Video Paper
+  1. Only resend changed coefficients. See TODO in DctTiler.cpp and final bullet below
+  2. Define a list (3-4) of Coefficient Priority Schemes which will be used to hit predefined data budgets.
+  3. Implement an overall measure of motion per frame (against previous frame).
+  4. Explore and find a set (3-5) of Multiscale configurations to use.
+  5. Implement Priority schemes to meet configurable fixed data budgets.
+  6. Do experiments
+    - Graph each video, showing plots of PSNR over time of each X configurations by Y priority schemes for Z data budgets.
+      Think line graphs with PSNR or Y axis and time on X axis.
+    - Graph aggregate data of PSNR to motion measurement. Think histogram with PSNR on Y axis and motion buckets on X axis.
+      Can also be points with trend line as a way of plotting key combinations of configiration, priority scheme, and data budget.
+  7. Write
+
 - Add multi-scale DCT support
   - Change DCT to support to only resend middle portion of changed scalers. See TODO in DctTiler.cpp.
-  - Mode A: Fixed set of super-macro-block levels and planes per each level
+  x Mode A: Fixed set of super-macro-block levels and planes per each level
     x Add configuration mechanism to set the scales and number of planes each
     x Set up the Coefficient Planes based on the multiscale configuration
-    - For a super-macro-block
+    x For a super-macro-block
       x Blend groups of pixels to create 8x8 macroblock (bilinear interpolation)
       x Perform DCT to build most significant coefficients
-      - Perform iDCT to get the output super-macro-block and subtract that from the source video to get the new current frame.
-    - Repeat at the lower levels until we're operating on normal macroblocks
-  - Mode B: Variable set of super-macro-block levels
-    - Use a heuristic to determine entropy in regions of pixels and pick a set of levels for that region.
-  - When filling coefficients, don't fill the first n set of most significant coefficients if they're zero.
-  - Implement metric to track how many most significant coefficients are not filled. Use this to tune the fixed levels for
-    Mode A and to develop the best heuristic for Mode B.
+      x Perform iDCT to get the output super-macro-block and subtract that from the source video to get the new current frame.
+    x Repeat at the lower levels until we're operating on normal macroblocks
+  x When filling coefficients, don't fill the first n set of most significant coefficients if they're zero.
 
-- Narrow pixel size to three channels
-  - Look for all of the places where we do offsets like with sizeof(unsigned int) and replace with pixelSize_;
+- Implement YuvTiler
+  - For a 16x16 macroblock, build 8x8 blocks: Y0, Y1, Y2, Y3, U, and V.
+  - Then arrange them into two 8x8 RBGA blocks, where blocks are mapped as such:
+    - Block 0: R holds Y0, G holds Y1, B holds U
+    - Block 1: R holds Y2, G holds Y3, B holds V
+  - Configure coefficient planes so that they map the correct pixels from those blocks and perform colorspace conversion using
+    the formulas. This might be hard, since I have to use the RGB channels of the scalers for this math and they only work to
+    produce their perspective colors.
+      Y' = 0.299 R + 0.587 G + 0.114 B
+      R = Y' + 1.14 V
+      G = Y' - 0.295 U - 0.518 V
+      B = Y' + 2.044 U
+  - May have to drop the 32 bit pixel values from the frame volume and make it pure byte memory.
 
 
-Future Work
++-------------+
+| Future Work |
++-------------+
+
 - Consider breaking down the COEFFICIENT_PLANE_COMPONENT into coefficient accesses and scaler accesses.
 - Add nDDI command caching and playback mode. Will avoid the video decode and tiler calculations.
+- Narrow pixel size to three channels
+  - Look for all of the places where we do offsets like with sizeof(unsigned int) and replace with pixelSize_;
 - Modify FFMPEG's MJPEG decoder to and have it create DCT coefficients for the DctTiler automatically.
