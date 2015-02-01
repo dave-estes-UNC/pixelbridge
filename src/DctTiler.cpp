@@ -279,7 +279,7 @@ void DctTiler::InitializeCoefficientPlanes() {
      */
 
     // For each of the configurations
-    for (int c = 0; c < sizeof(multiscale_configuration) / sizeof(*multiscale_configuration); c++) {
+    for (size_t c = 0; c < sizeof(multiscale_configuration) / sizeof(*multiscale_configuration); c++) {
 
         scale_config_t config = multiscale_configuration[c];
 
@@ -648,6 +648,45 @@ void DctTiler::ClearCoefficients() {
     display_->FillScaler(s, start, end);
 }
 
+
+/**
+ * Will trim the leading and trailing coefficients that don't need to be updated.
+ *
+ * @param coefficients The vector (in zig-zag order) of coefficients for the macroblock
+ * @param c Index into multiscale_configuration for information about the factor by
+ *          which we're scaling and which planes to fill.
+ * @return The first plane to be updated.
+ */
+size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t c) {
+
+    // TODO(CDE): Only update the scalers for this tile that are necessary. For instance, it might not be necessary to
+    //            to send over the most significant and/or least significant coefficients if they haven't changed.
+
+    size_t first_plane_idx = multiscale_configuration[c].first_plane_idx;
+
+    /* Figure out the first and last non-zero coefficient */
+    size_t first = 0, last = coefficients.size() - 1;
+    bool foundFirst = false;
+    for (size_t i = 0; i < coefficients.size(); i++) {
+        if (coefficients[i] != 0) {
+            last = i;
+            if (!foundFirst) {
+                first = i;
+                foundFirst = true;
+            }
+        }
+    }
+
+    /* Trim the zeros from the end and then the beginning */
+    if (foundFirst) {
+        if (last < coefficients.size() - 1)
+            coefficients.erase(coefficients.begin() + last + 1, coefficients.end());
+        coefficients.erase(coefficients.begin(), coefficients.begin() + first);
+    }
+
+    return first_plane_idx + first;
+}
+
 /**
  * Takes the coefficients computed for a macroblock and fills them to a region of the display.
  * If a factor greater than one is provided in the config, then this implies that the coefficients were built
@@ -658,43 +697,31 @@ void DctTiler::ClearCoefficients() {
  * @param coefficients The vector (in zig-zag order) of coefficients for the macroblock
  * @param i The column component of the macroblock
  * @param j The row component of the macroblock
- * @param config Information about the factor by which we're scaling and which planes to fill
+ * @param c Index into multiscale_configuration for information about the factor by
+ *          which we're scaling and which planes to fill.
  */
-void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, scale_config_t config) {
+void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c) {
 
     vector<unsigned int> start(3, 0);
     vector<unsigned int> size(2, 0);
 
+    scale_config_t config = multiscale_configuration[c];
+
     start[0] = i * BLOCK_WIDTH * config.scale_multiplier;
     start[1] = j * BLOCK_HEIGHT * config.scale_multiplier;
-    start[2] = config.first_plane_idx;
 
     size[0] = BLOCK_WIDTH * config.scale_multiplier;
     size[1] = BLOCK_HEIGHT * config.scale_multiplier;
 
+    /* First trim the least significant coefficients to match the plane count for this configuration */
     coefficients.resize(config.plane_count);
 
-    // TODO(CDE): Only update the scalers for this tile that are necessary. For instance, it might not be necessary to
-    //            to send over the most significant and/or least significant coefficients if they haven't changed.
-    vector<uint64_t> newCs;
-    bool skip = true;
-    size_t s = 0;
-    for (size_t i = 0; i < coefficients.size(); i++) {
-        if (skip && coefficients[i] != 0) {
-            skip = false;
-            start[2] += i;
-        }
-        if (!skip) {
-            newCs.push_back(coefficients[i]);
-            if (coefficients[i] != 0)
-                s = newCs.size();
-        }
-    }
-    while (newCs.size() != s)
-        newCs.pop_back();
+    /* Then trim the coefficients form the front and the back that don't need to be resent. */
+    size_t first_plane_idx = TrimCoefficients(coefficients, c);
+    start[2] = first_plane_idx;
 
     /* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
-    display_->FillScalerTileStack(newCs, start, size);
+    display_->FillScalerTileStack(coefficients, start, size);
 }
 
 /**
@@ -807,7 +834,7 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
                 vector<uint64_t> coefficients = BuildCoefficients(i, j, downBuf, downW, downH, c == 0);
 
                 // b. Fill coefficients to super-macroblock's coefficient scalers - FillCoefficients()
-                FillCoefficients(coefficients, i, j, config);
+                FillCoefficients(coefficients, i, j, c);
 
                 // c. Perform simulated blending of basis functions - PrerenderCoefficients()
                 // Again, only shift on the first plane
