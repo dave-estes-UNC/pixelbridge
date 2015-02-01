@@ -47,19 +47,21 @@
 #define SQRT_125             0.353553391
 #define SQRT_250             0.5
 
+
+#define CHECK_ZERO_ONLY
 /*
  * The current configuration. See comment for scale_config_t in DctTiler.h for more info.
  */
 // Stats for the first 100 frames of Bourne 10                                        Ratio     PSNR
 //                                                                                    -----------------
-//scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // 0.201587  42.3866
+scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // 0.201587  42.3866
 //scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};             // 0.246539  39.936
 //scale_config_t multiscale_configuration[] = {{8, 0, 8}, {1, 8, 55}};             // 0.202793  40.5105
 //scale_config_t multiscale_configuration[] = {{8, 0, 4}, {1, 4, 59}};             // 0.200975  40.5258
 //scale_config_t multiscale_configuration[] = {{8, 0, 1}, {1, 1, 62}};             // 0.194188  40.7303
 //scale_config_t multiscale_configuration[] = {{8, 0, 1}, {4, 1, 1}, {1, 2, 61}};  // 0.194291  40.2574
 //scale_config_t multiscale_configuration[] = {{16, 0, 1}, {4, 1, 1}, {1, 2, 61}};  // 0.191575 40.2569
-scale_config_t multiscale_configuration[] = {{16, 0, 1}, {1, 1, 62}};             // 0.188427 40.8292
+//scale_config_t multiscale_configuration[] = {{16, 0, 1}, {1, 1, 62}};             // 0.188427 40.8292
 //scale_config_t multiscale_configuration[] = {{4, 0, 4}, {2, 4, 8}, {1, 12, 51}}; // 0.276193  39.6099
 //scale_config_t multiscale_configuration[] = {{8, 0, 8}, {2, 8, 55}};             // 0.0824013 36.8457
 //scale_config_t multiscale_configuration[] = {{8, 0, 4}, {2, 4, 59}};             // 0.073577  37.0355
@@ -657,25 +659,40 @@ void DctTiler::ClearCoefficients() {
  *          which we're scaling and which planes to fill.
  * @return The first plane to be updated.
  */
-size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t c) {
+size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c) {
 
-    // TODO(CDE): Only update the scalers for this tile that are necessary. For instance, it might not be necessary to
-    //            to send over the most significant and/or least significant coefficients if they haven't changed.
+    /* Get the set of cached coefficients for (c, i, j), building out the cache the first time. */
+    if (cachedCoefficients_.size() <= c)
+        cachedCoefficients_.push_back(vector< vector< vector<uint64_t> > >());
+    if (cachedCoefficients_[c].size() <= i)
+        cachedCoefficients_[c].push_back(vector< vector<uint64_t> >());
+    if (cachedCoefficients_[c][i].size() <= j) {
+        /* Initialize the coefficients to 0 */
+        cachedCoefficients_[c][i].push_back(vector<uint64_t>(multiscale_configuration[c].plane_count, 0));
+    }
 
+    /* first_plane_idx will be the return value. Start it at the configured first plane. */
     size_t first_plane_idx = multiscale_configuration[c].first_plane_idx;
 
     /* Figure out the first and last non-zero coefficient */
     size_t first = 0, last = coefficients.size() - 1;
     bool foundFirst = false;
-    for (size_t i = 0; i < coefficients.size(); i++) {
-        if (coefficients[i] != 0) {
-            last = i;
+    for (size_t k = 0; k < coefficients.size(); k++) {
+#ifdef CHECK_ZERO_ONLY
+        if (coefficients[k] != 0) {
+#else
+        if (coefficients[k] != cachedCoefficients_[c][i][j][k]) {
+#endif
+            last = k;
             if (!foundFirst) {
-                first = i;
+                first = k;
                 foundFirst = true;
             }
         }
     }
+
+    /* Store this set of coefficients in the cache. */
+    cachedCoefficients_[c][i][j] = vector<uint64_t>(coefficients);
 
     /* Trim the zeros from the end and then the beginning */
     if (foundFirst) {
@@ -717,7 +734,7 @@ void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t
     coefficients.resize(config.plane_count);
 
     /* Then trim the coefficients form the front and the back that don't need to be resent. */
-    size_t first_plane_idx = TrimCoefficients(coefficients, c);
+    size_t first_plane_idx = TrimCoefficients(coefficients, i, j, c);
     start[2] = first_plane_idx;
 
     /* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
@@ -801,7 +818,9 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
     int16_t* signedBuf = ConvertToSignedPixels(buffer, width, height);
 
     // 0.1. Clear all of the coefficients
+#ifdef CHECK_ZERO_ONLY
     ClearCoefficients();
+#endif
 
     // For each scale level
     for (int c = 0; c < sizeof(multiscale_configuration) / sizeof(*multiscale_configuration); c++) {
