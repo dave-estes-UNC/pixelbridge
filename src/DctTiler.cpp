@@ -47,17 +47,33 @@
 #define SQRT_125             0.353553391
 #define SQRT_250             0.5
 
+#define ZERO_FIRST
+#ifdef ZERO_FIRST
+#define FIRST_NON_ZEROED_PLANE 12
+// 0  0.319334
+// 1  0.186258
+// 4  0.184406
+// 8  0.176126
+// 12 0.177521
+// 16 0.176379
+// 24 0.181215
+// 32 0.181143
+#else
+#define FIRST_ZEROED_PLANE 8
+// 0 0.188696
+// 1 0.296854
+// 8 0.326707
+#endif
 
-#define CHECK_ZERO_ONLY
 /*
  * The current configuration. See comment for scale_config_t in DctTiler.h for more info.
  */
 // Stats for the first 100 frames of Bourne 10                                        Ratio     PSNR
 //                                                                                    -----------------
-scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // 0.201587  42.3866
+//scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // 0.201587  42.3866
 //scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};             // 0.246539  39.936
 //scale_config_t multiscale_configuration[] = {{8, 0, 8}, {1, 8, 55}};             // 0.202793  40.5105
-//scale_config_t multiscale_configuration[] = {{8, 0, 4}, {1, 4, 59}};             // 0.200975  40.5258
+scale_config_t multiscale_configuration[] = {{8, 0, 4}, {1, 4, 59}};             // 0.200975  40.5258
 //scale_config_t multiscale_configuration[] = {{8, 0, 1}, {1, 1, 62}};             // 0.194188  40.7303
 //scale_config_t multiscale_configuration[] = {{8, 0, 1}, {4, 1, 1}, {1, 2, 61}};  // 0.194291  40.2574
 //scale_config_t multiscale_configuration[] = {{16, 0, 1}, {4, 1, 1}, {1, 2, 61}};  // 0.191575 40.2569
@@ -640,10 +656,22 @@ void DctTiler::ClearCoefficients() {
     vector<unsigned int> start(3, 0);
     vector<unsigned int> end(3, 0);
 
+#ifdef ZERO_FIRST
     start[0] = start[1] = start[2] = 0;
     end[0] = display_->DisplayWidth() - 1;
     end[1] = display_->DisplayHeight() - 1;
-    end[2] = display_->NumCoefficientPlanes() - 2;
+    end[2] = FIRST_NON_ZEROED_PLANE;
+    if (FIRST_NON_ZEROED_PLANE == 0)
+        return;
+#else
+    start[0] = start[1] = 0;
+    start[2] = FIRST_ZEROED_PLANE;
+    end[0] = display_->DisplayWidth() - 1;
+    end[1] = display_->DisplayHeight() - 1;
+    end[2] = display_->NumCoefficientPlanes() - (2 + FIRST_ZEROED_PLANE);
+    if (FIRST_ZEROED_PLANE >= 63)
+        return;
+#endif
 
     Scaler s;
     s.packed = 0;
@@ -678,11 +706,14 @@ size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size
     size_t first = 0, last = coefficients.size() - 1;
     bool foundFirst = false;
     for (size_t k = 0; k < coefficients.size(); k++) {
-#ifdef CHECK_ZERO_ONLY
-        if (coefficients[k] != 0) {
+#ifdef ZERO_FIRST
+        if ( ((first_plane_idx + k < FIRST_NON_ZEROED_PLANE) && (coefficients[k] != 0) ) ||
+             ((first_plane_idx + k >= FIRST_NON_ZEROED_PLANE) && (coefficients[k] != cachedCoefficients_[c][i][j][k])) )
 #else
-        if (coefficients[k] != cachedCoefficients_[c][i][j][k]) {
+        if ( ((first_plane_idx + k >= FIRST_ZEROED_PLANE) && (coefficients[k] != 0) ) ||
+             ((first_plane_idx + k < FIRST_ZEROED_PLANE) && (coefficients[k] != cachedCoefficients_[c][i][j][k])) )
 #endif
+        {
             last = k;
             if (!foundFirst) {
                 first = k;
@@ -818,9 +849,7 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
     int16_t* signedBuf = ConvertToSignedPixels(buffer, width, height);
 
     // 0.1. Clear all of the coefficients
-#ifdef CHECK_ZERO_ONLY
     ClearCoefficients();
-#endif
 
     // For each scale level
     for (int c = 0; c < sizeof(multiscale_configuration) / sizeof(*multiscale_configuration); c++) {
