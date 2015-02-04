@@ -47,41 +47,53 @@
 #define SQRT_125             0.353553391
 #define SQRT_250             0.5
 
-#define ZERO_FIRST
+//#define ZERO_FIRST
 #ifdef ZERO_FIRST
-#define FIRST_NON_ZEROED_PLANE 12
-// 0  0.319334
-// 1  0.186258
-// 4  0.184406
-// 8  0.176126
-// 12 0.177521
-// 16 0.176379
-// 24 0.181215
-// 32 0.181143
+#define FIRST_NON_ZEROED_PLANE 63
+// 0  A 0.359627  F 0.2802
+// 1  A 0.18422   F 0.28023
+// 4  A 0.186555  F 0.198406
+// 8  A 0.186255  F 0.198492
+// 12 A 0.188486  F 0.198843
+// 16 A 0.187488  F 0.197901
+// 24 A 0.193439  F 0.200373
+// 32 A 0.193119  F 0.200078
+// 63 A 0.201586  F 0.201696
 #else
-#define FIRST_ZEROED_PLANE 8
-// 0 0.188696
-// 1 0.296854
-// 8 0.326707
+#define FIRST_ZEROED_PLANE 63
+// 0  A 0.201586  F 0.201696
+// 1  A 0.316581  F 0.201696
+// 4  A 0.349629  F 0.271676
+// 8  A 0.365564  F 0.279924
+// 12 A 0.364254  F 0.280412
+// 16 A 0.365545  F 0.281447
+// 24 A 0.363736  F 0.28149
+// 32 A 0.364031  F 0.28176
+// 48 A 0.359659  F 0.280231
+// 56 A 0.359659  F 0.28023
+// 62 A 0.359653  F 0.280231
+// 63 A 0.359629  F 0.2802
 #endif
 
 /*
  * The current configuration. See comment for scale_config_t in DctTiler.h for more info.
  */
-// Stats for the first 100 frames of Bourne 10                                        Ratio     PSNR
-//                                                                                    -----------------
-//scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // 0.201587  42.3866
-//scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};             // 0.246539  39.936
-//scale_config_t multiscale_configuration[] = {{8, 0, 8}, {1, 8, 55}};             // 0.202793  40.5105
-scale_config_t multiscale_configuration[] = {{8, 0, 4}, {1, 4, 59}};             // 0.200975  40.5258
-//scale_config_t multiscale_configuration[] = {{8, 0, 1}, {1, 1, 62}};             // 0.194188  40.7303
-//scale_config_t multiscale_configuration[] = {{8, 0, 1}, {4, 1, 1}, {1, 2, 61}};  // 0.194291  40.2574
-//scale_config_t multiscale_configuration[] = {{16, 0, 1}, {4, 1, 1}, {1, 2, 61}};  // 0.191575 40.2569
-//scale_config_t multiscale_configuration[] = {{16, 0, 1}, {1, 1, 62}};             // 0.188427 40.8292
-//scale_config_t multiscale_configuration[] = {{4, 0, 4}, {2, 4, 8}, {1, 12, 51}}; // 0.276193  39.6099
-//scale_config_t multiscale_configuration[] = {{8, 0, 8}, {2, 8, 55}};             // 0.0824013 36.8457
-//scale_config_t multiscale_configuration[] = {{8, 0, 4}, {2, 4, 59}};             // 0.073577  37.0355
-//scale_config_t multiscale_configuration[] = {{4, 0, 8}};                         // 0.0160014 32.7517
+// Stats for the first 100 frames of Bourne 10 and zero all                               Ratio     PSNR
+//                                                                                    --------------------
+//scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // A  0.201586  42.3867
+//scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};             // B  0.316724  39.936
+//scale_config_t multiscale_configuration[] = {{8, 0, 8}, {1, 8, 55}};             // C  0.240886  40.5105
+//scale_config_t multiscale_configuration[] = {{8, 0, 4}, {1, 4, 59}};             // D  0.241005  40.5258
+//scale_config_t multiscale_configuration[] = {{8, 0, 1}, {1, 1, 62}};             // E  0.229099  40.7303
+scale_config_t multiscale_configuration[] = {{16, 0, 1}, {1, 1, 62}};            // F  0.201696  40.8292
+//scale_config_t multiscale_configuration[] = {{4, 0, 4}, {2, 4, 1}, {1, 5, 58}};  // G  0.361488  39.595
+//scale_config_t multiscale_configuration[] = {{8, 0, 1}, {4, 1, 1}, {1, 2, 61}};  // H  0.256605  40.2574
+//scale_config_t multiscale_configuration[] = {{16, 0, 1}, {4, 1, 1}, {1, 2, 61}}; // I  0.246973  40.257
+//scale_config_t multiscale_configuration[] = {{2, 0, 63}};                        // J  0.0677427 38.4522
+//scale_config_t multiscale_configuration[] = {{4, 0, 63}};                        // K  0.0285076 34.8659
+//scale_config_t multiscale_configuration[] = {{8, 0, 8}, {2, 8, 55}};             // L  0.090918  36.8457
+//scale_config_t multiscale_configuration[] = {{8, 0, 4}, {2, 4, 59}};             // M  0.0826    37.0355
+//scale_config_t multiscale_configuration[] = {{4, 0, 8}};                         // N  0.0160014 32.7517
 
 /**
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
@@ -660,7 +672,7 @@ void DctTiler::ClearCoefficients() {
     start[0] = start[1] = start[2] = 0;
     end[0] = display_->DisplayWidth() - 1;
     end[1] = display_->DisplayHeight() - 1;
-    end[2] = FIRST_NON_ZEROED_PLANE;
+    end[2] = FIRST_NON_ZEROED_PLANE - 1;
     if (FIRST_NON_ZEROED_PLANE == 0)
         return;
 #else
