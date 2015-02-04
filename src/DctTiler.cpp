@@ -47,9 +47,9 @@
 #define SQRT_125             0.353553391
 #define SQRT_250             0.5
 
-//#define ZERO_FIRST
+#define ZERO_FIRST
 #ifdef ZERO_FIRST
-#define FIRST_NON_ZEROED_PLANE 63
+#define FIRST_NON_ZEROED_PLANE 4
 // 0  A 0.359627  F 0.2802
 // 1  A 0.18422   F 0.28023
 // 4  A 0.186555  F 0.198406
@@ -80,12 +80,12 @@
  */
 // Stats for the first 100 frames of Bourne 10 and zero all                               Ratio     PSNR
 //                                                                                    --------------------
-//scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // A  0.201586  42.3867
+scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // A  0.201586  42.3867
 //scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};             // B  0.316724  39.936
 //scale_config_t multiscale_configuration[] = {{8, 0, 8}, {1, 8, 55}};             // C  0.240886  40.5105
 //scale_config_t multiscale_configuration[] = {{8, 0, 4}, {1, 4, 59}};             // D  0.241005  40.5258
 //scale_config_t multiscale_configuration[] = {{8, 0, 1}, {1, 1, 62}};             // E  0.229099  40.7303
-scale_config_t multiscale_configuration[] = {{16, 0, 1}, {1, 1, 62}};            // F  0.201696  40.8292
+//scale_config_t multiscale_configuration[] = {{16, 0, 1}, {1, 1, 62}};            // F  0.201696  40.8292
 //scale_config_t multiscale_configuration[] = {{4, 0, 4}, {2, 4, 1}, {1, 5, 58}};  // G  0.361488  39.595
 //scale_config_t multiscale_configuration[] = {{8, 0, 1}, {4, 1, 1}, {1, 2, 61}};  // H  0.256605  40.2574
 //scale_config_t multiscale_configuration[] = {{16, 0, 1}, {4, 1, 1}, {1, 2, 61}}; // I  0.246973  40.257
@@ -664,30 +664,61 @@ vector<uint64_t> DctTiler::BuildCoefficients(size_t i, size_t j, int16_t* buffer
     return coefficients;
 }
 
-void DctTiler::ClearCoefficients() {
+
+/**
+ * Compares all of the coefficients computed for this current scale to what's in the cache for this scale.
+ * Will then choose which planes to zero. Two directions are considered, which may result in the first X
+ * planes and the last Y planes cleared. Alternatively, all planes might be cleared.
+ *
+ * After the operation, the fill scaler commands are sent to the NDDI display and the cached coefficients
+ * are updated.
+ */
+void DctTiler::ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c) {
+
+    // TODO(CDE): Fix this proper.
+
+    scale_config_t config = multiscale_configuration[c];
+
     vector<unsigned int> start(3, 0);
     vector<unsigned int> end(3, 0);
 
 #ifdef ZERO_FIRST
-    start[0] = start[1] = start[2] = 0;
+    start[0] = start[1] = 0;
+    start[2] = 0;
+    start[2] = CLAMP(start[2], config.first_plane_idx, config.first_plane_idx + config.plane_count - 1);
     end[0] = display_->DisplayWidth() - 1;
     end[1] = display_->DisplayHeight() - 1;
     end[2] = FIRST_NON_ZEROED_PLANE - 1;
+    end[2] = CLAMP(end[2], config.first_plane_idx, config.first_plane_idx + config.plane_count - 1);
     if (FIRST_NON_ZEROED_PLANE == 0)
         return;
 #else
     start[0] = start[1] = 0;
     start[2] = FIRST_ZEROED_PLANE;
+    start[2] = CLAMP(start[2], config.first_plane_idx, config.first_plane_idx + config.plane_count - 1);
     end[0] = display_->DisplayWidth() - 1;
     end[1] = display_->DisplayHeight() - 1;
     end[2] = display_->NumCoefficientPlanes() - (2 + FIRST_ZEROED_PLANE);
+    end[2] = CLAMP(end[2], config.first_plane_idx, config.first_plane_idx + config.plane_count - 1);
     if (FIRST_ZEROED_PLANE >= 63)
         return;
 #endif
 
+    /* Fill the scalers first. */
     Scaler s;
     s.packed = 0;
     display_->FillScaler(s, start, end);
+
+    /* Then update the cached coefficients. */
+    if (cachedCoefficients_.size() > c) {
+        for (size_t i = 0; i < cachedCoefficients_[c].size(); i++) {
+            for (size_t j = 0; j < cachedCoefficients_[c][i].size(); j++) {
+                for (size_t k = start[2] - config.first_plane_idx; k <= end[2] - config.first_plane_idx; k++) {
+                    cachedCoefficients_[c][i][j][k] = 0;
+                }
+            }
+        }
+    }
 }
 
 
@@ -718,14 +749,7 @@ size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size
     size_t first = 0, last = coefficients.size() - 1;
     bool foundFirst = false;
     for (size_t k = 0; k < coefficients.size(); k++) {
-#ifdef ZERO_FIRST
-        if ( ((first_plane_idx + k < FIRST_NON_ZEROED_PLANE) && (coefficients[k] != 0) ) ||
-             ((first_plane_idx + k >= FIRST_NON_ZEROED_PLANE) && (coefficients[k] != cachedCoefficients_[c][i][j][k])) )
-#else
-        if ( ((first_plane_idx + k >= FIRST_ZEROED_PLANE) && (coefficients[k] != 0) ) ||
-             ((first_plane_idx + k < FIRST_ZEROED_PLANE) && (coefficients[k] != cachedCoefficients_[c][i][j][k])) )
-#endif
-        {
+        if (coefficients[k] != cachedCoefficients_[c][i][j][k]) {
             last = k;
             if (!foundFirst) {
                 first = k;
@@ -857,18 +881,19 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
     assert(width >= display_->DisplayWidth());
     assert(height >= display_->DisplayHeight());
 
-    // 0. Convert image to signed pixels if we don't already have
+    /*
+     * 0. Convert image to signed pixels if we don't already have
+     */
     int16_t* signedBuf = ConvertToSignedPixels(buffer, width, height);
-
-    // 0.1. Clear all of the coefficients
-    ClearCoefficients();
 
     // For each scale level
     for (int c = 0; c < sizeof(multiscale_configuration) / sizeof(*multiscale_configuration); c++) {
 
         scale_config_t config = multiscale_configuration[c];
 
-        // 1. Downsample the image - DownSample()
+        /*
+         * 1. Downsample the image - DownSample()
+         */
         int16_t* downBuf;
         size_t downW = CEIL(width, config.scale_multiplier);
         size_t downH = CEIL(height, config.scale_multiplier);
@@ -877,42 +902,69 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
         else
             downBuf = DownSample(config.scale_multiplier, signedBuf, width, height);
 
-        // 2. For each macroblock in downsampled image
-        //   a. Build coefficients - BuildCoefficients()
-        //   b. Fill coefficients to super-macroblock's coefficient scalers - FillCoefficients()
-        //   c. Perform simulated blending of basis functions and store back to downsampled image - PrerenderCoefficients()
+        /*
+         * 2. For each macroblock in downsampled image
+         *    a. Build coefficients - BuildCoefficients()
+         */
         int16_t* rendBuf = (int16_t*)calloc(downW * downH * 3, sizeof(int16_t));
 
         size_t tilesWide = CEIL(downW, BLOCK_WIDTH);
         size_t tilesHigh = CEIL(downH, BLOCK_HEIGHT);
 
-        for (size_t j = 0; j < tilesHigh; j++) {
-            for (size_t i = 0; i < tilesWide; i++) {
-                // a. Build coefficients - BuildCoefficients()
-                // Only shift pixels by 128 for this first configuration. Subsequent configurations
-                // will only build only address the differences.
-                vector<uint64_t> coefficients = BuildCoefficients(i, j, downBuf, downW, downH, c == 0);
+        vector< vector< vector<uint64_t> > > coefficientsForCurrentScale;
 
-                // b. Fill coefficients to super-macroblock's coefficient scalers - FillCoefficients()
+        // Only shift pixels by 128 for this first configuration. Subsequent configurations
+        // will only build only address the differences.
+        for (size_t i = 0; i < tilesWide; i++) {
+            coefficientsForCurrentScale.push_back(vector< vector<uint64_t> >());
+            for (size_t j = 0; j < tilesHigh; j++) {
+                // a. Build coefficients - BuildCoefficients()
+                vector<uint64_t> coefficients = BuildCoefficients(i, j, downBuf, downW, downH, c == 0);
+                coefficientsForCurrentScale[i].push_back(coefficients);
+            }
+        }
+
+        /*
+         * 4. For this current scale, calculate optimal planes to zero and trim coefficients
+         *   a. Zero out optimal planes - ZeroPlanes()
+         */
+        ZeroPlanes(coefficientsForCurrentScale, c);
+
+        /*
+         * 5. For each macroblock in downsampled image
+         *   a. Fill coefficients to super-macroblock's coefficient scalers - FillCoefficients()
+         *   b. Perform simulated blending of basis functions and store back to downsampled image - PrerenderCoefficients()
+         */
+        for (size_t i = 0; i < tilesWide; i++) {
+            for (size_t j = 0; j < tilesHigh; j++) {
+                vector<uint64_t> coefficients = coefficientsForCurrentScale[i][j];
+
+                // a. Fill coefficients to super-macroblock's coefficient scalers - FillCoefficients()
                 FillCoefficients(coefficients, i, j, c);
 
-                // c. Perform simulated blending of basis functions - PrerenderCoefficients()
+                // b. Perform simulated blending of basis functions - PrerenderCoefficients()
                 // Again, only shift on the first plane
                 PrerenderCoefficients(coefficients, i, j, rendBuf, downW, downH, c == 0);
             }
         }
 
-        // 3. Upsample the image - UpSample()
+        /*
+         * 6. Upsample the image - UpSample()
+         */
         int16_t* upBuf;
         if (config.scale_multiplier == 1)
             upBuf = rendBuf;
         else
             upBuf = UpSample(config.scale_multiplier, rendBuf, width, height);
 
-        // 4. Subtract the results from the original image - AdjustFrame()
+        /*
+         * 7. Subtract the results from the original image - AdjustFrame()
+         */
         AdjustFrame(signedBuf, upBuf, width, height);
 
-        // 5. Cleanup
+        /*
+         * 8. Cleanup
+         */
         free(rendBuf);
         if (config.scale_multiplier > 1) {
             free(downBuf);
