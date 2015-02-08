@@ -47,20 +47,19 @@
 #define SQRT_125             0.353553391
 #define SQRT_250             0.5
 
-#define ZERO_FIRST
-#ifdef ZERO_FIRST
-#define FIRST_NON_ZEROED_PLANE 4
-// 0  A 0.359627  F 0.2802
-// 1  A 0.18422   F 0.28023
-// 4  A 0.186555  F 0.198406
-// 8  A 0.186255  F 0.198492
-// 12 A 0.188486  F 0.198843
-// 16 A 0.187488  F 0.197901
+//#define FIRST_NON_ZEROED_PLANE 63
+// 0  A 0.172718  F 0.176639
+// 1  A   F 0.28023
+// 4  A 0.186548  F 0.198406
+// 8  A   F 0.198492
+// 12 A   F 0.198843
+// 16 A 0.187487  F 0.197901
 // 24 A 0.193439  F 0.200373
 // 32 A 0.193119  F 0.200078
-// 63 A 0.201586  F 0.201696
-#else
-#define FIRST_ZEROED_PLANE 63
+// 36 A 0.201597
+// 63 A 0.201586
+
+//#define LAST_NON_ZEROED_PLANE 63
 // 0  A 0.201586  F 0.201696
 // 1  A 0.316581  F 0.201696
 // 4  A 0.349629  F 0.271676
@@ -73,17 +72,16 @@
 // 56 A 0.359659  F 0.28023
 // 62 A 0.359653  F 0.280231
 // 63 A 0.359629  F 0.2802
-#endif
 
 /*
  * The current configuration. See comment for scale_config_t in DctTiler.h for more info.
  */
 // Stats for the first 100 frames of Bourne 10 and zero all                               Ratio     PSNR
 //                                                                                    --------------------
-scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // A  0.201586  42.3867
+//scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // A  0.201586  42.3867
 //scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};             // B  0.316724  39.936
 //scale_config_t multiscale_configuration[] = {{8, 0, 8}, {1, 8, 55}};             // C  0.240886  40.5105
-//scale_config_t multiscale_configuration[] = {{8, 0, 4}, {1, 4, 59}};             // D  0.241005  40.5258
+scale_config_t multiscale_configuration[] = {{8, 0, 4}, {1, 4, 59}};             // D  0.241005  40.5258
 //scale_config_t multiscale_configuration[] = {{8, 0, 1}, {1, 1, 62}};             // E  0.229099  40.7303
 //scale_config_t multiscale_configuration[] = {{16, 0, 1}, {1, 1, 62}};            // F  0.201696  40.8292
 //scale_config_t multiscale_configuration[] = {{4, 0, 4}, {2, 4, 1}, {1, 5, 58}};  // G  0.361488  39.595
@@ -337,9 +335,6 @@ void DctTiler::InitializeCoefficientPlanes() {
 
                             int tx = -i * scaledBlockWidth - x + x / config.scale_multiplier;
                             int ty = -j * scaledBlockHeight - y + y / config.scale_multiplier;
-
-                            assert(start[0] + tx >= 0 && start[0] + tx < BLOCK_WIDTH);
-                            assert(start[1] + ty >= 0 && start[1] + ty < BLOCK_HEIGHT);
 
                             display_->FillCoefficient(tx, 0, 2, start, end);
                             display_->FillCoefficient(ty, 1, 2, start, end);
@@ -666,6 +661,104 @@ vector<uint64_t> DctTiler::BuildCoefficients(size_t i, size_t j, int16_t* buffer
 
 
 /**
+ * Estimates what the cost of updating the coefficients will be when all but a defined range (front to last inclusive) are
+ * zeroed out.
+ *
+ * @param coefficientsForScale The calculated coefficients for this scale
+ * @param c The current scale from the multiscale_configuration global.
+ * @param first The first non-zeroed plane.
+ * @param last The last non-zeroed plane.
+ * @return The estimated cost in terms of bytes sent over the wire.
+ */
+size_t DctTiler::EstimateCost(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t first, size_t last) {
+
+    scale_config_t config = multiscale_configuration[c];
+    size_t scaleFirst = config.first_plane_idx;
+    size_t scaleLast = config.first_plane_idx + config.plane_count - 1;
+
+#if defined FIRST_NON_ZEROED_PLANE && defined LAST_NON_ZEROED_PLANE
+    if (first == CLAMP(FIRST_NON_ZEROED_PLANE, scaleFirst, scaleLast + 1) && last == LAST_NON_ZEROED_PLANE)
+        return 0;
+    else
+        return 1000;
+#elif defined FIRST_NON_ZEROED_PLANE
+    if (first == CLAMP(FIRST_NON_ZEROED_PLANE, scaleFirst, scaleLast + 1))
+        return 0;
+    else
+        return 1000;
+#elif defined LAST_NON_ZEROED_PLANE
+    if (last == CLAMP(FIRST_NON_ZEROED_PLANE, scaleFirst, scaleLast + 1))
+        return 0;
+    else
+        return 1000;
+#endif
+
+    /*
+     * Use the dimensions of the cachedCoefficients for this scale to set the
+     * dimensions of the tops and bottoms vector.
+     */
+    vector< vector<int> > firsts(cachedCoefficients_[c].size(), vector<int>(cachedCoefficients_[c][0].size(), -1));
+    vector< vector<int> >  lasts(cachedCoefficients_[c].size(), vector<int>(cachedCoefficients_[c][0].size(), -1));
+
+    /*
+     * Work through the planes to and setup the tops and bottoms.
+     */
+    for (size_t i = 0; i < cachedCoefficients_[c].size(); i++) {
+        for (size_t j = 0; j < cachedCoefficients_[c][i].size(); j++) {
+            /* Work from the front (top) and track the tops */
+            for (int k = config.first_plane_idx; k < config.first_plane_idx + config.plane_count; k++) {
+                if (firsts[i][j] == -1) {
+                    if (k < first && coefficientsForScale[i][j][k] != 0)
+                        firsts[i][j] = k;
+                    else if (k > last && coefficientsForScale[i][j][k] != 0)
+                        firsts[i][j] = k;
+                    else if (coefficientsForScale[i][j][k] != cachedCoefficients_[c][i][j][k])
+                        firsts[i][j] = k;
+                }
+            }
+            /* Then work from the last (bottom) and track the bottoms */
+            for (int k = config.first_plane_idx + config.plane_count - 1; k+1 > config.first_plane_idx; k--) {
+                if (lasts[i][j] == -1) {
+                    if (k > last && coefficientsForScale[i][j][k] != 0)
+                        lasts[i][j] = k;
+                    else if (k < first && coefficientsForScale[i][j][k] != 0)
+                        lasts[i][j] = k;
+                    else if (coefficientsForScale[i][j][k] != cachedCoefficients_[c][i][j][k])
+                        lasts[i][j] = k;
+                }
+            }
+        }
+    }
+
+    /*
+     * Then tally the score
+     */
+    size_t score = 0;
+
+    // Add the cost of zeroing sections (if any)
+    if (first > config.first_plane_idx)
+        score += BYTES_PER_SCALER * 1 + CALC_BYTES_FOR_CP_COORD_TRIPLES(2);
+
+    if (last < config.first_plane_idx + config.plane_count - 1)
+        score += BYTES_PER_SCALER * 1 + CALC_BYTES_FOR_CP_COORD_TRIPLES(2);
+
+    for (size_t i = 0; i < cachedCoefficients_[c].size(); i++) {
+        for (size_t j = 0; j < cachedCoefficients_[c][i].size(); j++) {
+            // Add cost of filling a stack of tiles
+            if (firsts[i][j] != -1 && lasts[i][j] != -1) {
+                size_t stack_height = (lasts[i][j] - firsts[i][j] + 1);
+                score += BYTES_PER_SCALER * stack_height +
+                         CALC_BYTES_FOR_CP_COORD_TRIPLES(1) +
+                         CALC_BYTES_FOR_TILE_COORD_DOUBLES(1);
+            }
+        }
+    }
+
+    return score;
+}
+
+
+/**
  * Compares all of the coefficients computed for this current scale to what's in the cache for this scale.
  * Will then choose which planes to zero. Two directions are considered, which may result in the first X
  * planes and the last Y planes cleared. Alternatively, all planes might be cleared.
@@ -675,46 +768,103 @@ vector<uint64_t> DctTiler::BuildCoefficients(size_t i, size_t j, int16_t* buffer
  */
 void DctTiler::ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c) {
 
-    // TODO(CDE): Fix this proper.
-
     scale_config_t config = multiscale_configuration[c];
+    size_t scaleFirst = config.first_plane_idx;
+    size_t scaleLast = config.first_plane_idx + config.plane_count - 1;
 
     vector<unsigned int> start(3, 0);
     vector<unsigned int> end(3, 0);
 
-#ifdef ZERO_FIRST
+    /*
+     * Determine the best regions to clear. Start from the front, and work from the last.
+     */
+    int first = scaleFirst;
+    int last  = scaleLast;
+
+    // Get a baseline cost over the whole set of planes
+    size_t minCost = EstimateCost(coefficientsForScale, c, first, last);
+    size_t cost;
+
+    // Then adjust first until we find a minimal cost
+    if (first != last)
+        for (int i = first + 1; i <= last; i++) {
+            cost = EstimateCost(coefficientsForScale, c, i, last);
+            if (cost < minCost) {
+                minCost = cost;
+                first = i;
+            }
+        }
+
+    // Then adjust last until we find a minimal cost
+    if (first != last)
+        for (int i = last - 1; i + 1 > first; i--) {
+            cost = EstimateCost(coefficientsForScale, c, first, i);
+            if (cost < minCost) {
+                minCost = cost;
+                last = i;
+            }
+        }
+
+    // Lastly check if it's cheaper to zero everything out by setting first past the end
+    cost = EstimateCost(coefficientsForScale, c, config.first_plane_idx + config.plane_count, config.first_plane_idx + config.plane_count);
+    if (cost < minCost) {
+        minCost = cost;
+        first = last = config.first_plane_idx + config.plane_count;
+    }
+
+    cout << "Scale [" << scaleFirst << "," << scaleLast << "] -- Not Zeroed [" << first << "," << last << "]" << endl;
+
+    /*
+     * Configure the first region to clear, then clear the scalers and then the cached coefficients.
+     */
     start[0] = start[1] = 0;
-    start[2] = 0;
-    start[2] = CLAMP(start[2], config.first_plane_idx, config.first_plane_idx + config.plane_count - 1);
+    start[2] = scaleFirst;
+
     end[0] = display_->DisplayWidth() - 1;
     end[1] = display_->DisplayHeight() - 1;
-    end[2] = FIRST_NON_ZEROED_PLANE - 1;
-    end[2] = CLAMP(end[2], config.first_plane_idx, config.first_plane_idx + config.plane_count - 1);
-    if (FIRST_NON_ZEROED_PLANE == 0)
-        return;
-#else
+    end[2] = first - 1;
+
+    if (first > scaleFirst) {
+        /* Zero the scalers for these planes first. */
+        Scaler s;
+        s.packed = 0;
+        display_->FillScaler(s, start, end);
+
+        /* Then update the cached coefficients. */
+        if (cachedCoefficients_.size() > c) {
+            for (size_t i = 0; i < cachedCoefficients_[c].size(); i++) {
+                for (size_t j = 0; j < cachedCoefficients_[c][i].size(); j++) {
+                    for (size_t k = start[2]; k <= end[2]; k++) {
+                        cachedCoefficients_[c][i][j][k - scaleFirst] = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+     * Configure the last region to clear, then clear the scalers and then the cached coefficients.
+     */
     start[0] = start[1] = 0;
-    start[2] = FIRST_ZEROED_PLANE;
-    start[2] = CLAMP(start[2], config.first_plane_idx, config.first_plane_idx + config.plane_count - 1);
+    start[2] = last + 1;
+
     end[0] = display_->DisplayWidth() - 1;
     end[1] = display_->DisplayHeight() - 1;
-    end[2] = display_->NumCoefficientPlanes() - (2 + FIRST_ZEROED_PLANE);
-    end[2] = CLAMP(end[2], config.first_plane_idx, config.first_plane_idx + config.plane_count - 1);
-    if (FIRST_ZEROED_PLANE >= 63)
-        return;
-#endif
+    end[2] = scaleLast;
 
-    /* Fill the scalers first. */
-    Scaler s;
-    s.packed = 0;
-    display_->FillScaler(s, start, end);
+    if (last < scaleLast) {
+        /* Zero the scalers for these planes first. */
+        Scaler s;
+        s.packed = 0;
+        display_->FillScaler(s, start, end);
 
-    /* Then update the cached coefficients. */
-    if (cachedCoefficients_.size() > c) {
-        for (size_t i = 0; i < cachedCoefficients_[c].size(); i++) {
-            for (size_t j = 0; j < cachedCoefficients_[c][i].size(); j++) {
-                for (size_t k = start[2] - config.first_plane_idx; k <= end[2] - config.first_plane_idx; k++) {
-                    cachedCoefficients_[c][i][j][k] = 0;
+        /* Then update the cached coefficients. */
+        if (cachedCoefficients_.size() > c) {
+            for (size_t i = 0; i < cachedCoefficients_[c].size(); i++) {
+                for (size_t j = 0; j < cachedCoefficients_[c][i].size(); j++) {
+                    for (size_t k = start[2]; k <= end[2]; k++) {
+                        cachedCoefficients_[c][i][j][k - scaleFirst] = 0;
+                    }
                 }
             }
         }
@@ -745,7 +895,7 @@ size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size
     /* first_plane_idx will be the return value. Start it at the configured first plane. */
     size_t first_plane_idx = multiscale_configuration[c].first_plane_idx;
 
-    /* Figure out the first and last non-zero coefficient */
+    /* Figure out the first and last unchanged coefficient */
     size_t first = 0, last = coefficients.size() - 1;
     bool foundFirst = false;
     for (size_t k = 0; k < coefficients.size(); k++) {
@@ -766,9 +916,12 @@ size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size
         if (last < coefficients.size() - 1)
             coefficients.erase(coefficients.begin() + last + 1, coefficients.end());
         coefficients.erase(coefficients.begin(), coefficients.begin() + first);
+        return first_plane_idx + first;
+    } else {
+        // If we didn't find a first, then that means that we've trimmed everything away.
+        // As in there are no changes to make. So return a first plan that's out of bounds.
+        return display_->NumCoefficientPlanes();
     }
-
-    return first_plane_idx + first;
 }
 
 /**
@@ -804,8 +957,10 @@ void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t
     size_t first_plane_idx = TrimCoefficients(coefficients, i, j, c);
     start[2] = first_plane_idx;
 
-    /* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
-    display_->FillScalerTileStack(coefficients, start, size);
+    /* If any any coefficients have changed, send the NDDI command to update them */
+    if (start[2] < display_->NumCoefficientPlanes()) {
+        display_->FillScalerTileStack(coefficients, start, size);
+    }
 }
 
 /**
@@ -926,9 +1081,11 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
 
         /*
          * 4. For this current scale, calculate optimal planes to zero and trim coefficients
+         *   If we've initialized the coefficient cache
          *   a. Zero out optimal planes - ZeroPlanes()
          */
-        ZeroPlanes(coefficientsForCurrentScale, c);
+        if (cachedCoefficients_.size() > c)
+            ZeroPlanes(coefficientsForCurrentScale, c);
 
         /*
          * 5. For each macroblock in downsampled image
