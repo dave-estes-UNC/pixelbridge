@@ -81,7 +81,7 @@ private:
     size_t EstimateCost(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t first, size_t last);
     void ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c);
     size_t TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c);
-    void FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c);
+    void FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t first);
     void PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, int16_t* renderedBuffer, size_t width, size_t height, bool shift);
     void AdjustFrame(int16_t* buffer, int16_t* renderedBuffer, size_t width, size_t height);
     void UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height);

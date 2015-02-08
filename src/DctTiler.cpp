@@ -80,8 +80,8 @@
 //                                                                                    --------------------
 //scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // A  0.201586  42.3867
 //scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};             // B  0.316724  39.936
-//scale_config_t multiscale_configuration[] = {{8, 0, 8}, {1, 8, 55}};             // C  0.240886  40.5105
-scale_config_t multiscale_configuration[] = {{8, 0, 4}, {1, 4, 59}};             // D  0.241005  40.5258
+scale_config_t multiscale_configuration[] = {{8, 0, 8}, {1, 8, 55}};             // C  0.240886  40.5105
+//scale_config_t multiscale_configuration[] = {{8, 0, 4}, {1, 4, 59}};             // D  0.241005  40.5258
 //scale_config_t multiscale_configuration[] = {{8, 0, 1}, {1, 1, 62}};             // E  0.229099  40.7303
 //scale_config_t multiscale_configuration[] = {{16, 0, 1}, {1, 1, 62}};            // F  0.201696  40.8292
 //scale_config_t multiscale_configuration[] = {{4, 0, 4}, {2, 4, 1}, {1, 5, 58}};  // G  0.361488  39.595
@@ -937,7 +937,7 @@ size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size
  * @param c Index into multiscale_configuration for information about the factor by
  *          which we're scaling and which planes to fill.
  */
-void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c) {
+void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t first) {
 
     vector<unsigned int> start(3, 0);
     vector<unsigned int> size(2, 0);
@@ -946,16 +946,10 @@ void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t
 
     start[0] = i * BLOCK_WIDTH * config.scale_multiplier;
     start[1] = j * BLOCK_HEIGHT * config.scale_multiplier;
+    start[2] = first;
 
     size[0] = BLOCK_WIDTH * config.scale_multiplier;
     size[1] = BLOCK_HEIGHT * config.scale_multiplier;
-
-    /* First trim the least significant coefficients to match the plane count for this configuration */
-    coefficients.resize(config.plane_count);
-
-    /* Then trim the coefficients form the front and the back that don't need to be resent. */
-    size_t first_plane_idx = TrimCoefficients(coefficients, i, j, c);
-    start[2] = first_plane_idx;
 
     /* If any any coefficients have changed, send the NDDI command to update them */
     if (start[2] < display_->NumCoefficientPlanes()) {
@@ -1075,6 +1069,7 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
             for (size_t j = 0; j < tilesHigh; j++) {
                 // a. Build coefficients - BuildCoefficients()
                 vector<uint64_t> coefficients = BuildCoefficients(i, j, downBuf, downW, downH, c == 0);
+                coefficients.resize(config.plane_count);
                 coefficientsForCurrentScale[i].push_back(coefficients);
             }
         }
@@ -1089,19 +1084,23 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
 
         /*
          * 5. For each macroblock in downsampled image
-         *   a. Fill coefficients to super-macroblock's coefficient scalers - FillCoefficients()
-         *   b. Perform simulated blending of basis functions and store back to downsampled image - PrerenderCoefficients()
+         *   a. Trim a copy of the coefficients - TrimCoefficients()
+         *   b. Fill trimmed coefficients to super-macroblock's coefficient scalers - FillCoefficients()
+         *   c. Perform simulated blending of basis functions and store back to downsampled image - PrerenderCoefficients()
          */
         for (size_t i = 0; i < tilesWide; i++) {
             for (size_t j = 0; j < tilesHigh; j++) {
+
+                // a. Trim a copy of the coefficients - TrimCoefficients()
                 vector<uint64_t> coefficients = coefficientsForCurrentScale[i][j];
+                size_t first_plane_idx = TrimCoefficients(coefficients, i, j, c);
 
-                // a. Fill coefficients to super-macroblock's coefficient scalers - FillCoefficients()
-                FillCoefficients(coefficients, i, j, c);
+                // b. Fill trimmed coefficients to super-macroblock's coefficient scalers - FillCoefficients()
+                FillCoefficients(coefficients, i, j, c, first_plane_idx);
 
-                // b. Perform simulated blending of basis functions - PrerenderCoefficients()
+                // a. Perform simulated blending of basis functions - PrerenderCoefficients()
                 // Again, only shift on the first plane
-                PrerenderCoefficients(coefficients, i, j, rendBuf, downW, downH, c == 0);
+                PrerenderCoefficients(coefficientsForCurrentScale[i][j], i, j, rendBuf, downW, downH, c == 0);
             }
         }
 
