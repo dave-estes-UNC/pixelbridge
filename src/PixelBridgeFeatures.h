@@ -54,13 +54,18 @@
 /*
  * Uses multiple scales for DCT
  */
-//#define USE_MULTISCALE_DCT
+#define USE_MULTISCALE_DCT
+
+/*
+ * Uses optimal zeroing for DCT
+ */
+//#define USE_DCT_OPTIMAL_ZEROING
 
 /*
  * Resets the cost model immediately after the tiler setup is complete.
  * Useful for considering the performance of a tiler with said setup.
  */
-//#define CLEAR_COST_MODEL_AFTER_SETUP
+#define CLEAR_COST_MODEL_AFTER_SETUP
 
 /*
  * Creates random frame(s) instead of decoding video.

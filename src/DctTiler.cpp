@@ -76,22 +76,23 @@
 /*
  * The current configuration. See comment for scale_config_t in DctTiler.h for more info.
  */
-// Stats for the first 100 frames of Bourne 10 and zero all                               Ratio     PSNR
-//                                                                                    --------------------
-//scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // A  0.201586  42.3867
-//scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};             // B  0.316724  39.936
-scale_config_t multiscale_configuration[] = {{8, 0, 8}, {1, 8, 55}};             // C  0.240886  40.5105
-//scale_config_t multiscale_configuration[] = {{8, 0, 4}, {1, 4, 59}};             // D  0.241005  40.5258
-//scale_config_t multiscale_configuration[] = {{8, 0, 1}, {1, 1, 62}};             // E  0.229099  40.7303
-//scale_config_t multiscale_configuration[] = {{16, 0, 1}, {1, 1, 62}};            // F  0.201696  40.8292
-//scale_config_t multiscale_configuration[] = {{4, 0, 4}, {2, 4, 1}, {1, 5, 58}};  // G  0.361488  39.595
-//scale_config_t multiscale_configuration[] = {{8, 0, 1}, {4, 1, 1}, {1, 2, 61}};  // H  0.256605  40.2574
-//scale_config_t multiscale_configuration[] = {{16, 0, 1}, {4, 1, 1}, {1, 2, 61}}; // I  0.246973  40.257
-//scale_config_t multiscale_configuration[] = {{2, 0, 63}};                        // J  0.0677427 38.4522
-//scale_config_t multiscale_configuration[] = {{4, 0, 63}};                        // K  0.0285076 34.8659
-//scale_config_t multiscale_configuration[] = {{8, 0, 8}, {2, 8, 55}};             // L  0.090918  36.8457
-//scale_config_t multiscale_configuration[] = {{8, 0, 4}, {2, 4, 59}};             // M  0.0826    37.0355
-//scale_config_t multiscale_configuration[] = {{4, 0, 8}};                         // N  0.0160014 32.7517
+// Stats for the first 100 frames of Bourne 10 and zero all                               Ratio      PSNR
+//                                                                                    ---------------------
+//scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // A  0.172718   42.3867
+//scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};             // B  0.210216   39.936
+//scale_config_t multiscale_configuration[] = {{8, 0, 8}, {1, 8, 55}};             // C  0.183549   40.5105
+//scale_config_t multiscale_configuration[] = {{8, 0, 4}, {1, 4, 59}};             // D  0.181643   40.5258
+//scale_config_t multiscale_configuration[] = {{8, 0, 1}, {1, 1, 62}};             // E  0.179078   40.7303
+//scale_config_t multiscale_configuration[] = {{16, 0, 1}, {1, 1, 62}};            // F  0.176639   40.8292
+//scale_config_t multiscale_configuration[] = {{4, 0, 4}, {2, 4, 1}, {1, 5, 58}};  // G  0.22335    39.595
+//scale_config_t multiscale_configuration[] = {{8, 0, 1}, {4, 1, 1}, {1, 2, 61}};  // H  0.184378   40.2574
+//scale_config_t multiscale_configuration[] = {{16, 0, 1}, {4, 1, 1}, {1, 2, 61}}; // I  0.182529   40.257
+//scale_config_t multiscale_configuration[] = {{2, 0, 63}};                        // J  0.0558281  38.4279
+//scale_config_t multiscale_configuration[] = {{4, 0, 63}};                        // K  0.0206575  34.8659
+//scale_config_t multiscale_configuration[] = {{8, 0, 8}, {2, 8, 55}};             // L  0.0685119  36.8457
+//scale_config_t multiscale_configuration[] = {{8, 0, 4}, {2, 4, 59}};             // M  0.0628863  37.0355
+//scale_config_t multiscale_configuration[] = {{4, 0, 8}};                         // N  0.0136746  32.7517
+scale_config_t multiscale_configuration[] = {{8, 0, 32}, {1, 32, 31}};           // O  0.186506  40.5118
 
 /**
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
@@ -1079,8 +1080,10 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
          *   If we've initialized the coefficient cache
          *   a. Zero out optimal planes - ZeroPlanes()
          */
+#ifdef USE_DCT_OPTIMAL_ZEROING
         if (cachedCoefficients_.size() > c)
             ZeroPlanes(coefficientsForCurrentScale, c);
+#endif
 
         /*
          * 5. For each macroblock in downsampled image
