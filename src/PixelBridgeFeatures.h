@@ -59,7 +59,7 @@
 /*
  * Uses optimal zeroing for DCT
  */
-//#define USE_DCT_OPTIMAL_ZEROING
+#define USE_DCT_OPTIMAL_ZEROING
 
 /*
  * Resets the cost model immediately after the tiler setup is complete.

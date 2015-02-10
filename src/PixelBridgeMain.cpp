@@ -962,11 +962,12 @@ void motion( int x, int y ) {
 
 
 void showUsage() {
-    cout << "pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <0/1-100>]" << endl <<
+    cout << "pixelbridge [--mode <fb|flat|cache|dct|count>] [--dct x:y[,x:y...] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <0/1-100>]" << endl <<
             "            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>" << endl;
     cout << endl;
     cout << "  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).\n" <<
             "          Optional the mode can be set to count the number of pixels changed (count)." << endl;
+    cout << "  --dct  For dct mode, this will set a series of scales in the form of comma-separated two tuples holding the scale and then the number of planes." << endl;
     cout << "  --blend  For fb mode, this option alpha-blends using just the frame volume, input vector (temporal), or coefficient plane." << endl;
     cout << "  --ts  Sets the tile size to the width and height provided." << endl;
     cout << "  --tc  Sets the maximum number of tiles in the cache." << endl;
@@ -1004,6 +1005,30 @@ bool parseArgs(int argc, char *argv[]) {
             } else {
                 showUsage();
                 return false;
+            }
+            argc--;
+            argv++;
+        } else if (strcmp(*argv, "--dct") == 0) {
+            if (globalConfiguration.tiler != DCT) {
+                showUsage();
+                return false;
+            }
+            argc--;
+            argv++;
+            // Clear the default dct scales
+            globalConfiguration.clearDctScales();
+            // Then pull out each tuple x:y
+            char *p = strtok(*argv, ",");
+            size_t first = 0;
+            while (p != NULL) {
+                // Scan the scale and count
+                size_t scale, count;
+                sscanf(p, "%d:%d", &scale, &count);
+                // Add the dct scale
+                globalConfiguration.addDctScale(scale, first, count);
+                first += count;
+                // Move to next tuple
+                p = strtok(NULL, ",");
             }
             argc--;
             argv++;

@@ -16,21 +16,6 @@ using namespace nddi;
 using namespace std;
 
 /**
- * Multiscale Support allows the DCT Tiler to use scaled 8x8 super-macroblocks
- * at multiple scales. The frame will be first approximated by the larger
- * scales and then refined slowly with the lower scales. The scale_config_t pairs
- * designate each of the scales supported, started with the top-most planes (plane 0).
- *
- * Note: The last plane is still reserved for medium gray, and therefore is not available
- *       as part of this configuration.
- */
-typedef struct {
-    size_t scale_multiplier;
-    size_t first_plane_idx;
-    size_t plane_count;
-} scale_config_t;
-
-/**
  * This tiler will split provided frames into macroblocks and will perform the forward DCT
  * and create coefficients that will be used as the scalers for the coefficient planes.
  */

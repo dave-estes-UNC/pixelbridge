@@ -47,52 +47,6 @@
 #define SQRT_125             0.353553391
 #define SQRT_250             0.5
 
-//#define FIRST_NON_ZEROED_PLANE 63
-// 0  A 0.172718  F 0.176639
-// 1  A   F 0.28023
-// 4  A 0.186548  F 0.198406
-// 8  A   F 0.198492
-// 12 A   F 0.198843
-// 16 A 0.187487  F 0.197901
-// 24 A 0.193439  F 0.200373
-// 32 A 0.193119  F 0.200078
-// 36 A 0.201597
-// 63 A 0.201586
-
-//#define LAST_NON_ZEROED_PLANE 63
-// 0  A 0.201586  F 0.201696
-// 1  A 0.316581  F 0.201696
-// 4  A 0.349629  F 0.271676
-// 8  A 0.365564  F 0.279924
-// 12 A 0.364254  F 0.280412
-// 16 A 0.365545  F 0.281447
-// 24 A 0.363736  F 0.28149
-// 32 A 0.364031  F 0.28176
-// 48 A 0.359659  F 0.280231
-// 56 A 0.359659  F 0.28023
-// 62 A 0.359653  F 0.280231
-// 63 A 0.359629  F 0.2802
-
-/*
- * The current configuration. See comment for scale_config_t in DctTiler.h for more info.
- */
-// Stats for the first 100 frames of Bourne 10 and zero all                               Ratio      PSNR
-//                                                                                    ---------------------
-//scale_config_t multiscale_configuration[] = {{1, 0, 63}};                        // A  0.172718   42.3867
-//scale_config_t multiscale_configuration[] = {{4, 0, 8}, {1, 8, 55}};             // B  0.210216   39.936
-//scale_config_t multiscale_configuration[] = {{8, 0, 8}, {1, 8, 55}};             // C  0.183549   40.5105
-//scale_config_t multiscale_configuration[] = {{8, 0, 4}, {1, 4, 59}};             // D  0.181643   40.5258
-//scale_config_t multiscale_configuration[] = {{8, 0, 1}, {1, 1, 62}};             // E  0.179078   40.7303
-//scale_config_t multiscale_configuration[] = {{16, 0, 1}, {1, 1, 62}};            // F  0.176639   40.8292
-//scale_config_t multiscale_configuration[] = {{4, 0, 4}, {2, 4, 1}, {1, 5, 58}};  // G  0.22335    39.595
-//scale_config_t multiscale_configuration[] = {{8, 0, 1}, {4, 1, 1}, {1, 2, 61}};  // H  0.184378   40.2574
-//scale_config_t multiscale_configuration[] = {{16, 0, 1}, {4, 1, 1}, {1, 2, 61}}; // I  0.182529   40.257
-//scale_config_t multiscale_configuration[] = {{2, 0, 63}};                        // J  0.0558281  38.4279
-//scale_config_t multiscale_configuration[] = {{4, 0, 63}};                        // K  0.0206575  34.8659
-//scale_config_t multiscale_configuration[] = {{8, 0, 8}, {2, 8, 55}};             // L  0.0685119  36.8457
-//scale_config_t multiscale_configuration[] = {{8, 0, 4}, {2, 4, 59}};             // M  0.0628863  37.0355
-//scale_config_t multiscale_configuration[] = {{4, 0, 8}};                         // N  0.0136746  32.7517
-scale_config_t multiscale_configuration[] = {{8, 0, 32}, {1, 32, 31}};           // O  0.186506  40.5118
 
 /**
  * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
@@ -308,9 +262,9 @@ void DctTiler::InitializeCoefficientPlanes() {
      */
 
     // For each of the configurations
-    for (size_t c = 0; c < sizeof(multiscale_configuration) / sizeof(*multiscale_configuration); c++) {
+    for (size_t c = 0; c < globalConfiguration.dctScales.size(); c++) {
 
-        scale_config_t config = multiscale_configuration[c];
+        scale_config_t config = globalConfiguration.dctScales[c];
 
         // Adjust the tx and ty coefficients for each supermacroblock
         if (config.scale_multiplier > 1) {
@@ -666,14 +620,14 @@ vector<uint64_t> DctTiler::BuildCoefficients(size_t i, size_t j, int16_t* buffer
  * zeroed out.
  *
  * @param coefficientsForScale The calculated coefficients for this scale
- * @param c The current scale from the multiscale_configuration global.
+ * @param c The current scale from the globalConfiguration.dctScales global.
  * @param first The first non-zeroed plane.
  * @param last The last non-zeroed plane.
  * @return The estimated cost in terms of bytes sent over the wire.
  */
 size_t DctTiler::EstimateCost(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t first, size_t last) {
 
-    scale_config_t config = multiscale_configuration[c];
+    scale_config_t config = globalConfiguration.dctScales[c];
     size_t scaleFirst = config.first_plane_idx;
     size_t scaleLast = config.first_plane_idx + config.plane_count - 1;
 
@@ -769,7 +723,7 @@ size_t DctTiler::EstimateCost(vector< vector< vector<uint64_t> > > &coefficients
  */
 void DctTiler::ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c) {
 
-    scale_config_t config = multiscale_configuration[c];
+    scale_config_t config = globalConfiguration.dctScales[c];
     size_t scaleFirst = config.first_plane_idx;
     size_t scaleLast = config.first_plane_idx + config.plane_count - 1;
 
@@ -813,7 +767,8 @@ void DctTiler::ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForS
         first = last = config.first_plane_idx + config.plane_count;
     }
 
-    cout << "Scale [" << scaleFirst << "," << scaleLast << "] -- Not Zeroed [" << first << "," << last << "]" << endl;
+    if (globalConfiguration.verbose)
+        cout << "Scale [" << scaleFirst << "," << scaleLast << "] -- Not Zeroed [" << first << "," << last << "]" << endl;
 
     /*
      * Configure the first region to clear, then clear the scalers and then the cached coefficients.
@@ -877,7 +832,7 @@ void DctTiler::ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForS
  * Will trim the leading and trailing coefficients that don't need to be updated.
  *
  * @param coefficients The vector (in zig-zag order) of coefficients for the macroblock
- * @param c Index into multiscale_configuration for information about the factor by
+ * @param c Index into globalConfiguration.dctScales for information about the factor by
  *          which we're scaling and which planes to fill.
  * @return The first plane to be updated.
  */
@@ -890,11 +845,11 @@ size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size
         cachedCoefficients_[c].push_back(vector< vector<uint64_t> >());
     if (cachedCoefficients_[c][i].size() <= j) {
         /* Initialize the coefficients to 0 */
-        cachedCoefficients_[c][i].push_back(vector<uint64_t>(multiscale_configuration[c].plane_count, 0));
+        cachedCoefficients_[c][i].push_back(vector<uint64_t>(globalConfiguration.dctScales[c].plane_count, 0));
     }
 
     /* first_plane_idx will be the return value. Start it at the configured first plane. */
-    size_t first_plane_idx = multiscale_configuration[c].first_plane_idx;
+    size_t first_plane_idx = globalConfiguration.dctScales[c].first_plane_idx;
 
     /* Figure out the first and last unchanged coefficient */
     size_t first = 0, last = coefficients.size() - 1;
@@ -935,7 +890,7 @@ size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size
  * @param coefficients The vector (in zig-zag order) of coefficients for the macroblock
  * @param i The column component of the macroblock
  * @param j The row component of the macroblock
- * @param c Index into multiscale_configuration for information about the factor by
+ * @param c Index into globalConfiguration.dctScales for information about the factor by
  *          which we're scaling and which planes to fill.
  */
 void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t first) {
@@ -943,7 +898,7 @@ void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t
     vector<unsigned int> start(3, 0);
     vector<unsigned int> size(2, 0);
 
-    scale_config_t config = multiscale_configuration[c];
+    scale_config_t config = globalConfiguration.dctScales[c];
 
     start[0] = i * BLOCK_WIDTH * config.scale_multiplier;
     start[1] = j * BLOCK_HEIGHT * config.scale_multiplier;
@@ -1037,9 +992,9 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
     int16_t* signedBuf = ConvertToSignedPixels(buffer, width, height);
 
     // For each scale level
-    for (int c = 0; c < sizeof(multiscale_configuration) / sizeof(*multiscale_configuration); c++) {
+    for (int c = 0; c < globalConfiguration.dctScales.size(); c++) {
 
-        scale_config_t config = multiscale_configuration[c];
+        scale_config_t config = globalConfiguration.dctScales[c];
 
         /*
          * 1. Downsample the image - DownSample()
