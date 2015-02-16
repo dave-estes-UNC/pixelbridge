@@ -89,8 +89,8 @@ x Speed up DCT
 +-------+
 
 - Video Paper
-  1. Only resend changed coefficients. See TODO in DctTiler.cpp and final bullet below
-  2. Define a list (3-4) of Coefficient Priority Schemes which will be used to hit predefined data budgets.
+X 1. Only resend changed coefficients. See TODO in DctTiler.cpp and final bullet below
+  2. Define a list (3-5) of Coefficient Priority Schemes which will be used to hit predefined data budgets.
   3. Implement an overall measure of motion per frame (against previous frame).
   4. Explore and find a set (3-5) of Multiscale configurations to use.
   5. Implement Priority schemes to meet configurable fixed data budgets.

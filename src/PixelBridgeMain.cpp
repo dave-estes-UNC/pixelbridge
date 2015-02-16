@@ -962,12 +962,15 @@ void motion( int x, int y ) {
 
 
 void showUsage() {
-    cout << "pixelbridge [--mode <fb|flat|cache|dct|count>] [--dct x:y[,x:y...] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <0/1-100>]" << endl <<
+    cout << "pixelbridge [--mode <fb|flat|cache|dct|count>] [--dctscales x:y[,x:y...]] [--dctdelta <n>] [--blend <fv|t|cp|>]" << endl <<
+            "            [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <0/1-100>]" << endl <<
             "            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>" << endl;
     cout << endl;
     cout << "  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).\n" <<
             "          Optional the mode can be set to count the number of pixels changed (count)." << endl;
-    cout << "  --dct  For dct mode, this will set a series of scales in the form of comma-separated two tuples holding the scale and then the number of planes." << endl;
+    cout << "  --dctscales  For dct mode, this will set a series of scales in the form of comma-separated two tuples holding the scale and then\n" <<
+            "               the edge length of a square that determines the number of planes used (i.e. 2 -> 2 x 2 = 4 planes." << endl;
+    cout << "  --dctdelta  For dct mode, This is the delta between coefficients that is considered a match which will not be updated." << endl;
     cout << "  --blend  For fb mode, this option alpha-blends using just the frame volume, input vector (temporal), or coefficient plane." << endl;
     cout << "  --ts  Sets the tile size to the width and height provided." << endl;
     cout << "  --tc  Sets the maximum number of tiles in the cache." << endl;
@@ -1008,7 +1011,7 @@ bool parseArgs(int argc, char *argv[]) {
             }
             argc--;
             argv++;
-        } else if (strcmp(*argv, "--dct") == 0) {
+        } else if (strcmp(*argv, "--dctscales") == 0) {
             if (globalConfiguration.tiler != DCT) {
                 showUsage();
                 return false;
@@ -1022,14 +1025,28 @@ bool parseArgs(int argc, char *argv[]) {
             size_t first = 0;
             while (p != NULL) {
                 // Scan the scale and count
-                size_t scale, count;
-                sscanf(p, "%d:%d", &scale, &count);
+                int scale, edge;
+                sscanf(p, "%d:%d", &scale, &edge);
+                if (edge < 0 || edge > 8) {
+                    showUsage();
+                    return false;
+                }
                 // Add the dct scale
-                globalConfiguration.addDctScale(scale, first, count);
-                first += count;
+                globalConfiguration.addDctScale(scale, first, edge);
+                first += edge * edge;
                 // Move to next tuple
                 p = strtok(NULL, ",");
             }
+            argc--;
+            argv++;
+        } else if (strcmp(*argv, "--dctdelta") == 0) {
+            argc--;
+            argv++;
+            if (globalConfiguration.tiler != DCT) {
+                showUsage();
+                return false;
+            }
+            globalConfiguration.dctDelta = atoi(*argv);
             argc--;
             argv++;
         } else if (strcmp(*argv, "--blend") == 0) {

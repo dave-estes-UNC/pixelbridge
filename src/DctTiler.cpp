@@ -8,6 +8,29 @@
 #define PI    3.14159265
 #define PI_8  0.392699081
 
+// This will turn on the simple truncation used before that simply takes the top X coefficients.
+// The new scheme will instead take the most significant coefficients in a square pattern.
+//#define SIMPLE_TRUNCATION
+
+// Snapping uses a DCT Delta to snap calculated coefficients to zero if they're within the delta.
+// Snapping only occurs in the last 1x scale.
+//   SNAP_TO_ZERO is the top level flag that turns this on.
+//   FORCE_SNAP_DC snaps the DC regarless of the delta.
+//   SNAP_DC_ONLY restricts to the snapping with delta to just the DC
+//#define SNAP_TO_ZERO
+//#define FORCE_SNAP_DC
+//#define SNAP_DC_ONLY
+
+// Trimming with delta is seperate from snapping. This changes the regular trim routine
+// That doesn't resend the unchanged coefficients at the top and bottom of a stack to
+// consider coefficients within a certain delta to be unchanged.
+//#define TRIM_WITH_DELTA
+
+// This uses the scale to determine how often to send the coefficients at scales greater than 1x.
+// e.g. The 16x scale coefficients are only sent every 16th frame. The 4x every 4th frame.
+#define SKIP_FRAMES
+
+
 /*
  * Frame Volume
  *
@@ -297,7 +320,6 @@ void DctTiler::InitializeCoefficientPlanes() {
                     }
                 }
             }
-
         }
 
         // Adjust the k coefficient for each supermacroblock. This will be done one plane
@@ -305,17 +327,33 @@ void DctTiler::InitializeCoefficientPlanes() {
         // k used won't necessarily match the plane, because of the configuration.
         start[0] = 0; start[1] = 0;
         end[0] = display_->DisplayWidth() - 1; end[1] = display_->DisplayHeight() - 1;
-        int p = 0;
-        for (int k = config.first_plane_idx;
-             k < config.first_plane_idx + config.plane_count;
-             k++)
-        {
+#ifdef SIMPLE_TRUNCATION
+        for (size_t p = 0; p < config.plane_count; p++) {
+            size_t k = config.first_plane_idx + p;
             start[2] = k; end[2] = k;
             display_->FillCoefficient(p, 2, 2, start, end);
-            p++;
         }
+#else
+        // If this is an 8x8 region of macroblocks, then just use simple truncation
+        if (config.edge_length == 8) {
+            for (size_t p = 0; p < config.plane_count; p++) {
+                size_t k = config.first_plane_idx + p;
+                start[2] = k; end[2] = k;
+                display_->FillCoefficient(p, 2, 2, start, end);
+            }
+        // Else consider only the most significant coefficients within with the square of edge_length
+        } else {
+            for (size_t p = 0, y = 0; y < config.edge_length && p < config.plane_count; y++) {
+                for (size_t x = 0; x < config.edge_length && p < config.plane_count; x++) {
+                    size_t k = config.first_plane_idx + p;
+                    start[2] = k; end[2] = k;
+                    display_->FillCoefficient(zigZag_[y * BLOCK_WIDTH + x], 2, 2, start, end);
+                    p++;
+                }
+            }
+        }
+#endif
     }
-
 }
 
 /**
@@ -335,7 +373,7 @@ void DctTiler::InitializeFrameVolume() {
     for (int j = 0; j < BASIS_BLOCKS_TALL; j++) {
         for (int i = 0; i < BASIS_BLOCKS_WIDE; i++) {
 
-            // Don't process the final basis glock.
+            // Don't process the final basis block.
             if (i == BASIS_BLOCKS_WIDE - 1 && j == BASIS_BLOCKS_TALL) continue;
 
             size_t p = zigZag_[j * BASIS_BLOCKS_WIDE + i] * BLOCK_SIZE;
@@ -616,6 +654,76 @@ vector<uint64_t> DctTiler::BuildCoefficients(size_t i, size_t j, int16_t* buffer
 
 
 /**
+ * Selects which coefficients to use at this scale. This function will keep track of our budget of planes
+ * and if we run out it will either truncate the extra coefficients in a simple manner or will use the
+ * region of most significant coefficients defined by the edge_length.
+ *
+ * @param coefficients The coefficients to be reduced to fit within the budget.
+ * @param c The current scale from the globalConfiguration.dctScales global.
+ */
+void DctTiler::SelectCoefficientsForScale(vector<uint64_t> &coefficients, size_t c) {
+    scale_config_t config = globalConfiguration.dctScales[c];
+#ifdef SIMPLE_TRUNCATION
+    coefficients.resize(config.plane_count);
+#else
+    // For an 8x8 region of coefficients, just use simple truncation
+    if (config.edge_length == 8) {
+        coefficients.resize(config.plane_count);
+    // Else consider only the most significant coefficients within with the square of edge_length
+    } else {
+        size_t p = 0;
+        vector<uint64_t> coeffs;
+        for (size_t y = 0; y < config.edge_length && p < config.plane_count; y++) {
+            for (size_t x = 0; x < config.edge_length && p < config.plane_count; x++) {
+                coeffs.push_back(coefficients[zigZag_[y * BLOCK_WIDTH + x]]);
+                p++;
+            }
+        }
+        coefficients = coeffs;
+    }
+#endif
+}
+
+
+/**
+ * Considers snapping to zero any coefficients that are within a delta of zero. While it will work on
+ * any scale, this is only used in practice on the 1x scale.
+ *
+ * @param coefficientsForScale All of the coefficient stacks for this scale.
+ */
+void DctTiler::SnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coefficientsForScale) {
+
+    for (size_t i = 0; i < coefficientsForScale.size(); i++) {
+        for (size_t j = 0; j < coefficientsForScale[i].size(); j++) {
+#if defined FORCE_SNAP_DC
+            coefficientsForScale[i][j][0] = 0;
+#elif defined SNAP_DC_ONLY
+            Scaler s;
+             s.packed = coefficientsForScale[i][j][0];
+             if (abs(s.r) <= globalConfiguration.dctDelta &&
+                 abs(s.g) <= globalConfiguration.dctDelta &&
+                 abs(s.b) <= globalConfiguration.dctDelta)
+             {
+                 coefficientsForScale[i][j][0] = 0;
+             }
+#else
+            for (int k = 0; k < coefficientsForScale[i][j].size(); k++) {
+                Scaler s;
+                s.packed = coefficientsForScale[i][j][k];
+                if (abs(s.r) <= globalConfiguration.dctDelta &&
+                    abs(s.g) <= globalConfiguration.dctDelta &&
+                    abs(s.b) <= globalConfiguration.dctDelta)
+                {
+                    coefficientsForScale[i][j][k] = 0;
+                }
+            }
+#endif
+        }
+    }
+}
+
+
+/**
  * Estimates what the cost of updating the coefficients will be when all but a defined range (front to last inclusive) are
  * zeroed out.
  *
@@ -855,7 +963,17 @@ size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size
     size_t first = 0, last = coefficients.size() - 1;
     bool foundFirst = false;
     for (size_t k = 0; k < coefficients.size(); k++) {
+#ifdef TRIM_WITH_DELTA
+        Scaler coeff, cachedCoeff;
+        coeff.packed = coefficients[k];
+        cachedCoeff.packed = cachedCoefficients_[c][i][j][k];
+        if (abs(coeff.r - cachedCoeff.r) > globalConfiguration.dctDelta ||
+            abs(coeff.g - cachedCoeff.g) > globalConfiguration.dctDelta ||
+            abs(coeff.b - cachedCoeff.b) > globalConfiguration.dctDelta)
+        {
+#else
         if (coefficients[k] != cachedCoefficients_[c][i][j][k]) {
+#endif
             last = k;
             if (!foundFirst) {
                 first = k;
@@ -920,11 +1038,14 @@ void DctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t
  * @param coefficients The vector (in zig-zag order) of coefficients for the macroblock
  * @param i The column component of the macroblock
  * @param j The row component of the macroblock
+ * @param c The current scale from the globalConfiguration.dctScales global.
  * @param buffer The destination buffer
  * @param width The width of the destination buffer
  * @param width The height of the destination buffer
  */
-void DctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, int16_t* buffer, size_t width, size_t height, bool shift) {
+void DctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, int16_t* buffer, size_t width, size_t height, bool shift) {
+
+    scale_config_t config = globalConfiguration.dctScales[c];
 
 #ifndef NO_OMP
 #pragma omp parallel for
@@ -937,6 +1058,7 @@ void DctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, s
 
             int rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
 
+#ifdef SIMPLE_TRUNCATION
             for (size_t p = 0; p < coefficients.size(); p++) {
                 Scaler s;
                 s.packed = coefficients[p];
@@ -946,6 +1068,37 @@ void DctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, s
                 gAccumulator += (int8_t)(basisFunctions_[bfo].g) * s.g;
                 bAccumulator += (int8_t)(basisFunctions_[bfo].b) * s.b;
             }
+#else
+            // For an 8x8 region of coefficients, just use simple truncation
+            if (config.edge_length == 8) {
+                for (size_t p = 0; p < coefficients.size(); p++) {
+                    Scaler s;
+                    s.packed = coefficients[p];
+
+                    size_t bfo = p * BLOCK_WIDTH * BLOCK_HEIGHT + y * BLOCK_WIDTH + x;
+                    rAccumulator += (int8_t)(basisFunctions_[bfo].r) * s.r;
+                    gAccumulator += (int8_t)(basisFunctions_[bfo].g) * s.g;
+                    bAccumulator += (int8_t)(basisFunctions_[bfo].b) * s.b;
+                }
+            // Else consider only the most significant coefficients within with the square of edge_length
+            } else {
+                for (size_t p = 0, yy = 0; yy < config.edge_length && p < coefficients.size(); yy++) {
+                    for (size_t xx = 0; xx < config.edge_length && p < coefficients.size(); xx++) {
+                        Scaler s;
+                        s.packed = coefficients[p];
+
+                        size_t pp = zigZag_[yy * BLOCK_WIDTH + xx];
+
+                        size_t bfo = pp * BLOCK_WIDTH * BLOCK_HEIGHT + y * BLOCK_WIDTH + x;
+                        rAccumulator += (int8_t)(basisFunctions_[bfo].r) * s.r;
+                        gAccumulator += (int8_t)(basisFunctions_[bfo].g) * s.g;
+                        bAccumulator += (int8_t)(basisFunctions_[bfo].b) * s.b;
+
+                        p++;
+                    }
+                }
+            }
+#endif
 
             size_t offset = ((j * BLOCK_HEIGHT + y) * width + i * BLOCK_WIDTH + x) * 3;
 
@@ -986,6 +1139,10 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
     assert(width >= display_->DisplayWidth());
     assert(height >= display_->DisplayHeight());
 
+#ifdef SKIP_FRAMES
+    static size_t frame = 0;
+#endif
+
     /*
      * 0. Convert image to signed pixels if we don't already have
      */
@@ -1025,7 +1182,7 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
             for (size_t j = 0; j < tilesHigh; j++) {
                 // a. Build coefficients - BuildCoefficients()
                 vector<uint64_t> coefficients = BuildCoefficients(i, j, downBuf, downW, downH, c == 0);
-                coefficients.resize(config.plane_count);
+                SelectCoefficientsForScale(coefficients, c);
                 coefficientsForCurrentScale[i].push_back(coefficients);
             }
         }
@@ -1035,6 +1192,10 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
          *   If we've initialized the coefficient cache
          *   a. Zero out optimal planes - ZeroPlanes()
          */
+#ifdef SNAP_TO_ZERO
+        if (c > 0 && config.scale_multiplier == 1)
+            SnapCoefficientsToZero(coefficientsForCurrentScale);
+#endif
 #ifdef USE_DCT_OPTIMAL_ZEROING
         if (cachedCoefficients_.size() > c)
             ZeroPlanes(coefficientsForCurrentScale, c);
@@ -1049,16 +1210,30 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
         for (size_t i = 0; i < tilesWide; i++) {
             for (size_t j = 0; j < tilesHigh; j++) {
 
+#ifdef SKIP_FRAMES
+                if (config.scale_multiplier == 1 || frame % config.scale_multiplier == 0) {
+                    // a. Trim a copy of the coefficients - TrimCoefficients()
+                    vector<uint64_t> coefficients = coefficientsForCurrentScale[i][j];
+                    size_t first_plane_idx = TrimCoefficients(coefficients, i, j, c);
+
+                    // b. Fill trimmed coefficients to super-macroblock's coefficient scalers - FillCoefficients()
+                    FillCoefficients(coefficients, i, j, c, first_plane_idx);
+                } else {
+                    // Otherwise just re-use the cache if we're skipping this frame.
+                    coefficientsForCurrentScale[i][j] = cachedCoefficients_[c][i][j];
+                }
+#else
                 // a. Trim a copy of the coefficients - TrimCoefficients()
                 vector<uint64_t> coefficients = coefficientsForCurrentScale[i][j];
                 size_t first_plane_idx = TrimCoefficients(coefficients, i, j, c);
 
                 // b. Fill trimmed coefficients to super-macroblock's coefficient scalers - FillCoefficients()
                 FillCoefficients(coefficients, i, j, c, first_plane_idx);
+#endif
 
-                // a. Perform simulated blending of basis functions - PrerenderCoefficients()
+                // c. Perform simulated blending of basis functions - PrerenderCoefficients()
                 // Again, only shift on the first plane
-                PrerenderCoefficients(coefficientsForCurrentScale[i][j], i, j, rendBuf, downW, downH, c == 0);
+                PrerenderCoefficients(coefficientsForCurrentScale[i][j], i, j, c, rendBuf, downW, downH, c == 0);
             }
         }
 
@@ -1085,6 +1260,10 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
             free(upBuf);
         }
     }
+
+#ifdef SKIP_FRAMES
+    frame++;
+#endif
 
     // Finally clean the signedBuf that we've been using throughout
     free(signedBuf);

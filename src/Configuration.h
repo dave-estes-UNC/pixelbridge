@@ -39,6 +39,7 @@ typedef enum {
  */
 struct scale_config_t {
     size_t scale_multiplier;
+    size_t edge_length;
     size_t first_plane_idx;
     size_t plane_count;
 };
@@ -64,6 +65,7 @@ public:
     bool verbose;
     bool headless;
     vector<scale_config_t> dctScales;
+    size_t dctDelta;
 
 public:
 
@@ -84,20 +86,27 @@ public:
         verbose = false;
         headless = false;
 
-        scale_config_t simple = {1, 0, 63};
+        scale_config_t simple = {1, 8, 0, 63};
         dctScales.push_back(simple);
+
+        dctDelta = 0;
     }
 
     void clearDctScales() {
         dctScales.clear();
     }
 
-    void addDctScale(size_t mult, size_t first, size_t count) {
+    void addDctScale(size_t mult, size_t first, size_t edge) {
         scale_config_t scale;
 
         scale.scale_multiplier = mult;
+        scale.edge_length = edge;
         scale.first_plane_idx = first;
-        scale.plane_count = count;
+        scale.plane_count = edge * edge;
+
+        // We can only use 63 planes since the last plane is the medium gray plane
+        if (scale.first_plane_idx + scale.plane_count > 63)
+            scale.plane_count = 63 - scale.first_plane_idx;
 
         dctScales.push_back(scale);
     }

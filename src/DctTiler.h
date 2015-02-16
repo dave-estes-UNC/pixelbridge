@@ -63,11 +63,13 @@ private:
     int16_t* DownSample(size_t factor, int16_t* buffer, size_t width, size_t height);
     int16_t* UpSample(size_t factor, int16_t* buffer, size_t width, size_t height);
     vector<uint64_t> BuildCoefficients(size_t i, size_t j, int16_t* buffer, size_t width, size_t height, bool adjustPixels);
+    void SelectCoefficientsForScale(vector<uint64_t> &coefficients, size_t c);
+    void SnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coefficientsForScale);
     size_t EstimateCost(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t first, size_t last);
     void ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c);
     size_t TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c);
     void FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t first);
-    void PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, int16_t* renderedBuffer, size_t width, size_t height, bool shift);
+    void PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, int16_t* renderedBuffer, size_t width, size_t height, bool shift);
     void AdjustFrame(int16_t* buffer, int16_t* renderedBuffer, size_t width, size_t height);
     void UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height);
 
