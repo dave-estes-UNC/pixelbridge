@@ -11,6 +11,8 @@
 #include <GL/glut.h>
 #endif
 
+#include <opencv/cv.hpp>
+
 #include "PixelBridgeFeatures.h"
 #include "Configuration.h"
 #include "CostModel.h"
@@ -543,7 +545,7 @@ void outputStats(bool exitNow) {
         cout << "General Information" << endl;
         cout << "  File: " << fileName << endl;
         cout << "  Dimensions: " << displayWidth << " x " << displayHeight << endl;
-        cout << "  Coefficient Planes: " << myDisplay->NumCoefficientPlanes() << endl;
+        cout << "  Coefficient Planes: " << (myDisplay ? myDisplay->NumCoefficientPlanes() : 0) << endl;
         cout << "  Frames Rendered: " << totalUpdates << endl;
         cout << endl;
 
@@ -574,6 +576,9 @@ void outputStats(bool exitNow) {
                 break;
             case COUNT:
                 cout << "  Configuring NDDI to just count." << endl;
+                break;
+            case FLOW:
+                cout << "  Configuring NDDI to compute optical flow." << endl;
                 break;
             default:
                 break;
@@ -920,6 +925,128 @@ void countChangedPixels() {
     }
 }
 
+/**
+ * Used to compute the optical flow between two frames and to report.
+ */
+void computeFlow() {
+    static int framesDecoded = 0;
+    static std::vector<cv::Point2f> features, featuresLast;
+
+    if (!globalConfiguration.maxFrames || (totalUpdates < globalConfiguration.maxFrames)) {
+        int pixel_count = myPlayer->width() * myPlayer->height();
+#ifdef USE_ASYNC_DECODER
+        // Get a decoded frame
+        // TODO(CDE): Don't poll. Use signals instead.
+        while (bufferQueue.size() == 0) {
+            usleep(5);
+        }
+        if ((videoBuffer = bufferQueue.front()) != NULL) {
+
+            pthread_mutex_lock(&bufferQueueMutex);
+            bufferQueue.pop();
+            pthread_mutex_unlock(&bufferQueueMutex);
+#else
+            // Decode a frame
+            if ((videoBuffer = myPlayer->decodeFrame()) != NULL) {
+#endif
+            framesDecoded++;
+
+            if (framesDecoded > globalConfiguration.startFrame) {
+                // If we're in a rewind period, then we'll be incrementing diffs as well as frame count by 3 instead of 1
+                int inc;
+                if ( (framesDecoded > (globalConfiguration.rewindStartFrame - globalConfiguration.rewindFrames)) && (framesDecoded <= globalConfiguration.rewindStartFrame) ) {
+                    inc = 3;
+                } else {
+                    inc = 1;
+                }
+
+                // If we haven't previously decoded a frame
+                if (lastBuffer == NULL) {
+#if 0 // Normally you pick points once, and they're tracked throughout. However, they dwindle over time
+      // so I'm opting to just find them every frame below instead of here.
+                    // Convert the image buffers to OpenCV Mats
+                    cv::Mat imgCurrent(displayHeight, displayWidth , CV_8UC3, videoBuffer);
+
+                    // Then convert to grayscale
+                    cv::Mat grayCurrent;
+                    cv::cvtColor(imgCurrent, grayCurrent, CV_RGB2GRAY);
+
+                    // Then find the features to track
+                    cv::goodFeaturesToTrack(grayCurrent, featuresLast,
+                                            500,  // the maximum number of features
+                                            0.01, // quality level (top 1%)
+                                            10);  // min distance between two features
+#endif
+
+                    // Allocate the lastBuffer and copy the decode frame into it.
+                    lastBuffer = (uint8_t*)malloc(VIDEO_PIXEL_SIZE * pixel_count);
+                    memcpy(lastBuffer, videoBuffer, VIDEO_PIXEL_SIZE * pixel_count);
+
+                // Otherwise compute flow between the newly decoded frame to the previous frame
+                } else {
+
+                    // Convert the image buffers to OpenCV Mats
+                    cv::Mat imgCurrent(displayHeight, displayWidth , CV_8UC3, videoBuffer);
+                    cv::Mat imgLast(displayHeight, displayWidth , CV_8UC3, lastBuffer);
+
+                    // Then convert to grayscale
+                    cv::Mat grayCurrent, grayLast;
+                    cv::cvtColor(imgCurrent, grayCurrent, CV_RGB2GRAY);
+                    cv::cvtColor(imgLast, grayLast, CV_RGB2GRAY);
+
+#if 1 // Normally these wouldn't be found each time, they'd just be re-used. See comment in previous if block.
+                    // Then find the features to track
+                    cv::goodFeaturesToTrack(grayCurrent, featuresLast,
+                                            500,  // the maximum number of features
+                                            0.01, // quality level (top 1%)
+                                            10);  // min distance between two features
+#endif
+
+                    vector<uchar> status;
+                    vector<float> err;
+                    cv::calcOpticalFlowPyrLK(grayLast, grayCurrent,
+                                             featuresLast, // input point positions in previous image
+                                             features,     // output point positions for the current
+                                             status,       // tracking success
+                                             err);         // tracking error
+
+                    float dist;
+                    int j = 0;
+                    for (int i = 0; i < featuresLast.size(); i++) {
+                        if (status[i]) {
+                            dist += sqrt((features[j].x - featuresLast[i].x) * (features[j].x - featuresLast[i].x) +
+                                         (features[j].y - featuresLast[i].y) * (features[j].y - featuresLast[i].y));
+                            featuresLast[j] = features[j];
+                            j++;
+                        }
+                    }
+                    featuresLast.resize(j);
+                    dist = dist / j;
+
+
+                    cout << "FLOW: " << framesDecoded - 1 << " to " << framesDecoded << " Average Distance: " << dist << endl;
+
+                    // Then copy to the lastBuffer
+                    memcpy(lastBuffer, videoBuffer, VIDEO_PIXEL_SIZE * pixel_count);
+                }
+
+                // Update the totalUpdates
+                totalUpdates += inc;
+
+                // Draw nothing
+                glutPostRedisplay();
+            }
+        } else {
+            // Output stats and exit
+            outputStats(true);
+        }
+
+    } else {
+        // Output stats and exit
+        outputStats(true);
+    }
+}
+
 
 void keyboard( unsigned char key, int x, int y ) {
 
@@ -962,12 +1089,12 @@ void motion( int x, int y ) {
 
 
 void showUsage() {
-    cout << "pixelbridge [--mode <fb|flat|cache|dct|count>] [--dctscales x:y[,x:y...]] [--dctdelta <n>] [--blend <fv|t|cp|>]" << endl <<
+    cout << "pixelbridge [--mode <fb|flat|cache|dct|count|flow>] [--dctscales x:y[,x:y...]] [--dctdelta <n>] [--blend <fv|t|cp|>]" << endl <<
             "            [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <0/1-100>]" << endl <<
             "            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>" << endl;
     cout << endl;
     cout << "  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).\n" <<
-            "          Optional the mode can be set to count the number of pixels changed (count)." << endl;
+            "          Optional the mode can be set to count the number of pixels changed (count) or determine optical flow (flow)." << endl;
     cout << "  --dctscales  For dct mode, this will set a series of scales in the form of comma-separated two tuples holding the scale and then\n" <<
             "               the edge length of a square that determines the number of planes used (i.e. 2 -> 2 x 2 = 4 planes." << endl;
     cout << "  --dctdelta  For dct mode, This is the delta between coefficients that is considered a match which will not be updated." << endl;
@@ -1005,6 +1132,8 @@ bool parseArgs(int argc, char *argv[]) {
                 globalConfiguration.tiler = IT;
             } else if (strcmp(*argv, "count") == 0) {
                 globalConfiguration.tiler = COUNT;
+            } else if (strcmp(*argv, "flow") == 0) {
+                globalConfiguration.tiler = FLOW;
             } else {
                 showUsage();
                 return false;
@@ -1229,8 +1358,10 @@ int main(int argc, char *argv[]) {
 
     if (globalConfiguration.tiler > COUNT) {
         glutIdleFunc(renderFrame);
-    } else {
+    } else if (globalConfiguration.tiler == COUNT){
         glutIdleFunc(countChangedPixels);
+    } else if (globalConfiguration.tiler == FLOW){
+        glutIdleFunc(computeFlow);
     }
 
     // Setup NDDI Display

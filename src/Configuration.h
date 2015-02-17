@@ -13,7 +13,9 @@
 using namespace std;
 
 typedef enum {
+    FLOW,   // Use OpenCV to detect optical flow per frame
     COUNT,  // Just count (aka Perfect Pixel Latching)
+    // Anything below COUNT is a proper rendered mode
     SIMPLE, // Simple Framebuffer
     FLAT,   // Tiled, but not cached
     CACHE,  // Tiled and cached

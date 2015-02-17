@@ -47,7 +47,7 @@ endif
 
 CPPFLAGS+=-D__STDC_CONSTANT_MACROS
 
-LDFLAGS+=-lz -lavutil -lavformat -lavcodec -lswscale
+LDFLAGS+=-lz -lavutil -lavformat -lavcodec -lswscale `pkg-config --libs opencv`
 
 ifeq ($(DEBUG), 1)
 	CCFLAGS+=-g -DDEBUG
