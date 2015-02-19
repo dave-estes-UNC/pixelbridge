@@ -1089,19 +1089,25 @@ void motion( int x, int y ) {
 
 
 void showUsage() {
-    cout << "pixelbridge [--mode <fb|flat|cache|dct|count|flow>] [--dctscales x:y[,x:y...]] [--dctdelta <n>] [--blend <fv|t|cp|>]" << endl <<
-            "            [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <0/1-100>]" << endl <<
+    cout << "pixelbridge [--mode <fb|flat|cache|dct|count|flow>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>]" << endl <<
+            "            [--dctscales x:y[,x:y...]] [--dctdelta <n>] [--dctplanes <n>] [--dctbudget <n>] [--dctsnap] [--dcttrim] [--quality <0/1-100>]" << endl <<
             "            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>" << endl;
     cout << endl;
     cout << "  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).\n" <<
             "          Optional the mode can be set to count the number of pixels changed (count) or determine optical flow (flow)." << endl;
-    cout << "  --dctscales  For dct mode, this will set a series of scales in the form of comma-separated two tuples holding the scale and then\n" <<
-            "               the edge length of a square that determines the number of planes used (i.e. 2 -> 2 x 2 = 4 planes." << endl;
-    cout << "  --dctdelta  For dct mode, This is the delta between coefficients that is considered a match which will not be updated." << endl;
     cout << "  --blend  For fb mode, this option alpha-blends using just the frame volume, input vector (temporal), or coefficient plane." << endl;
     cout << "  --ts  Sets the tile size to the width and height provided." << endl;
     cout << "  --tc  Sets the maximum number of tiles in the cache." << endl;
     cout << "  --bits  Sets the number of significant bits per channel when computing checksums." << endl;
+    cout << "  --dctscales  For dct mode, this will set a series of scales in the form of comma-separated two tuples holding the scale and then\n" <<
+            "               the edge length of a square that determines the number of planes used (i.e. 2 -> 2 x 2 = 4 planes." << endl;
+    cout << "  --dctdelta  For dct mode, this is the delta between coefficients that is considered a match which will not be updated.\n" <<
+            "              Setting to zero when using a budget will use an optimal setting." << endl;
+    cout << "  --dctplanes  For dct mode, this is the number of planes either zeroed or trimmed.\n" <<
+            "               Setting to zero when using a budget will use an optimal setting." << endl;
+    cout << "  --dctbudget  For dct mode, this is budget in bytes for the transmission of each frame." << endl;
+    cout << "  --dctsnap  For dct mode, this turns on snap to zero using either planes or delta." << endl;
+    cout << "  --dcttrim  For dct mode, this turns on lossy trimming using either planes or delta." << endl;
     cout << "  --quality  Sets the quality for DCT [1-100] or IT [0-100] mode." << endl;
     cout << "  --start  Will start with this frame, ignoring any decoded frames prior to it." << endl;
     cout << "  --frames  Sets the number of maximum frames that are decoded." << endl;
@@ -1178,6 +1184,42 @@ bool parseArgs(int argc, char *argv[]) {
             globalConfiguration.dctDelta = atoi(*argv);
             argc--;
             argv++;
+        } else if (strcmp(*argv, "--dctplanes") == 0) {
+            argc--;
+            argv++;
+            if (globalConfiguration.tiler != DCT) {
+                showUsage();
+                return false;
+            }
+            globalConfiguration.dctPlanes = atoi(*argv);
+            argc--;
+            argv++;
+        } else if (strcmp(*argv, "--dctbudget") == 0) {
+            argc--;
+            argv++;
+            if (globalConfiguration.tiler != DCT) {
+                showUsage();
+                return false;
+            }
+            globalConfiguration.dctBudget = atoi(*argv);
+            argc--;
+            argv++;
+        } else if (strcmp(*argv, "--dctsnap") == 0) {
+            argc--;
+            argv++;
+            if (globalConfiguration.tiler != DCT) {
+                showUsage();
+                return false;
+            }
+            globalConfiguration.dctSnap = true;
+        } else if (strcmp(*argv, "--dcttrim") == 0) {
+            argc--;
+            argv++;
+            if (globalConfiguration.tiler != DCT) {
+                showUsage();
+                return false;
+            }
+            globalConfiguration.dctTrim = true;
         } else if (strcmp(*argv, "--blend") == 0) {
             if (globalConfiguration.tiler != SIMPLE) {
                 showUsage();

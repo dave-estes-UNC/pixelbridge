@@ -12,6 +12,9 @@
 
 using namespace std;
 
+#define UNUSED_CONFIG    -1
+#define OPTIMAL_CONFIG    0
+
 typedef enum {
     FLOW,   // Use OpenCV to detect optical flow per frame
     COUNT,  // Just count (aka Perfect Pixel Latching)
@@ -67,7 +70,11 @@ public:
     bool verbose;
     bool headless;
     vector<scale_config_t> dctScales;
-    size_t dctDelta;
+    int dctDelta;
+    int dctPlanes;
+    int dctBudget;
+    bool dctSnap;
+    bool dctTrim;
 
 public:
 
@@ -91,7 +98,11 @@ public:
         scale_config_t simple = {1, 8, 0, 63};
         dctScales.push_back(simple);
 
-        dctDelta = 0;
+        dctDelta = UNUSED_CONFIG;
+        dctPlanes = UNUSED_CONFIG;
+        dctBudget = UNUSED_CONFIG;
+        dctSnap = false;
+        dctSnap = false;
     }
 
     void clearDctScales() {

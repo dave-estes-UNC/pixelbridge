@@ -8,27 +8,16 @@
 #define PI    3.14159265
 #define PI_8  0.392699081
 
+// For each scale, determines the optimal amount of planes to zero out.
+//#define OPTIMAL_ZEROING
+
 // This will turn on the simple truncation used before that simply takes the top X coefficients.
 // The new scheme will instead take the most significant coefficients in a square pattern.
 //#define SIMPLE_TRUNCATION
 
-// Snapping uses a DCT Delta to snap calculated coefficients to zero if they're within the delta.
-// Snapping only occurs in the last 1x scale.
-//   SNAP_TO_ZERO is the top level flag that turns this on.
-//   FORCE_SNAP_DC snaps the DC regarless of the delta.
-//   SNAP_DC_ONLY restricts to the snapping with delta to just the DC
-//#define SNAP_TO_ZERO
-//#define FORCE_SNAP_DC
-//#define SNAP_DC_ONLY
-
-// Trimming with delta is seperate from snapping. This changes the regular trim routine
-// That doesn't resend the unchanged coefficients at the top and bottom of a stack to
-// consider coefficients within a certain delta to be unchanged.
-//#define TRIM_WITH_DELTA
-
 // This uses the scale to determine how often to send the coefficients at scales greater than 1x.
 // e.g. The 16x scale coefficients are only sent every 16th frame. The 4x every 4th frame.
-#define SKIP_FRAMES
+//#define SKIP_FRAMES
 
 
 /*
@@ -685,44 +674,64 @@ void DctTiler::SelectCoefficientsForScale(vector<uint64_t> &coefficients, size_t
 }
 
 
+// TODO(CDE): Implement
+void DctTiler::CalculateSnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t &delta, size_t &planes) {
+    if (!globalConfiguration.dctSnap) {
+        delta = planes = 0;
+    } else {
+        if (globalConfiguration.dctPlanes == UNUSED_CONFIG) {
+            planes = 0;
+        } else if (globalConfiguration.dctPlanes > OPTIMAL_CONFIG) {
+            planes = globalConfiguration.dctPlanes;
+        } else {
+            // TODO(CDE): Find the optimal planes for this scale
+        }
+
+        if (globalConfiguration.dctDelta == UNUSED_CONFIG) {
+            delta = 0;
+        } else if (globalConfiguration.dctDelta > OPTIMAL_CONFIG) {
+            delta = globalConfiguration.dctDelta;
+        } else {
+            // TODO(CDE): Find the optimal delta for this scale
+        }
+    }
+}
+
 /**
  * Considers snapping to zero any coefficients that are within a delta of zero. While it will work on
  * any scale, this is only used in practice on the 1x scale.
  *
  * @param coefficientsForScale All of the coefficient stacks for this scale.
+ * @param c The current scale from the globalConfiguration.dctScales global.
+ * @param delta Any coefficient within a delta of zero is snapped to zero.
+ * @param planes Any coefficient in this number of the least significant planes is snapped to zero.
  */
-void DctTiler::SnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coefficientsForScale) {
+void DctTiler::SnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t delta, size_t planes) {
 
     for (size_t i = 0; i < coefficientsForScale.size(); i++) {
         for (size_t j = 0; j < coefficientsForScale[i].size(); j++) {
-#if defined FORCE_SNAP_DC
-            coefficientsForScale[i][j][0] = 0;
-#elif defined SNAP_DC_ONLY
-            Scaler s;
-             s.packed = coefficientsForScale[i][j][0];
-             if (abs(s.r) <= globalConfiguration.dctDelta &&
-                 abs(s.g) <= globalConfiguration.dctDelta &&
-                 abs(s.b) <= globalConfiguration.dctDelta)
-             {
-                 coefficientsForScale[i][j][0] = 0;
-             }
-#else
-            for (int k = 0; k < coefficientsForScale[i][j].size(); k++) {
+            size_t p = planes;
+            if (p > coefficientsForScale[i][j].size())
+                p = coefficientsForScale[i][j].size();
+            for (int k = 0; k < coefficientsForScale[i][j].size() - p; k++) {
                 Scaler s;
                 s.packed = coefficientsForScale[i][j][k];
-                if (abs(s.r) <= globalConfiguration.dctDelta &&
-                    abs(s.g) <= globalConfiguration.dctDelta &&
-                    abs(s.b) <= globalConfiguration.dctDelta)
+                if (abs(s.r) <= delta &&
+                    abs(s.g) <= delta &&
+                    abs(s.b) <= delta)
                 {
                     coefficientsForScale[i][j][k] = 0;
                 }
             }
-#endif
+            for (int k = coefficientsForScale[i][j].size() - p; k < coefficientsForScale[i][j].size(); k++) {
+                coefficientsForScale[i][j][k] = 0;
+            }
         }
     }
 }
 
 
+#ifdef OPTIMAL_ZEROING
 /**
  * Estimates what the cost of updating the coefficients will be when all but a defined range (front to last inclusive) are
  * zeroed out.
@@ -733,28 +742,11 @@ void DctTiler::SnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coef
  * @param last The last non-zeroed plane.
  * @return The estimated cost in terms of bytes sent over the wire.
  */
-size_t DctTiler::EstimateCost(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t first, size_t last) {
+size_t DctTiler::EstimateCostForZeroingPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t first, size_t last) {
 
     scale_config_t config = globalConfiguration.dctScales[c];
     size_t scaleFirst = config.first_plane_idx;
     size_t scaleLast = config.first_plane_idx + config.plane_count - 1;
-
-#if defined FIRST_NON_ZEROED_PLANE && defined LAST_NON_ZEROED_PLANE
-    if (first == CLAMP(FIRST_NON_ZEROED_PLANE, scaleFirst, scaleLast + 1) && last == LAST_NON_ZEROED_PLANE)
-        return 0;
-    else
-        return 1000;
-#elif defined FIRST_NON_ZEROED_PLANE
-    if (first == CLAMP(FIRST_NON_ZEROED_PLANE, scaleFirst, scaleLast + 1))
-        return 0;
-    else
-        return 1000;
-#elif defined LAST_NON_ZEROED_PLANE
-    if (last == CLAMP(FIRST_NON_ZEROED_PLANE, scaleFirst, scaleLast + 1))
-        return 0;
-    else
-        return 1000;
-#endif
 
     /*
      * Use the dimensions of the cachedCoefficients for this scale to set the
@@ -845,13 +837,13 @@ void DctTiler::ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForS
     int last  = scaleLast;
 
     // Get a baseline cost over the whole set of planes
-    size_t minCost = EstimateCost(coefficientsForScale, c, first, last);
+    size_t minCost = EstimateCostForZeroingPlanes(coefficientsForScale, c, first, last);
     size_t cost;
 
     // Then adjust first until we find a minimal cost
     if (first != last)
         for (int i = first + 1; i <= last; i++) {
-            cost = EstimateCost(coefficientsForScale, c, i, last);
+            cost = EstimateCostForZeroingPlanes(coefficientsForScale, c, i, last);
             if (cost < minCost) {
                 minCost = cost;
                 first = i;
@@ -861,7 +853,7 @@ void DctTiler::ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForS
     // Then adjust last until we find a minimal cost
     if (first != last)
         for (int i = last - 1; i + 1 > first; i--) {
-            cost = EstimateCost(coefficientsForScale, c, first, i);
+            cost = EstimateCostForZeroingPlanes(coefficientsForScale, c, first, i);
             if (cost < minCost) {
                 minCost = cost;
                 last = i;
@@ -869,7 +861,7 @@ void DctTiler::ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForS
         }
 
     // Lastly check if it's cheaper to zero everything out by setting first past the end
-    cost = EstimateCost(coefficientsForScale, c, config.first_plane_idx + config.plane_count, config.first_plane_idx + config.plane_count);
+    cost = EstimateCostForZeroingPlanes(coefficientsForScale, c, config.first_plane_idx + config.plane_count, config.first_plane_idx + config.plane_count);
     if (cost < minCost) {
         minCost = cost;
         first = last = config.first_plane_idx + config.plane_count;
@@ -934,17 +926,46 @@ void DctTiler::ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForS
         }
     }
 }
+#endif
+
+
+// TODO(CDE): Implement
+void DctTiler::CalculateTrimCoefficients(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t &delta, size_t &planes) {
+    if (!globalConfiguration.dctTrim) {
+        delta = planes = 0;
+    } else {
+        if (globalConfiguration.dctPlanes == UNUSED_CONFIG) {
+            planes = 0;
+        } else if (globalConfiguration.dctPlanes > OPTIMAL_CONFIG) {
+            planes = globalConfiguration.dctPlanes;
+        } else {
+            // TODO(CDE): Find the optimal planes for this scale
+        }
+
+        if (globalConfiguration.dctDelta == UNUSED_CONFIG) {
+            delta = 0;
+        } else if (globalConfiguration.dctDelta > OPTIMAL_CONFIG) {
+            delta = globalConfiguration.dctDelta;
+        } else {
+            // TODO(CDE): Find the optimal delta for this scale
+        }
+    }
+}
 
 
 /**
  * Will trim the leading and trailing coefficients that don't need to be updated.
  *
  * @param coefficients The vector (in zig-zag order) of coefficients for the macroblock
+ * @param i The column of the location for this macroblock.
+ * @param j The row of the location for this macroblock.
  * @param c Index into globalConfiguration.dctScales for information about the factor by
  *          which we're scaling and which planes to fill.
+ * @param delta Coefficients in the top and bottom are trimmed if they are within a delta of their cached values.
+ * @param planes Coefficients in this number of top planes are trimmed.
  * @return The first plane to be updated.
  */
-size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c) {
+size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t delta, size_t planes) {
 
     /* Get the set of cached coefficients for (c, i, j), building out the cache the first time. */
     if (cachedCoefficients_.size() <= c)
@@ -962,18 +983,14 @@ size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size
     /* Figure out the first and last unchanged coefficient */
     size_t first = 0, last = coefficients.size() - 1;
     bool foundFirst = false;
-    for (size_t k = 0; k < coefficients.size(); k++) {
-#ifdef TRIM_WITH_DELTA
+    for (size_t k = planes; k < coefficients.size(); k++) {
         Scaler coeff, cachedCoeff;
         coeff.packed = coefficients[k];
         cachedCoeff.packed = cachedCoefficients_[c][i][j][k];
-        if (abs(coeff.r - cachedCoeff.r) > globalConfiguration.dctDelta ||
-            abs(coeff.g - cachedCoeff.g) > globalConfiguration.dctDelta ||
-            abs(coeff.b - cachedCoeff.b) > globalConfiguration.dctDelta)
+        if (abs(coeff.r - cachedCoeff.r) > delta ||
+            abs(coeff.g - cachedCoeff.g) > delta ||
+            abs(coeff.b - cachedCoeff.b) > delta)
         {
-#else
-        if (coefficients[k] != cachedCoefficients_[c][i][j][k]) {
-#endif
             last = k;
             if (!foundFirst) {
                 first = k;
@@ -1139,6 +1156,9 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
     assert(width >= display_->DisplayWidth());
     assert(height >= display_->DisplayHeight());
 
+    /* Set the initial delta and planes for snapping and trimming below. */
+    size_t delta = 0, planes = 0;
+
 #ifdef SKIP_FRAMES
     static size_t frame = 0;
 #endif
@@ -1188,15 +1208,18 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
         }
 
         /*
-         * 4. For this current scale, calculate optimal planes to zero and trim coefficients
-         *   If we've initialized the coefficient cache
-         *   a. Zero out optimal planes - ZeroPlanes()
+         * 4. For this current scale, snap coefficients to zero if configured and then figure out the optimal planes
+         *    to zero out in bulk.
+         *   a. Snap to zero if configured to do so - SnapCoefficientsToZero()
+         *   b. Zero out optimal planes if we've got coefficients cached already - ZeroPlanes()
          */
-#ifdef SNAP_TO_ZERO
-        if (c > 0 && config.scale_multiplier == 1)
-            SnapCoefficientsToZero(coefficientsForCurrentScale);
-#endif
-#ifdef USE_DCT_OPTIMAL_ZEROING
+        // a. Snap to zero if configured to do so - SnapCoefficientsToZero()
+        if (globalConfiguration.dctSnap) {
+            CalculateSnapCoefficientsToZero(coefficientsForCurrentScale, c, delta, planes);
+            SnapCoefficientsToZero(coefficientsForCurrentScale, c, delta, planes);
+        }
+#ifdef OPTIMAL_ZEROING
+        // b. Zero out optimal planes if we've got coefficients cached already - ZeroPlanes()
         if (cachedCoefficients_.size() > c)
             ZeroPlanes(coefficientsForCurrentScale, c);
 #endif
@@ -1207,6 +1230,7 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
          *   b. Fill trimmed coefficients to super-macroblock's coefficient scalers - FillCoefficients()
          *   c. Perform simulated blending of basis functions and store back to downsampled image - PrerenderCoefficients()
          */
+        CalculateTrimCoefficients(coefficientsForCurrentScale, c, delta, planes);
         for (size_t i = 0; i < tilesWide; i++) {
             for (size_t j = 0; j < tilesHigh; j++) {
 
@@ -1225,7 +1249,7 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
 #else
                 // a. Trim a copy of the coefficients - TrimCoefficients()
                 vector<uint64_t> coefficients = coefficientsForCurrentScale[i][j];
-                size_t first_plane_idx = TrimCoefficients(coefficients, i, j, c);
+                size_t first_plane_idx = TrimCoefficients(coefficients, i, j, c, delta, planes);
 
                 // b. Fill trimmed coefficients to super-macroblock's coefficient scalers - FillCoefficients()
                 FillCoefficients(coefficients, i, j, c, first_plane_idx);
