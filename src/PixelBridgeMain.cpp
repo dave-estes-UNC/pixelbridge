@@ -713,6 +713,9 @@ void renderFrame() {
     static int framesDecoded = 0;
     static int framesRendered = 0;
     static int currentFrame = 0;
+    long transCost = costModel->getLinkBytesTransmitted();
+    long SE = 0;
+
     static rewind_play_t rewindState = NOT_REWINDING;
 
     if (!globalConfiguration.maxFrames || (totalUpdates < globalConfiguration.maxFrames)) {
@@ -752,7 +755,8 @@ void renderFrame() {
                     // If we used a lossy mode, then calculate the Square Error for this frame
                     if (globalConfiguration.PSNR) {
                         Pixel* frameBuffer = myDisplay->GetFrameBuffer();
-                        totalSE += calculateSE(videoBuffer, frameBuffer);
+                        SE = calculateSE(videoBuffer, frameBuffer);
+                        totalSE += SE;
                     }
 
                     // Draw
@@ -813,7 +817,19 @@ void renderFrame() {
         }
 
         if (!globalConfiguration.headless && globalConfiguration.verbose) {
-            cout << "PixelBidge Statistics:" << endl << "  Decoded Frames: " << framesDecoded << " - Rendered Frames: " << framesRendered << endl;
+            cout << "PixelBidge Statistics:" << endl;
+            cout << "  Decoded Frames: " << framesDecoded << " - Rendered Frames: " << framesRendered << endl;
+
+            cout << "  Transmission: " << costModel->getLinkBytesTransmitted() - transCost << endl;
+
+            double MSE, PSNR = 0.0;
+            if (globalConfiguration.PSNR) {
+                MSE = (double)SE / (double)(displayWidth * displayHeight) / 3.0f;
+                PSNR = 10.0f * log10(65025.0f / MSE);
+                cout << "  PSNR: " << PSNR << endl;
+            }
+
+            cout << "RenderCSV," << framesRendered << "," << costModel->getLinkBytesTransmitted() - transCost << "," << PSNR << endl;
         }
 
     } else {

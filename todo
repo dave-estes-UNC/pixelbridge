@@ -90,26 +90,23 @@ x Speed up DCT
 
 - Video Paper
 X 1. Only resend changed coefficients. See TODO in DctTiler.cpp and final bullet below
-  2. Define a list (3-5) of Coefficient Priority Schemes which will be used to hit predefined data budgets.
+x 2. Define a list (3-5) of Coefficient Priority Schemes which will be used to hit predefined data budgets.
 x 3. Implement an overall measure of motion per frame (against previous frame).
   4. Explore and find a set (3-5) of Multiscale configurations to use.
   5. Implement Priority schemes to meet configurable fixed data budgets.
     x Add --dctbudget command line option that specifies the budget in bytes per frame.
     x Add --dectplanes command line option
-    - For each scale, consider that it is allowed a particular percentage of the overall budget. So
+    x For each scale, consider that it is allowed a particular percentage of the overall budget. So
       if a scale takes 4 of 63 planes, then it is allowed 4/63 = 6.35% of the overall data budget.
       The exception is if a scale is configured with only one plane. In such a case, then it is excluded
       from budget constraints.
     - Schemes:
-      - SnapToZero with Delta - Any coefficient within a delta of zero is snapped to zero.
-      - Trim with Delta - Any coefficient within a delta of the previous frame is not updated.
-      - SnapToZero with Plane - Any coefficient in the least significant planes is zeroed.
-      - Trim with Plane - Any coefficient in the most significant planes is not updated.
-                          Need to think this over, because not updating significant coefficients at the 1x scale
-                          can mean really ugly results. I think this should be mutually exclusive. So we Trim with
-                          Plane above 1x and not at 1x or we Trim with Plane at 1x and not above 1x. Can switch back
-                          and forth where every X frames I update the scales above 1x and then Trim with Plane the 1x plane.
-                          Then for the other frames I Trim all planes above 1x and then just update 1x.
+      x SnapToZero with Delta - Any coefficient within a delta of zero is snapped to zero.
+      x Trim with Delta - Any coefficient within a delta of the previous frame is not updated.
+      x SnapToZero with Plane - Any coefficient in the least significant planes is zeroed.
+      x Trim with Plane - Each stack will be trimmed to this number of planes.
+      - Revise the estimation for the schemes with planes to be more accurate
+    x Output CSV Data for each frame with frame number, transmission cost, and PSNR.
   6. Do experiments
     - Graph each video, showing plots of PSNR over time of each X configurations by Y priority schemes for Z data budgets.
       Think line graphs with PSNR or Y axis and time on X axis.

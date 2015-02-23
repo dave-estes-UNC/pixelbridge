@@ -747,6 +747,11 @@ void ClNddiDisplay::FillScalerTiles(vector<uint64_t> &scalers,
 void ClNddiDisplay::FillScalerTileStack(vector<uint64_t> &scalers,
                                         vector<unsigned int> &start,
                                         vector<unsigned int> &size) {
+    vector<unsigned int> st = start;
+
+    size_t stack_height = scalers.size();
+    Scaler s;
+
     assert(start.size() == 3);
     assert(size.size() == 2);
 
@@ -755,10 +760,18 @@ void ClNddiDisplay::FillScalerTileStack(vector<uint64_t> &scalers,
                                           CALC_BYTES_FOR_CP_COORD_TRIPLES(2),  // Two Coefficient Plane Coordinate triples
                                           0);
 
-    // TODO(CDE): Finish implementing
-    assert(0 && "Not yet implemented.");
+    vector<unsigned int> end;
+    end.push_back(0); end.push_back(0); end.push_back(0);
+    for (size_t i = 0; i < stack_height; i++) {
+        end[0] = start[0] + size[0] - 1; if (end[0] >= displayWidth_) end[0] = displayWidth_ - 1;
+        end[1] = start[1] + size[1] - 1; if (end[1] >= displayHeight_) end[1] = displayHeight_ - 1;
+        end[2] = start[2];
+        s.packed = scalers[i];
+        clCoefficientPlane_->FillScaler(s, st, end);
+        st[2]++;
+    }
 
-#ifdef SUPRESS_EXCESS_RENDERING
+    #ifdef SUPRESS_EXCESS_RENDERING
     changed_ = true;
 #else
     Render();

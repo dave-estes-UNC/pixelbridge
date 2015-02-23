@@ -66,6 +66,7 @@ private:
 
     void SelectCoefficientsForScale(vector<uint64_t> &coefficients, size_t c);
 
+    size_t CountLeadingZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c);
     void CalculateSnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t &delta, size_t &planes);
     void SnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t delta, size_t planes);
 
