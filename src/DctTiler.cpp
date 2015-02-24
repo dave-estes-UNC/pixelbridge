@@ -741,8 +741,6 @@ size_t DctTiler::EstimateCost(bool isTrim, vector< vector< vector<uint64_t> > > 
     // Then add in the addressing cost
     cost += (CALC_BYTES_FOR_CP_COORD_TRIPLES(1) + CALC_BYTES_FOR_TILE_COORD_DOUBLES(1)) * stackCount;
 
-    cout << "Cost: " << cost << endl;
-
     return cost;
 }
 
