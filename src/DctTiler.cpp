@@ -674,129 +674,119 @@ void DctTiler::SelectCoefficientsForScale(vector<uint64_t> &coefficients, size_t
 }
 
 
-size_t DctTiler::CountLeadingZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c) {
+size_t DctTiler::EstimateCost(bool isTrim, vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t delta, size_t planes) {
 
     scale_config_t config = globalConfiguration.dctScales[c];
+    int firstPlane, lastPlane;
+    size_t stackCount = 0;
+    size_t cost = 0;
 
-    size_t firstNonZero = config.plane_count;
+    // Calculate the cost of sending the scalers in each stack
     for (size_t i = 0; i < coefficientsForScale.size(); i++) {
         for (size_t j = 0; j < coefficientsForScale[i].size(); j++) {
+
+            size_t stackHeight = 0;
+
+            firstPlane = lastPlane = -1;
+
+            // Iterate over the stack
             for (size_t k = 0; k < coefficientsForScale[i][j].size(); k++) {
-                if (coefficientsForScale[i][j][k] != 0) {
-                    firstNonZero = MIN(firstNonZero, k);
-                    break;
+
+                Scaler s, cs;
+                s.packed = coefficientsForScale[i][j][k];
+                cs.packed = (cachedCoefficients_.size() <= c) ? 0 : cachedCoefficients_[c][i][j][k];
+
+                // If we're trimming
+                if (isTrim) {
+                    // Use delta to trim, stopping once we have count (plane) of un-trimmed coefficients
+                    if (abs(s.r - cs.r) > delta ||
+                        abs(s.g - cs.g) > delta ||
+                        abs(s.b - cs.b) > delta)
+                    {
+                        lastPlane = k;
+                        if (firstPlane < 0) {
+                            firstPlane = k;
+                            stackCount++;
+                        }
+                        stackHeight = lastPlane - firstPlane + 1;
+
+                    }
+                    if (stackHeight == planes)
+                        break;
+
+                // Else we're snapping
+                } else {
+                    // Use delta to snap, stopping when reaching the last (plane) coefficient planes
+                    if (abs(s.r) > delta ||
+                        abs(s.g) > delta ||
+                        abs(s.b) > delta)
+                    {
+                        lastPlane = k;
+                        if (firstPlane < 0) {
+                            firstPlane = k;
+                            stackCount++;
+                        }
+                        stackHeight = lastPlane - firstPlane + 1;
+                    }
+                    if (k + 1 == planes)
+                        break;
                 }
             }
+
+            // Increment the cost
+            cost += stackHeight * BYTES_PER_SCALER;
         }
     }
 
-    return firstNonZero;
+    // Then add in the addressing cost
+    cost += (CALC_BYTES_FOR_CP_COORD_TRIPLES(1) + CALC_BYTES_FOR_TILE_COORD_DOUBLES(1)) * stackCount;
+
+    cout << "Cost: " << cost << endl;
+
+    return cost;
 }
+
 
 void DctTiler::CalculateSnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t &delta, size_t &planes) {
 
     scale_config_t config = globalConfiguration.dctScales[c];
 
+    delta = 0;
+    planes = config.plane_count;
+
     // Determine budget for this scale
-    if (!globalConfiguration.dctSnap) {
-        delta = 0;
-        planes = config.plane_count;
-    } else {
+    if (globalConfiguration.dctSnap) {
         size_t budget = globalConfiguration.dctBudget * config.plane_count / 63;
 
+        // Determine planes
         if (globalConfiguration.dctPlanes == UNUSED_CONFIG) {
             planes = config.plane_count;
         } else if (globalConfiguration.dctPlanes > OPTIMAL_CONFIG) {
             planes = globalConfiguration.dctPlanes;
         } else {
-            // Find out how many initial planes are zero
-            size_t leadingZeroPlanes = CountLeadingZeroPlanes(coefficientsForScale, c);
-
-            // Determine how many budgeted planes can be sent using the budget and then add the initial zero planes since they're free.
-            size_t b = budget;
-
-            // Subtract the cost of zeroing the first planes
-            if (leadingZeroPlanes > 0)
-                b -= BYTES_PER_SCALER * 1 + CALC_BYTES_FOR_CP_COORD_TRIPLES(2);
-
-            // Subtract the cost of zeroing the last planes
-            b -= BYTES_PER_SCALER * 1 + CALC_BYTES_FOR_CP_COORD_TRIPLES(2);
-
-            // Subtract the addressing cost of updating all of the stacks
-            b -= (CALC_BYTES_FOR_CP_COORD_TRIPLES(1) + CALC_BYTES_FOR_TILE_COORD_DOUBLES(1))
-                 * coefficientsForScale.size() * coefficientsForScale[0].size();
-
-            // The remainder is the scalers themselves and so we'll divide to find out how many non-zero planes we can send.
-            planes = b / (BYTES_PER_SCALER * coefficientsForScale.size() * coefficientsForScale[0].size());
-            planes = CLAMP(planes, 0, config.plane_count);
-
+            while (EstimateCost(false, coefficientsForScale, c, delta, planes) > budget)
+                planes--;
             if (globalConfiguration.verbose)
                 cout << "Snap Planes: " << planes << endl;
         }
 
+        // Determine delta
         if (globalConfiguration.dctDelta == UNUSED_CONFIG) {
             delta = 0;
         } else if (globalConfiguration.dctDelta > OPTIMAL_CONFIG) {
             delta = globalConfiguration.dctDelta;
         } else {
-            // Using budget, estimate the cost of sending every coefficient stack at this scale after snapping with delta = 0
-            int b;
-
-            delta = 0;
-            do {
-                // Start b at the full budget and subtract
-                b = budget;
-
-                // Subtract the addressing cost of updating all of the stacks
-                b -= (CALC_BYTES_FOR_CP_COORD_TRIPLES(1) + CALC_BYTES_FOR_TILE_COORD_DOUBLES(1))
-                     * coefficientsForScale.size() * coefficientsForScale[0].size();
-
-                // Go through every coefficient stack and compare against cached values
-                for (size_t i = 0; i < coefficientsForScale.size(); i++) {
-                    for (size_t j = 0; j < coefficientsForScale[i].size(); j++) {
-                        int first = -1, last = 0;
-                        for (size_t k = 0; k < coefficientsForScale[i][j].size(); k++) {
-                            Scaler s;
-                            s.packed = coefficientsForScale[i][j][k];
-                            if (((cachedCoefficients_.size() <= c ||
-                                  cachedCoefficients_[c][i][j][k] == 0) &&
-                                 (abs(s.r) >= delta ||
-                                  abs(s.g) >= delta ||
-                                  abs(s.b) >= delta)) ||
-                                ((cachedCoefficients_.size() > c &&
-                                  cachedCoefficients_[c][i][j][k] != 0) &&
-                                 (abs(s.r) <= delta &&
-                                  abs(s.g) <= delta &&
-                                  abs(s.b) <= delta)))
-                            {
-                                last = k;
-                                if (first == -1)
-                                    first = k;
-                            }
-                        }
-
-                        // Subtract the cost of sending the scalers for this stack
-                        if (first == -1)
-                            b -= (last) * BYTES_PER_SCALER;
-                        else
-                            b -= (last - first) * BYTES_PER_SCALER;
-                    }
-                }
-
-                // Increase delta, until we're under budget
-                if (b < 0)
-                    delta++;
-            } while (b < 0 && delta < 128);
-
+            while (EstimateCost(false, coefficientsForScale, c, delta, planes) > budget)
+                delta++;
             if (globalConfiguration.verbose)
                 cout << "Snap Delta: " << delta << endl;
        }
     }
 }
 
+
 /**
- * Considers snapping to zero any coefficients that are within a delta of zero. While it will work on
- * any scale, this is only used in practice on the 1x scale.
+ * Snaps the calculated coefficients for this scale to zero using delta, planes, or both.
  *
  * @param coefficientsForScale All of the coefficient stacks for this scale.
  * @param c The current scale from the globalConfiguration.dctScales global.
@@ -828,6 +818,108 @@ void DctTiler::SnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coef
                 coefficientsForScale[i][j][k] = 0;
             }
         }
+    }
+}
+
+
+void DctTiler::CalculateTrimCoefficients(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t &delta, size_t &planes) {
+
+    scale_config_t config = globalConfiguration.dctScales[c];
+
+    delta = 0;
+    planes = config.plane_count;
+
+    // Determine budget for this scale
+    if (globalConfiguration.dctTrim) {
+        size_t budget = globalConfiguration.dctBudget * config.plane_count / 63;
+
+        // Determine planes
+        if (globalConfiguration.dctPlanes == UNUSED_CONFIG) {
+            planes = config.plane_count;
+        } else if (globalConfiguration.dctPlanes > OPTIMAL_CONFIG) {
+            planes = globalConfiguration.dctPlanes;
+        } else {
+            while (EstimateCost(true, coefficientsForScale, c, delta, planes) > budget)
+                planes--;
+            if (globalConfiguration.verbose)
+                cout << "Trim Planes: " << planes << endl;
+        }
+
+        // Determine delta
+        if (globalConfiguration.dctDelta == UNUSED_CONFIG) {
+            delta = 0;
+        } else if (globalConfiguration.dctDelta > OPTIMAL_CONFIG) {
+            delta = globalConfiguration.dctDelta;
+        } else {
+            while (EstimateCost(true, coefficientsForScale, c, delta, planes) > budget)
+                delta++;
+            if (globalConfiguration.verbose)
+                cout << "Trim Delta: " << delta << endl;
+        }
+    }
+}
+
+
+/**
+ * Will trim the leading and trailing coefficients that don't need to be updated.
+ *
+ * @param coefficients The vector (in zig-zag order) of coefficients for the macroblock
+ * @param i The column of the location for this macroblock.
+ * @param j The row of the location for this macroblock.
+ * @param c Index into globalConfiguration.dctScales for information about the factor by
+ *          which we're scaling and which planes to fill.
+ * @param delta Coefficients in the top and bottom are trimmed if they are within a delta of their cached values.
+ * @param planes This many planes of coefficients will remain after trimming.
+ * @return The first plane to be updated.
+ */
+size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t delta, size_t planes) {
+
+    /* Get the set of cached coefficients for (c, i, j), building out the cache the first time. */
+    if (cachedCoefficients_.size() <= c)
+        cachedCoefficients_.push_back(vector< vector< vector<uint64_t> > >());
+    if (cachedCoefficients_[c].size() <= i)
+        cachedCoefficients_[c].push_back(vector< vector<uint64_t> >());
+    if (cachedCoefficients_[c][i].size() <= j) {
+        /* Initialize the coefficients to 0 */
+        cachedCoefficients_[c][i].push_back(vector<uint64_t>(globalConfiguration.dctScales[c].plane_count, 0));
+    }
+
+    /* first_plane_idx will be the return value. Start it at the configured first plane. */
+    size_t first_plane_idx = globalConfiguration.dctScales[c].first_plane_idx;
+
+    /* Figure out the first and last unchanged coefficient */
+    size_t first = 0, last = coefficients.size() - 1;
+    bool foundFirst = false;
+    for (size_t k = 0; k < coefficients.size(); k++) {
+        Scaler coeff, cachedCoeff;
+        coeff.packed = coefficients[k];
+        cachedCoeff.packed = cachedCoefficients_[c][i][j][k];
+        if (abs(coeff.r - cachedCoeff.r) > delta ||
+            abs(coeff.g - cachedCoeff.g) > delta ||
+            abs(coeff.b - cachedCoeff.b) > delta)
+        {
+            last = k;
+            if (!foundFirst) {
+                first = k;
+                foundFirst = true;
+            }
+        }
+    }
+
+    /* Store this set of coefficients in the cache. */
+    cachedCoefficients_[c][i][j] = vector<uint64_t>(coefficients);
+
+    /* Trim the zeros from the end and then the beginning, paying mind to not go beyond the specified planes parameter */
+    if (foundFirst) {
+        last = CLAMP(last, 0, first + planes - 1);
+        if (last < coefficients.size() - 1)
+            coefficients.erase(coefficients.begin() + last + 1, coefficients.end());
+        coefficients.erase(coefficients.begin(), coefficients.begin() + first);
+        return first_plane_idx + first;
+    } else {
+        // If we didn't find a first, then that means that we've trimmed everything away.
+        // As in there are no changes to make. So return a first plan that's out of bounds.
+        return display_->NumCoefficientPlanes();
     }
 }
 
@@ -1029,167 +1121,6 @@ void DctTiler::ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForS
 }
 #endif
 
-
-void DctTiler::CalculateTrimCoefficients(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t &delta, size_t &planes) {
-
-    scale_config_t config = globalConfiguration.dctScales[c];
-
-    if (!globalConfiguration.dctTrim) {
-        delta = 0;
-        planes = config.plane_count;
-    } else {
-        // Determine budget for this scale
-        size_t budget = globalConfiguration.dctBudget * config.plane_count / 63;
-
-        if (globalConfiguration.dctPlanes == UNUSED_CONFIG) {
-            planes = config.plane_count;
-        } else if (globalConfiguration.dctPlanes > OPTIMAL_CONFIG) {
-            planes = globalConfiguration.dctPlanes;
-        } else {
-            // Determine how many budgeted planes can be sent using the budget and then add the initial zero planes since they're free.
-            size_t b = budget;
-
-            // Subtract the addressing cost of updating all of the stacks
-            b -= (CALC_BYTES_FOR_CP_COORD_TRIPLES(1) + CALC_BYTES_FOR_TILE_COORD_DOUBLES(1))
-                 * coefficientsForScale.size() * coefficientsForScale[0].size();
-
-            // The remainder is the scalers themselves and so we'll divide to find out how many non-zero planes we can send.
-            planes = b / (BYTES_PER_SCALER * coefficientsForScale.size() * coefficientsForScale[0].size());
-            planes = CLAMP(planes, 0, config.plane_count);
-
-            if (globalConfiguration.verbose)
-                cout << "Trim Planes: " << planes << endl;
-        }
-
-        if (globalConfiguration.dctDelta == UNUSED_CONFIG) {
-            delta = 0;
-        } else if (globalConfiguration.dctDelta > OPTIMAL_CONFIG) {
-            delta = globalConfiguration.dctDelta;
-        } else {
-            // Using budget, estimate the cost of sending every coefficient stack at this scale after snapping with delta = 0
-            int b;
-
-            delta = 0;
-            do {
-                // Start b at the full budget and subtract
-                b = budget;
-
-                // Subtract the addressing cost of updating all of the stacks
-                b -= (CALC_BYTES_FOR_CP_COORD_TRIPLES(1) + CALC_BYTES_FOR_TILE_COORD_DOUBLES(1))
-                     * coefficientsForScale.size() * coefficientsForScale[0].size();
-
-                // Go through every coefficient stack and compare against cached values
-                for (size_t i = 0; i < coefficientsForScale.size(); i++) {
-                    for (size_t j = 0; j < coefficientsForScale[i].size(); j++) {
-                        int first = -1, last = 0;
-                        for (size_t k = 0; k < coefficientsForScale[i][j].size(); k++) {
-                            Scaler s;
-                            s.packed = coefficientsForScale[i][j][k];
-                            if ((cachedCoefficients_.size() <= c ||
-                                 cachedCoefficients_[c][i][j][k] == 0) &&
-                                (abs(s.r) >= delta ||
-                                 abs(s.g) >= delta ||
-                                 abs(s.b) >= delta))
-                            {
-                                last = k;
-                                if (first == -1)
-                                    first = k;
-                            } else if (cachedCoefficients_.size() > c) {
-                                Scaler cs;
-                                cs.packed = cachedCoefficients_[c][i][j][k];
-                                if (abs(s.r - cs.r) >= delta ||
-                                    abs(s.g - cs.g) >= delta ||
-                                    abs(s.b - cs.g) >= delta)
-                                {
-                                    last = k;
-                                    if (first == -1)
-                                        first = k;
-                                }
-                            }
-                        }
-
-                        // Subtract the cost of sending the scalers for this stack
-                        if (first == -1)
-                            b -= (last) * BYTES_PER_SCALER;
-                        else
-                            b -= (last - first) * BYTES_PER_SCALER;
-                    }
-                }
-
-                // Increase delta, until we're under budget
-                if (b < 0)
-                    delta++;
-            } while (b < 0 && delta < 128);
-
-            if (globalConfiguration.verbose)
-                cout << "Trim Delta: " << delta << endl;
-        }
-    }
-}
-
-
-/**
- * Will trim the leading and trailing coefficients that don't need to be updated.
- *
- * @param coefficients The vector (in zig-zag order) of coefficients for the macroblock
- * @param i The column of the location for this macroblock.
- * @param j The row of the location for this macroblock.
- * @param c Index into globalConfiguration.dctScales for information about the factor by
- *          which we're scaling and which planes to fill.
- * @param delta Coefficients in the top and bottom are trimmed if they are within a delta of their cached values.
- * @param planes This many planes of coefficients will remain after trimming.
- * @return The first plane to be updated.
- */
-size_t DctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t delta, size_t planes) {
-
-    /* Get the set of cached coefficients for (c, i, j), building out the cache the first time. */
-    if (cachedCoefficients_.size() <= c)
-        cachedCoefficients_.push_back(vector< vector< vector<uint64_t> > >());
-    if (cachedCoefficients_[c].size() <= i)
-        cachedCoefficients_[c].push_back(vector< vector<uint64_t> >());
-    if (cachedCoefficients_[c][i].size() <= j) {
-        /* Initialize the coefficients to 0 */
-        cachedCoefficients_[c][i].push_back(vector<uint64_t>(globalConfiguration.dctScales[c].plane_count, 0));
-    }
-
-    /* first_plane_idx will be the return value. Start it at the configured first plane. */
-    size_t first_plane_idx = globalConfiguration.dctScales[c].first_plane_idx;
-
-    /* Figure out the first and last unchanged coefficient */
-    size_t first = 0, last = coefficients.size() - 1;
-    bool foundFirst = false;
-    for (size_t k = 0; k < coefficients.size(); k++) {
-        Scaler coeff, cachedCoeff;
-        coeff.packed = coefficients[k];
-        cachedCoeff.packed = cachedCoefficients_[c][i][j][k];
-        if (abs(coeff.r - cachedCoeff.r) > delta ||
-            abs(coeff.g - cachedCoeff.g) > delta ||
-            abs(coeff.b - cachedCoeff.b) > delta)
-        {
-            last = k;
-            if (!foundFirst) {
-                first = k;
-                foundFirst = true;
-            }
-        }
-    }
-
-    /* Store this set of coefficients in the cache. */
-    cachedCoefficients_[c][i][j] = vector<uint64_t>(coefficients);
-
-    /* Trim the zeros from the end and then the beginning, paying mind to not go beyond the specified planes parameter */
-    if (foundFirst) {
-        last = CLAMP(last, 0, first + planes - 1);
-        if (last < coefficients.size() - 1)
-            coefficients.erase(coefficients.begin() + last + 1, coefficients.end());
-        coefficients.erase(coefficients.begin(), coefficients.begin() + first);
-        return first_plane_idx + first;
-    } else {
-        // If we didn't find a first, then that means that we've trimmed everything away.
-        // As in there are no changes to make. So return a first plan that's out of bounds.
-        return display_->NumCoefficientPlanes();
-    }
-}
 
 /**
  * Takes the coefficients computed for a macroblock and fills them to a region of the display.

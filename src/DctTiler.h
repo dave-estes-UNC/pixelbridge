@@ -63,21 +63,16 @@ private:
     int16_t* DownSample(size_t factor, int16_t* buffer, size_t width, size_t height);
     int16_t* UpSample(size_t factor, int16_t* buffer, size_t width, size_t height);
     vector<uint64_t> BuildCoefficients(size_t i, size_t j, int16_t* buffer, size_t width, size_t height, bool adjustPixels);
-
     void SelectCoefficientsForScale(vector<uint64_t> &coefficients, size_t c);
-
-    size_t CountLeadingZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c);
+    size_t EstimateCost(bool isTrim, vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t delta, size_t planes);
     void CalculateSnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t &delta, size_t &planes);
     void SnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t delta, size_t planes);
-
+    void CalculateTrimCoefficients(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t &delta, size_t &planes);
+    size_t TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t delta, size_t planes);
 #ifdef OPTIMAL_ZEROING
     size_t EstimateCostForZeroingPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t first, size_t last);
     void ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c);
 #endif
-
-    void CalculateTrimCoefficients(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t &delta, size_t &planes);
-    size_t TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t delta, size_t planes);
-
     void FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t first);
     void PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, int16_t* renderedBuffer, size_t width, size_t height, bool shift);
     void AdjustFrame(int16_t* buffer, int16_t* renderedBuffer, size_t width, size_t height);

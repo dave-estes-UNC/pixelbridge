@@ -100,12 +100,12 @@ x 3. Implement an overall measure of motion per frame (against previous frame).
       if a scale takes 4 of 63 planes, then it is allowed 4/63 = 6.35% of the overall data budget.
       The exception is if a scale is configured with only one plane. In such a case, then it is excluded
       from budget constraints.
-    - Schemes:
+    x Schemes:
       x SnapToZero with Delta - Any coefficient within a delta of zero is snapped to zero.
       x Trim with Delta - Any coefficient within a delta of the previous frame is not updated.
       x SnapToZero with Plane - Any coefficient in the least significant planes is zeroed.
       x Trim with Plane - Each stack will be trimmed to this number of planes.
-      - Revise the estimation for the schemes with planes to be more accurate
+      x Revise the estimation for the schemes with planes to be more accurate
     x Output CSV Data for each frame with frame number, transmission cost, and PSNR.
   6. Do experiments
     - Graph each video, showing plots of PSNR over time of each X configurations by Y priority schemes for Z data budgets.
