@@ -50,7 +50,7 @@ namespace nddi {
 
         /**
          * Alternative constructor that will not allocate its own memory
-         * for the coefficients. Using the contructor is ideal if the memory
+         * for the coefficients. Using the constructor is ideal if the memory
          * layout for all of the coefficient planes is being carefully controlled.
          */
         CoefficientMatrix(CostModel* costModel,

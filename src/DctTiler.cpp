@@ -82,7 +82,9 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
      */
     displayTilesWide_ = CEIL(display_width, BLOCK_WIDTH);
     displayTilesHigh_ = CEIL(display_height, BLOCK_HEIGHT);
+#ifndef USE_MULTISCALE_DCT
     tileStackHeights_ = (uint8_t*)calloc(displayTilesWide_ * displayTilesHigh_, sizeof(uint8_t));
+#endif
 
 #ifndef NO_CL
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
@@ -286,6 +288,9 @@ void DctTiler::InitializeCoefficientPlanes() {
             size_t scaledTilesWide = CEIL(display_->DisplayWidth(), scaledBlockWidth);
             size_t scaledTilesHigh = CEIL(display_->DisplayHeight(), scaledBlockHeight);
 
+#ifndef NO_OMP
+#pragma omp parallel for
+#endif
             // Break up the display into supermacroblocks at this current scale
             for (int j = 0; j < scaledTilesHigh; j++) {
                 for (int i = 0; i < scaledTilesWide; i++) {
@@ -429,7 +434,7 @@ void DctTiler::InitializeFrameVolume() {
     display_->CopyPixels(basisFunctions_, start, end);
 }
 
-
+#ifdef USE_MULTISCALE_DCT
 /**
  * Converts an unsigned byte buffer to a signed byte buffer; which is nothing more than
  * copying each byte to a short.
@@ -437,7 +442,7 @@ void DctTiler::InitializeFrameVolume() {
  * @param buffer The input byte buffer
  * @param width The width of the buffers
  * @param weight The height of the buffers
- * @return mallocs and returns the signed buffer
+ * @return mallocs and returns the signed buffer. Callee must free.
  */
 int16_t* DctTiler::ConvertToSignedPixels(uint8_t* buffer, size_t width, size_t height) {
 
@@ -1397,6 +1402,8 @@ void DctTiler::UpdateScaledDisplay(uint8_t* buffer, size_t width, size_t height)
     // Finally clean the signedBuf that we've been using throughout
     free(signedBuf);
 }
+#endif
+
 
 /**
  * Update the display by calculating the DCT coefficients for each macroblock

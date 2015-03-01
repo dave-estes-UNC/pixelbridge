@@ -45,6 +45,12 @@ else
 	endif
 endif
 
+ifeq ($(PROFILE), 1)
+	CCFLAGS+=-pg
+	CPPFLAGS+=-pg
+	LDFLAGS+=-pg
+endif
+
 CPPFLAGS+=-D__STDC_CONSTANT_MACROS
 
 LDFLAGS+=-lz -lavutil -lavformat -lavcodec -lswscale `pkg-config --libs opencv`
