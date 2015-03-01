@@ -641,36 +641,38 @@ void outputStats(bool exitNow) {
     // CSV
     //
 
-    // Pretty print a heading to stdout, but for headless just spit it to stderr for reference
-    if (!globalConfiguration.headless) {
-        cout << "CSV Headings:" << endl;
-        cout << "Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name" << endl;
-    } else {
-        cerr << "CSV Headings:" << endl;
-        cerr << "Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name" << endl;
-    }
+    if (globalConfiguration.csv) {
+        // Pretty print a heading to stdout, but for headless just spit it to stderr for reference
+        if (!globalConfiguration.headless) {
+            cout << "CSV Headings:" << endl;
+            cout << "Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name" << endl;
+        } else {
+            cerr << "CSV Headings:" << endl;
+            cerr << "Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name" << endl;
+        }
 
-    cout
-    << totalUpdates << " , "
-    << costModel->getLinkCommandsSent() << " , "
-    << costModel->getLinkBytesTransmitted() << " , "
-    << costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) << " , "
-    << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << " , "
-    << costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << " , "
-    << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << " , "
-    << costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) << " , "
-    << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << " , "
-    << costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << " , "
-    << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << " , "
-    << costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) << " , "
-    << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << " , "
-    << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << " , "
-    << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << " , "
-    << costModel->getTime(FRAME_VOLUME_COMPONENT) << " , "
-    << costModel->getPixelsMapped() << " , "
-    << costModel->getPixelsBlended() << " , "
-    << PSNR << ","
-    << fileName << endl;
+        cout
+        << totalUpdates << " , "
+        << costModel->getLinkCommandsSent() << " , "
+        << costModel->getLinkBytesTransmitted() << " , "
+        << costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) << " , "
+        << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << " , "
+        << costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << " , "
+        << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << " , "
+        << costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) << " , "
+        << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << " , "
+        << costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << " , "
+        << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << " , "
+        << costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) << " , "
+        << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << " , "
+        << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << " , "
+        << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << " , "
+        << costModel->getTime(FRAME_VOLUME_COMPONENT) << " , "
+        << costModel->getPixelsMapped() << " , "
+        << costModel->getPixelsBlended() << " , "
+        << PSNR << ","
+        << fileName << endl;
+    }
 
     cerr << endl;
 
@@ -816,20 +818,23 @@ void renderFrame() {
 
         }
 
-        if (!globalConfiguration.headless && globalConfiguration.verbose) {
-            cout << "PixelBidge Statistics:" << endl;
-            cout << "  Decoded Frames: " << framesDecoded << " - Rendered Frames: " << framesRendered << endl;
-
-            cout << "  Transmission: " << costModel->getLinkBytesTransmitted() - transCost << endl;
+        if (!globalConfiguration.headless) {
+            if (globalConfiguration.verbose) {
+                cout << "PixelBidge Statistics:" << endl;
+                cout << "  Decoded Frames: " << framesDecoded << " - Rendered Frames: " << framesRendered << endl;
+                cout << "  Transmission: " << costModel->getLinkBytesTransmitted() - transCost << endl;
+            }
 
             double MSE, PSNR = 0.0;
             if (globalConfiguration.PSNR) {
                 MSE = (double)SE / (double)(displayWidth * displayHeight) / 3.0f;
                 PSNR = 10.0f * log10(65025.0f / MSE);
-                cout << "  PSNR: " << PSNR << endl;
+                if (globalConfiguration.verbose)
+                    cout << "  PSNR: " << PSNR << endl;
             }
 
-            cout << "RenderCSV," << framesRendered << "," << costModel->getLinkBytesTransmitted() - transCost << "," << PSNR << endl;
+            if (globalConfiguration.csv)
+                cout << "RenderCSV," << framesRendered << "," << costModel->getLinkBytesTransmitted() - transCost << "," << PSNR << endl;
         }
 
     } else {
@@ -1039,8 +1044,8 @@ void computeFlow() {
                     featuresLast.resize(j);
                     dist = dist / j;
 
-
-                    cout << "FLOW: " << framesDecoded - 1 << " to " << framesDecoded << " Average Distance: " << dist << endl;
+                    if (!globalConfiguration.headless && globalConfiguration.verbose)
+                        cout << "FlowCSV," << framesDecoded - 1 << "," << framesDecoded << "," << dist << endl;
 
                     // Then copy to the lastBuffer
                     memcpy(lastBuffer, videoBuffer, VIDEO_PIXEL_SIZE * pixel_count);
@@ -1107,7 +1112,7 @@ void motion( int x, int y ) {
 void showUsage() {
     cout << "pixelbridge [--mode <fb|flat|cache|dct|count|flow>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>]" << endl <<
             "            [--dctscales x:y[,x:y...]] [--dctdelta <n>] [--dctplanes <n>] [--dctbudget <n>] [--dctsnap] [--dcttrim] [--quality <0/1-100>]" << endl <<
-            "            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>" << endl;
+            "            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--csv] [--headless] <filename>" << endl;
     cout << endl;
     cout << "  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).\n" <<
             "          Optional the mode can be set to count the number of pixels changed (count) or determine optical flow (flow)." << endl;
@@ -1130,6 +1135,7 @@ void showUsage() {
     cout << "  --rewind  Sets a start point and a number of frames to play in reverse. Once finished, normal playback continues." << endl;
     cout << "  --psnr  Calculates and outputs PSNR. Cannot use with headless." << endl;
     cout << "  --verbose  Outputs frame-by-frame statistics." << endl;
+    cout << "  --csv  Outputs CSV data." << endl;
     cout << "  --headless  Removes rendering and excessive data output. Overrides --verbose. Cannot use with psnr." << endl;
 }
 
@@ -1325,6 +1331,10 @@ bool parseArgs(int argc, char *argv[]) {
             globalConfiguration.verbose = true;
             argc--;
             argv++;
+        } else if (strcmp(*argv, "--csv") == 0) {
+            globalConfiguration.csv = true;
+            argc--;
+            argv++;
         } else if (strcmp(*argv, "--headless") == 0) {
             if (globalConfiguration.PSNR) {
                 showUsage();
@@ -1391,7 +1401,7 @@ int main(int argc, char *argv[]) {
         myRewinder = new Rewinder(globalConfiguration.rewindStartFrame - globalConfiguration.rewindFrames, displayWidth, displayHeight);
     }
     if ( (displayWidth == 0) || (displayHeight == 0) ) {
-        cout << "Error: Could not get video dimensions." << endl;
+        cerr << "Error: Could not get video dimensions." << endl;
         return -1;
     }
 

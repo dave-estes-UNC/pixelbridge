@@ -762,7 +762,7 @@ void DctTiler::CalculateSnapCoefficientsToZero(vector< vector< vector<uint64_t> 
         } else if (globalConfiguration.dctPlanes > OPTIMAL_CONFIG) {
             planes = globalConfiguration.dctPlanes;
         } else {
-            while (EstimateCost(false, coefficientsForScale, c, delta, planes) > budget)
+            while (EstimateCost(false, coefficientsForScale, c, delta, planes) > budget && planes > 1)
                 planes--;
             if (globalConfiguration.verbose)
                 cout << "Snap Planes: " << planes << endl;
@@ -774,7 +774,7 @@ void DctTiler::CalculateSnapCoefficientsToZero(vector< vector< vector<uint64_t> 
         } else if (globalConfiguration.dctDelta > OPTIMAL_CONFIG) {
             delta = globalConfiguration.dctDelta;
         } else {
-            while (EstimateCost(false, coefficientsForScale, c, delta, planes) > budget)
+            while (EstimateCost(false, coefficientsForScale, c, delta, planes) > budget && delta < 128)
                 delta++;
             if (globalConfiguration.verbose)
                 cout << "Snap Delta: " << delta << endl;
@@ -837,7 +837,7 @@ void DctTiler::CalculateTrimCoefficients(vector< vector< vector<uint64_t> > > &c
         } else if (globalConfiguration.dctPlanes > OPTIMAL_CONFIG) {
             planes = globalConfiguration.dctPlanes;
         } else {
-            while (EstimateCost(true, coefficientsForScale, c, delta, planes) > budget)
+            while (EstimateCost(true, coefficientsForScale, c, delta, planes) > budget && planes > 1)
                 planes--;
             if (globalConfiguration.verbose)
                 cout << "Trim Planes: " << planes << endl;
@@ -849,7 +849,7 @@ void DctTiler::CalculateTrimCoefficients(vector< vector< vector<uint64_t> > > &c
         } else if (globalConfiguration.dctDelta > OPTIMAL_CONFIG) {
             delta = globalConfiguration.dctDelta;
         } else {
-            while (EstimateCost(true, coefficientsForScale, c, delta, planes) > budget)
+            while (EstimateCost(true, coefficientsForScale, c, delta, planes) > budget && delta < 128)
                 delta++;
             if (globalConfiguration.verbose)
                 cout << "Trim Delta: " << delta << endl;

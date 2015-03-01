@@ -68,6 +68,7 @@ public:
     size_t temporalFlipCountPerFrame;
     bool PSNR;
     bool verbose;
+    bool csv;
     bool headless;
     vector<scale_config_t> dctScales;
     int dctDelta;
