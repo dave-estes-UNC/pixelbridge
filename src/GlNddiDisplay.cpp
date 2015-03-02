@@ -159,7 +159,7 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
 #endif
 
         // Grab the coefficient matrix
-        CoefficientMatrix * matrix = coefficientPlanes_->getCoefficientMatrix(x, y, p);
+        CoefficientMatrix * matrix = coefficientPlanes_->getCoefficientMatrix();
         assert(matrix);
 
         // Compute the position vector for the proper pixel in the frame volume.
@@ -169,11 +169,11 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
             // Initialize to zero
             fvPosition.push_back(0);
             // No need to read the x and y from the input vector, just multiply directly.
-            fvPosition[j] += matrix->getCoefficient(0, j) * x;
-            fvPosition[j] += matrix->getCoefficient(1, j) * y;
+            fvPosition[j] += matrix->getCoefficient(0, j, coefficientPlanes_->dataCoefficient(x, y, p)) * x;
+            fvPosition[j] += matrix->getCoefficient(1, j, coefficientPlanes_->dataCoefficient(x, y, p)) * y;
             // Then multiply the remainder of the input vector
             for (int i = 2; i < CM_WIDTH; i++) {
-                fvPosition[j] += matrix->getCoefficient(i, j) * inputVector_->getValue(i);
+                fvPosition[j] += matrix->getCoefficient(i, j, coefficientPlanes_->dataCoefficient(x, y, p)) * inputVector_->getValue(i);
             }
         }
         q = frameVolume_->getPixel(fvPosition);

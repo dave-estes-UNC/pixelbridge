@@ -37,7 +37,7 @@ namespace nddi {
     protected:
         CostModel           * costModel_;
         unsigned int          width_, height_, numPlanes_, matrixWidth_, matrixHeight_;
-        CoefficientMatrix  ** coefficientMatrices_;
+        CoefficientMatrix   * coefficientMatrix_;
 #ifdef NARROW_DATA_STORES
         int16_t             * coefficients_;
         int16_t             * scalers_;
@@ -58,9 +58,12 @@ namespace nddi {
         : costModel_(costModel),
           width_(displayWidth), height_(displayHeight),
           numPlanes_(numPlanes),
-          matrixWidth_(matrixWidth), matrixHeight_(matrixHeight),
-          coefficientMatrices_(NULL) {
+          matrixWidth_(matrixWidth), matrixHeight_(matrixHeight) {
 
+            // Create the common CoefficientMatrix
+            coefficientMatrix_ =  new CoefficientMatrix(costModel_, matrixWidth, matrixHeight);
+
+            // Alloc the actual coefficients and scalers
             if (!globalConfiguration.headless) {
 #ifdef NARROW_DATA_STORES
                 coefficients_ = (int16_t *)malloc(CoefficientMatrix::memoryRequired(matrixWidth, matrixHeight) * displayWidth * displayHeight * numPlanes_);
@@ -70,38 +73,12 @@ namespace nddi {
                 scalers_ = (int *)malloc(sizeof(int) * 3 * displayWidth * displayHeight * numPlanes_);
 #endif
             }
-
-            coefficientMatrices_ = (CoefficientMatrix **)malloc(sizeof(CoefficientMatrix *) * displayWidth * displayHeight * numPlanes_);
-            for (int p = 0; p < numPlanes_; p++) {
-                for (int y = 0; y < displayHeight; y++) {
-                    for (int x = 0; x < displayWidth; x++) {
-                        if (!globalConfiguration.headless)
-                            coefficientMatrices_[p * displayWidth * displayHeight + y * displayWidth + x] =
-                                    new CoefficientMatrix(costModel_,
-                                                          matrixWidth, matrixHeight,
-                                                          &coefficients_[CP_OFF(x, y, p)]);
-                    }
-                }
-            }
         }
 
         ~CoefficientPlanes() {
 
-            CoefficientMatrix * matrix;
-
-            if (coefficientMatrices_) {
-
-                for (int y = 0; y < height_; y++) {
-                    for (int x = 0; x < width_; x++) {
-                        matrix = coefficientMatrices_[y * width_ + x];
-                        if (matrix) {
-                            delete(matrix);
-                        }
-                    }
-                }
-
-                free(coefficientMatrices_);
-            }
+            if (coefficientMatrix_) delete(coefficientMatrix_);
+            if (coefficients_) free(coefficients_);
             if (scalers_) free(scalers_);
         }
 
@@ -120,7 +97,8 @@ namespace nddi {
             assert(location.size() == 3);
 
             if (!globalConfiguration.headless) {
-                getCoefficientMatrix(location[0], location[1], location[2])->setCoefficients(coefficientMatrix);
+                coefficientMatrix_->setCoefficients(coefficientMatrix,
+                                                    dataCoefficient(location[0], location[1], location[2]));
             } else {
                 costModel_->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
                                                      1 * (matrixHeight_ * matrixWidth_),
@@ -147,7 +125,8 @@ namespace nddi {
             do {
                 // Update coefficient matrix in coefficient plane at position
                 if (!globalConfiguration.headless)
-                    getCoefficientMatrix(position[0], position[1], position[2])->setCoefficients(coefficientMatrix);
+                    coefficientMatrix_->setCoefficients(coefficientMatrix,
+                                                        dataCoefficient(position[0], position[1], position[2]));
                 matricesFilled++;
 
                 // Move to the next position
@@ -187,7 +166,8 @@ namespace nddi {
             do {
                 // Set coefficient in the coefficient matrix at this position in the coefficient plane
                 if (!globalConfiguration.headless)
-                    getCoefficientMatrix(position[0], position[1], position[2])->setCoefficient(col, row, coefficient);
+                    coefficientMatrix_->setCoefficient(col, row, coefficient,
+                                                       dataCoefficient(position[0], position[1], position[2]));
                 coefficientsFilled++;
 
                 // Move to the next position
@@ -256,14 +236,9 @@ namespace nddi {
 
         }
 
-        CoefficientMatrix* getCoefficientMatrix(unsigned int x, unsigned int y, unsigned int p) {
+        CoefficientMatrix* getCoefficientMatrix() {
 
-            assert(x < width_);
-            assert(y < height_);
-            assert(p < numPlanes_);
-           assert(!globalConfiguration.headless);
-
-            return coefficientMatrices_[p * width_ * height_ + y * width_ + x];
+            return coefficientMatrix_;
         }
 
         void putScaler(unsigned int x, unsigned int y, unsigned int p, Scaler scaler) {

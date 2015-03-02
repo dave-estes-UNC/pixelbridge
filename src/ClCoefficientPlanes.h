@@ -52,7 +52,6 @@ public:
         width_ = displayWidth;
         height_ = displayHeight;
         numPlanes_ = numPlanes;
-        coefficientMatrices_ = NULL;
 
         matrixWidth_ = matrixWidth;
         matrixHeight_ = matrixHeight;
