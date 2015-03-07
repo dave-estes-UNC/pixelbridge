@@ -24,7 +24,7 @@ namespace nddi {
     protected:
         CostModel             * costModel_;
         vector<unsigned int>    dimensionalSizes_;
-        unsigned int            size_;
+        size_t                  size_;
         Pixel                 * pixels_;
 
     public:

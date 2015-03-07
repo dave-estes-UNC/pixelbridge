@@ -31,17 +31,17 @@ namespace nddi {
         /**
          * Holds the Display Width
          */
-        int displayWidth_;
+        size_t displayWidth_;
 
         /**
          * Holds the Display Height
          */
-        int displayHeight_;
+        size_t displayHeight_;
 
         /**
          * Holds the number of coefficient planes
          */
-        int numPlanes_;
+        size_t numPlanes_;
 
         /**
          * The input vector

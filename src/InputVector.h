@@ -24,7 +24,7 @@ namespace nddi {
 
     protected:
         CostModel     * costModel_;
-        unsigned int    size_;
+        size_t          size_;
         int           * values_;
 
     public:

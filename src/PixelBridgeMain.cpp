@@ -833,7 +833,7 @@ void renderFrame() {
                     cout << "  PSNR: " << PSNR << endl;
             }
 
-            if (globalConfiguration.csv)
+            if (globalConfiguration.csv && framesRendered > 0)
                 cout << "RenderCSV," << framesRendered << "," << costModel->getLinkBytesTransmitted() - transCost << "," << PSNR << endl;
         }
 
@@ -952,6 +952,7 @@ void countChangedPixels() {
 void computeFlow() {
     static int framesDecoded = 0;
     static std::vector<cv::Point2f> features, featuresLast;
+    static size_t diagonal = sqrt(displayWidth * displayWidth + displayHeight * displayHeight);
 
     if (!globalConfiguration.maxFrames || (totalUpdates < globalConfiguration.maxFrames)) {
         int pixel_count = myPlayer->width() * myPlayer->height();
@@ -1015,13 +1016,11 @@ void computeFlow() {
                     cv::cvtColor(imgCurrent, grayCurrent, CV_RGB2GRAY);
                     cv::cvtColor(imgLast, grayLast, CV_RGB2GRAY);
 
-#if 1 // Normally these wouldn't be found each time, they'd just be re-used. See comment in previous if block.
                     // Then find the features to track
-                    cv::goodFeaturesToTrack(grayCurrent, featuresLast,
+                    cv::goodFeaturesToTrack(grayLast, featuresLast,
                                             500,  // the maximum number of features
                                             0.01, // quality level (top 1%)
                                             10);  // min distance between two features
-#endif
 
                     vector<uchar> status;
                     vector<float> err;
@@ -1032,19 +1031,18 @@ void computeFlow() {
                                              err);         // tracking error
 
                     float dist;
-                    int j = 0;
-                    for (int i = 0; i < featuresLast.size(); i++) {
+                    size_t count = 0;
+                    for (size_t i = 0; i < featuresLast.size(); i++) {
                         if (status[i]) {
-                            dist += sqrt((features[j].x - featuresLast[i].x) * (features[j].x - featuresLast[i].x) +
-                                         (features[j].y - featuresLast[i].y) * (features[j].y - featuresLast[i].y));
-                            featuresLast[j] = features[j];
-                            j++;
+                            dist += sqrt((features[i].x - featuresLast[i].x) * (features[i].x - featuresLast[i].x) +
+                                         (features[i].y - featuresLast[i].y) * (features[i].y - featuresLast[i].y));
+                            count++;
                         }
                     }
-                    featuresLast.resize(j);
-                    dist = dist / j;
+                    featuresLast.resize(count);
+                    dist = dist / ((float)count * diagonal);
 
-                    if (!globalConfiguration.headless && globalConfiguration.verbose)
+                    if (!globalConfiguration.headless && globalConfiguration.csv)
                         cout << "FlowCSV," << framesDecoded - 1 << "," << framesDecoded << "," << dist << endl;
 
                     // Then copy to the lastBuffer

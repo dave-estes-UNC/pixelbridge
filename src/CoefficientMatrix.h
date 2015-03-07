@@ -25,7 +25,7 @@ namespace nddi {
     class CoefficientMatrix {
 
         CostModel     * costModel_;
-        unsigned int    width_, height_;
+        size_t          width_, height_;
 
     public:
 
@@ -53,72 +53,7 @@ namespace nddi {
         }
 
         unsigned int getDataSize() {
-#ifdef NARROW_DATA_STORES
-            return width_ * height_ * sizeof(int16_t);
-#else
-            return width_ * height_ * sizeof(int);
-#endif
-        }
-
-        void setCoefficient(unsigned int x, unsigned int y, int value,
-#ifdef NARROW_DATA_STORES
-                            int16_t * coefficients)
-#else
-                            int * coefficients)
-#endif
-        {
-
-            assert(x < width_);
-            assert(y < height_);
-#ifdef NARROW_DATA_STORES
-            assert(value >= SHRT_MIN && value <= SHRT_MAX);
-#endif
-            assert(!globalConfiguration.headless);
-
-            coefficients[y * width_ + x] = value;
-            costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, &coefficients[y * width_ + x], BYTES_PER_COEFF, 0);
-        }
-
-        void setCoefficients(vector< vector<int> > &coefficientVector,
-#ifdef NARROW_DATA_STORES
-                            int16_t * coefficients)
-#else
-                            int * coefficients)
-#endif
-        {
-
-            assert(coefficientVector.size() == width_);
-            assert(coefficientVector[0].size() == height_);
-            assert(!globalConfiguration.headless);
-
-            // Examine each coefficient in the coefficient matrix vector and use it unless it's a COFFICIENT_UNCHANGED
-            for (int y = 0; y < height_; y++) {
-                for (int x = 0; x < width_; x++) {
-                    if (coefficientVector[x][y] != COFFICIENT_UNCHANGED) {
-#ifdef NARROW_DATA_STORES
-                        assert(coefficientVector[x][y] >= SHRT_MIN && coefficientVector[x][y] <= SHRT_MAX);
-#endif
-                        coefficients[y * width_ + x] = coefficientVector[x][y];
-                        costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, &coefficients[y * width_ + x], BYTES_PER_COEFF, 0);
-                    }
-                }
-            }
-        }
-
-        int getCoefficient(unsigned int x, unsigned int y,
-#ifdef NARROW_DATA_STORES
-                            int16_t * coefficients)
-#else
-                            int * coefficients)
-#endif
-        {
-
-            assert(x < width_);
-            assert(y < height_);
-            assert(!globalConfiguration.headless);
-
-            costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, READ_ACCESS, &coefficients[y * width_ + x], BYTES_PER_COEFF, 0);
-            return coefficients[y * width_ + x];
+            return width_ * height_ * sizeof(Coeff);
         }
 
         /**
@@ -126,12 +61,7 @@ namespace nddi {
          * determine how much memory the coefficient matrix needs.
          */
         static size_t memoryRequired(unsigned int width, unsigned int height) {
-#ifdef NARROW_DATA_STORES
-                return sizeof(int16_t) * width * height;
-#else
-                return sizeof(int) * width * height;
-#endif
-
+                return sizeof(Coeff) * width * height;
         }
     };
 }

@@ -158,22 +158,20 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
         if (scaler.packed == 0) continue;
 #endif
 
-        // Grab the coefficient matrix
-        CoefficientMatrix * matrix = coefficientPlanes_->getCoefficientMatrix();
-        assert(matrix);
-
         // Compute the position vector for the proper pixel in the frame volume.
+        vector<unsigned int> location;
+        location.push_back(x); location.push_back(y); location.push_back(p);
         vector<unsigned int> fvPosition;
         // Matrix multiply the input vector by the coefficient matrix
         for (int j = 0; j < CM_HEIGHT; j++) {
             // Initialize to zero
             fvPosition.push_back(0);
             // No need to read the x and y from the input vector, just multiply directly.
-            fvPosition[j] += matrix->getCoefficient(0, j, coefficientPlanes_->dataCoefficient(x, y, p)) * x;
-            fvPosition[j] += matrix->getCoefficient(1, j, coefficientPlanes_->dataCoefficient(x, y, p)) * y;
+            fvPosition[j] += coefficientPlanes_->GetCoefficient(location, 0, j) * x;
+            fvPosition[j] += coefficientPlanes_->GetCoefficient(location, 1, j) * y;
             // Then multiply the remainder of the input vector
             for (int i = 2; i < CM_WIDTH; i++) {
-                fvPosition[j] += matrix->getCoefficient(i, j, coefficientPlanes_->dataCoefficient(x, y, p)) * inputVector_->getValue(i);
+                fvPosition[j] += coefficientPlanes_->GetCoefficient(location, i, j) * inputVector_->getValue(i);
             }
         }
         q = frameVolume_->getPixel(fvPosition);
@@ -234,11 +232,7 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
 #endif
 
         // Grab the coefficient matrix
-#ifdef NARROW_DATA_STORES
-        int16_t * cm = coefficientPlanes_->dataCoefficient(x, y, p);
-#else
-        int * cm = coefficientPlanes_->dataCoefficient(x, y, p)
-#endif
+        Coeff * cm = coefficientPlanes_->dataCoefficient(x, y, p);
 
         // Compute the position vector for the proper pixel in the frame volume.
         vector<unsigned int> fvPosition;

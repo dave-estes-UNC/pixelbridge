@@ -58,6 +58,16 @@ namespace nddi {
     } SignMode;
 
     /**
+     * Type for the coefficients stored in the coefficient matrices.
+     */
+#ifdef NARROW_DATA_STORES
+    typedef int16_t Coeff;
+#else
+    typedef int32_t Coeff;
+#endif
+
+
+    /**
      * This abstract class serves as a software interface to an n-Dimensional Display Interface (NDDI) compliant
      * display device. Implementations of this interface may work with a simulated display that writes
      * to a system framebuffer, an embedded display that works with a device driver, or a remote display

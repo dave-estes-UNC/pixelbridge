@@ -28,12 +28,11 @@ private:
     unsigned int      scalerSize_;      // In bytes
     unsigned int      numPlanes_;
 
+    Coeff           * coefficients_;
 #ifdef NARROW_DATA_STORES
-    int16_t             * coefficients_;
-    int16_t             * scalers_;
+    int16_t         * scalers_;
 #else
-    int                 * coefficients_;
-    int                 * scalers_;
+    int             * scalers_;
 #endif
 
     inline unsigned int calcOffset(vector<unsigned int> &location) {
@@ -55,22 +54,12 @@ public:
 
         matrixWidth_ = matrixWidth;
         matrixHeight_ = matrixHeight;
-#ifdef NARROW_DATA_STORES
-        coefficientSize_ = sizeof(int16_t);
+        coefficientSize_ = sizeof(Coeff);
         scalerSize_ = sizeof(int16_t) * 3;
-#else
-        coefficientSize_ = sizeof(int);
-        scalerSize_ = sizeof(int) * 3;
-#endif
         matrixSize_ = matrixWidth_ * matrixHeight_ * coefficientSize_;
 
-#ifdef NARROW_DATA_STORES
-        coefficients_ = (int16_t *)malloc(CoefficientMatrix::memoryRequired(matrixWidth, matrixHeight) * displayWidth * displayHeight * numPlanes_);
+        coefficients_ = (Coeff *)malloc(CoefficientMatrix::memoryRequired(matrixWidth, matrixHeight) * displayWidth * displayHeight * numPlanes_);
         scalers_ = (int16_t *)malloc(scalerSize_ * displayWidth * displayHeight * numPlanes_);
-#else
-        coefficients_ = (int *)malloc(CoefficientMatrix::memoryRequired(matrixWidth, matrixHeight) * displayWidth * displayHeight * numPlanes_);
-        scalers_ = (int *)malloc(scalerSize_ * displayWidth * displayHeight * numPlanes_);
-#endif
     }
 
     ~ClCoefficientPlanes() {
@@ -93,11 +82,7 @@ public:
         assert(location[2] < numPlanes_);
 
         unsigned int offset = calcOffset(location);
-#ifdef NARROW_DATA_STORES
-        int16_t * coefficientPtr = coefficients_ + offset;
-#else
-        int * coefficientPtr = coefficients_ + offset;
-#endif
+        Coeff * coefficientPtr = coefficients_ + offset;
 
         for (int y = 0; y < matrixHeight_; y++) {
             for (int x = 0; x < matrixWidth_; x++) {

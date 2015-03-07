@@ -36,15 +36,10 @@ namespace nddi {
 
     protected:
         CostModel           * costModel_;
-        unsigned int          width_, height_, numPlanes_, matrixWidth_, matrixHeight_;
+        size_t                width_, height_, numPlanes_, matrixWidth_, matrixHeight_;
         CoefficientMatrix   * coefficientMatrix_;
-#ifdef NARROW_DATA_STORES
-        int16_t             * coefficients_;
+        Coeff               * coefficients_;
         int16_t             * scalers_;
-#else
-        int                 * coefficients_;
-        int                 * scalers_;
-#endif
 
     public:
 
@@ -65,13 +60,8 @@ namespace nddi {
 
             // Alloc the actual coefficients and scalers
             if (!globalConfiguration.headless) {
-#ifdef NARROW_DATA_STORES
-                coefficients_ = (int16_t *)malloc(CoefficientMatrix::memoryRequired(matrixWidth, matrixHeight) * displayWidth * displayHeight * numPlanes_);
+                coefficients_ = (Coeff *)malloc(CoefficientMatrix::memoryRequired(matrixWidth, matrixHeight) * displayWidth * displayHeight * numPlanes_);
                 scalers_ = (int16_t *)malloc(sizeof(int16_t) * 3 * displayWidth * displayHeight * numPlanes_);
-#else
-                coefficients_ = (int *)malloc(CoefficientMatrix::memoryRequired(matrixWidth, matrixHeight) * displayWidth * displayHeight * numPlanes_);
-                scalers_ = (int *)malloc(sizeof(int) * 3 * displayWidth * displayHeight * numPlanes_);
-#endif
             }
         }
 
@@ -92,13 +82,37 @@ namespace nddi {
             return height_;
         }
 
+        Coeff GetCoefficient(vector<unsigned int> &location, int row, int col) {
+            assert(location.size() == 3);
+            assert(row < matrixWidth_);
+            assert(col < matrixHeight_);
+
+            Coeff *cm = dataCoefficient(location[0], location[1], location[2]);
+            costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, READ_ACCESS, &cm[col * matrixWidth_ + row], BYTES_PER_COEFF, 0);
+
+            return cm[col * matrixWidth_ + row];
+        }
+
         void PutCoefficientMatrix(vector< vector<int> > &coefficientMatrix, vector<unsigned int> &location) {
 
             assert(location.size() == 3);
+            assert(coefficientMatrix.size() == matrixWidth_);
+            assert(coefficientMatrix[0].size() == matrixHeight_);
 
             if (!globalConfiguration.headless) {
-                coefficientMatrix_->setCoefficients(coefficientMatrix,
-                                                    dataCoefficient(location[0], location[1], location[2]));
+                // Examine each coefficient in the coefficient matrix vector and use it unless it's a COFFICIENT_UNCHANGED
+                for (int col = 0; col < matrixHeight_; col++) {
+                    for (int row = 0; row < matrixWidth_; row++) {
+                        if (coefficientMatrix[row][col] != COFFICIENT_UNCHANGED) {
+    #ifdef NARROW_DATA_STORES
+                            assert(coefficientMatrix[row][col] >= SHRT_MIN && coefficientMatrix[row][col] <= SHRT_MAX);
+    #endif
+                            Coeff * cm = dataCoefficient(location[0], location[1], location[2]);
+                            cm[col * matrixWidth_ + row] = coefficientMatrix[row][col];
+                            costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, &cm[col * matrixWidth_ + row], BYTES_PER_COEFF, 0);
+                        }
+                    }
+                }
             } else {
                 costModel_->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
                                                      1 * (matrixHeight_ * matrixWidth_),
@@ -116,6 +130,8 @@ namespace nddi {
 
             assert(start.size() == 3);
             assert(end.size() == 3);
+            assert(coefficientMatrix.size() == matrixWidth_);
+            assert(coefficientMatrix[0].size() == matrixHeight_);
 
             vector<unsigned int> position = start;
             bool fillFinished = false;
@@ -124,9 +140,22 @@ namespace nddi {
             // Move from start to end, filling in each location with the provided pixel
             do {
                 // Update coefficient matrix in coefficient plane at position
-                if (!globalConfiguration.headless)
-                    coefficientMatrix_->setCoefficients(coefficientMatrix,
-                                                        dataCoefficient(position[0], position[1], position[2]));
+                if (!globalConfiguration.headless) {
+                    // Examine each coefficient in the coefficient matrix vector and use it unless it's a COFFICIENT_UNCHANGED
+                    for (int col = 0; col < matrixHeight_; col++) {
+                        for (int row = 0; row < matrixWidth_; row++) {
+                            if (coefficientMatrix[row][col] != COFFICIENT_UNCHANGED) {
+        #ifdef NARROW_DATA_STORES
+                                assert(coefficientMatrix[row][col] >= SHRT_MIN && coefficientMatrix[row][col] <= SHRT_MAX);
+        #endif
+                                Coeff * cm = dataCoefficient(position[0], position[1], position[2]);
+                                cm[col * matrixWidth_ + row] = coefficientMatrix[row][col];
+                                costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, &cm[col * matrixWidth_ + row], BYTES_PER_COEFF, 0);
+                            }
+                        }
+                    }
+
+                }
                 matricesFilled++;
 
                 // Move to the next position
@@ -157,6 +186,11 @@ namespace nddi {
 
             assert(start.size() == 3);
             assert(end.size() == 3);
+            assert(col < matrixWidth_);
+            assert(row < matrixHeight_);
+#ifdef NARROW_DATA_STORES
+            assert(coefficient >= SHRT_MIN && coefficient <= SHRT_MAX);
+#endif
 
             vector<unsigned int> position = start;
             bool fillFinished = false;
@@ -165,9 +199,12 @@ namespace nddi {
             // Move from start to end, filling in each location with the provided pixel
             do {
                 // Set coefficient in the coefficient matrix at this position in the coefficient plane
-                if (!globalConfiguration.headless)
-                    coefficientMatrix_->setCoefficient(col, row, coefficient,
-                                                       dataCoefficient(position[0], position[1], position[2]));
+                if (!globalConfiguration.headless) {
+                    Coeff* cm = dataCoefficient(position[0], position[1], position[2]);
+                    cm[row * matrixWidth_ + col] = coefficient;
+                    costModel_->registerMemoryCharge(COEFFICIENT_PLANE_COMPONENT, WRITE_ACCESS, &cm[row * width_ + col], BYTES_PER_COEFF, 0);
+
+                }
                 coefficientsFilled++;
 
                 // Move to the next position
@@ -274,25 +311,17 @@ namespace nddi {
             return s;
         }
 
-#ifdef NARROW_DATA_STORES
         int16_t * dataScaler() {
-#else
-        int * dataScaler() {
-#endif
             assert(!globalConfiguration.headless);
             return scalers_;
         }
 
-#ifdef NARROW_DATA_STORES
-        int16_t * dataCoefficient(unsigned int x, unsigned int y, unsigned int p) {
-#else
-        int * dataCoefficient(unsigned int x, unsigned int y, unsigned int p) {
-#endif
+        Coeff * dataCoefficient(size_t x, size_t y, size_t p) {
             assert(!globalConfiguration.headless);
             return &coefficients_[CP_OFF(x, y, p)];
         }
 
-        inline size_t computeScalerOffset(unsigned int x, unsigned int y, unsigned int p) {
+        inline size_t computeScalerOffset(size_t x, size_t y, size_t p) {
             return SC_OFF(x, y, p, 0);
         }
 

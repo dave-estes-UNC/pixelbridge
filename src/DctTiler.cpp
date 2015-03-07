@@ -296,6 +296,7 @@ void DctTiler::InitializeCoefficientPlanes() {
                 for (int i = 0; i < scaledTilesWide; i++) {
                     for (int y = 0; y < scaledBlockHeight && j * scaledBlockHeight + y < display_->DisplayHeight(); y++) {
                         for (int x = 0; x < scaledBlockWidth && i * scaledBlockWidth + x < display_->DisplayWidth(); x++) {
+                            vector<unsigned int> start(3), end(3);
 
                             start[0] = i * scaledBlockWidth + x;
                             start[1] = j * scaledBlockHeight + y;
