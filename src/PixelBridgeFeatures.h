@@ -83,4 +83,9 @@
  */
 //#define USE_SMALLER_WINDOW
 
+/*
+ * Divides the average optical flow by the diagonal.
+ */
+#define NORMALIZE_FLOW_FOR_RESOLUTION
+
 #endif /* PIXELBRIDGEFEATURES_H_ */

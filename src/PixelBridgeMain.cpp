@@ -952,7 +952,9 @@ void countChangedPixels() {
 void computeFlow() {
     static int framesDecoded = 0;
     static std::vector<cv::Point2f> features, featuresLast;
+#ifdef NORMALIZE_FLOW_FOR_RESOLUTION
     static size_t diagonal = sqrt(displayWidth * displayWidth + displayHeight * displayHeight);
+#endif
 
     if (!globalConfiguration.maxFrames || (totalUpdates < globalConfiguration.maxFrames)) {
         int pixel_count = myPlayer->width() * myPlayer->height();
@@ -1039,8 +1041,13 @@ void computeFlow() {
                             count++;
                         }
                     }
+                    //cout << count << endl;
                     featuresLast.resize(count);
+#ifdef NORMALIZE_FLOW_FOR_RESOLUTION
                     dist = dist / ((float)count * diagonal);
+#else
+                    dist = dist / (float)count;
+#endif
 
                     if (!globalConfiguration.headless && globalConfiguration.csv)
                         cout << "FlowCSV," << framesDecoded - 1 << "," << framesDecoded << "," << dist << endl;
