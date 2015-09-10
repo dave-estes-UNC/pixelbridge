@@ -82,6 +82,7 @@ _DEPS =	GlNddiDisplay.h \
 	CoefficientPlanes.h \
 	CostModel.h \
 	DctTiler.h \
+	MultiScaleDctTiler.h \
 	ItTiler.h \
 	FfmpegPlayer.h \
 	FlatTiler.h \
@@ -99,6 +100,7 @@ _OBJ = \
 	BlendingGlNddiDisplay.o \
 	CachedTiler.o \
 	DctTiler.o \
+	MultiScaleDctTiler.o \
 	ItTiler.o \
 	FfmpegPlayer.o \
 	RandomPlayer.o \
