@@ -125,6 +125,9 @@ x 3. Implement an overall measure of motion per frame (against previous frame).
       x Perform iDCT to get the output super-macro-block and subtract that from the source video to get the new current frame.
     x Repeat at the lower levels until we're operating on normal macroblocks
   x When filling coefficients, don't fill the first n set of most significant coefficients if they're zero.
+  - Use exact DCT instead of scaling up the 8x8 macroblocks
+    x Refactor DctTiler into three classes with ScaleDctTiler and MultiDctTiler
+    - Trim down MultiDctTiler to only include the overridden methods.
 
 - Implement YuvTiler
   - For a 16x16 macroblock, build 8x8 blocks: Y0, Y1, Y2, Y3, U, and V.

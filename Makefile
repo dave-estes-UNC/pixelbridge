@@ -65,12 +65,7 @@ else
 	OBJDIR=build/objdir-release
 endif
 
-_DEPS =	GlNddiDisplay.h \
-	InputVector.h \
-	NDimensionalDisplayInterfaceExtended.h \
-	NDimensionalDisplayInterface.h \
-	Rewinder.h \
-	Tiler.h \
+_DEPS = \
 	BaseNddiDisplay.h \
 	BlendingGlNddiDisplay.h \
 	CachedTiler.h \
@@ -80,18 +75,24 @@ _DEPS =	GlNddiDisplay.h \
 	ClNddiDisplay.h \
 	CoefficientMatrix.h \
 	CoefficientPlanes.h \
+	Configuration.h \
 	CostModel.h \
 	DctTiler.h \
-	MultiScaleDctTiler.h \
-	ItTiler.h \
 	FfmpegPlayer.h \
 	FlatTiler.h \
 	FrameVolume.h \
-	CostModel.h \
+	GlNddiDisplay.h \
+	InputVector.h \
+	ItTiler.h \
+	MultiDctTiler.h \
+	NDimensionalDisplayInterface.h \
+	NDimensionalDisplayInterfaceExtended.h \
 	PixelBridgeFeatures.h \
-	Configuration.h \
 	Player.h \
-	RandomPlayer.h
+	Rewinder.h \
+	ScaledDctTiler.h \
+	RandomPlayer.h \
+	Tiler.h
 
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
@@ -100,14 +101,15 @@ _OBJ = \
 	BlendingGlNddiDisplay.o \
 	CachedTiler.o \
 	DctTiler.o \
-	MultiScaleDctTiler.o \
-	ItTiler.o \
 	FfmpegPlayer.o \
-	RandomPlayer.o \
 	FlatTiler.o \
 	GlNddiDisplay.o \
+	ItTiler.o \
+	MultiDctTiler.o \
 	PixelBridgeMain.o \
-	Rewinder.o
+	RandomPlayer.o \
+	Rewinder.o \
+	ScaledDctTiler.o
 
 ifneq ($(NO_CL), 1)
 _OBJ += \

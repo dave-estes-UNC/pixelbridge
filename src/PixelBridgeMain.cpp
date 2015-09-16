@@ -21,7 +21,8 @@
 #include "BlendingGlNddiDisplay.h"
 #include "CachedTiler.h"
 #include "DctTiler.h"
-#include "MultiScaleDctTiler.h"
+#include "ScaledDctTiler.h"
+#include "MultiDctTiler.h"
 #include "ItTiler.h"
 #include "FlatTiler.h"
 #include "FfmpegPlayer.h"
@@ -88,8 +89,14 @@ void setupDisplay() {
     } else if (globalConfiguration.tiler == DCT) {
 
         // Setup DCT Tiler and initializes Coefficient Plane and Frame Volume
-#ifdef USE_MULTISCALE_DCT
-        myTiler = new MultiScaleDctTiler(displayWidth, displayHeight,
+#if (defined USE_SCALED_DCT) &&  (defined USE_MULTI_DCT)
+#error Cannot use both USE_SCALED_DCT and USE_MULTI_DCT. Pick one or the other.
+#endif
+#if defined USE_SCALED_DCT
+        myTiler = new ScaledDctTiler(displayWidth, displayHeight,
+                                         globalConfiguration.quality);
+#elif (defined USE_MULTI_DCT)
+        myTiler = new MultiDctTiler(displayWidth, displayHeight,
                                          globalConfiguration.quality);
 #else
         myTiler = new DctTiler(displayWidth, displayHeight,

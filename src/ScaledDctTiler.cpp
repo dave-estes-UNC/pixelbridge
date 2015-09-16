@@ -3,7 +3,7 @@
 
 #include "PixelBridgeFeatures.h"
 #include "Configuration.h"
-#include "MultiScaleDctTiler.h"
+#include "ScaledDctTiler.h"
 
 #define PI    3.14159265
 #define PI_8  0.392699081
@@ -59,7 +59,7 @@
 #define SQRT_125             0.353553391
 #define SQRT_250             0.5
 
-MultiScaleDctTiler::MultiScaleDctTiler(size_t display_width, size_t display_height, size_t quality)
+ScaledDctTiler::ScaledDctTiler(size_t display_width, size_t display_height, size_t quality)
     : DctTiler(display_width, display_height, quality) {}
 
 /**
@@ -71,7 +71,7 @@ MultiScaleDctTiler::MultiScaleDctTiler(size_t display_width, size_t display_heig
  * @param weight The height of the buffers
  * @return mallocs and returns the signed buffer. Callee must free.
  */
-int16_t* MultiScaleDctTiler::ConvertToSignedPixels(uint8_t* buffer, size_t width, size_t height) {
+int16_t* ScaledDctTiler::ConvertToSignedPixels(uint8_t* buffer, size_t width, size_t height) {
 
     int16_t* signedBuf = (int16_t*)calloc(width * height * 3, sizeof(int16_t));
 
@@ -97,7 +97,7 @@ int16_t* MultiScaleDctTiler::ConvertToSignedPixels(uint8_t* buffer, size_t width
  * @param height The height of the source buffer.
  * @return The newly malloc'd buffer. Callee must free.
  */
-int16_t* MultiScaleDctTiler::DownSample(size_t factor, int16_t* buffer, size_t width, size_t height) {
+int16_t* ScaledDctTiler::DownSample(size_t factor, int16_t* buffer, size_t width, size_t height) {
 
     size_t scaledWidth = CEIL(width, factor);
     size_t scaledHeight = CEIL(height, factor);
@@ -146,7 +146,7 @@ int16_t* MultiScaleDctTiler::DownSample(size_t factor, int16_t* buffer, size_t w
  * @param height The height of the *destination* buffer.
  * @return The newly malloc'd destination buffer. Callee must free.
  */
-int16_t* MultiScaleDctTiler::UpSample(size_t factor, int16_t* buffer, size_t width, size_t height) {
+int16_t* ScaledDctTiler::UpSample(size_t factor, int16_t* buffer, size_t width, size_t height) {
 
     size_t scaledHeight = CEIL(height, factor);
     size_t scaledWidth = CEIL(width, factor);
@@ -189,7 +189,7 @@ int16_t* MultiScaleDctTiler::UpSample(size_t factor, int16_t* buffer, size_t wid
  * @param height The height of the source buffer
  * @return The vector (in zig-zag order) of 4-channel scalers.
  */
-vector<uint64_t> MultiScaleDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* buffer, size_t width, size_t height, bool shift) {
+vector<uint64_t> ScaledDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* buffer, size_t width, size_t height, bool shift) {
 
     /*
      * Produces the de-quantized coefficients for the input buffer using the following steps:
@@ -282,7 +282,7 @@ vector<uint64_t> MultiScaleDctTiler::BuildCoefficients(size_t i, size_t j, int16
  * @param coefficients The coefficients to be reduced to fit within the budget.
  * @param c The current scale from the globalConfiguration.dctScales global.
  */
-void MultiScaleDctTiler::SelectCoefficientsForScale(vector<uint64_t> &coefficients, size_t c) {
+void ScaledDctTiler::SelectCoefficientsForScale(vector<uint64_t> &coefficients, size_t c) {
     scale_config_t config = globalConfiguration.dctScales[c];
 #ifdef SIMPLE_TRUNCATION
     coefficients.resize(config.plane_count);
@@ -306,7 +306,7 @@ void MultiScaleDctTiler::SelectCoefficientsForScale(vector<uint64_t> &coefficien
 }
 
 
-size_t MultiScaleDctTiler::EstimateCost(bool isTrim, vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t delta, size_t planes) {
+size_t ScaledDctTiler::EstimateCost(bool isTrim, vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t delta, size_t planes) {
 
     scale_config_t config = globalConfiguration.dctScales[c];
     int firstPlane, lastPlane;
@@ -377,7 +377,7 @@ size_t MultiScaleDctTiler::EstimateCost(bool isTrim, vector< vector< vector<uint
 }
 
 
-void MultiScaleDctTiler::CalculateSnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t &delta, size_t &planes) {
+void ScaledDctTiler::CalculateSnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t &delta, size_t &planes) {
 
     scale_config_t config = globalConfiguration.dctScales[c];
 
@@ -423,7 +423,7 @@ void MultiScaleDctTiler::CalculateSnapCoefficientsToZero(vector< vector< vector<
  * @param delta Any coefficient within a delta of zero is snapped to zero.
  * @param planes Any coefficient beyond this number of planes is zeroed.
  */
-void MultiScaleDctTiler::SnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t delta, size_t planes) {
+void ScaledDctTiler::SnapCoefficientsToZero(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t delta, size_t planes) {
 
     size_t p;
     scale_config_t config = globalConfiguration.dctScales[c];
@@ -452,7 +452,7 @@ void MultiScaleDctTiler::SnapCoefficientsToZero(vector< vector< vector<uint64_t>
 }
 
 
-void MultiScaleDctTiler::CalculateTrimCoefficients(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t &delta, size_t &planes) {
+void ScaledDctTiler::CalculateTrimCoefficients(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t &delta, size_t &planes) {
 
     scale_config_t config = globalConfiguration.dctScales[c];
 
@@ -502,7 +502,7 @@ void MultiScaleDctTiler::CalculateTrimCoefficients(vector< vector< vector<uint64
  * @param planes This many planes of coefficients will remain after trimming.
  * @return The first plane to be updated.
  */
-size_t MultiScaleDctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t delta, size_t planes) {
+size_t ScaledDctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t delta, size_t planes) {
 
     /* Get the set of cached coefficients for (c, i, j), building out the cache the first time. */
     if (cachedCoefficients_.size() <= c)
@@ -565,7 +565,7 @@ size_t MultiScaleDctTiler::TrimCoefficients(vector<uint64_t> &coefficients, size
  * @param last The last non-zeroed plane.
  * @return The estimated cost in terms of bytes sent over the wire.
  */
-size_t MultiScaleDctTiler::EstimateCostForZeroingPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t first, size_t last) {
+size_t ScaledDctTiler::EstimateCostForZeroingPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t first, size_t last) {
 
     scale_config_t config = globalConfiguration.dctScales[c];
     size_t scaleFirst = config.first_plane_idx;
@@ -644,7 +644,7 @@ size_t MultiScaleDctTiler::EstimateCostForZeroingPlanes(vector< vector< vector<u
  * After the operation, the fill scaler commands are sent to the NDDI display and the cached coefficients
  * are updated.
  */
-void MultiScaleDctTiler::ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c) {
+void ScaledDctTiler::ZeroPlanes(vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c) {
 
     scale_config_t config = globalConfiguration.dctScales[c];
     size_t scaleFirst = config.first_plane_idx;
@@ -765,7 +765,7 @@ void MultiScaleDctTiler::ZeroPlanes(vector< vector< vector<uint64_t> > > &coeffi
  * @param c Index into globalConfiguration.dctScales for information about the factor by
  *          which we're scaling and which planes to fill.
  */
-void MultiScaleDctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t first) {
+void ScaledDctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t first) {
 
     vector<unsigned int> start(3, 0);
     vector<unsigned int> size(2, 0);
@@ -797,7 +797,7 @@ void MultiScaleDctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t
  * @param width The width of the destination buffer
  * @param width The height of the destination buffer
  */
-void MultiScaleDctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, int16_t* buffer, size_t width, size_t height, bool shift) {
+void ScaledDctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, int16_t* buffer, size_t width, size_t height, bool shift) {
 
     scale_config_t config = globalConfiguration.dctScales[c];
 
@@ -877,7 +877,7 @@ void MultiScaleDctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, s
  * @param width The width of both buffers
  * @param height The height of both buffers
  */
-void MultiScaleDctTiler::AdjustFrame(int16_t* buffer, int16_t* renderedBuffer, size_t width, size_t height) {
+void ScaledDctTiler::AdjustFrame(int16_t* buffer, int16_t* renderedBuffer, size_t width, size_t height) {
 #ifndef NO_OMP
 #pragma omp parallel for
 #endif
@@ -891,7 +891,7 @@ void MultiScaleDctTiler::AdjustFrame(int16_t* buffer, int16_t* renderedBuffer, s
 /**
  * Returns the Display created and initialized by the tiler.
  */
-GlNddiDisplay* MultiScaleDctTiler::GetDisplay() {
+GlNddiDisplay* ScaledDctTiler::GetDisplay() {
     return display_;
 }
 
@@ -903,7 +903,7 @@ GlNddiDisplay* MultiScaleDctTiler::GetDisplay() {
  * @param width The width of the RGB buffer
  * @param height The height of the RGB buffer
  */
-void MultiScaleDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
+void ScaledDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
     assert(width >= display_->DisplayWidth());
     assert(height >= display_->DisplayHeight());
 

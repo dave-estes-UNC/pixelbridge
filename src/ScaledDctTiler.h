@@ -1,7 +1,7 @@
-#ifndef MULTISCALE_DCT_TILER_H
-#define MULTISCALE_DCT_TILER_H
+#ifndef SCALED_DCT_TILER_H
+#define SCALED_DCT_TILER_H
 /*
- *  MultiScaleDctTiler.h
+ *  ScaledDctTiler.h
  *  pixelbridge
  *
  *  Created by Dave Estes on 11/26/10.
@@ -19,19 +19,19 @@ using namespace std;
  * This tiler will split provided frames into macroblocks and will perform the forward DCT
  * and create coefficients that will be used as the scalers for the coefficient planes.
  */
-class MultiScaleDctTiler : public DctTiler {
+class ScaledDctTiler : public DctTiler {
 
 public:
 /**
- * The MultiScaleDctTiler is created based on the dimensions of the NDDI display that's passed in. If those
- * dimensions change, then the MultiScaleDctTiler should be destroyed and re-created.
+ * The ScaledDctTiler is created based on the dimensions of the NDDI display that's passed in. If those
+ * dimensions change, then the ScaledDctTiler should be destroyed and re-created.
  *
  * @param display_width The width of the display
  * @param display_height The height of the display
  * @param quality The quality factor used for DCT.
  * @param quiet Used to squelch extra information output.
  */
-MultiScaleDctTiler(size_t display_width, size_t display_height, size_t quality);
+ScaledDctTiler(size_t display_width, size_t display_height, size_t quality);
 
 /**
  * Returns the Display created and initialized by the tiler.
@@ -70,4 +70,4 @@ private:
 private:
     vector< vector< vector< vector<uint64_t> > > >  cachedCoefficients_;
 };
-#endif // MULTISCALE_DCT_TILER_H
+#endif // SCALED_DCT_TILER_H
