@@ -899,6 +899,23 @@ GlNddiDisplay* ScaledDctTiler::GetDisplay() {
  * Update the display by calculating the DCT coefficients for each macroblock
  * and updating the coefficient plane scalers.
  *
+ * 0. Convert image to signed pixels if we don't already have
+ * For each scale level
+ *   1. Downsample the image - DownSample()
+ *   2. For each macroblock in downsampled image
+ *     a. Build coefficients - BuildCoefficients()
+ *   3. For this current scale, snap coefficients to zero if configured and then figure out the optimal planes
+ *      to zero out in bulk.
+ *     a. Snap to zero if configured to do so - SnapCoefficientsToZero()
+ *     b. Zero out optimal planes if we've got coefficients cached already - ZeroPlanes()
+ *   4. For each macroblock in downsampled image
+ *     a. Trim a copy of the coefficients - TrimCoefficients()
+ *     b. Fill trimmed coefficients to super-macroblock's coefficient scalers - FillCoefficients()
+ *     c. Perform simulated blending of basis functions and store back to downsampled image - PrerenderCoefficients()
+ *   5. Upsample the image - UpSample()
+ *   6. Subtract the results from the original image - AdjustFrame()
+ *   7. Cleanup
+ *
  * @param buffer Pointer to an RGB buffer
  * @param width The width of the RGB buffer
  * @param height The height of the RGB buffer
@@ -957,7 +974,7 @@ void ScaledDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
         }
 
         /*
-         * 4. For this current scale, snap coefficients to zero if configured and then figure out the optimal planes
+         * 3. For this current scale, snap coefficients to zero if configured and then figure out the optimal planes
          *    to zero out in bulk.
          *   a. Snap to zero if configured to do so - SnapCoefficientsToZero()
          *   b. Zero out optimal planes if we've got coefficients cached already - ZeroPlanes()
@@ -974,7 +991,7 @@ void ScaledDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 #endif
 
         /*
-         * 5. For each macroblock in downsampled image
+         * 4. For each macroblock in downsampled image
          *   a. Trim a copy of the coefficients - TrimCoefficients()
          *   b. Fill trimmed coefficients to super-macroblock's coefficient scalers - FillCoefficients()
          *   c. Perform simulated blending of basis functions and store back to downsampled image - PrerenderCoefficients()
@@ -1011,7 +1028,7 @@ void ScaledDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
         }
 
         /*
-         * 6. Upsample the image - UpSample()
+         * 5. Upsample the image - UpSample()
          */
         int16_t* upBuf;
         if (config.scale_multiplier == 1)
@@ -1020,12 +1037,12 @@ void ScaledDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
             upBuf = UpSample(config.scale_multiplier, rendBuf, width, height);
 
         /*
-         * 7. Subtract the results from the original image - AdjustFrame()
+         * 6. Subtract the results from the original image - AdjustFrame()
          */
         AdjustFrame(signedBuf, upBuf, width, height);
 
         /*
-         * 8. Cleanup
+         * 7. Cleanup
          */
         free(rendBuf);
         if (config.scale_multiplier > 1) {

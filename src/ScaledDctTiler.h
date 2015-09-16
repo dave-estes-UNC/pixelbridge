@@ -48,9 +48,11 @@ GlNddiDisplay* GetDisplay();
 void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 
 private:
-    int16_t* ConvertToSignedPixels(uint8_t* buffer, size_t width, size_t height);
     int16_t* DownSample(size_t factor, int16_t* buffer, size_t width, size_t height);
     int16_t* UpSample(size_t factor, int16_t* buffer, size_t width, size_t height);
+
+protected:
+    int16_t* ConvertToSignedPixels(uint8_t* buffer, size_t width, size_t height);
     vector<uint64_t> BuildCoefficients(size_t i, size_t j, int16_t* buffer, size_t width, size_t height, bool adjustPixels);
     void SelectCoefficientsForScale(vector<uint64_t> &coefficients, size_t c);
     size_t EstimateCost(bool isTrim, vector< vector< vector<uint64_t> > > &coefficientsForScale, size_t c, size_t delta, size_t planes);

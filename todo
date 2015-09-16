@@ -88,12 +88,12 @@ x Speed up DCT
 | Video |
 +-------+
 
-- Video Paper
+- Video Paper (ACMMM 2015)
 X 1. Only resend changed coefficients. See TODO in DctTiler.cpp and final bullet below
 x 2. Define a list (3-5) of Coefficient Priority Schemes which will be used to hit predefined data budgets.
 x 3. Implement an overall measure of motion per frame (against previous frame).
-  4. Explore and find a set (3-5) of Multiscale configurations to use.
-  5. Implement Priority schemes to meet configurable fixed data budgets.
+x 4. Explore and find a set (3-5) of Multiscale configurations to use.
+x 5. Implement Priority schemes to meet configurable fixed data budgets.
     x Add --dctbudget command line option that specifies the budget in bytes per frame.
     x Add --dectplanes command line option
     x For each scale, consider that it is allowed a particular percentage of the overall budget. So
@@ -107,12 +107,8 @@ x 3. Implement an overall measure of motion per frame (against previous frame).
       x Trim with Plane - Each stack will be trimmed to this number of planes.
       x Revise the estimation for the schemes with planes to be more accurate
     x Output CSV Data for each frame with frame number, transmission cost, and PSNR.
-  6. Do experiments
-    - Graph each video, showing plots of PSNR over time of each X configurations by Y priority schemes for Z data budgets.
-      Think line graphs with PSNR or Y axis and time on X axis.
-    - Graph aggregate data of PSNR to motion measurement. Think histogram with PSNR on Y axis and motion buckets on X axis.
-      Can also be points with trend line as a way of plotting key combinations of configiration, priority scheme, and data budget.
-  7. Write
+x 6. Do experiments
+x 7. Write
 
 - Add multi-scale DCT support
   x Change DCT to support to only resend middle portion of changed scalers. See TODO in DctTiler.cpp.
@@ -127,7 +123,11 @@ x 3. Implement an overall measure of motion per frame (against previous frame).
   x When filling coefficients, don't fill the first n set of most significant coefficients if they're zero.
   - Use exact DCT instead of scaling up the 8x8 macroblocks
     x Refactor DctTiler into three classes with ScaleDctTiler and MultiDctTiler
-    - Trim down MultiDctTiler to only include the overridden methods.
+    x Trim down MultiDctTiler to only include the overridden methods.
+    - Update BuildCoefficients to work on differently sized macroblocks.
+    - Update FillCoefficients to work on differently sized macroblocks.
+    - Update PrerenderCoefficients to work on differently sized macroblocks.
+    - UpdateDisplay to work on differently sized macroblocks.
 
 - Implement YuvTiler
   - For a 16x16 macroblock, build 8x8 blocks: Y0, Y1, Y2, Y3, U, and V.
