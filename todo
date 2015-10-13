@@ -124,6 +124,10 @@ x 7. Write
   - Use exact DCT instead of scaling up the 8x8 macroblocks
     x Refactor DctTiler into three classes with ScaleDctTiler and MultiDctTiler
     x Trim down MultiDctTiler to only include the overridden methods.
+    x Expand initZigZag to build zig-zag orderings for blocks larger than 8x8. Perhaps
+      store these ordering arrays in a lookup by the block size. Consider adding these
+    - Expand initQuantizationMatrix to build matrices for different block sizes.
+      to macroblock setup data classes along with quantization 
     - Update BuildCoefficients to work on differently sized macroblocks.
     - Update FillCoefficients to work on differently sized macroblocks.
     - Update PrerenderCoefficients to work on differently sized macroblocks.

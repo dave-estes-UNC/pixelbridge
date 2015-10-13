@@ -22,30 +22,30 @@ using namespace std;
 class ScaledDctTiler : public DctTiler {
 
 public:
-/**
- * The ScaledDctTiler is created based on the dimensions of the NDDI display that's passed in. If those
- * dimensions change, then the ScaledDctTiler should be destroyed and re-created.
- *
- * @param display_width The width of the display
- * @param display_height The height of the display
- * @param quality The quality factor used for DCT.
- * @param quiet Used to squelch extra information output.
- */
-ScaledDctTiler(size_t display_width, size_t display_height, size_t quality);
+    /**
+     * The ScaledDctTiler is created based on the dimensions of the NDDI display that's passed in. If those
+     * dimensions change, then the ScaledDctTiler should be destroyed and re-created.
+     *
+     * @param display_width The width of the display
+     * @param display_height The height of the display
+     * @param quality The quality factor used for DCT.
+     * @param quiet Used to squelch extra information output.
+     */
+    ScaledDctTiler(size_t display_width, size_t display_height, size_t quality);
 
-/**
- * Returns the Display created and initialized by the tiler.
- */
-GlNddiDisplay* GetDisplay();
+    /**
+     * Returns the Display created and initialized by the tiler.
+     */
+    GlNddiDisplay* GetDisplay();
 
-/**
- * Update the scalers and then the NDDI display based on the frame that's passed in.
- *
- * @param buffer Pointer to the return frame buffer
- * @param width The width of that frame buffer
- * @param height The height of that frame buffer
- */
-void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
+    /**
+     * Update the scalers and then the NDDI display based on the frame that's passed in.
+     *
+     * @param buffer Pointer to the return frame buffer
+     * @param width The width of that frame buffer
+     * @param height The height of that frame buffer
+     */
+    void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 
 private:
     int16_t* DownSample(size_t factor, int16_t* buffer, size_t width, size_t height);

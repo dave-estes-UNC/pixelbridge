@@ -63,6 +63,58 @@ MultiDctTiler::MultiDctTiler(size_t display_width, size_t display_height, size_t
     : ScaledDctTiler(display_width, display_height, quality) {}
 
 /**
+ * Initializes each of the zig zag patterns for the different scales.
+ */
+void MultiDctTiler::initZigZag() {
+    // For each scale
+    for (size_t c = 0; c < globalConfiguration.dctScales.size(); c++) {
+
+        size_t  block_width = globalConfiguration.dctScales[c].scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
+        size_t  block_height = globalConfiguration.dctScales[c].scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
+        size_t  block_size = block_width * block_height;
+
+        // Add the new zigZag and set its size
+        zigZag_.push_back(vector<int>());
+        zigZag_[c].resize(block_size);
+
+        // Then initialize it
+        size_t  x = 0, y = 0;
+        bool    up = true;
+
+        // Setup the zigZag_ table
+        for (size_t i = 0; i < block_size; i++) {
+            zigZag_[c][y * block_width + x] = i;
+            if (up) {
+                if (x < (block_width - 1)) {
+                    x++;
+                    if (y > 0) {
+                        y--;
+                    } else {
+                        up = false;
+                    }
+                } else {
+                    y++;
+                    up = false;
+                }
+            } else {
+                if (y < (block_height - 1)) {
+                    y++;
+                    if (x > 0) {
+                        x--;
+                    } else {
+                        up = true;
+                    }
+                } else {
+                    x++;
+                    up = true;
+                }
+            }
+        }
+    }
+}
+
+
+/**
  * Builds the coefficients for the macroblock specified by (i, j) using the source buffer.
  *
  * @param i The column component of the macroblock
@@ -70,9 +122,11 @@ MultiDctTiler::MultiDctTiler(size_t display_width, size_t display_height, size_t
  * @param buffer The source buffer. Note this may or may not be a downscaled image.
  * @param width The width of the source buffer
  * @param height The height of the source buffer
+ * @param c Index into globalConfiguration.dctScales for information about the factor by
+ *          which we're scaling and which planes to fill.
  * @return The vector (in zig-zag order) of 4-channel scalers.
  */
-vector<uint64_t> MultiDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* buffer, size_t width, size_t height, bool shift) {
+vector<uint64_t> MultiDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* buffer, size_t width, size_t height, size_t c, bool shift) {
 
     /*
      * Produces the de-quantized coefficients for the input buffer using the following steps:
@@ -83,23 +137,26 @@ vector<uint64_t> MultiDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* b
      * 4. De-quantize
      */
 
-    Scaler s;
+    Scaler  s;
+    size_t  block_width = globalConfiguration.dctScales[c].scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
+    size_t  block_height = globalConfiguration.dctScales[c].scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
+    size_t  block_size = block_width * block_height;
 
     /* The coefficients are stored in this array in zig-zag order */
-    vector<uint64_t> coefficients(BLOCK_SIZE, 0);
+    vector<uint64_t> coefficients(block_size, 0);
 
-    for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
+    for (size_t v = 0; v < block_height; v++) {
 #ifndef NO_OMP
 #pragma omp parallel for ordered
 #endif
-        for (size_t u = 0; u < BLOCK_WIDTH; u++) {
+        for (size_t u = 0; u < block_width; u++) {
 
             double c_r = 0.0, c_g = 0.0, c_b = 0.0;
 
             /* Calculate G for each u, v using g(x,y) shifted (1. and 2.) */
-            for (size_t y = 0; y < BLOCK_HEIGHT; y++) {
-                size_t bufPos = ((j * BLOCK_HEIGHT + y) * width + i * BLOCK_WIDTH + 0) * 3;
-                for (size_t x = 0; x < BLOCK_WIDTH; x++) {
+            for (size_t y = 0; y < block_height; y++) {
+                size_t bufPos = ((j * block_height + y) * width + i * block_width + 0) * 3;
+                for (size_t x = 0; x < block_width; x++) {
 
                     double p = 1.0;
 
@@ -108,8 +165,8 @@ vector<uint64_t> MultiDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* b
                     p *= cos(PI_8 * ((double)x + 0.5) * (double)u);                      // cos with x, u
                     p *= cos(PI_8 * ((double)y + 0.5) * (double)v);                      // cos with y, v
                     /* Fetch each channel, multiply by product p and then shift */
-                    if ( ((i * BLOCK_WIDTH + x) < width)
-                            && ((j * BLOCK_HEIGHT + y) < height) ) {
+                    if ( ((i * block_width + x) < width)
+                            && ((j * block_height + y) < height) ) {
                         if (shift) {
                             c_r += p * ((double)buffer[bufPos] - 128.0); bufPos++;           // red: g(x,y) - 128
                             c_g += p * ((double)buffer[bufPos] - 128.0); bufPos++;           // green: g(x,y) - 128
@@ -126,23 +183,23 @@ vector<uint64_t> MultiDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* b
             }
 
             int g_r, g_g, g_b;
-            size_t matPos = v * BLOCK_WIDTH + u;
+            size_t matPos = v * block_width + u;
 
             /* Quantize G(u,v) (3.) */
-            g_r = (int)int(c_r / double(quantizationMatrix_[matPos]) + 0.5); // 0.5 is for rounding
-            g_g = (int)int(c_g / double(quantizationMatrix_[matPos]) + 0.5);
-            g_b = (int)int(c_b / double(quantizationMatrix_[matPos]) + 0.5);
+            g_r = (int)int(c_r / double(quantizationMatrix_[c][matPos]) + 0.5); // 0.5 is for rounding
+            g_g = (int)int(c_g / double(quantizationMatrix_[c][matPos]) + 0.5);
+            g_b = (int)int(c_b / double(quantizationMatrix_[c][matPos]) + 0.5);
 
             /* De-quantized G(u,v) (4.) */
-            g_r *= (int)quantizationMatrix_[matPos];
-            g_g *= (int)quantizationMatrix_[matPos];
-            g_b *= (int)quantizationMatrix_[matPos];
+            g_r *= (int)quantizationMatrix_[c][matPos];
+            g_g *= (int)quantizationMatrix_[c][matPos];
+            g_b *= (int)quantizationMatrix_[c][matPos];
 
             /* Set the coefficient in zig-zag order. */
-            size_t p = zigZag_[matPos];
+            size_t p = zigZag_[c][matPos];
 
             /* Skip the last block, because we've used it for the medium gray block */
-            if (p == BLOCK_SIZE - 1) continue;
+            if (p == block_size - 1) continue;
 
             /* Build the scaler from the three coefficients */
             s.packed = 0;
@@ -175,14 +232,16 @@ void MultiDctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, s
     vector<unsigned int> start(3, 0);
     vector<unsigned int> size(2, 0);
 
-    scale_config_t config = globalConfiguration.dctScales[c];
+    scale_config_t  config = globalConfiguration.dctScales[c];
+    size_t          block_width = config.scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
+    size_t          block_height = config.scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
 
-    start[0] = i * BLOCK_WIDTH * config.scale_multiplier;
-    start[1] = j * BLOCK_HEIGHT * config.scale_multiplier;
+    start[0] = i * block_width * config.scale_multiplier;
+    start[1] = j * block_height * config.scale_multiplier;
     start[2] = first;
 
-    size[0] = BLOCK_WIDTH * config.scale_multiplier;
-    size[1] = BLOCK_HEIGHT * config.scale_multiplier;
+    size[0] = block_width * config.scale_multiplier;
+    size[1] = block_height * config.scale_multiplier;
 
     /* If any any coefficients have changed, send the NDDI command to update them */
     if (start[2] < display_->NumCoefficientPlanes()) {
@@ -204,15 +263,17 @@ void MultiDctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, s
  */
 void MultiDctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, int16_t* buffer, size_t width, size_t height, bool shift) {
 
-    scale_config_t config = globalConfiguration.dctScales[c];
+    scale_config_t  config = globalConfiguration.dctScales[c];
+    size_t          block_width = config.scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
+    size_t          block_height = config.scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
 
 #ifndef NO_OMP
 #pragma omp parallel for
 #endif
-    for (size_t y = 0; y < BLOCK_HEIGHT; y++) {
-        for (size_t x = 0; x < BLOCK_WIDTH; x++) {
+    for (size_t y = 0; y < block_height; y++) {
+        for (size_t x = 0; x < block_width; x++) {
 
-            if (i * BLOCK_WIDTH + x >= width || j * BLOCK_HEIGHT + y >= height)
+            if (i * block_width + x >= width || j * block_height + y >= height)
                 continue;
 
             int rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
@@ -222,10 +283,10 @@ void MultiDctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t
                 Scaler s;
                 s.packed = coefficients[p];
 
-                size_t bfo = p * BLOCK_WIDTH * BLOCK_HEIGHT + y * BLOCK_WIDTH + x;
-                rAccumulator += (int8_t)(basisFunctions_[bfo].r) * s.r;
-                gAccumulator += (int8_t)(basisFunctions_[bfo].g) * s.g;
-                bAccumulator += (int8_t)(basisFunctions_[bfo].b) * s.b;
+                size_t bfo = p * block_width * block_height + y * block_width + x;
+                rAccumulator += (int8_t)(basisFunctions_[c][bfo].r) * s.r;
+                gAccumulator += (int8_t)(basisFunctions_[c][bfo].g) * s.g;
+                bAccumulator += (int8_t)(basisFunctions_[c][bfo].b) * s.b;
             }
 #else
             // For an 8x8 region of coefficients, just use simple truncation
@@ -234,10 +295,10 @@ void MultiDctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t
                     Scaler s;
                     s.packed = coefficients[p];
 
-                    size_t bfo = p * BLOCK_WIDTH * BLOCK_HEIGHT + y * BLOCK_WIDTH + x;
-                    rAccumulator += (int8_t)(basisFunctions_[bfo].r) * s.r;
-                    gAccumulator += (int8_t)(basisFunctions_[bfo].g) * s.g;
-                    bAccumulator += (int8_t)(basisFunctions_[bfo].b) * s.b;
+                    size_t bfo = p * block_width * block_height + y * block_width + x;
+                    rAccumulator += (int8_t)(basisFunctions_[c][bfo].r) * s.r;
+                    gAccumulator += (int8_t)(basisFunctions_[c][bfo].g) * s.g;
+                    bAccumulator += (int8_t)(basisFunctions_[c][bfo].b) * s.b;
                 }
             // Else consider only the most significant coefficients within with the square of edge_length
             } else {
@@ -246,12 +307,12 @@ void MultiDctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t
                         Scaler s;
                         s.packed = coefficients[p];
 
-                        size_t pp = zigZag_[yy * BLOCK_WIDTH + xx];
+                        size_t pp = zigZag_[c][yy * block_width + xx];
 
-                        size_t bfo = pp * BLOCK_WIDTH * BLOCK_HEIGHT + y * BLOCK_WIDTH + x;
-                        rAccumulator += (int8_t)(basisFunctions_[bfo].r) * s.r;
-                        gAccumulator += (int8_t)(basisFunctions_[bfo].g) * s.g;
-                        bAccumulator += (int8_t)(basisFunctions_[bfo].b) * s.b;
+                        size_t bfo = pp * block_width * block_height + y * block_width + x;
+                        rAccumulator += (int8_t)(basisFunctions_[c][bfo].r) * s.r;
+                        gAccumulator += (int8_t)(basisFunctions_[c][bfo].g) * s.g;
+                        bAccumulator += (int8_t)(basisFunctions_[c][bfo].b) * s.b;
 
                         p++;
                     }
@@ -259,7 +320,7 @@ void MultiDctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t
             }
 #endif
 
-            size_t offset = ((j * BLOCK_HEIGHT + y) * width + i * BLOCK_WIDTH + x) * 3;
+            size_t offset = ((j * block_height + y) * width + i * block_width + x) * 3;
 
             if (shift) {
                 buffer[offset + 0] = rAccumulator / display_->GetFullScaler() + 128;
@@ -323,7 +384,9 @@ void MultiDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) 
     // For each scale level
     for (int c = 0; c < globalConfiguration.dctScales.size(); c++) {
 
-        scale_config_t config = globalConfiguration.dctScales[c];
+        scale_config_t  config = globalConfiguration.dctScales[c];
+        size_t          block_width = config.scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
+        size_t          block_height = config.scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
 
         /*
          * 1. Downsample the image - DownSample()
@@ -346,8 +409,8 @@ void MultiDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) 
          */
         int16_t* rendBuf = (int16_t*)calloc(downW * downH * 3, sizeof(int16_t));
 
-        size_t tilesWide = CEIL(downW, BLOCK_WIDTH);
-        size_t tilesHigh = CEIL(downH, BLOCK_HEIGHT);
+        size_t tilesWide = CEIL(downW, block_width);
+        size_t tilesHigh = CEIL(downH, block_height);
 
         vector< vector< vector<uint64_t> > > coefficientsForCurrentScale;
 
@@ -355,7 +418,7 @@ void MultiDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) 
             coefficientsForCurrentScale.push_back(vector< vector<uint64_t> >());
             for (size_t j = 0; j < tilesHigh; j++) {
                 // a. Build coefficients - BuildCoefficients()
-                vector<uint64_t> coefficients = BuildCoefficients(i, j, downBuf, downW, downH, c == 0);
+                vector<uint64_t> coefficients = BuildCoefficients(i, j, downBuf, downW, downH, c, c == 0);
                 SelectCoefficientsForScale(coefficients, c);
                 coefficientsForCurrentScale[i].push_back(coefficients);
             }
