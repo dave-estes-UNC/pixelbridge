@@ -66,6 +66,7 @@ MultiDctTiler::MultiDctTiler(size_t display_width, size_t display_height, size_t
  * Initializes each of the zig zag patterns for the different scales.
  */
 void MultiDctTiler::initZigZag() {
+
     // For each scale
     for (size_t c = 0; c < globalConfiguration.dctScales.size(); c++) {
 
@@ -113,6 +114,30 @@ void MultiDctTiler::initZigZag() {
     }
 }
 
+
+/*
+ * Uses simple algorithm from M. Nelson, "The Data Compression Book," San Mateo, CA, M&T Books, 1992.
+ */
+void MultiDctTiler::initQuantizationMatrix(size_t quality) {
+
+    // For each scale
+    for (size_t c = 0; c < globalConfiguration.dctScales.size(); c++) {
+
+        size_t  block_width = globalConfiguration.dctScales[c].scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
+        size_t  block_height = globalConfiguration.dctScales[c].scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
+        size_t  block_size = block_width * block_height;
+
+        // Add the new quantizationMatrix and set its size
+        quantizationMatrix_.push_back(vector<uint8_t>());
+        quantizationMatrix_[c].resize(block_size);
+
+        for (size_t v = 0; v < block_height; v++) {
+            for (size_t u = 0; u < block_width; u++) {
+                quantizationMatrix_[c][v * block_width + u] = 1 + (1 + u + v) * quality;
+            }
+        }
+    }
+}
 
 /**
  * Builds the coefficients for the macroblock specified by (i, j) using the source buffer.
