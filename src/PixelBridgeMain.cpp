@@ -89,7 +89,7 @@ void setupDisplay() {
     } else if (globalConfiguration.tiler == DCT) {
 
         // Setup DCT Tiler and initializes Coefficient Plane and Frame Volume
-#if (defined USE_SCALED_DCT) &&  (defined USE_MULTI_DCT)
+#if (defined USE_SCALED_DCT) && (defined USE_MULTI_DCT)
 #error Cannot use both USE_SCALED_DCT and USE_MULTI_DCT. Pick one or the other.
 #endif
 #if defined USE_SCALED_DCT

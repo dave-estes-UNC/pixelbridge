@@ -55,8 +55,8 @@
  * Uses multiple scaled 8x8 macroblocks for DCT or
  * uses true multi-DCT with 8x8, 16x16, etc. macroblocks.
  */
-//#define USE_SCALED_DCT
-#define USE_MULTI_DCT
+#define USE_SCALED_DCT
+//#define USE_MULTI_DCT
 
 /*
  * Resets the cost model immediately after the tiler setup is complete.
