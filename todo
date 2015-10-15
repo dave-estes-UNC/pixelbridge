@@ -128,7 +128,7 @@ x 7. Write
       store these ordering arrays in a lookup by the block size.
     x Expand initQuantizationMatrix to build matrices for different block sizes.
       to macroblock setup data classes along with quantization
-    - Update BuildCoefficients to work on differently sized macroblocks.
+    x Update BuildCoefficients to work on differently sized macroblocks.
     - Update FillCoefficients to work on differently sized macroblocks.
     - Update PrerenderCoefficients to work on differently sized macroblocks.
     - UpdateDisplay to work on differently sized macroblocks.

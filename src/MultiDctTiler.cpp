@@ -166,6 +166,7 @@ vector<uint64_t> MultiDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* b
     size_t  block_width = globalConfiguration.dctScales[c].scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
     size_t  block_height = globalConfiguration.dctScales[c].scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
     size_t  block_size = block_width * block_height;
+    double  scaledPi = PI / (8.0 * globalConfiguration.dctScales[c].scale_multiplier);
 
     /* The coefficients are stored in this array in zig-zag order */
     vector<uint64_t> coefficients(block_size, 0);
@@ -187,8 +188,8 @@ vector<uint64_t> MultiDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* b
 
                     p *= (u == 0) ? SQRT_125 : SQRT_250;                                 // alpha(u)
                     p *= (v == 0) ? SQRT_125 : SQRT_250;                                 // alpha(v)
-                    p *= cos(PI_8 * ((double)x + 0.5) * (double)u);                      // cos with x, u
-                    p *= cos(PI_8 * ((double)y + 0.5) * (double)v);                      // cos with y, v
+                    p *= cos(scaledPi * ((double)x + 0.5) * (double)u);                  // cos with x, u
+                    p *= cos(scaledPi * ((double)y + 0.5) * (double)v);                  // cos with y, v
                     /* Fetch each channel, multiply by product p and then shift */
                     if ( ((i * block_width + x) < width)
                             && ((j * block_height + y) < height) ) {
