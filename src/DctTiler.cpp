@@ -218,11 +218,6 @@ void DctTiler::InitializeCoefficientPlanes() {
 
     Scaler s;
 
-    /*
-     * Perform the basic initialization, which ignores the scaling. Will
-     * adjust those coefficients afterwards.
-     */
-
     // Setup the coefficient matrix to complete 3x3 identity initially
     vector< vector<int> > coeffs;
     coeffs.resize(3);

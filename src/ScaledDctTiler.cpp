@@ -68,62 +68,18 @@ ScaledDctTiler::ScaledDctTiler(size_t display_width, size_t display_height, size
  */
 void ScaledDctTiler::InitializeCoefficientPlanes() {
 
-    Scaler s;
-
-    /*
-     * Perform the basic initialization, which ignores the scaling. Will
-     * adjust those coefficients afterwards.
-     */
-
-    // Setup the coefficient matrix to complete 3x3 identity initially
-    vector< vector<int> > coeffs;
-    coeffs.resize(3);
-    coeffs[0].push_back(1); coeffs[0].push_back(0); coeffs[0].push_back(0);
-    coeffs[1].push_back(0); coeffs[1].push_back(1); coeffs[1].push_back(0);
-    coeffs[2].push_back(0); coeffs[2].push_back(0); coeffs[2].push_back(0);
+    // Perform the basic initialization first and then do the specific
+    // multiscale initialization
+    DctTiler::InitializeCoefficientPlanes();
 
     // Setup start and end points to (0,0,0) initially
     vector<unsigned int> start, end;
     start.push_back(0); start.push_back(0); start.push_back(0);
     end.push_back(0); end.push_back(0); end.push_back(0);
 
-    // Break the display into macroblocks and initialize each cube of coefficients to pick out the proper block from the frame volume
-    for (int j = 0; j < displayTilesHigh_; j++) {
-        for (int i = 0; i < displayTilesWide_; i++) {
-            coeffs[2][0] = -i * BLOCK_WIDTH;
-            coeffs[2][1] = -j * BLOCK_HEIGHT;
-            start[0] = i * BLOCK_WIDTH; start[1] = j * BLOCK_HEIGHT; start[2] = 0;
-            end[0] = (i + 1) * BLOCK_WIDTH - 1; end[1] = (j + 1) * BLOCK_HEIGHT - 1; end[2] = FRAMEVOLUME_DEPTH - 1;
-            if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
-            if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
-            display_->FillCoefficientMatrix(coeffs, start, end);
-        }
-    }
-    // Finish up by setting the proper k for every plane
-    start[0] = 0; start[1] = 0;
-    end[0] = display_->DisplayWidth() - 1; end[1] = display_->DisplayHeight() - 1;
-    for (int k = 0; k < FRAMEVOLUME_DEPTH; k++) {
-        start[2] = k; end[2] = k;
-        display_->FillCoefficient(k, 2, 2, start, end);
-    }
-
-    // Fill each scaler in every plane with 0
-    start[0] = 0; start[1] = 0; start[2] = 0;
-    end[0] = display_->DisplayWidth() - 1;
-    end[1] = display_->DisplayHeight() - 1;
-    end[2] = display_->NumCoefficientPlanes() - 1;
-    s.packed = 0;
-    display_->FillScaler(s, start, end);
-
-    // Fill the scalers for the medium gray plane to full on
-    start[2] = display_->NumCoefficientPlanes() - 1;
-    s.r = s.g = s.b = display_->GetFullScaler();
-    display_->FillScaler(s, start, end);
-
-
-    /*
-     * Now go through the multiscale configuration and adjust the coefficients.
-     */
+    //
+    // Now go through the multiscale configuration and adjust the coefficients.
+    //
 
     // For each of the configurations
     for (size_t c = 0; c < globalConfiguration.dctScales.size(); c++) {

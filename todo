@@ -131,7 +131,8 @@ x 7. Write
     x Update BuildCoefficients to work on differently sized macroblocks.
     x Update InitializeCoefficientPlanes to work with differently sized macroblocks.
     x Update InitializeFrameVolume to work with differently sized macroblocks.
-    - Look at the SIMPLE_TRUNCATION code and see if it needs to be updated for MultiDctTiler.
+    x Look at the SIMPLE_TRUNCATION code and see if it needs to be updated for MultiDctTiler.
+        x   Yep, we need the non-SIMPLE_TRUNCATION code.
     - Update FillCoefficients to work on differently sized macroblocks. When generting the coefficients, don't use the
       plain #defines for the SQRTs since they each use a divisor of 2. Instead use a divisor based on the scale factor.
     - Update PrerenderCoefficients to work on differently sized macroblocks.
