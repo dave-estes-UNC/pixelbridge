@@ -50,6 +50,8 @@ public:
 private:
     void initZigZag();
     void initQuantizationMatrix(size_t quality);
+    void InitializeCoefficientPlanes();
+    void InitializeFrameVolume();
     vector<uint64_t> BuildCoefficients(size_t i, size_t j, int16_t* buffer, size_t width, size_t height, size_t c, bool adjustPixels);
     void FillCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, size_t first);
     void PrerenderCoefficients(vector<uint64_t> &coefficients, size_t i, size_t j, size_t c, int16_t* renderedBuffer, size_t width, size_t height, bool shift);
@@ -58,7 +60,8 @@ private:
     vector< vector< vector< vector<uint64_t> > > >  cachedCoefficients_;
     vector< vector <int> >                          zigZag_;
     vector< vector<uint8_t> >                       quantizationMatrix_;
-    vector<Pixel*>                                  basisFunctions_;
+    Pixel *                                         basisFunctions_;
+    size_t                                          fvWidth_, fvHeight_;
 
 };
 #endif // MULTI_DCT_TILER_H

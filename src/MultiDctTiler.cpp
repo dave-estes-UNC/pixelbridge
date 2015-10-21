@@ -56,11 +56,17 @@
 #define MAX(x, y)            (x > y ? x : y)
 #define MIN(x, y)            (x < y ? x : y)
 #define CEIL(x, y)           (1 + ((x - 1) / y))
-#define SQRT_125             0.353553391
-#define SQRT_250             0.5
+#define SQRT2                1.414213562
 
 MultiDctTiler::MultiDctTiler(size_t display_width, size_t display_height, size_t quality)
-    : ScaledDctTiler(display_width, display_height, quality) {}
+    : ScaledDctTiler(display_width, display_height, quality) {
+
+    // The frame volume is still 64 planes deep, but the width and height is based on the first
+    // configuration which is assumed to be the largest.
+    fvWidth_ = globalConfiguration.dctScales[0].scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
+    fvHeight_ = globalConfiguration.dctScales[0].scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
+
+}
 
 /**
  * Initializes each of the zig zag patterns for the different scales.
@@ -140,6 +146,173 @@ void MultiDctTiler::initQuantizationMatrix(size_t quality) {
 }
 
 /**
+ * Initializes the Coefficient Planes for this tiler. The coefficient matrices
+ * for each plane will pick a plane from the frame volume.
+ */
+void MultiDctTiler::InitializeCoefficientPlanes() {
+
+    Scaler s;
+
+    /*
+     * Perform the basic initialization, which ignores the scaling. Will
+     * adjust those coefficients afterwards.
+     */
+
+    // Setup the coefficient matrix to complete 3x3 identity initially
+    vector< vector<int> > coeffs;
+    coeffs.resize(3);
+    coeffs[0].push_back(1); coeffs[0].push_back(0); coeffs[0].push_back(0);
+    coeffs[1].push_back(0); coeffs[1].push_back(1); coeffs[1].push_back(0);
+    coeffs[2].push_back(0); coeffs[2].push_back(0); coeffs[2].push_back(0);
+
+    // Setup start and end points to (0,0,0) initially
+    vector<unsigned int> start, end;
+    start.push_back(0); start.push_back(0); start.push_back(0);
+    end.push_back(0); end.push_back(0); end.push_back(0);
+
+    // Break the display into macroblocks and initialize each cube of coefficients to pick out the proper block from the frame volume
+    for (int j = 0; j < displayTilesHigh_; j++) {
+        for (int i = 0; i < displayTilesWide_; i++) {
+            coeffs[2][0] = -i * BLOCK_WIDTH;
+            coeffs[2][1] = -j * BLOCK_HEIGHT;
+            start[0] = i * BLOCK_WIDTH; start[1] = j * BLOCK_HEIGHT; start[2] = 0;
+            end[0] = (i + 1) * BLOCK_WIDTH - 1; end[1] = (j + 1) * BLOCK_HEIGHT - 1; end[2] = FRAMEVOLUME_DEPTH - 1;
+            if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
+            if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
+            display_->FillCoefficientMatrix(coeffs, start, end);
+        }
+    }
+    // Finish up by setting the proper k for every plane
+    start[0] = 0; start[1] = 0;
+    end[0] = display_->DisplayWidth() - 1; end[1] = display_->DisplayHeight() - 1;
+    for (int k = 0; k < FRAMEVOLUME_DEPTH; k++) {
+        start[2] = k; end[2] = k;
+        display_->FillCoefficient(k, 2, 2, start, end);
+    }
+
+    // Fill each scaler in every plane with 0
+    start[0] = 0; start[1] = 0; start[2] = 0;
+    end[0] = display_->DisplayWidth() - 1;
+    end[1] = display_->DisplayHeight() - 1;
+    end[2] = display_->NumCoefficientPlanes() - 1;
+    s.packed = 0;
+    display_->FillScaler(s, start, end);
+
+    // Fill the scalers for the medium gray plane to full on
+    start[2] = display_->NumCoefficientPlanes() - 1;
+    s.r = s.g = s.b = display_->GetFullScaler();
+    display_->FillScaler(s, start, end);
+}
+
+
+/**
+ * Initializes the Frame Volume for this tiler by pre-rendering each
+ * of the 16 basis functions into 4x4 planes in the Frame Volume. They're
+ * rendered for each color channel and stored in those groups of three in
+ * zig-zag order.
+ */
+void MultiDctTiler::InitializeFrameVolume() {
+
+    // Allocate the basisFunctions_. Assumes that the first configuration is the largest
+    // scale. The basisFunctions_ (and thus the frame volume) will be filled with 64 planes
+    // of that size. Therefore, we're using the simple 8x8 definitions for BASIS_BLOCKS_WIDE/TALL.
+    basisFunctions_ = (Pixel *)calloc(fvWidth_ * fvHeight_ * BASIS_BLOCKS_WIDE * BASIS_BLOCKS_TALL,
+                                      sizeof(Pixel));
+
+    // For each scale level
+    for (int c = 0; c < globalConfiguration.dctScales.size(); c++) {
+
+        // Now we'll need to use the correct block_width/height, block_size, and basis_blocks_wide/tall
+        // for this particular configuration
+        scale_config_t  config = globalConfiguration.dctScales[c];
+        size_t          sm = config.scale_multiplier;
+        size_t          block_width = sm * UNSCALED_BASIC_BLOCK_WIDTH;
+        size_t          block_height = sm * UNSCALED_BASIC_BLOCK_HEIGHT;
+        size_t          block_size = block_width * block_height;
+        size_t          basis_blocks_wide = block_width;
+        size_t          basis_blocks_tall = block_height;
+        double          alpha0 = 1 / (SQRT2 * 2.0);    // Note: The alpjas here are not adjusted. The are simply the alpha from
+        double          alphaX = 1 / (2.0);            //       the JPEG DCT along with a 1/2 (which is 1/2 * 1/2 = 1/4 for both).
+        double          scaledPi = PI / (8.0 * sm);
+
+        // Pre-render each basis function
+#ifndef NO_OMP
+#pragma omp parallel for
+#endif
+        for (int j = 0; j < basis_blocks_tall; j++) {
+            for (int i = 0; i < basis_blocks_wide; i++) {
+
+                // Don't process the final basis block.
+                if (i == basis_blocks_wide - 1 && j == basis_blocks_tall) continue;
+
+                // Only process the number of planes in this configuration
+                if (zigZag_[c][j * basis_blocks_wide + i] >= config.plane_count) continue;
+
+                size_t p = zigZag_[c][j * basis_blocks_wide + i] * block_size;
+                for (int y = 0; y < block_height; y++) {
+                    for (int x = 0; x < block_width; x++) {
+                        double m = 0.0;
+                        bool neg = false;
+
+                        for (int v = 0; v < block_height; v++) {
+                            for (int u = 0; u < block_width; u++) {
+                                double px = 1.0;
+                                px *= (u == 0) ? alpha0 : alphaX;   // alpha(u)
+                                px *= (v == 0) ? alpha0 : alphaX;   // alpha(v)
+                                px *= ((u == i) && (v == j)) ? double(MAX_DCT_COEFF) : 0.0;  // DCT coefficient (maximum on or off)
+                                px *= cos(scaledPi * ((double)x + 0.5) * (double)u);         // cos with x, u
+                                px *= cos(scaledPi * ((double)y + 0.5) * (double)v);         // cos with y, v
+                                m += px;
+                            }
+                        }
+
+                        // Set the neg flag if the magnitude is negative and then remove the sign from the magnitude
+                        if (m < 0.0f) {
+                            neg = true;
+                            m *= -1.0;
+                        }
+
+                        // Clamp to 127 and cast to byte and convert to two's complement if necessary
+                        unsigned int c = (unsigned char)CLAMP(m, 0.0, 127.0);
+                        if (neg) {
+                            c = ~c + 1;
+                        }
+
+                        // Set the color channels with the magnitude clamped to 127
+                        basisFunctions_[p].r = c;
+                        basisFunctions_[p].g = c;
+                        basisFunctions_[p].b = c;
+                        basisFunctions_[p].a = 0xff;
+
+                        // Move to the next pixel
+                        p++;
+                    }
+                }
+            }
+        }
+    }
+
+    // Then render the gray block as the actual last basis block
+    size_t p = fvWidth_ * fvHeight_ * (FRAMEVOLUME_DEPTH - 1);
+    for (int y = 0; y < BLOCK_HEIGHT; y++) {
+        for (int x = 0; x < BLOCK_WIDTH; x++) {
+            unsigned int c = 0x7f;
+            basisFunctions_[p].r = c;
+            basisFunctions_[p].g = c;
+            basisFunctions_[p].b = c;
+            basisFunctions_[p].a = 0xff;
+            p++;
+        }
+    }
+
+    // Update the frame volume with the basis function renderings and gray block in bulk.
+    vector<unsigned int> start, end;
+    start.push_back(0); start.push_back(0); start.push_back(0);
+    end.push_back(fvWidth_ - 1); end.push_back(fvHeight_ - 1); end.push_back(FRAMEVOLUME_DEPTH - 1);
+    display_->CopyPixels(basisFunctions_, start, end);
+}
+
+/**
  * Builds the coefficients for the macroblock specified by (i, j) using the source buffer.
  *
  * @param i The column component of the macroblock
@@ -163,10 +336,13 @@ vector<uint64_t> MultiDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* b
      */
 
     Scaler  s;
-    size_t  block_width = globalConfiguration.dctScales[c].scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
-    size_t  block_height = globalConfiguration.dctScales[c].scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
+    size_t  sm = globalConfiguration.dctScales[c].scale_multiplier;
+    size_t  block_width = sm * UNSCALED_BASIC_BLOCK_WIDTH;
+    size_t  block_height = sm * UNSCALED_BASIC_BLOCK_HEIGHT;
     size_t  block_size = block_width * block_height;
-    double  scaledPi = PI / (8.0 * globalConfiguration.dctScales[c].scale_multiplier);
+    double  alpha0 = 1 / (SQRT2 * 2.0 * sm);    // Note: The alphas here don't just include the 1/2 for each. The 1/2 is actually scaled when
+    double  alphaX = 1 / (2.0 * sm);            //       building the coefficients so that the accumulated sums divide by MAX_DCT_COEFF cleanly.
+    double  scaledPi = PI / (8.0 * sm);
 
     /* The coefficients are stored in this array in zig-zag order */
     vector<uint64_t> coefficients(block_size, 0);
@@ -186,8 +362,8 @@ vector<uint64_t> MultiDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* b
 
                     double p = 1.0;
 
-                    p *= (u == 0) ? SQRT_125 : SQRT_250;                                 // alpha(u)
-                    p *= (v == 0) ? SQRT_125 : SQRT_250;                                 // alpha(v)
+                    p *= (u == 0) ? alpha0 : alphaX;                                     // alpha(u)
+                    p *= (v == 0) ? alpha0 : alphaX;                                     // alpha(v)
                     p *= cos(scaledPi * ((double)x + 0.5) * (double)u);                  // cos with x, u
                     p *= cos(scaledPi * ((double)y + 0.5) * (double)v);                  // cos with y, v
                     /* Fetch each channel, multiply by product p and then shift */
@@ -293,6 +469,14 @@ void MultiDctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t
     size_t          block_width = config.scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
     size_t          block_height = config.scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
 
+    // For this configuration, determine the offset into the basisFunctions_ array since there are
+    // likely other planes before it from prior configurations. This offset is in terms of pixels and
+    // not bytes.
+    size_t ibfo = 0;
+    for (size_t d = 0; d < c; d++) {
+        ibfo += fvWidth_ * fvHeight_ * globalConfiguration.dctScales[d].plane_count;
+    }
+
 #ifndef NO_OMP
 #pragma omp parallel for
 #endif
@@ -304,47 +488,21 @@ void MultiDctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t
 
             int rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
 
-#ifdef SIMPLE_TRUNCATION
-            for (size_t p = 0; p < coefficients.size(); p++) {
-                Scaler s;
-                s.packed = coefficients[p];
-
-                size_t bfo = p * block_width * block_height + y * block_width + x;
-                rAccumulator += (int8_t)(basisFunctions_[c][bfo].r) * s.r;
-                gAccumulator += (int8_t)(basisFunctions_[c][bfo].g) * s.g;
-                bAccumulator += (int8_t)(basisFunctions_[c][bfo].b) * s.b;
-            }
-#else
-            // For an 8x8 region of coefficients, just use simple truncation
-            if (config.edge_length == 8) {
-                for (size_t p = 0; p < coefficients.size(); p++) {
+            for (size_t p = 0, yy = 0; yy < config.edge_length && p < coefficients.size(); yy++) {
+                for (size_t xx = 0; xx < config.edge_length && p < coefficients.size(); xx++) {
                     Scaler s;
                     s.packed = coefficients[p];
 
-                    size_t bfo = p * block_width * block_height + y * block_width + x;
-                    rAccumulator += (int8_t)(basisFunctions_[c][bfo].r) * s.r;
-                    gAccumulator += (int8_t)(basisFunctions_[c][bfo].g) * s.g;
-                    bAccumulator += (int8_t)(basisFunctions_[c][bfo].b) * s.b;
-                }
-            // Else consider only the most significant coefficients within with the square of edge_length
-            } else {
-                for (size_t p = 0, yy = 0; yy < config.edge_length && p < coefficients.size(); yy++) {
-                    for (size_t xx = 0; xx < config.edge_length && p < coefficients.size(); xx++) {
-                        Scaler s;
-                        s.packed = coefficients[p];
+                    size_t pp = zigZag_[c][yy * block_width + xx];
 
-                        size_t pp = zigZag_[c][yy * block_width + xx];
+                    size_t bfo = ibfo + pp * block_width * block_height + y * block_width + x;
+                    rAccumulator += (int8_t)(basisFunctions_[bfo].r) * s.r;
+                    gAccumulator += (int8_t)(basisFunctions_[bfo].g) * s.g;
+                    bAccumulator += (int8_t)(basisFunctions_[bfo].b) * s.b;
 
-                        size_t bfo = pp * block_width * block_height + y * block_width + x;
-                        rAccumulator += (int8_t)(basisFunctions_[c][bfo].r) * s.r;
-                        gAccumulator += (int8_t)(basisFunctions_[c][bfo].g) * s.g;
-                        bAccumulator += (int8_t)(basisFunctions_[c][bfo].b) * s.b;
-
-                        p++;
-                    }
+                    p++;
                 }
             }
-#endif
 
             size_t offset = ((j * block_height + y) * width + i * block_width + x) * 3;
 

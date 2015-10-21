@@ -267,87 +267,8 @@ void DctTiler::InitializeCoefficientPlanes() {
     start[2] = display_->NumCoefficientPlanes() - 1;
     s.r = s.g = s.b = display_->GetFullScaler();
     display_->FillScaler(s, start, end);
-
-
-    /*
-     * Now go through the multiscale configuration and adjust the coefficients.
-     */
-
-    // For each of the configurations
-    for (size_t c = 0; c < globalConfiguration.dctScales.size(); c++) {
-
-        scale_config_t config = globalConfiguration.dctScales[c];
-
-        // Adjust the tx and ty coefficients for each supermacroblock
-        if (config.scale_multiplier > 1) {
-
-            size_t scaledBlockWidth = BLOCK_WIDTH * config.scale_multiplier;
-            size_t scaledBlockHeight = BLOCK_HEIGHT * config.scale_multiplier;
-            size_t scaledTilesWide = CEIL(display_->DisplayWidth(), scaledBlockWidth);
-            size_t scaledTilesHigh = CEIL(display_->DisplayHeight(), scaledBlockHeight);
-
-#ifndef NO_OMP
-#pragma omp parallel for
-#endif
-            // Break up the display into supermacroblocks at this current scale
-            for (int j = 0; j < scaledTilesHigh; j++) {
-                for (int i = 0; i < scaledTilesWide; i++) {
-                    for (int y = 0; y < scaledBlockHeight && j * scaledBlockHeight + y < display_->DisplayHeight(); y++) {
-                        for (int x = 0; x < scaledBlockWidth && i * scaledBlockWidth + x < display_->DisplayWidth(); x++) {
-                            vector<unsigned int> start(3), end(3);
-
-                            start[0] = i * scaledBlockWidth + x;
-                            start[1] = j * scaledBlockHeight + y;
-                            start[2] = config.first_plane_idx;
-
-                            end[0] = i * scaledBlockWidth + x;
-                            end[1] = j * scaledBlockHeight + y;
-                            end[2] = config.first_plane_idx + config.plane_count - 1;
-
-                            int tx = -i * scaledBlockWidth - x + x / config.scale_multiplier;
-                            int ty = -j * scaledBlockHeight - y + y / config.scale_multiplier;
-
-                            display_->FillCoefficient(tx, 0, 2, start, end);
-                            display_->FillCoefficient(ty, 1, 2, start, end);
-                        }
-                    }
-                }
-            }
-        }
-
-        // Adjust the k coefficient for each supermacroblock. This will be done one plane
-        // at a time starting with the topmost plane (0) and the first configuration. The
-        // k used won't necessarily match the plane, because of the configuration.
-        start[0] = 0; start[1] = 0;
-        end[0] = display_->DisplayWidth() - 1; end[1] = display_->DisplayHeight() - 1;
-#ifdef SIMPLE_TRUNCATION
-        for (size_t p = 0; p < config.plane_count; p++) {
-            size_t k = config.first_plane_idx + p;
-            start[2] = k; end[2] = k;
-            display_->FillCoefficient(p, 2, 2, start, end);
-        }
-#else
-        // If this is an 8x8 region of macroblocks, then just use simple truncation
-        if (config.edge_length == 8) {
-            for (size_t p = 0; p < config.plane_count; p++) {
-                size_t k = config.first_plane_idx + p;
-                start[2] = k; end[2] = k;
-                display_->FillCoefficient(p, 2, 2, start, end);
-            }
-        // Else consider only the most significant coefficients within with the square of edge_length
-        } else {
-            for (size_t p = 0, y = 0; y < config.edge_length && p < config.plane_count; y++) {
-                for (size_t x = 0; x < config.edge_length && p < config.plane_count; x++) {
-                    size_t k = config.first_plane_idx + p;
-                    start[2] = k; end[2] = k;
-                    display_->FillCoefficient(zigZag_[y * BLOCK_WIDTH + x], 2, 2, start, end);
-                    p++;
-                }
-            }
-        }
-#endif
-    }
 }
+
 
 /**
  * Initializes the Frame Volume for this tiler by pre-rendering each

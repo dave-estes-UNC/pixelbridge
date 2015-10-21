@@ -52,6 +52,7 @@ private:
     int16_t* UpSample(size_t factor, int16_t* buffer, size_t width, size_t height);
 
 protected:
+    void InitializeCoefficientPlanes();
     int16_t* ConvertToSignedPixels(uint8_t* buffer, size_t width, size_t height);
     vector<uint64_t> BuildCoefficients(size_t i, size_t j, int16_t* buffer, size_t width, size_t height, bool adjustPixels);
     void SelectCoefficientsForScale(vector<uint64_t> &coefficients, size_t c);
