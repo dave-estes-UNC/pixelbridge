@@ -475,12 +475,12 @@ void MultiDctTiler::FillCoefficients(vector<uint64_t> &coefficients, size_t i, s
     size_t          block_width = config.scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
     size_t          block_height = config.scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
 
-    start[0] = i * block_width * config.scale_multiplier;
-    start[1] = j * block_height * config.scale_multiplier;
+    start[0] = i * block_width;
+    start[1] = j * block_height;
     start[2] = first;
 
-    size[0] = block_width * config.scale_multiplier;
-    size[1] = block_height * config.scale_multiplier;
+    size[0] = block_width;
+    size[1] = block_height;
 
     /* If any any coefficients have changed, send the NDDI command to update them */
     if (start[2] < display_->NumCoefficientPlanes()) {

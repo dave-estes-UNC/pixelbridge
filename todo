@@ -128,14 +128,14 @@ x 7. Write
       store these ordering arrays in a lookup by the block size.
     x Expand initQuantizationMatrix to build matrices for different block sizes.
       to macroblock setup data classes along with quantization
-    x Update BuildCoefficients to work on differently sized macroblocks.
+    x Update BuildCoefficients to work on differently sized macroblocks. When generating the coefficients, don't use the
+      plain #defines for the SQRTs since they each use a divisor of 2. Instead use a divisor based on the scale factor.
     x Update InitializeCoefficientPlanes to work with differently sized macroblocks.
     x Update InitializeFrameVolume to work with differently sized macroblocks.
     x Look at the SIMPLE_TRUNCATION code and see if it needs to be updated for MultiDctTiler.
-        x   Yep, we need the non-SIMPLE_TRUNCATION code.
-    - Update FillCoefficients to work on differently sized macroblocks. When generting the coefficients, don't use the
-      plain #defines for the SQRTs since they each use a divisor of 2. Instead use a divisor based on the scale factor.
-    - Update PrerenderCoefficients to work on differently sized macroblocks.
+      x Yep, we need the non-SIMPLE_TRUNCATION code.
+    x Update FillCoefficients to work on differently sized macroblocks.
+    x Update PrerenderCoefficients to work on differently sized macroblocks.
     - UpdateDisplay to work on differently sized macroblocks.
 
 - Implement YuvTiler
