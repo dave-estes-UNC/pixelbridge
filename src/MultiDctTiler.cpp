@@ -202,6 +202,87 @@ void MultiDctTiler::InitializeCoefficientPlanes() {
     start[2] = display_->NumCoefficientPlanes() - 1;
     s.r = s.g = s.b = display_->GetFullScaler();
     display_->FillScaler(s, start, end);
+
+
+    /*
+     * Now go through the multiscale configuration and adjust the coefficients.
+     */
+
+    // For each of the configurations
+    for (size_t c = 0; c < globalConfiguration.dctScales.size(); c++) {
+
+        scale_config_t  config = globalConfiguration.dctScales[c];
+        size_t          sm = config.scale_multiplier;
+
+        // Adjust the tx and ty coefficients for each supermacroblock
+        if (sm > 1) {
+
+            size_t scaledBlockWidth = BLOCK_WIDTH * sm;
+            size_t scaledBlockHeight = BLOCK_HEIGHT * sm;
+            size_t scaledTilesWide = CEIL(display_->DisplayWidth(), scaledBlockWidth);
+            size_t scaledTilesHigh = CEIL(display_->DisplayHeight(), scaledBlockHeight);
+
+#ifndef NO_OMP
+#pragma omp parallel for
+#endif
+            // Break up the display into supermacroblocks at this current scale
+            for (int j = 0; j < scaledTilesHigh; j++) {
+                for (int i = 0; i < scaledTilesWide; i++) {
+                    for (int y = 0; y < scaledBlockHeight && j * scaledBlockHeight + y < display_->DisplayHeight(); y++) {
+                        for (int x = 0; x < scaledBlockWidth && i * scaledBlockWidth + x < display_->DisplayWidth(); x++) {
+                            vector<unsigned int> start(3), end(3);
+
+                            start[0] = i * scaledBlockWidth + x;
+                            start[1] = j * scaledBlockHeight + y;
+                            start[2] = config.first_plane_idx;
+
+                            end[0] = i * scaledBlockWidth + x;
+                            end[1] = j * scaledBlockHeight + y;
+                            end[2] = config.first_plane_idx + config.plane_count - 1;
+
+                            int tx = -i * scaledBlockWidth;
+                            int ty = -j * scaledBlockHeight;
+
+                            display_->FillCoefficient(tx, 0, 2, start, end);
+                            display_->FillCoefficient(ty, 1, 2, start, end);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Adjust the k coefficient for each supermacroblock. This will be done one plane
+        // at a time starting with the topmost plane (0) and the first configuration. The
+        // k used won't necessarily match the plane, because of the configuration.
+        start[0] = 0; start[1] = 0;
+        end[0] = display_->DisplayWidth() - 1; end[1] = display_->DisplayHeight() - 1;
+#ifdef SIMPLE_TRUNCATION
+        for (size_t p = 0; p < config.plane_count; p++) {
+            size_t k = config.first_plane_idx + p;
+            start[2] = k; end[2] = k;
+            display_->FillCoefficient(p, 2, 2, start, end);
+        }
+#else
+        // If this is an 8x8 region of macroblocks, then just use simple truncation
+        if (config.edge_length == 8) {
+            for (size_t p = 0; p < config.plane_count; p++) {
+                size_t k = config.first_plane_idx + p;
+                start[2] = k; end[2] = k;
+                display_->FillCoefficient(p, 2, 2, start, end);
+            }
+        // Else consider only the most significant coefficients within with the square of edge_length
+        } else {
+            for (size_t p = 0, y = 0; y < config.edge_length && p < config.plane_count; y++) {
+                for (size_t x = 0; x < config.edge_length && p < config.plane_count; x++) {
+                    size_t k = config.first_plane_idx + p;
+                    start[2] = k; end[2] = k;
+                    display_->FillCoefficient(zigZag_[c][y * BLOCK_WIDTH + x], 2, 2, start, end);
+                    p++;
+                }
+            }
+        }
+#endif
+    }
 }
 
 
@@ -488,21 +569,47 @@ void MultiDctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t
 
             int rAccumulator = 0, gAccumulator = 0, bAccumulator = 0;
 
-            for (size_t p = 0, yy = 0; yy < config.edge_length && p < coefficients.size(); yy++) {
-                for (size_t xx = 0; xx < config.edge_length && p < coefficients.size(); xx++) {
+#ifdef SIMPLE_TRUNCATION
+            for (size_t p = 0; p < coefficients.size(); p++) {
+                Scaler s;
+                s.packed = coefficients[p];
+
+                size_t bfo = ibfo + p * block_width * block_height + y * block_width + x;
+                rAccumulator += (int8_t)(basisFunctions_[bfo].r) * s.r;
+                gAccumulator += (int8_t)(basisFunctions_[bfo].g) * s.g;
+                bAccumulator += (int8_t)(basisFunctions_[bfo].b) * s.b;
+            }
+#else
+            // For an 8x8 region of coefficients, just use simple truncation
+            if (config.edge_length == 8) {
+                for (size_t p = 0; p < coefficients.size(); p++) {
                     Scaler s;
                     s.packed = coefficients[p];
 
-                    size_t pp = zigZag_[c][yy * block_width + xx];
-
-                    size_t bfo = ibfo + pp * block_width * block_height + y * block_width + x;
+                    size_t bfo = ibfo + p * block_width * block_height + y * block_width + x;
                     rAccumulator += (int8_t)(basisFunctions_[bfo].r) * s.r;
                     gAccumulator += (int8_t)(basisFunctions_[bfo].g) * s.g;
                     bAccumulator += (int8_t)(basisFunctions_[bfo].b) * s.b;
+                }
+            // Else consider only the most significant coefficients within with the square of edge_length
+            } else {
+                for (size_t p = 0, yy = 0; yy < config.edge_length && p < coefficients.size(); yy++) {
+                    for (size_t xx = 0; xx < config.edge_length && p < coefficients.size(); xx++) {
+                        Scaler s;
+                        s.packed = coefficients[p];
 
-                    p++;
+                        size_t pp = zigZag_[c][yy * block_width + xx];
+
+                        size_t bfo = ibfo + pp * block_width * block_height + y * block_width + x;
+                        rAccumulator += (int8_t)(basisFunctions_[bfo].r) * s.r;
+                        gAccumulator += (int8_t)(basisFunctions_[bfo].g) * s.g;
+                        bAccumulator += (int8_t)(basisFunctions_[bfo].b) * s.b;
+
+                        p++;
+                    }
                 }
             }
+#endif
 
             size_t offset = ((j * block_height + y) * width + i * block_width + x) * 3;
 
