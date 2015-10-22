@@ -636,28 +636,13 @@ void MultiDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) 
         size_t          block_height = config.scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
 
         /*
-         * 1. Downsample the image - DownSample()
-         */
-        int16_t* downBuf;
-        size_t downW = CEIL(width, config.scale_multiplier);
-        size_t downH = CEIL(height, config.scale_multiplier);
-#if 0 // CDE: Fix
-        if (config.scale_multiplier == 1)
-            downBuf = signedBuf;
-        else
-            downBuf = DownSample(config.scale_multiplier, signedBuf, width, height);
-#else
-        downBuf = signedBuf;
-#endif
-
-        /*
          * 2. For each macroblock in downsampled image
          *    a. Build coefficients - BuildCoefficients()
          */
-        int16_t* rendBuf = (int16_t*)calloc(downW * downH * 3, sizeof(int16_t));
+        int16_t* rendBuf = (int16_t*)calloc(width * height * 3, sizeof(int16_t));
 
-        size_t tilesWide = CEIL(downW, block_width);
-        size_t tilesHigh = CEIL(downH, block_height);
+        size_t tilesWide = CEIL(width, block_width);
+        size_t tilesHigh = CEIL(height, block_height);
 
         vector< vector< vector<uint64_t> > > coefficientsForCurrentScale;
 
@@ -665,7 +650,7 @@ void MultiDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) 
             coefficientsForCurrentScale.push_back(vector< vector<uint64_t> >());
             for (size_t j = 0; j < tilesHigh; j++) {
                 // a. Build coefficients - BuildCoefficients()
-                vector<uint64_t> coefficients = BuildCoefficients(i, j, downBuf, downW, downH, c, c == 0);
+                vector<uint64_t> coefficients = BuildCoefficients(i, j, signedBuf, width, height, c, c == 0);
                 SelectCoefficientsForScale(coefficients, c);
                 coefficientsForCurrentScale[i].push_back(coefficients);
             }
@@ -721,36 +706,19 @@ void MultiDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) 
 
                 // c. Perform simulated blending of basis functions - PrerenderCoefficients()
                 // Again, only shift on the first plane
-                PrerenderCoefficients(coefficientsForCurrentScale[i][j], i, j, c, rendBuf, downW, downH, c == 0);
+                PrerenderCoefficients(coefficientsForCurrentScale[i][j], i, j, c, rendBuf, width, height, c == 0);
             }
         }
 
         /*
-         * 5. Upsample the image - UpSample()
-         */
-        int16_t* upBuf;
-#if 0 //CDE: Fix
-        if (config.scale_multiplier == 1)
-            upBuf = rendBuf;
-        else
-            upBuf = UpSample(config.scale_multiplier, rendBuf, width, height);
-#else
-        upBuf = rendBuf;
-#endif
-
-        /*
          * 6. Subtract the results from the original image - AdjustFrame()
          */
-        AdjustFrame(signedBuf, upBuf, width, height);
+        AdjustFrame(signedBuf, rendBuf, width, height);
 
         /*
          * 7. Cleanup
          */
         free(rendBuf);
-        if (config.scale_multiplier > 1) {
-            free(downBuf);
-            free(upBuf);
-        }
     }
 
 #ifdef SKIP_FRAMES

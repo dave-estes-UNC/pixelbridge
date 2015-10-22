@@ -136,7 +136,7 @@ x 7. Write
       x Yep, we need the non-SIMPLE_TRUNCATION code.
     x Update FillCoefficients to work on differently sized macroblocks.
     x Update PrerenderCoefficients to work on differently sized macroblocks.
-    - UpdateDisplay to work on differently sized macroblocks.
+    x UpdateDisplay to work on differently sized macroblocks.
 
 - Implement YuvTiler
   - For a 16x16 macroblock, build 8x8 blocks: Y0, Y1, Y2, Y3, U, and V.
