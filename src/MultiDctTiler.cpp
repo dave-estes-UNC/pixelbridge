@@ -58,14 +58,66 @@
 #define CEIL(x, y)           (1 + ((x - 1) / y))
 #define SQRT2                1.414213562
 
-MultiDctTiler::MultiDctTiler(size_t display_width, size_t display_height, size_t quality)
-    : ScaledDctTiler(display_width, display_height, quality) {
+MultiDctTiler::MultiDctTiler(size_t display_width, size_t display_height, size_t quality) {
 
-    // The frame volume is still 64 planes deep, but the width and height is based on the first
-    // configuration which is assumed to be the largest.
-    fvWidth_ = globalConfiguration.dctScales[0].scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
-    fvHeight_ = globalConfiguration.dctScales[0].scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
+    quiet_ = globalConfiguration.headless || !globalConfiguration.verbose;
 
+    /*
+     * The frame volume is still 64 planes deep, but the width and height is based on the first
+     * configuration which is assumed to be the largest.
+     */
+    size_t  block_width = globalConfiguration.dctScales[0].scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
+    size_t  block_height = globalConfiguration.dctScales[0].scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
+    size_t  block_size = block_width * block_height;
+
+    /* 3 dimensional matching the Macroblock Width x Height x 64 */
+    vector<unsigned int> fvDimensions;
+    fvWidth_ = block_width; fvHeight_ = block_height;
+    fvDimensions.push_back(fvWidth_);
+    fvDimensions.push_back(fvHeight_);
+    fvDimensions.push_back(FRAMEVOLUME_DEPTH);
+
+    /*
+     * Pre-calculate the maximum number of unscaled tiles used for the display. tileStackHeights_
+     * aren't used for the multi dct tiler.
+     */
+    displayTilesWide_ = CEIL(display_width, UNSCALED_BASIC_BLOCK_WIDTH);
+    displayTilesHigh_ = CEIL(display_height, UNSCALED_BASIC_BLOCK_HEIGHT);
+    tileStackHeights_ = NULL;
+
+#ifndef NO_CL
+    display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
+                                 display_width, display_height, // display size
+                                 FRAMEVOLUME_DEPTH,             // Number of coefficient planes
+                                 3);                            // Input vector size (x, y, 1)
+#else
+    display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
+                                 display_width, display_height, // display size
+                                 FRAMEVOLUME_DEPTH,             // Number of coefficient planes
+                                 3);                            // Input vector size (x, y, 1)
+#endif
+
+    /* Set the full scaler value and the sign mode */
+    display_->SetFullScaler(MAX_DCT_COEFF);
+    display_->SetPixelByteSignMode(SIGNED_MODE);
+
+    /*
+     * Initialize the zig-zag order used throughout and the calculate
+     * the quantization matrix
+     */
+    initZigZag();
+    initQuantizationMatrix(quality);
+
+    /* Initialize Input Vector */
+    vector<int> iv;
+    iv.push_back(1);
+    display_->UpdateInputVector(iv);
+
+    /* Initialize Coefficient Planes */
+    InitializeCoefficientPlanes();
+
+    /* Initialize Frame Volume */
+    InitializeFrameVolume();
 }
 
 /**
@@ -198,6 +250,9 @@ void MultiDctTiler::InitializeCoefficientPlanes() {
 
                             int tx = -i * scaledBlockWidth;
                             int ty = -j * scaledBlockHeight;
+                            // TODO(CDE): WHy not use the original?
+                            //int tx = -i * scaledBlockWidth - x + x / config.scale_multiplier;
+                            //int ty = -j * scaledBlockHeight - y + y / config.scale_multiplier;
 
                             display_->FillCoefficient(tx, 0, 2, start, end);
                             display_->FillCoefficient(ty, 1, 2, start, end);
@@ -268,7 +323,7 @@ void MultiDctTiler::InitializeFrameVolume() {
         size_t          block_size = block_width * block_height;
         size_t          basis_blocks_wide = block_width;
         size_t          basis_blocks_tall = block_height;
-        double          alpha0 = 1 / (SQRT2 * 2.0);    // Note: The alpjas here are not adjusted. The are simply the alpha from
+        double          alpha0 = 1 / (SQRT2 * 2.0);    // Note: The alphas here are not adjusted. The are simply the alpha from
         double          alphaX = 1 / (2.0);            //       the JPEG DCT along with a 1/2 (which is 1/2 * 1/2 = 1/4 for both).
         double          scaledPi = PI / (8.0 * sm);
 
@@ -279,10 +334,7 @@ void MultiDctTiler::InitializeFrameVolume() {
         for (int j = 0; j < basis_blocks_tall; j++) {
             for (int i = 0; i < basis_blocks_wide; i++) {
 
-                // Don't process the final basis block.
-                if (i == basis_blocks_wide - 1 && j == basis_blocks_tall) continue;
-
-                // Only process the number of planes in this configuration
+                // Only process the number of planes in this configuration and don't process the final plane
                 if (zigZag_[c][j * basis_blocks_wide + i] >= config.plane_count) continue;
 
                 size_t p = zigZag_[c][j * basis_blocks_wide + i] * block_size;
@@ -450,6 +502,41 @@ vector<uint64_t> MultiDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* b
     }
 
     return coefficients;
+}
+
+
+/**
+ * Selects which coefficients to use at this scale. This function will keep track of our budget of planes
+ * and if we run out it will either truncate the extra coefficients in a simple manner or will use the
+ * region of most significant coefficients defined by the edge_length.
+ *
+ * @param coefficients The coefficients to be reduced to fit within the budget.
+ * @param c The current scale from the globalConfiguration.dctScales global.
+ */
+void MultiDctTiler::SelectCoefficientsForScale(vector<uint64_t> &coefficients, size_t c) {
+
+    scale_config_t config = globalConfiguration.dctScales[c];
+    size_t         block_width = config.scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
+
+#ifdef SIMPLE_TRUNCATION
+    coefficients.resize(config.plane_count);
+#else
+    // For an 8x8 region of coefficients, just use simple truncation
+    if (config.edge_length == 8) {
+        coefficients.resize(config.plane_count);
+    // Else consider only the most significant coefficients within with the square of edge_length
+    } else {
+        size_t p = 0;
+        vector<uint64_t> coeffs;
+        for (size_t y = 0; y < config.edge_length && p < config.plane_count; y++) {
+            for (size_t x = 0; x < config.edge_length && p < config.plane_count; x++) {
+                coeffs.push_back(coefficients[zigZag_[c][y * block_width + x]]);
+                p++;
+            }
+        }
+        coefficients = coeffs;
+    }
+#endif
 }
 
 
@@ -636,7 +723,7 @@ void MultiDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) 
         size_t          block_height = config.scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
 
         /*
-         * 2. For each macroblock in downsampled image
+         * 2. For each macroblock in signed image
          *    a. Build coefficients - BuildCoefficients()
          */
         int16_t* rendBuf = (int16_t*)calloc(width * height * 3, sizeof(int16_t));

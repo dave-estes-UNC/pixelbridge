@@ -11,9 +11,14 @@
 /*
  * These features are all on by default. Uncomment a line (and cross fingers) to turn one off.
  */
+#ifdef DEBUG
+#define NO_OMP
+#endif
+
 //#define NO_OMP
 //#define NO_GL
 #define NO_CL
+
 
 /*
  * Running make with NO_HACKS=1 should turn these off if using the Makefile for Linux,

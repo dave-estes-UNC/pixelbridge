@@ -22,6 +22,8 @@ using namespace std;
 class ScaledDctTiler : public DctTiler {
 
 public:
+    ScaledDctTiler() {}
+
     /**
      * The ScaledDctTiler is created based on the dimensions of the NDDI display that's passed in. If those
      * dimensions change, then the ScaledDctTiler should be destroyed and re-created.

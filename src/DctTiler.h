@@ -25,7 +25,10 @@ using namespace std;
 class DctTiler : public Tiler {
 
 public:
-        /**
+
+    DctTiler() {}
+
+    /**
      * The DctTiler is created based on the dimensions of the NDDI display that's passed in. If those
      * dimensions change, then the DctTiler should be destroyed and re-created.
      *
@@ -60,8 +63,6 @@ public:
 protected:
     void InitializeCoefficientPlanes();
     void InitializeFrameVolume();
-
-private:
     void initZigZag();
     void initQuantizationMatrix(size_t quality);
 
@@ -75,7 +76,7 @@ protected:
 
     static const size_t  BLOCK_WIDTH = UNSCALED_BASIC_BLOCK_WIDTH;
     static const size_t  BLOCK_HEIGHT = UNSCALED_BASIC_BLOCK_HEIGHT;
-    static const size_t  BLOCK_SIZE = BLOCK_WIDTH * BLOCK_HEIGHT;
+    static const size_t  BLOCK_SIZE = UNSCALED_BASIC_BLOCK_WIDTH * UNSCALED_BASIC_BLOCK_HEIGHT;
     static const size_t  FRAMEVOLUME_DEPTH = BLOCK_SIZE;
     static const size_t  BASIS_BLOCKS_WIDE = UNSCALED_BASIC_BLOCK_WIDTH;
     static const size_t  BASIS_BLOCKS_TALL = UNSCALED_BASIC_BLOCK_HEIGHT;

@@ -59,8 +59,58 @@
 #define SQRT_125             0.353553391
 #define SQRT_250             0.5
 
-ScaledDctTiler::ScaledDctTiler(size_t display_width, size_t display_height, size_t quality)
-    : DctTiler(display_width, display_height, quality) {}
+ScaledDctTiler::ScaledDctTiler(size_t display_width, size_t display_height, size_t quality) {
+
+    quiet_ = globalConfiguration.headless || !globalConfiguration.verbose;
+
+    /* 3 dimensional matching the Macroblock Width x Height x 64 */
+    vector<unsigned int> fvDimensions;
+    fvDimensions.push_back(BLOCK_WIDTH);
+    fvDimensions.push_back(BLOCK_HEIGHT);
+    fvDimensions.push_back(FRAMEVOLUME_DEPTH);
+
+    /*
+     * Pre-calculate the number of tiles used for the display. tileStackHeights_
+     * aren't used for the scaled dct tiler.
+     */
+    displayTilesWide_ = CEIL(display_width, BLOCK_WIDTH);
+    displayTilesHigh_ = CEIL(display_height, BLOCK_HEIGHT);
+    tileStackHeights_ = NULL;
+
+#ifndef NO_CL
+    display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
+                                 display_width, display_height, // display size
+                                 FRAMEVOLUME_DEPTH,             // Number of coefficient planes
+                                 3);                            // Input vector size (x, y, 1)
+#else
+    display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
+                                 display_width, display_height, // display size
+                                 FRAMEVOLUME_DEPTH,             // Number of coefficient planes
+                                 3);                            // Input vector size (x, y, 1)
+#endif
+
+    /* Set the full scaler value and the sign mode */
+    display_->SetFullScaler(MAX_DCT_COEFF);
+    display_->SetPixelByteSignMode(SIGNED_MODE);
+
+    /*
+     * Initialize the zig-zag order used throughout and the calculate
+     * the quantization matrix
+     */
+    initZigZag();
+    initQuantizationMatrix(quality);
+
+    /* Initialize Input Vector */
+    vector<int> iv;
+    iv.push_back(1);
+    display_->UpdateInputVector(iv);
+
+    /* Initialize Coefficient Planes */
+    InitializeCoefficientPlanes();
+
+    /* Initialize Frame Volume */
+    InitializeFrameVolume();
+}
 
 /**
  * Initializes the Coefficient Planes for this tiler. The coefficient matrices
