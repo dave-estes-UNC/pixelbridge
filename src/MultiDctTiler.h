@@ -48,7 +48,6 @@ public:
     void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 
 private:
-    void initZigZag();
     void initQuantizationMatrix(size_t quality);
     void InitializeCoefficientPlanes();
     void InitializeFrameVolume();
@@ -59,7 +58,6 @@ private:
 
 private:
     vector< vector< vector< vector<uint64_t> > > >  cachedCoefficients_;
-    vector< vector <int> >                          zigZag_;
     vector< vector<uint8_t> >                       quantizationMatrix_;
     size_t                                          fvWidth_, fvHeight_;
 

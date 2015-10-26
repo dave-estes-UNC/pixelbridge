@@ -120,59 +120,6 @@ MultiDctTiler::MultiDctTiler(size_t display_width, size_t display_height, size_t
     InitializeFrameVolume();
 }
 
-/**
- * Initializes each of the zig zag patterns for the different scales.
- */
-void MultiDctTiler::initZigZag() {
-
-    // For each scale
-    for (size_t c = 0; c < globalConfiguration.dctScales.size(); c++) {
-
-        size_t  block_width = globalConfiguration.dctScales[c].scale_multiplier * UNSCALED_BASIC_BLOCK_WIDTH;
-        size_t  block_height = globalConfiguration.dctScales[c].scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
-        size_t  block_size = block_width * block_height;
-
-        // Add the new zigZag and set its size
-        zigZag_.push_back(vector<int>());
-        zigZag_[c].resize(block_size);
-
-        // Then initialize it
-        size_t  x = 0, y = 0;
-        bool    up = true;
-
-        // Setup the zigZag_ table
-        for (size_t i = 0; i < block_size; i++) {
-            zigZag_[c][y * block_width + x] = i;
-            if (up) {
-                if (x < (block_width - 1)) {
-                    x++;
-                    if (y > 0) {
-                        y--;
-                    } else {
-                        up = false;
-                    }
-                } else {
-                    y++;
-                    up = false;
-                }
-            } else {
-                if (y < (block_height - 1)) {
-                    y++;
-                    if (x > 0) {
-                        x--;
-                    } else {
-                        up = true;
-                    }
-                } else {
-                    x++;
-                    up = true;
-                }
-            }
-        }
-    }
-}
-
-
 /*
  * Uses simple algorithm from M. Nelson, "The Data Compression Book," San Mateo, CA, M&T Books, 1992.
  */
@@ -225,8 +172,8 @@ void MultiDctTiler::InitializeCoefficientPlanes() {
         // Adjust the tx and ty coefficients for each supermacroblock
         if (sm > 1) {
 
-            size_t scaledBlockWidth = BLOCK_WIDTH * sm;
-            size_t scaledBlockHeight = BLOCK_HEIGHT * sm;
+            size_t scaledBlockWidth = UNSCALED_BASIC_BLOCK_WIDTH * sm;
+            size_t scaledBlockHeight = UNSCALED_BASIC_BLOCK_HEIGHT * sm;
             size_t scaledTilesWide = CEIL(display_->DisplayWidth(), scaledBlockWidth);
             size_t scaledTilesHigh = CEIL(display_->DisplayHeight(), scaledBlockHeight);
 
@@ -250,9 +197,6 @@ void MultiDctTiler::InitializeCoefficientPlanes() {
 
                             int tx = -i * scaledBlockWidth;
                             int ty = -j * scaledBlockHeight;
-                            // TODO(CDE): WHy not use the original?
-                            //int tx = -i * scaledBlockWidth - x + x / config.scale_multiplier;
-                            //int ty = -j * scaledBlockHeight - y + y / config.scale_multiplier;
 
                             display_->FillCoefficient(tx, 0, 2, start, end);
                             display_->FillCoefficient(ty, 1, 2, start, end);
@@ -287,7 +231,7 @@ void MultiDctTiler::InitializeCoefficientPlanes() {
                 for (size_t x = 0; x < config.edge_length && p < config.plane_count; x++) {
                     size_t k = config.first_plane_idx + p;
                     start[2] = k; end[2] = k;
-                    display_->FillCoefficient(zigZag_[c][y * BLOCK_WIDTH + x], 2, 2, start, end);
+                    display_->FillCoefficient(zigZag_[y * UNSCALED_BASIC_BLOCK_WIDTH + x], 2, 2, start, end);
                     p++;
                 }
             }
@@ -318,8 +262,8 @@ void MultiDctTiler::InitializeFrameVolume() {
         // for this particular configuration
         scale_config_t  config = globalConfiguration.dctScales[c];
         size_t          sm = config.scale_multiplier;
-        size_t          block_width = sm * UNSCALED_BASIC_BLOCK_WIDTH;
-        size_t          block_height = sm * UNSCALED_BASIC_BLOCK_HEIGHT;
+        size_t          block_width = UNSCALED_BASIC_BLOCK_WIDTH * sm;
+        size_t          block_height = UNSCALED_BASIC_BLOCK_HEIGHT * sm;
         size_t          block_size = block_width * block_height;
         size_t          basis_blocks_wide = block_width;
         size_t          basis_blocks_tall = block_height;
@@ -331,14 +275,16 @@ void MultiDctTiler::InitializeFrameVolume() {
 #ifndef NO_OMP
 #pragma omp parallel for
 #endif
-        for (int j = 0; j < basis_blocks_tall; j++) {
-            for (int i = 0; i < basis_blocks_wide; i++) {
+        for (int j = 0; j < config.edge_length; j++) {
+            for (int i = 0; i < config.edge_length; i++) {
 
                 // Only process the number of planes in this configuration and don't process the final plane
-                if (zigZag_[c][j * basis_blocks_wide + i] >= config.plane_count) continue;
+                if (zigZag_[j * UNSCALED_BASIC_BLOCK_WIDTH + i] >= config.plane_count) continue;
 
-                size_t p = zigZag_[c][j * basis_blocks_wide + i] * block_size;
+                size_t  p;
+                size_t  basisOffset = zigZag_[j * UNSCALED_BASIC_BLOCK_WIDTH + i] * fvWidth_ * fvHeight_;
                 for (int y = 0; y < block_height; y++) {
+                    p = basisOffset + y * fvWidth_;
                     for (int x = 0; x < block_width; x++) {
                         double m = 0.0;
                         bool neg = false;
@@ -382,8 +328,10 @@ void MultiDctTiler::InitializeFrameVolume() {
     }
 
     // Then render the gray block as the actual last basis block
-    size_t p = fvWidth_ * fvHeight_ * (FRAMEVOLUME_DEPTH - 1);
+    size_t p;
+    size_t offset = fvWidth_ * fvHeight_ * (FRAMEVOLUME_DEPTH - 1);
     for (int y = 0; y < BLOCK_HEIGHT; y++) {
+        p = offset + fvWidth_ * y;
         for (int x = 0; x < BLOCK_WIDTH; x++) {
             unsigned int c = 0x7f;
             basisFunctions_[p].r = c;
@@ -425,7 +373,8 @@ vector<uint64_t> MultiDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* b
      */
 
     Scaler  s;
-    size_t  sm = globalConfiguration.dctScales[c].scale_multiplier;
+    scale_config_t config = globalConfiguration.dctScales[c];
+    size_t  sm = config.scale_multiplier;
     size_t  block_width = sm * UNSCALED_BASIC_BLOCK_WIDTH;
     size_t  block_height = sm * UNSCALED_BASIC_BLOCK_HEIGHT;
     size_t  block_size = block_width * block_height;
@@ -436,11 +385,11 @@ vector<uint64_t> MultiDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* b
     /* The coefficients are stored in this array in zig-zag order */
     vector<uint64_t> coefficients(block_size, 0);
 
-    for (size_t v = 0; v < block_height; v++) {
+    for (size_t v = 0; v < config.edge_length; v++) {
 #ifndef NO_OMP
 #pragma omp parallel for ordered
 #endif
-        for (size_t u = 0; u < block_width; u++) {
+        for (size_t u = 0; u < config.edge_length; u++) {
 
             double c_r = 0.0, c_g = 0.0, c_b = 0.0;
 
@@ -474,7 +423,7 @@ vector<uint64_t> MultiDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* b
             }
 
             int g_r, g_g, g_b;
-            size_t matPos = v * block_width + u;
+            size_t matPos = v * UNSCALED_BASIC_BLOCK_WIDTH + u;
 
             /* Quantize G(u,v) (3.) */
             g_r = (int)int(c_r / double(quantizationMatrix_[c][matPos]) + 0.5); // 0.5 is for rounding
@@ -487,7 +436,7 @@ vector<uint64_t> MultiDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* b
             g_b *= (int)quantizationMatrix_[c][matPos];
 
             /* Set the coefficient in zig-zag order. */
-            size_t p = zigZag_[c][matPos];
+            size_t p = zigZag_[matPos];
 
             /* Skip the last block, because we've used it for the medium gray block */
             if (p == block_size - 1) continue;
@@ -530,7 +479,7 @@ void MultiDctTiler::SelectCoefficientsForScale(vector<uint64_t> &coefficients, s
         vector<uint64_t> coeffs;
         for (size_t y = 0; y < config.edge_length && p < config.plane_count; y++) {
             for (size_t x = 0; x < config.edge_length && p < config.plane_count; x++) {
-                coeffs.push_back(coefficients[zigZag_[c][y * block_width + x]]);
+                coeffs.push_back(coefficients[zigZag_[y * UNSCALED_BASIC_BLOCK_WIDTH + x]]);
                 p++;
             }
         }
@@ -641,7 +590,7 @@ void MultiDctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_t
                         Scaler s;
                         s.packed = coefficients[p];
 
-                        size_t pp = zigZag_[c][yy * block_width + xx];
+                        size_t pp = zigZag_[yy * UNSCALED_BASIC_BLOCK_WIDTH + xx];
 
                         size_t bfo = ibfo + pp * block_width * block_height + y * block_width + x;
                         rAccumulator += (int8_t)(basisFunctions_[bfo].r) * s.r;
