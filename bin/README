@@ -1,0 +1,59 @@
+Overview
+========
+
+This bin directory contains all of the scripts use to run the various
+experiments.
+
+Scripts
+=======
+
+MMSYS2012
+---------
+
+This single script runs the experiments MMSYS2012,which include the
+original modes (fb, flat, cached-8, cached-4, dct-1, dct-4, and dct100)
+as well as the three original blending modes. Note that the dct modes were
+not there fore MMSYS20212, but this script was adapted to run them to get
+the results again from scratch with the dct tiled mode for ACMMM2015.
+
+*   *runexperiments.sh*
+    Takes three parameters to specify the path to the pixelbridge executable,
+    the path to the recordings, directory and the path to the output directory.
+
+ACMMM2015
+---------
+
+These scripts were used for ACMMM2015. runexperiments.sh was repurposed and
+then runall.sh and runflow.sh were added to get the prediction-residual
+experiment results.
+
+*   *runexperiments.sh*
+    This script was adapted from MMSYS2012 to re-run the original experiments
+    and to add in the results for the dct tiled mode. Takes three parameters to
+    specify the path to the pixelbridge executable, the path to the recordings,
+     directory and the path to the output directory.
+*   *runall.sh*
+    Runs all of the low/medium/high segments using
+    the low/medium/high compression budgets for the
+    ACMMM2015 prediction-residual experiments.
+*   *runbourne.sh*
+    Runs only the bourne low/medium/high segments using
+    the low/medium/high compression budgets for the
+    ACMMM2015 prediction-residual experiments
+*   *runauto.sh*
+    This script is the workhorse for the ACMMM2015
+    prediction-residual experiments which used a budget to
+    determine how much to "compress" the video.
+*   *runflow.sh*
+    Runs the optical flow calculation and analysis for
+    the ACMMM2015 prediction-residual experiments.
+
+*   *runscales.sh*
+    Runs through several different multiscale configurations to
+    determine the most effective ones using just the bourne-10-action
+    video. This script doesn't produce results for the paper, but
+    was used when trying to find the candidate configurations for
+    the experiments run from runall.sh.
+
+
+
