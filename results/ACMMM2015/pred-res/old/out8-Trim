@@ -1,0 +1,936 @@
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 16030220 Ratio: 0.153758
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 72310720 - Bytes Written: 578485760
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.04435
+
+Quality Statistics:
+  MSE: 3.83866
+  Total PSNR: 42.289
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 328311 , 16030220 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 72310720 , 578485760 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 42.289,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 17075184 Ratio: 0.163781
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 81542704 - Bytes Written: 652341632
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.00582
+
+Quality Statistics:
+  MSE: 5.48758
+  Total PSNR: 40.737
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 367346 , 17075184 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 81542704 , 652341632 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 40.737,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 16238308 Ratio: 0.155754
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 77337456 - Bytes Written: 618699648
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.04549
+
+Quality Statistics:
+  MSE: 5.62308
+  Total PSNR: 40.6311
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 337027 , 16238308 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 77337456 , 618699648 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 40.6311,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 16277916 Ratio: 0.156134
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 75505328 - Bytes Written: 604042624
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.05795
+
+Quality Statistics:
+  MSE: 5.62475
+  Total PSNR: 40.6298
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 334095 , 16277916 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 75505328 , 604042624 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 40.6298,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 16010524 Ratio: 0.153569
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 73919456 - Bytes Written: 591355648
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.05975
+
+Quality Statistics:
+  MSE: 5.64324
+  Total PSNR: 40.6155
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 331595 , 16010524 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 73919456 , 591355648 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 40.6155,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 17961596 Ratio: 0.172284
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 99537920 - Bytes Written: 796303360
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.996224
+
+Quality Statistics:
+  MSE: 6.1088
+  Total PSNR: 40.2712
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 372167 , 17961596 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 99537920 , 796303360 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 40.2712,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 17418108 Ratio: 0.167071
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 94904704 - Bytes Written: 759237632
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.033
+
+Quality Statistics:
+  MSE: 6.34049
+  Total PSNR: 40.1096
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 340219 , 17418108 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 94904704 , 759237632 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 40.1096,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 16216524 Ratio: 0.155545
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 81586288 - Bytes Written: 652690304
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.04659
+
+Quality Statistics:
+  MSE: 5.87468
+  Total PSNR: 40.441
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 334133 , 16216524 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 81586288 , 652690304 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 40.441,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 16157448 Ratio: 0.154979
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 78009584 - Bytes Written: 624076672
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.0481
+
+Quality Statistics:
+  MSE: 6.04338
+  Total PSNR: 40.318
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 331948 , 16157448 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 78009584 , 624076672 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 40.318,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 18536532 Ratio: 0.177798
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 118847104 - Bytes Written: 950776832
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.03987
+
+Quality Statistics:
+  MSE: 6.73801
+  Total PSNR: 39.8455
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 340891 , 18536532 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 118847104 , 950776832 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 39.8455,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 16397728 Ratio: 0.157283
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 96453904 - Bytes Written: 771631232
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.05295
+
+Quality Statistics:
+  MSE: 5.93128
+  Total PSNR: 40.3993
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 334766 , 16397728 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 96453904 , 771631232 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 40.3993,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 16207852 Ratio: 0.155462
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 89836512 - Bytes Written: 718692096
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.05234
+
+Quality Statistics:
+  MSE: 6.04146
+  Total PSNR: 40.3194
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 332530 , 16207852 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 89836512 , 718692096 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 40.3194,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 17217176 Ratio: 0.165143
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 86265360 - Bytes Written: 690122880
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.989401
+
+Quality Statistics:
+  MSE: 6.19016
+  Total PSNR: 40.2138
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 371292 , 17217176 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 86265360 , 690122880 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 40.2138,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 16251204 Ratio: 0.155878
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 80161968 - Bytes Written: 641295744
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.03744
+
+Quality Statistics:
+  MSE: 6.30835
+  Total PSNR: 40.1316
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 338335 , 16251204 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 80161968 , 641295744 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 40.1316,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 15988580 Ratio: 0.153359
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 76777472 - Bytes Written: 614219776
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.05039
+
+Quality Statistics:
+  MSE: 6.38692
+  Total PSNR: 40.0779
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 333565 , 15988580 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 76777472 , 614219776 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 40.0779,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 18034200 Ratio: 0.17298
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 103405632 - Bytes Written: 827245056
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.980666
+
+Quality Statistics:
+  MSE: 6.68484
+  Total PSNR: 39.8799
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 375566 , 18034200 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 103405632 , 827245056 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 39.8799,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 17123508 Ratio: 0.164245
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 97370896 - Bytes Written: 778967168
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.02458
+
+Quality Statistics:
+  MSE: 6.85192
+  Total PSNR: 39.7727
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 340511 , 17123508 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 97370896 , 778967168 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 39.7727,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 16060652 Ratio: 0.15405
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 83218224 - Bytes Written: 665745792
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.04139
+
+Quality Statistics:
+  MSE: 6.55497
+  Total PSNR: 39.9651
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 334007 , 16060652 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 83218224 , 665745792 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 39.9651,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 19069156 Ratio: 0.182907
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 120000784 - Bytes Written: 960006272
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.971221
+
+Quality Statistics:
+  MSE: 7.13156
+  Total PSNR: 39.599
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 380181 , 19069156 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 120000784 , 960006272 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 39.599,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 18038860 Ratio: 0.173025
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 107503920 - Bytes Written: 860031360
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.01873
+
+Quality Statistics:
+  MSE: 7.1104
+  Total PSNR: 39.6119
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 347561 , 18038860 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 107503920 , 860031360 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 39.6119,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 16217972 Ratio: 0.155559
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 87447280 - Bytes Written: 699578240
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.02748
+
+Quality Statistics:
+  MSE: 6.60195
+  Total PSNR: 39.9341
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 335327 , 16217972 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 87447280 , 699578240 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 39.9341,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 20312372 Ratio: 0.194832
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 144147664 - Bytes Written: 1153181312
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.985879
+
+Quality Statistics:
+  MSE: 7.53176
+  Total PSNR: 39.3618
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 381953 , 20312372 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 144147664 , 1153181312 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 39.3618,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 17273108 Ratio: 0.16568
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 116574496 - Bytes Written: 932595968
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.03086
+
+Quality Statistics:
+  MSE: 6.8441
+  Total PSNR: 39.7776
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 346547 , 17273108 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 116574496 , 932595968 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 39.7776,../recordings/acmmm2011/video/bourne-10-action.m4v
+
+General Information
+  File: ../recordings/acmmm2011/video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 100
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 4
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 104256000 Total NDDI Cost (bytes): 16412488 Ratio: 0.157425
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 5054330880 - Bytes Read: 20217323520
+    - Num Writes: 0 - Bytes Written: 0
+  Coefficient Plane
+    - Num Reads: 16847769600 - Bytes Read: 74130186240
+    - Num Writes: 99529216 - Bytes Written: 796233728
+  Frame Volume
+    - Num Reads: 1684776960 - Bytes Read: 6739107840
+    - Num Writes: 0 - Bytes Written: 0
+
+Pixel Statistics:
+  Pixel Mappings: 26324640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.03898
+
+Quality Statistics:
+  MSE: 6.80005
+  Total PSNR: 39.8057
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+100 , 336814 , 16412488 , 5054330880 , 20217323520 , 0 , 0 , 16847769600 , 74130186240 , 99529216 , 796233728 , 1684776960 , 6739107840 , 0 , 0 , 0 , 26324640 , 0 , 39.8057,../recordings/acmmm2011/video/bourne-10-action.m4v

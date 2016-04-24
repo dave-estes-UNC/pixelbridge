@@ -1,0 +1,273 @@
+
+General Information
+  File: ./recordings/acmmm2011//./video/bourne-13-dialog.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 1200
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 100
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 1251072000 Total NDDI Cost (bytes): 196691852 Ratio: 0.157219
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 40134389760 - Bytes Read: 160537559040
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 133781299200 - Bytes Read: 588637716480
+    - Num Writes: 776028592 - Bytes Written: 5540990336
+  Frame Volume
+    - Num Reads: 13378129920 - Bytes Read: 53512519680
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 209033280
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 3.40998
+
+Quality Statistics:
+  MSE: 239.921
+  Total PSNR: 24.3301
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1200 , 4972208 , 196691852 , 40134389760 , 160537559040 , 1 , 4 , 133781299200 , 588637716480 , 776028592 , 5540990336 , 13378129920 , 53512519680 , 4096 , 16384 , 0 , 209033280 , 0 , 24.3301,./recordings/acmmm2011//./video/bourne-13-dialog.m4v
+
+General Information
+  File: ./recordings/acmmm2011//./video/bourne-2-moderate.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 1200
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 100
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 1251072000 Total NDDI Cost (bytes): 261747380 Ratio: 0.209218
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 40134389760 - Bytes Read: 160537559040
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 133781299200 - Bytes Read: 588637716480
+    - Num Writes: 1294046224 - Bytes Written: 9685131392
+  Frame Volume
+    - Num Reads: 13378129920 - Bytes Read: 53512519680
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 209033280
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 3.27998
+
+Quality Statistics:
+  MSE: 433.913
+  Total PSNR: 21.7568
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1200 , 4972208 , 261747380 , 40134389760 , 160537559040 , 1 , 4 , 133781299200 , 588637716480 , 1294046224 , 9685131392 , 13378129920 , 53512519680 , 4096 , 16384 , 0 , 209033280 , 0 , 21.7568,./recordings/acmmm2011//./video/bourne-2-moderate.m4v
+
+General Information
+  File: ./recordings/acmmm2011//./video/bourne-10-action.m4v
+  Dimensions: 720 x 362
+  Coefficient Planes: 64
+  Frames Rendered: 1200
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 100
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 1251072000 Total NDDI Cost (bytes): 191865996 Ratio: 0.153361
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 40134389760 - Bytes Read: 160537559040
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 133781299200 - Bytes Read: 588637716480
+    - Num Writes: 733984896 - Bytes Written: 5204640768
+  Frame Volume
+    - Num Reads: 13378129920 - Bytes Read: 53512519680
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 209033280
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 3.43432
+
+Quality Statistics:
+  MSE: 263.149
+  Total PSNR: 23.9288
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1200 , 4972208 , 191865996 , 40134389760 , 160537559040 , 1 , 4 , 133781299200 , 588637716480 , 733984896 , 5204640768 , 13378129920 , 53512519680 , 4096 , 16384 , 0 , 209033280 , 0 , 23.9288,./recordings/acmmm2011//./video/bourne-10-action.m4v
+
+General Information
+  File: ./recordings/acmmm2011//./video/captain-720.mov
+  Dimensions: 1280 x 544
+  Coefficient Planes: 64
+  Frames Rendered: 1200
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 100
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 3342336000 Total NDDI Cost (bytes): 545272404 Ratio: 0.163141
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 107222138880 - Bytes Read: 428888555520
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 357407129600 - Bytes Read: 1572591370240
+    - Num Writes: 2758752192 - Bytes Written: 20287438336
+  Frame Volume
+    - Num Reads: 35740712960 - Bytes Read: 142962851840
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 558448640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.26905
+
+Quality Statistics:
+  MSE: 579.09
+  Total PSNR: 20.5033
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1200 , 13066948 , 545272404 , 107222138880 , 428888555520 , 1 , 4 , 357407129600 , 1572591370240 , 2758752192 , 20287438336 , 35740712960 , 142962851840 , 4096 , 16384 , 0 , 558448640 , 0 , 20.5033,./recordings/acmmm2011//./video/captain-720.mov
+
+General Information
+  File: ./recordings/acmmm2011//./video/captain-1080.mov
+  Dimensions: 1920 x 816
+  Coefficient Planes: 64
+  Frames Rendered: 1200
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 100
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 7520256000 Total NDDI Cost (bytes): 1043842284 Ratio: 0.138804
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 241249812480 - Bytes Read: 964999249920
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 804166041600 - Bytes Read: 3538330583040
+    - Num Writes: 4743215232 - Bytes Written: 33934918656
+  Frame Volume
+    - Num Reads: 80416604160 - Bytes Read: 321666416640
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 1256509440
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.573873
+
+Quality Statistics:
+  MSE: 587.571
+  Total PSNR: 20.4402
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1200 , 29400548 , 1043842284 , 241249812480 , 964999249920 , 1 , 4 , 804166041600 , 3538330583040 , 4743215232 , 33934918656 , 80416604160 , 321666416640 , 4096 , 16384 , 0 , 1256509440 , 0 , 20.4402,./recordings/acmmm2011//./video/captain-1080.mov
+
+General Information
+  File: ./recordings/acmmm2011//./video/limitless-720.mov
+  Dimensions: 1280 x 544
+  Coefficient Planes: 64
+  Frames Rendered: 1200
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 100
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 3342336000 Total NDDI Cost (bytes): 484955844 Ratio: 0.145095
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 107222138880 - Bytes Read: 428888555520
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 357407129600 - Bytes Read: 1572591370240
+    - Num Writes: 2276219712 - Bytes Written: 16427178496
+  Frame Volume
+    - Num Reads: 35740712960 - Bytes Read: 142962851840
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 558448640
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 1.29021
+
+Quality Statistics:
+  MSE: 352.478
+  Total PSNR: 22.6595
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1200 , 13066948 , 484955844 , 107222138880 , 428888555520 , 1 , 4 , 357407129600 , 1572591370240 , 2276219712 , 16427178496 , 35740712960 , 142962851840 , 4096 , 16384 , 0 , 558448640 , 0 , 22.6595,./recordings/acmmm2011//./video/limitless-720.mov
+
+General Information
+  File: ./recordings/acmmm2011//./video/limitless-1080.mov
+  Dimensions: 1920 x 816
+  Coefficient Planes: 64
+  Frames Rendered: 1200
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 100
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 7520256000 Total NDDI Cost (bytes): 975526452 Ratio: 0.12972
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 241249812480 - Bytes Read: 964999249920
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 804166041600 - Bytes Read: 3538330583040
+    - Num Writes: 4196688576 - Bytes Written: 29562705408
+  Frame Volume
+    - Num Reads: 80416604160 - Bytes Read: 321666416640
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 1256509440
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.582374
+
+Quality Statistics:
+  MSE: 740.773
+  Total PSNR: 19.434
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1200 , 29400548 , 975526452 , 241249812480 , 964999249920 , 1 , 4 , 804166041600 , 3538330583040 , 4196688576 , 29562705408 , 80416604160 , 321666416640 , 4096 , 16384 , 0 , 1256509440 , 0 , 19.434,./recordings/acmmm2011//./video/limitless-1080.mov

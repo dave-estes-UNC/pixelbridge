@@ -1,0 +1,1287 @@
+
+General Information
+  File: ./recordings/acmmm2011//./1920x1200/desktop.mov
+  Dimensions: 1920 x 1200
+  Coefficient Planes: 64
+  Frames Rendered: 946
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 8718336000 Total NDDI Cost (bytes): 5292966716 Ratio: 0.607107
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 418922496000 - Bytes Read: 1675689984000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 1396408320000 - Bytes Read: 6144196608000
+    - Num Writes: 38501663488 - Bytes Written: 302115067904
+  Frame Volume
+    - Num Reads: 139640832000 - Bytes Read: 558563328000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 2181888000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.205735
+
+Quality Statistics:
+  MSE: 8.51986
+  Total PSNR: 38.8265
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+946 , 34092068 , 5292966716 , 418922496000 , 1675689984000 , 1 , 4 , 1396408320000 , 6144196608000 , 38501663488 , 302115067904 , 139640832000 , 558563328000 , 4096 , 16384 , 0 , 2181888000 , 0 , 38.8265,./recordings/acmmm2011//./1920x1200/desktop.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1920x1200/digg.mov
+  Dimensions: 1920 x 1200
+  Coefficient Planes: 64
+  Frames Rendered: 629
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 5796864000 Total NDDI Cost (bytes): 3335653772 Ratio: 0.575424
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 278691840000 - Bytes Read: 1114767360000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 928972800000 - Bytes Read: 4087480320000
+    - Num Writes: 24669079936 - Bytes Written: 191454399488
+  Frame Volume
+    - Num Reads: 92897280000 - Bytes Read: 371589120000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 1451520000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.208354
+
+Quality Statistics:
+  MSE: 7.7913
+  Total PSNR: 39.2147
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+629 , 22680068 , 3335653772 , 278691840000 , 1114767360000 , 1 , 4 , 928972800000 , 4087480320000 , 24669079936 , 191454399488 , 92897280000 , 371589120000 , 4096 , 16384 , 0 , 1451520000 , 0 , 39.2147,./recordings/acmmm2011//./1920x1200/digg.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1920x1200/document.mov
+  Dimensions: 1920 x 1200
+  Coefficient Planes: 64
+  Frames Rendered: 1249
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 11510784000 Total NDDI Cost (bytes): 8066765412 Ratio: 0.700801
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 552960000000 - Bytes Read: 2211840000000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 1843200000000 - Bytes Read: 8110080000000
+    - Num Writes: 58946773056 - Bytes Written: 465675944448
+  Frame Volume
+    - Num Reads: 184320000000 - Bytes Read: 737280000000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 2880000000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.180326
+
+Quality Statistics:
+  MSE: 11.6219
+  Total PSNR: 37.478
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1249 , 45000068 , 8066765412 , 552960000000 , 2211840000000 , 1 , 4 , 1843200000000 , 8110080000000 , 58946773056 , 465675944448 , 184320000000 , 737280000000 , 4096 , 16384 , 0 , 2880000000 , 0 , 37.478,./recordings/acmmm2011//./1920x1200/document.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1920x1200/email.mov
+  Dimensions: 1920 x 1200
+  Coefficient Planes: 64
+  Frames Rendered: 1019
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 9391104000 Total NDDI Cost (bytes): 5706555700 Ratio: 0.607655
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 451215360000 - Bytes Read: 1804861440000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 1504051200000 - Bytes Read: 6617825280000
+    - Num Writes: 41389895360 - Bytes Written: 325220922880
+  Frame Volume
+    - Num Reads: 150405120000 - Bytes Read: 601620480000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 2350080000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.195481
+
+Quality Statistics:
+  MSE: 9.52524
+  Total PSNR: 38.342
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1019 , 36720068 , 5706555700 , 451215360000 , 1804861440000 , 1 , 4 , 1504051200000 , 6617825280000 , 41389895360 , 325220922880 , 150405120000 , 601620480000 , 4096 , 16384 , 0 , 2350080000 , 0 , 38.342,./recordings/acmmm2011//./1920x1200/email.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1920x1200/flickr.mov
+  Dimensions: 1920 x 1200
+  Coefficient Planes: 64
+  Frames Rendered: 1005
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 9262080000 Total NDDI Cost (bytes): 4345636884 Ratio: 0.469186
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 445022208000 - Bytes Read: 1780088832000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 1483407360000 - Bytes Read: 6526992384000
+    - Num Writes: 30583184832 - Bytes Written: 238767238656
+  Frame Volume
+    - Num Reads: 148340736000 - Bytes Read: 593362944000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 2317824000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.236074
+
+Quality Statistics:
+  MSE: 4.8924
+  Total PSNR: 41.2356
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1005 , 36216068 , 4345636884 , 445022208000 , 1780088832000 , 1 , 4 , 1483407360000 , 6526992384000 , 30583184832 , 238767238656 , 148340736000 , 593362944000 , 4096 , 16384 , 0 , 2317824000 , 0 , 41.2356,./recordings/acmmm2011//./1920x1200/flickr.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1920x1200/maps.mov
+  Dimensions: 1920 x 1200
+  Coefficient Planes: 64
+  Frames Rendered: 1496
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 13787136000 Total NDDI Cost (bytes): 15643557884 Ratio: 1.13465
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 662224896000 - Bytes Read: 2648899584000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 2207416320000 - Bytes Read: 9712631808000
+    - Num Writes: 118138392832 - Bytes Written: 939208902656
+  Frame Volume
+    - Num Reads: 220741632000 - Bytes Read: 882966528000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 3449088000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.147561
+
+Quality Statistics:
+  MSE: 17.2877
+  Total PSNR: 35.7534
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1496 , 53892068 , 15643557884 , 662224896000 , 2648899584000 , 1 , 4 , 2207416320000 , 9712631808000 , 118138392832 , 939208902656 , 220741632000 , 882966528000 , 4096 , 16384 , 0 , 3449088000 , 0 , 35.7534,./recordings/acmmm2011//./1920x1200/maps.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1920x1200/npr.mov
+  Dimensions: 1920 x 1200
+  Coefficient Planes: 64
+  Frames Rendered: 889
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 8193024000 Total NDDI Cost (bytes): 5164259524 Ratio: 0.630324
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 393707520000 - Bytes Read: 1574830080000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 1312358400000 - Bytes Read: 5774376960000
+    - Num Writes: 37800325952 - Bytes Written: 296504367616
+  Frame Volume
+    - Num Reads: 131235840000 - Bytes Read: 524943360000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 2050560000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.205662
+
+Quality Statistics:
+  MSE: 7.95466
+  Total PSNR: 39.1246
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+889 , 32040068 , 5164259524 , 393707520000 , 1574830080000 , 1 , 4 , 1312358400000 , 5774376960000 , 37800325952 , 296504367616 , 131235840000 , 524943360000 , 4096 , 16384 , 0 , 2050560000 , 0 , 39.1246,./recordings/acmmm2011//./1920x1200/npr.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1920x1200/presentation.mov
+  Dimensions: 1920 x 1200
+  Coefficient Planes: 64
+  Frames Rendered: 949
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 8745984000 Total NDDI Cost (bytes): 3090937076 Ratio: 0.353412
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 420249600000 - Bytes Read: 1680998400000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 1400832000000 - Bytes Read: 6163660800000
+    - Num Writes: 20868146368 - Bytes Written: 161046930944
+  Frame Volume
+    - Num Reads: 140083200000 - Bytes Read: 560332800000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 2188800000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.272872
+
+Quality Statistics:
+  MSE: 3.34204
+  Total PSNR: 42.8907
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+949 , 34200068 , 3090937076 , 420249600000 , 1680998400000 , 1 , 4 , 1400832000000 , 6163660800000 , 20868146368 , 161046930944 , 140083200000 , 560332800000 , 4096 , 16384 , 0 , 2188800000 , 0 , 42.8907,./recordings/acmmm2011//./1920x1200/presentation.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1920x1200/slideshow.mov
+  Dimensions: 1920 x 1200
+  Coefficient Planes: 64
+  Frames Rendered: 1304
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 12017664000 Total NDDI Cost (bytes): 6498919564 Ratio: 0.540781
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 577290240000 - Bytes Read: 2309160960000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 1924300800000 - Bytes Read: 8466923520000
+    - Num Writes: 46087206272 - Bytes Written: 362799410176
+  Frame Volume
+    - Num Reads: 192430080000 - Bytes Read: 769720320000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 3006720000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.227083
+
+Quality Statistics:
+  MSE: 5.43284
+  Total PSNR: 40.7805
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1304 , 46980068 , 6498919564 , 577290240000 , 2309160960000 , 1 , 4 , 1924300800000 , 8466923520000 , 46087206272 , 362799410176 , 192430080000 , 769720320000 , 4096 , 16384 , 0 , 3006720000 , 0 , 40.7805,./recordings/acmmm2011//./1920x1200/slideshow.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1920x1200/xcode.mov
+  Dimensions: 1920 x 1200
+  Coefficient Planes: 64
+  Frames Rendered: 1498
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 13805568000 Total NDDI Cost (bytes): 9003353276 Ratio: 0.652154
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 663109632000 - Bytes Read: 2652438528000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 2210365440000 - Bytes Read: 9725607936000
+    - Num Writes: 65005235968 - Bytes Written: 514143647744
+  Frame Volume
+    - Num Reads: 221036544000 - Bytes Read: 884146176000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 3453696000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.195738
+
+Quality Statistics:
+  MSE: 9.52772
+  Total PSNR: 38.3409
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1498 , 53964068 , 9003353276 , 663109632000 , 2652438528000 , 1 , 4 , 2210365440000 , 9725607936000 , 65005235968 , 514143647744 , 221036544000 , 884146176000 , 4096 , 16384 , 0 , 3453696000 , 0 , 38.3409,./recordings/acmmm2011//./1920x1200/xcode.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1920x1200/youtube.mov
+  Dimensions: 1920 x 1200
+  Coefficient Planes: 64
+  Frames Rendered: 1052
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 9695232000 Total NDDI Cost (bytes): 5084647900 Ratio: 0.524448
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 465813504000 - Bytes Read: 1863254016000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 1552711680000 - Bytes Read: 6831931392000
+    - Num Writes: 36224552960 - Bytes Written: 283898183680
+  Frame Volume
+    - Num Reads: 155271168000 - Bytes Read: 621084672000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 2426112000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.221887
+
+Quality Statistics:
+  MSE: 6.83291
+  Total PSNR: 39.7847
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1052 , 37908068 , 5084647900 , 465813504000 , 1863254016000 , 1 , 4 , 1552711680000 , 6831931392000 , 36224552960 , 283898183680 , 155271168000 , 621084672000 , 4096 , 16384 , 0 , 2426112000 , 0 , 39.7847,./recordings/acmmm2011//./1920x1200/youtube.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1440x900/desktop.mov
+  Dimensions: 1440 x 900
+  Coefficient Planes: 64
+  Frames Rendered: 946
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 4904064000 Total NDDI Cost (bytes): 3554247348 Ratio: 0.724755
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 235643904000 - Bytes Read: 942575616000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 785479680000 - Bytes Read: 3456110592000
+    - Num Writes: 26068109920 - Bytes Written: 205227119360
+  Frame Volume
+    - Num Reads: 78547968000 - Bytes Read: 314191872000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 1227312000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.331816
+
+Quality Statistics:
+  MSE: 10.0724
+  Total PSNR: 38.0995
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+946 , 19262048 , 3554247348 , 235643904000 , 942575616000 , 1 , 4 , 785479680000 , 3456110592000 , 26068109920 , 205227119360 , 78547968000 , 314191872000 , 4096 , 16384 , 0 , 1227312000 , 0 , 38.0995,./recordings/acmmm2011//./1440x900/desktop.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1440x900/digg.mov
+  Dimensions: 1440 x 900
+  Coefficient Planes: 64
+  Frames Rendered: 629
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 3260736000 Total NDDI Cost (bytes): 2240651348 Ratio: 0.687161
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 156764160000 - Bytes Read: 627056640000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 522547200000 - Bytes Read: 2299207680000
+    - Num Writes: 16661430688 - Bytes Written: 129973685504
+  Frame Volume
+    - Num Reads: 52254720000 - Bytes Read: 209018880000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 816480000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.334965
+
+Quality Statistics:
+  MSE: 9.61094
+  Total PSNR: 38.3031
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+629 , 12814268 , 2240651348 , 156764160000 , 627056640000 , 1 , 4 , 522547200000 , 2299207680000 , 16661430688 , 129973685504 , 52254720000 , 209018880000 , 4096 , 16384 , 0 , 816480000 , 0 , 38.3031,./recordings/acmmm2011//./1440x900/digg.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1440x900/document.mov
+  Dimensions: 1440 x 900
+  Coefficient Planes: 64
+  Frames Rendered: 1249
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 6474816000 Total NDDI Cost (bytes): 5504165412 Ratio: 0.850088
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 311040000000 - Bytes Read: 1244160000000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 1036800000000 - Bytes Read: 4561920000000
+    - Num Writes: 40634930944 - Bytes Written: 321761687552
+  Frame Volume
+    - Num Reads: 103680000000 - Bytes Read: 414720000000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 1620000000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.288876
+
+Quality Statistics:
+  MSE: 13.5807
+  Total PSNR: 36.8016
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1249 , 25425068 , 5504165412 , 311040000000 , 1244160000000 , 1 , 4 , 1036800000000 , 4561920000000 , 40634930944 , 321761687552 , 103680000000 , 414720000000 , 4096 , 16384 , 0 , 1620000000 , 0 , 36.8016,./recordings/acmmm2011//./1440x900/document.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1440x900/email.mov
+  Dimensions: 1440 x 900
+  Coefficient Planes: 64
+  Frames Rendered: 1019
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 5282496000 Total NDDI Cost (bytes): 3829816204 Ratio: 0.725001
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 253808640000 - Bytes Read: 1015234560000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 846028800000 - Bytes Read: 3722526720000
+    - Num Writes: 28024846528 - Bytes Written: 220881012224
+  Frame Volume
+    - Num Reads: 84602880000 - Bytes Read: 338411520000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 1321920000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.31346
+
+Quality Statistics:
+  MSE: 10.7666
+  Total PSNR: 37.81
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1019 , 20746868 , 3829816204 , 253808640000 , 1015234560000 , 1 , 4 , 846028800000 , 3722526720000 , 28024846528 , 220881012224 , 84602880000 , 338411520000 , 4096 , 16384 , 0 , 1321920000 , 0 , 37.81,./recordings/acmmm2011//./1440x900/email.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1440x900/flickr.mov
+  Dimensions: 1440 x 900
+  Coefficient Planes: 64
+  Frames Rendered: 1005
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 5209920000 Total NDDI Cost (bytes): 2870150900 Ratio: 0.550901
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 250324992000 - Bytes Read: 1001299968000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 834416640000 - Bytes Read: 3671433216000
+    - Num Writes: 20399707104 - Bytes Written: 159879896832
+  Frame Volume
+    - Num Reads: 83441664000 - Bytes Read: 333766656000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 1303776000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.383431
+
+Quality Statistics:
+  MSE: 5.92963
+  Total PSNR: 40.4005
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1005 , 20462108 , 2870150900 , 250324992000 , 1001299968000 , 1 , 4 , 834416640000 , 3671433216000 , 20399707104 , 159879896832 , 83441664000 , 333766656000 , 4096 , 16384 , 0 , 1303776000 , 0 , 40.4005,./recordings/acmmm2011//./1440x900/flickr.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1440x900/maps.mov
+  Dimensions: 1440 x 900
+  Coefficient Planes: 64
+  Frames Rendered: 1496
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 7755264000 Total NDDI Cost (bytes): 9708691532 Ratio: 1.25188
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 372501504000 - Bytes Read: 1490006016000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 1241671680000 - Bytes Read: 5463355392000
+    - Num Writes: 73391466688 - Bytes Written: 583813973504
+  Frame Volume
+    - Num Reads: 124167168000 - Bytes Read: 496668672000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 1940112000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.243709
+
+Quality Statistics:
+  MSE: 20.4105
+  Total PSNR: 35.0323
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1496 , 30449048 , 9708691532 , 372501504000 , 1490006016000 , 1 , 4 , 1241671680000 , 5463355392000 , 73391466688 , 583813973504 , 124167168000 , 496668672000 , 4096 , 16384 , 0 , 1940112000 , 0 , 35.0323,./recordings/acmmm2011//./1440x900/maps.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1440x900/npr.mov
+  Dimensions: 1440 x 900
+  Coefficient Planes: 64
+  Frames Rendered: 889
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 4608576000 Total NDDI Cost (bytes): 3555012372 Ratio: 0.771391
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 221460480000 - Bytes Read: 885841920000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 738201600000 - Bytes Read: 3248087040000
+    - Num Writes: 26279210560 - Bytes Written: 206915924480
+  Frame Volume
+    - Num Reads: 73820160000 - Bytes Read: 295280640000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 1153440000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.324669
+
+Quality Statistics:
+  MSE: 9.59441
+  Total PSNR: 38.3106
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+889 , 18102668 , 3555012372 , 221460480000 , 885841920000 , 1 , 4 , 738201600000 , 3248087040000 , 26279210560 , 206915924480 , 73820160000 , 295280640000 , 4096 , 16384 , 0 , 1153440000 , 0 , 38.3106,./recordings/acmmm2011//./1440x900/npr.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1440x900/presentation.mov
+  Dimensions: 1440 x 900
+  Coefficient Planes: 64
+  Frames Rendered: 949
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 4919616000 Total NDDI Cost (bytes): 2022807668 Ratio: 0.411172
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 236390400000 - Bytes Read: 945561600000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 787968000000 - Bytes Read: 3467059200000
+    - Num Writes: 13801017664 - Bytes Written: 107090381312
+  Frame Volume
+    - Num Reads: 78796800000 - Bytes Read: 315187200000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 1231200000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.450983
+
+Quality Statistics:
+  MSE: 4.13027
+  Total PSNR: 41.971
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+949 , 19323068 , 2022807668 , 236390400000 , 945561600000 , 1 , 4 , 787968000000 , 3467059200000 , 13801017664 , 107090381312 , 78796800000 , 315187200000 , 4096 , 16384 , 0 , 1231200000 , 0 , 41.971,./recordings/acmmm2011//./1440x900/presentation.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1440x900/slideshow.mov
+  Dimensions: 1440 x 900
+  Coefficient Planes: 64
+  Frames Rendered: 1304
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 6759936000 Total NDDI Cost (bytes): 4263612516 Ratio: 0.630718
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 324725760000 - Bytes Read: 1298903040000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 1082419200000 - Bytes Read: 4762644480000
+    - Num Writes: 30511111392 - Bytes Written: 240771131136
+  Frame Volume
+    - Num Reads: 108241920000 - Bytes Read: 432967680000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 1691280000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.372089
+
+Quality Statistics:
+  MSE: 6.46905
+  Total PSNR: 40.0224
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1304 , 26543768 , 4263612516 , 324725760000 , 1298903040000 , 1 , 4 , 1082419200000 , 4762644480000 , 30511111392 , 240771131136 , 108241920000 , 432967680000 , 4096 , 16384 , 0 , 1691280000 , 0 , 40.0224,./recordings/acmmm2011//./1440x900/slideshow.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1440x900/xcode.mov
+  Dimensions: 1440 x 900
+  Coefficient Planes: 64
+  Frames Rendered: 1498
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 7765632000 Total NDDI Cost (bytes): 6037323060 Ratio: 0.777441
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 372999168000 - Bytes Read: 1491996672000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 1243330560000 - Bytes Read: 5470654464000
+    - Num Writes: 44018033760 - Bytes Written: 348826510080
+  Frame Volume
+    - Num Reads: 124333056000 - Bytes Read: 497332224000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 1942704000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.306311
+
+Quality Statistics:
+  MSE: 11.1818
+  Total PSNR: 37.6457
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1498 , 30489728 , 6037323060 , 372999168000 , 1491996672000 , 1 , 4 , 1243330560000 , 5470654464000 , 44018033760 , 348826510080 , 124333056000 , 497332224000 , 4096 , 16384 , 0 , 1942704000 , 0 , 37.6457,./recordings/acmmm2011//./1440x900/xcode.mov
+
+General Information
+  File: ./recordings/acmmm2011//./1440x900/youtube.mov
+  Dimensions: 1440 x 900
+  Coefficient Planes: 64
+  Frames Rendered: 1052
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 5453568000 Total NDDI Cost (bytes): 3391324796 Ratio: 0.621854
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 262020096000 - Bytes Read: 1048080384000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 873400320000 - Bytes Read: 3842961408000
+    - Num Writes: 24406164896 - Bytes Written: 191931559168
+  Frame Volume
+    - Num Reads: 87340032000 - Bytes Read: 349360128000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 1364688000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.360752
+
+Quality Statistics:
+  MSE: 8.18356
+  Total PSNR: 39.0014
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1052 , 21418088 , 3391324796 , 262020096000 , 1048080384000 , 1 , 4 , 873400320000 , 3842961408000 , 24406164896 , 191931559168 , 87340032000 , 349360128000 , 4096 , 16384 , 0 , 1364688000 , 0 , 39.0014,./recordings/acmmm2011//./1440x900/youtube.mov
+
+General Information
+  File: ./recordings/acmmm2011//./960x600/desktop.mov
+  Dimensions: 960 x 600
+  Coefficient Planes: 64
+  Frames Rendered: 946
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 2179584000 Total NDDI Cost (bytes): 1800182444 Ratio: 0.825929
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 104730624000 - Bytes Read: 418922496000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 349102080000 - Bytes Read: 1536049152000
+    - Num Writes: 13440829312 - Bytes Written: 106052074496
+  Frame Volume
+    - Num Reads: 34910208000 - Bytes Read: 139640832000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 545472000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.672364
+
+Quality Statistics:
+  MSE: 13.4801
+  Total PSNR: 36.8339
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+946 , 8523068 , 1800182444 , 104730624000 , 418922496000 , 1 , 4 , 349102080000 , 1536049152000 , 13440829312 , 106052074496 , 34910208000 , 139640832000 , 4096 , 16384 , 0 , 545472000 , 0 , 36.8339,./recordings/acmmm2011//./960x600/desktop.mov
+
+General Information
+  File: ./recordings/acmmm2011//./960x600/digg.mov
+  Dimensions: 960 x 600
+  Coefficient Planes: 64
+  Frames Rendered: 629
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 1449216000 Total NDDI Cost (bytes): 1096040476 Ratio: 0.756299
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 69672960000 - Bytes Read: 278691840000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 232243200000 - Bytes Read: 1021870080000
+    - Num Writes: 8264173568 - Bytes Written: 64638828544
+  Frame Volume
+    - Num Reads: 23224320000 - Bytes Read: 92897280000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 362880000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.680021
+
+Quality Statistics:
+  MSE: 12.3812
+  Total PSNR: 37.2032
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+629 , 5670068 , 1096040476 , 69672960000 , 278691840000 , 1 , 4 , 232243200000 , 1021870080000 , 8264173568 , 64638828544 , 23224320000 , 92897280000 , 4096 , 16384 , 0 , 362880000 , 0 , 37.2032,./recordings/acmmm2011//./960x600/digg.mov
+
+General Information
+  File: ./recordings/acmmm2011//./960x600/document.mov
+  Dimensions: 960 x 600
+  Coefficient Planes: 64
+  Frames Rendered: 1249
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 2877696000 Total NDDI Cost (bytes): 2723252596 Ratio: 0.946331
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 138240000000 - Bytes Read: 552960000000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 460800000000 - Bytes Read: 2027520000000
+    - Num Writes: 20389070528 - Bytes Written: 161638004224
+  Frame Volume
+    - Num Reads: 46080000000 - Bytes Read: 184320000000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 720000000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.587749
+
+Quality Statistics:
+  MSE: 18.8152
+  Total PSNR: 35.3857
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1249 , 11250068 , 2723252596 , 138240000000 , 552960000000 , 1 , 4 , 460800000000 , 2027520000000 , 20389070528 , 161638004224 , 46080000000 , 184320000000 , 4096 , 16384 , 0 , 720000000 , 0 , 35.3857,./recordings/acmmm2011//./960x600/document.mov
+
+General Information
+  File: ./recordings/acmmm2011//./960x600/email.mov
+  Dimensions: 960 x 600
+  Coefficient Planes: 64
+  Frames Rendered: 1019
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 2347776000 Total NDDI Cost (bytes): 1872908380 Ratio: 0.797737
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 112803840000 - Bytes Read: 451215360000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 376012800000 - Bytes Read: 1654456320000
+    - Num Writes: 13917516800 - Bytes Written: 109865574400
+  Frame Volume
+    - Num Reads: 37601280000 - Bytes Read: 150405120000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 587520000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.641166
+
+Quality Statistics:
+  MSE: 14.4342
+  Total PSNR: 36.5369
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1019 , 9180068 , 1872908380 , 112803840000 , 451215360000 , 1 , 4 , 376012800000 , 1654456320000 , 13917516800 , 109865574400 , 37601280000 , 150405120000 , 4096 , 16384 , 0 , 587520000 , 0 , 36.5369,./recordings/acmmm2011//./960x600/email.mov
+
+General Information
+  File: ./recordings/acmmm2011//./960x600/flickr.mov
+  Dimensions: 960 x 600
+  Coefficient Planes: 64
+  Frames Rendered: 1005
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 2315520000 Total NDDI Cost (bytes): 1414932276 Ratio: 0.611065
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 111255552000 - Bytes Read: 445022208000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 370851840000 - Bytes Read: 1631748096000
+    - Num Writes: 10273867968 - Bytes Written: 80716383744
+  Frame Volume
+    - Num Reads: 37085184000 - Bytes Read: 148340736000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 579456000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.787173
+
+Quality Statistics:
+  MSE: 7.77045
+  Total PSNR: 39.2263
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1005 , 9054068 , 1414932276 , 111255552000 , 445022208000 , 1 , 4 , 370851840000 , 1631748096000 , 10273867968 , 80716383744 , 37085184000 , 148340736000 , 4096 , 16384 , 0 , 579456000 , 0 , 39.2263,./recordings/acmmm2011//./960x600/flickr.mov
+
+General Information
+  File: ./recordings/acmmm2011//./960x600/maps.mov
+  Dimensions: 960 x 600
+  Coefficient Planes: 64
+  Frames Rendered: 1496
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 3446784000 Total NDDI Cost (bytes): 4609462708 Ratio: 1.33732
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 165556224000 - Bytes Read: 662224896000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 551854080000 - Bytes Read: 2428157952000
+    - Num Writes: 35123071424 - Bytes Written: 279510011392
+  Frame Volume
+    - Num Reads: 55185408000 - Bytes Read: 220741632000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 862272000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.51548
+
+Quality Statistics:
+  MSE: 26.1059
+  Total PSNR: 33.9634
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1496 , 13473068 , 4609462708 , 165556224000 , 662224896000 , 1 , 4 , 551854080000 , 2428157952000 , 35123071424 , 279510011392 , 55185408000 , 220741632000 , 4096 , 16384 , 0 , 862272000 , 0 , 33.9634,./recordings/acmmm2011//./960x600/maps.mov
+
+General Information
+  File: ./recordings/acmmm2011//./960x600/npr.mov
+  Dimensions: 960 x 600
+  Coefficient Planes: 64
+  Frames Rendered: 889
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 2048256000 Total NDDI Cost (bytes): 1803970180 Ratio: 0.880735
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 98426880000 - Bytes Read: 393707520000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 328089600000 - Bytes Read: 1443594240000
+    - Num Writes: 13553211200 - Bytes Written: 106951129600
+  Frame Volume
+    - Num Reads: 32808960000 - Bytes Read: 131235840000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 512640000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.661491
+
+Quality Statistics:
+  MSE: 13.4334
+  Total PSNR: 36.8489
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+889 , 8010068 , 1803970180 , 98426880000 , 393707520000 , 1 , 4 , 328089600000 , 1443594240000 , 13553211200 , 106951129600 , 32808960000 , 131235840000 , 4096 , 16384 , 0 , 512640000 , 0 , 36.8489,./recordings/acmmm2011//./960x600/npr.mov
+
+General Information
+  File: ./recordings/acmmm2011//./960x600/presentation.mov
+  Dimensions: 960 x 600
+  Coefficient Planes: 64
+  Frames Rendered: 949
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 2186496000 Total NDDI Cost (bytes): 1045036908 Ratio: 0.477951
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 105062400000 - Bytes Read: 420249600000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 350208000000 - Bytes Read: 1540915200000
+    - Num Writes: 7395345024 - Bytes Written: 57688200192
+  Frame Volume
+    - Num Reads: 35020800000 - Bytes Read: 140083200000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 547200000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.920311
+
+Quality Statistics:
+  MSE: 5.81601
+  Total PSNR: 40.4845
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+949 , 8550068 , 1045036908 , 105062400000 , 420249600000 , 1 , 4 , 350208000000 , 1540915200000 , 7395345024 , 57688200192 , 35020800000 , 140083200000 , 4096 , 16384 , 0 , 547200000 , 0 , 40.4845,./recordings/acmmm2011//./960x600/presentation.mov
+
+General Information
+  File: ./recordings/acmmm2011//./960x600/slideshow.mov
+  Dimensions: 960 x 600
+  Coefficient Planes: 64
+  Frames Rendered: 1304
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 3004416000 Total NDDI Cost (bytes): 2193209204 Ratio: 0.729995
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 144322560000 - Bytes Read: 577290240000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 481075200000 - Bytes Read: 2116730880000
+    - Num Writes: 16069523392 - Bytes Written: 127081627136
+  Frame Volume
+    - Num Reads: 48107520000 - Bytes Read: 192430080000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 751680000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.768766
+
+Quality Statistics:
+  MSE: 8.52495
+  Total PSNR: 38.8239
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1304 , 11745068 , 2193209204 , 144322560000 , 577290240000 , 1 , 4 , 481075200000 , 2116730880000 , 16069523392 , 127081627136 , 48107520000 , 192430080000 , 4096 , 16384 , 0 , 751680000 , 0 , 38.8239,./recordings/acmmm2011//./960x600/slideshow.mov
+
+General Information
+  File: ./recordings/acmmm2011//./960x600/xcode.mov
+  Dimensions: 960 x 600
+  Coefficient Planes: 64
+  Frames Rendered: 1498
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 3451392000 Total NDDI Cost (bytes): 2968972700 Ratio: 0.860225
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 165777408000 - Bytes Read: 663109632000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 552591360000 - Bytes Read: 2431401984000
+    - Num Writes: 21996271360 - Bytes Written: 174495610880
+  Frame Volume
+    - Num Reads: 55259136000 - Bytes Read: 221036544000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 863424000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.652027
+
+Quality Statistics:
+  MSE: 14.1205
+  Total PSNR: 36.6323
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1498 , 13491068 , 2968972700 , 165777408000 , 663109632000 , 1 , 4 , 552591360000 , 2431401984000 , 21996271360 , 174495610880 , 55259136000 , 221036544000 , 4096 , 16384 , 0 , 863424000 , 0 , 36.6323,./recordings/acmmm2011//./960x600/xcode.mov
+
+General Information
+  File: ./recordings/acmmm2011//./960x600/youtube.mov
+  Dimensions: 960 x 600
+  Coefficient Planes: 64
+  Frames Rendered: 1052
+
+Configuration Information:
+  Configuring NDDI as DCT Tiled.
+  Quality: 1
+
+Transmission Statistics:
+  Total Pixel Data Updated (bytes): 2423808000 Total NDDI Cost (bytes): 1668431572 Ratio: 0.688351
+
+Memory Statistics:
+  Input Vector
+    - Num Reads: 116453376000 - Bytes Read: 465813504000
+    - Num Writes: 1 - Bytes Written: 4
+  Coefficient Plane
+    - Num Reads: 388177920000 - Bytes Read: 1707982848000
+    - Num Writes: 12234182336 - Bytes Written: 96398898688
+  Frame Volume
+    - Num Reads: 38817792000 - Bytes Read: 155271168000
+    - Num Writes: 4096 - Bytes Written: 16384
+
+Pixel Statistics:
+  Pixel Mappings: 606528000
+  Pixel Blends: 0
+
+Performance Statistics:
+  Average FPS: 0.740307
+
+Quality Statistics:
+  MSE: 12.8687
+  Total PSNR: 37.0355
+
+CSV Headings:
+Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
+1052 , 9477068 , 1668431572 , 116453376000 , 465813504000 , 1 , 4 , 388177920000 , 1707982848000 , 12234182336 , 96398898688 , 38817792000 , 155271168000 , 4096 , 16384 , 0 , 606528000 , 0 , 37.0355,./recordings/acmmm2011//./960x600/youtube.mov

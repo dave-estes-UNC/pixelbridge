@@ -1,0 +1,112 @@
+pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <0/1-100>]
+            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>
+
+  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).
+          Optional the mode can be set to count the number of pixels changed (count).
+  --blend  For fb mode, this option alpha-blends using just the frame volume, input vector (temporal), or coefficient plane.
+  --ts  Sets the tile size to the width and height provided.
+  --tc  Sets the maximum number of tiles in the cache.
+  --bits  Sets the number of significant bits per channel when computing checksums.
+  --quality  Sets the quality for DCT [1-100] or IT [0-100] mode.
+  --start  Will start with this frame, ignoring any decoded frames prior to it.
+  --frames  Sets the number of maximum frames that are decoded.
+  --rewind  Sets a start point and a number of frames to play in reverse. Once finished, normal playback continues.
+  --psnr  Calculates and outputs PSNR. Cannot use with headless.
+  --verbose  Outputs frame-by-frame statistics.
+  --headless  Removes rendering and excessive data output. Overrides --verbose. Cannot use with psnr.
+pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <0/1-100>]
+            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>
+
+  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).
+          Optional the mode can be set to count the number of pixels changed (count).
+  --blend  For fb mode, this option alpha-blends using just the frame volume, input vector (temporal), or coefficient plane.
+  --ts  Sets the tile size to the width and height provided.
+  --tc  Sets the maximum number of tiles in the cache.
+  --bits  Sets the number of significant bits per channel when computing checksums.
+  --quality  Sets the quality for DCT [1-100] or IT [0-100] mode.
+  --start  Will start with this frame, ignoring any decoded frames prior to it.
+  --frames  Sets the number of maximum frames that are decoded.
+  --rewind  Sets a start point and a number of frames to play in reverse. Once finished, normal playback continues.
+  --psnr  Calculates and outputs PSNR. Cannot use with headless.
+  --verbose  Outputs frame-by-frame statistics.
+  --headless  Removes rendering and excessive data output. Overrides --verbose. Cannot use with psnr.
+pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <0/1-100>]
+            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>
+
+  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).
+          Optional the mode can be set to count the number of pixels changed (count).
+  --blend  For fb mode, this option alpha-blends using just the frame volume, input vector (temporal), or coefficient plane.
+  --ts  Sets the tile size to the width and height provided.
+  --tc  Sets the maximum number of tiles in the cache.
+  --bits  Sets the number of significant bits per channel when computing checksums.
+  --quality  Sets the quality for DCT [1-100] or IT [0-100] mode.
+  --start  Will start with this frame, ignoring any decoded frames prior to it.
+  --frames  Sets the number of maximum frames that are decoded.
+  --rewind  Sets a start point and a number of frames to play in reverse. Once finished, normal playback continues.
+  --psnr  Calculates and outputs PSNR. Cannot use with headless.
+  --verbose  Outputs frame-by-frame statistics.
+  --headless  Removes rendering and excessive data output. Overrides --verbose. Cannot use with psnr.
+pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <0/1-100>]
+            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>
+
+  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).
+          Optional the mode can be set to count the number of pixels changed (count).
+  --blend  For fb mode, this option alpha-blends using just the frame volume, input vector (temporal), or coefficient plane.
+  --ts  Sets the tile size to the width and height provided.
+  --tc  Sets the maximum number of tiles in the cache.
+  --bits  Sets the number of significant bits per channel when computing checksums.
+  --quality  Sets the quality for DCT [1-100] or IT [0-100] mode.
+  --start  Will start with this frame, ignoring any decoded frames prior to it.
+  --frames  Sets the number of maximum frames that are decoded.
+  --rewind  Sets a start point and a number of frames to play in reverse. Once finished, normal playback continues.
+  --psnr  Calculates and outputs PSNR. Cannot use with headless.
+  --verbose  Outputs frame-by-frame statistics.
+  --headless  Removes rendering and excessive data output. Overrides --verbose. Cannot use with psnr.
+pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <0/1-100>]
+            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>
+
+  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).
+          Optional the mode can be set to count the number of pixels changed (count).
+  --blend  For fb mode, this option alpha-blends using just the frame volume, input vector (temporal), or coefficient plane.
+  --ts  Sets the tile size to the width and height provided.
+  --tc  Sets the maximum number of tiles in the cache.
+  --bits  Sets the number of significant bits per channel when computing checksums.
+  --quality  Sets the quality for DCT [1-100] or IT [0-100] mode.
+  --start  Will start with this frame, ignoring any decoded frames prior to it.
+  --frames  Sets the number of maximum frames that are decoded.
+  --rewind  Sets a start point and a number of frames to play in reverse. Once finished, normal playback continues.
+  --psnr  Calculates and outputs PSNR. Cannot use with headless.
+  --verbose  Outputs frame-by-frame statistics.
+  --headless  Removes rendering and excessive data output. Overrides --verbose. Cannot use with psnr.
+pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <0/1-100>]
+            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>
+
+  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).
+          Optional the mode can be set to count the number of pixels changed (count).
+  --blend  For fb mode, this option alpha-blends using just the frame volume, input vector (temporal), or coefficient plane.
+  --ts  Sets the tile size to the width and height provided.
+  --tc  Sets the maximum number of tiles in the cache.
+  --bits  Sets the number of significant bits per channel when computing checksums.
+  --quality  Sets the quality for DCT [1-100] or IT [0-100] mode.
+  --start  Will start with this frame, ignoring any decoded frames prior to it.
+  --frames  Sets the number of maximum frames that are decoded.
+  --rewind  Sets a start point and a number of frames to play in reverse. Once finished, normal playback continues.
+  --psnr  Calculates and outputs PSNR. Cannot use with headless.
+  --verbose  Outputs frame-by-frame statistics.
+  --headless  Removes rendering and excessive data output. Overrides --verbose. Cannot use with psnr.
+pixelbridge [--mode <fb|flat|cache|dct|count>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>] [--quality <0/1-100>]
+            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--headless] <filename>
+
+  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).
+          Optional the mode can be set to count the number of pixels changed (count).
+  --blend  For fb mode, this option alpha-blends using just the frame volume, input vector (temporal), or coefficient plane.
+  --ts  Sets the tile size to the width and height provided.
+  --tc  Sets the maximum number of tiles in the cache.
+  --bits  Sets the number of significant bits per channel when computing checksums.
+  --quality  Sets the quality for DCT [1-100] or IT [0-100] mode.
+  --start  Will start with this frame, ignoring any decoded frames prior to it.
+  --frames  Sets the number of maximum frames that are decoded.
+  --rewind  Sets a start point and a number of frames to play in reverse. Once finished, normal playback continues.
+  --psnr  Calculates and outputs PSNR. Cannot use with headless.
+  --verbose  Outputs frame-by-frame statistics.
+  --headless  Removes rendering and excessive data output. Overrides --verbose. Cannot use with psnr.
