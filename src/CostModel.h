@@ -15,7 +15,11 @@
  * various cost experiments.
  */
 #ifdef USE_NARROW_DATA_FIELDS
+#ifdef USE_ALPHA_CHANNEL
+#define BYTES_PER_PIXEL     4
+#else
 #define BYTES_PER_PIXEL     3
+#endif
 #define BYTES_PER_FV_COORD  4
 #define BYTES_PER_CP_COORD  2
 #define BYTES_PER_CM_COORD  1

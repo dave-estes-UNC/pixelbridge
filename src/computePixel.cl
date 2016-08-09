@@ -52,7 +52,7 @@ __kernel void computePixel(__global int* inputVector,
     uint cm_size = cm_width * cm_height;
     uint mult = 1;
     uint fvOffset = 0;
-    int4  accumulator = {0, 0, 0, 255};
+    int4 accumulator = {0, 0, 0, 255};
 
     if ((x < display_width) && (y < display_height)) {
 
@@ -75,6 +75,21 @@ __kernel void computePixel(__global int* inputVector,
             }
 
             // Multiply the pixel by the scaler and add to the accumulator
+#ifdef USE_ALPHA_CHANNEL
+            if (!do_signed) {
+                uchar4 pixel = as_uchar4(frameVolume[fvOffset]);
+
+                accumulator.s0 += pixel.s0 * pixel.s3 * scalers[scOffset+0];
+                accumulator.s1 += pixel.s1 * pixel.s3 * scalers[scOffset+1];
+                accumulator.s2 += pixel.s2 * pixel.s3 * scalers[scOffset+2];
+            } else {
+                char4 pixel = as_char4(frameVolume[fvOffset]);
+
+                accumulator.s0 += pixel.s0 * pixel.s3 * scalers[scOffset+0];
+                accumulator.s1 += pixel.s1 * pixel.s3 * scalers[scOffset+1];
+                accumulator.s2 += pixel.s2 * pixel.s3 * scalers[scOffset+2];
+            }
+#else
             if (!do_signed) {
                 uchar4 pixel = as_uchar4(frameVolume[fvOffset]);
 
@@ -88,9 +103,21 @@ __kernel void computePixel(__global int* inputVector,
                 accumulator.s1 += pixel.s1 * scalers[scOffset+1];
                 accumulator.s2 += pixel.s2 * scalers[scOffset+2];
             }
+#endif
         }
 
         // Shift the accumulators
+#ifdef USE_ALPHA_CHANNEL
+        if (!do_signed) {
+            accumulator.s0 = CLAMP_UNSIGNED_BYTE(accumulator.s0 >> (8 + shifter));
+            accumulator.s1 = CLAMP_UNSIGNED_BYTE(accumulator.s1 >> (8 + shifter));
+            accumulator.s2 = CLAMP_UNSIGNED_BYTE(accumulator.s2 >> (8 + shifter));
+        } else {
+            accumulator.s0 = CLAMP_SIGNED_BYTE(accumulator.s0 >> (8 + shifter));
+            accumulator.s1 = CLAMP_SIGNED_BYTE(accumulator.s1 >> (8 + shifter));
+            accumulator.s2 = CLAMP_SIGNED_BYTE(accumulator.s2 >> (8 + shifter));
+        }
+#else
         if (!do_signed) {
             accumulator.s0 = CLAMP_UNSIGNED_BYTE(accumulator.s0 >> shifter);
             accumulator.s1 = CLAMP_UNSIGNED_BYTE(accumulator.s1 >> shifter);
@@ -100,6 +127,7 @@ __kernel void computePixel(__global int* inputVector,
             accumulator.s1 = CLAMP_SIGNED_BYTE(accumulator.s1 >> shifter);
             accumulator.s2 = CLAMP_SIGNED_BYTE(accumulator.s2 >> shifter);
         }
+#endif
 
         uchar4 colori = {accumulator.s0, accumulator.s1, accumulator.s2, accumulator.s3};
         float4 colorf = { (float)colori.s0/255.0f,

@@ -175,6 +175,17 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
             }
         }
         q = frameVolume_->getPixel(fvPosition);
+#ifdef USE_ALPHA_CHANNEL
+        if (pixelSignMode_ == UNSIGNED_MODE) {
+            rAccumulator += (uint8_t)q.r * (uint8_t)q.a * scaler.r;
+            gAccumulator += (uint8_t)q.g * (uint8_t)q.a * scaler.g;
+            bAccumulator += (uint8_t)q.b * (uint8_t)q.a * scaler.b;
+        } else {
+            rAccumulator += (int8_t)q.r * (uint8_t)q.a * scaler.r;
+            gAccumulator += (int8_t)q.g * (uint8_t)q.a * scaler.g;
+            bAccumulator += (int8_t)q.b * (uint8_t)q.a * scaler.b;
+        }
+#else
         if (pixelSignMode_ == UNSIGNED_MODE) {
             rAccumulator += (uint8_t)q.r * scaler.r;
             gAccumulator += (uint8_t)q.g * scaler.g;
@@ -184,10 +195,22 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
             gAccumulator += (int8_t)q.g * scaler.g;
             bAccumulator += (int8_t)q.b * scaler.b;
         }
+#endif
     }
 
     // Note: This shift operation will be absolutely necessary when this is implemented
     //       in hardware to avoid the division operation.
+#ifdef USE_ALPHA_CHANNEL
+    if (pixelSignMode_ == UNSIGNED_MODE) {
+        q.r = CLAMP_UNSIGNED_BYTE(rAccumulator >> (8 + accumulatorShifter_));
+        q.g = CLAMP_UNSIGNED_BYTE(gAccumulator >> (8 + accumulatorShifter_));
+        q.b = CLAMP_UNSIGNED_BYTE(bAccumulator >> (8 + accumulatorShifter_));
+    } else {
+        q.r = CLAMP_SIGNED_BYTE(rAccumulator >> (8 + accumulatorShifter_));
+        q.g = CLAMP_SIGNED_BYTE(gAccumulator >> (8 + accumulatorShifter_));
+        q.b = CLAMP_SIGNED_BYTE(bAccumulator >> (8 + accumulatorShifter_));
+    }
+#else
     if (pixelSignMode_ == UNSIGNED_MODE) {
         q.r = CLAMP_UNSIGNED_BYTE(rAccumulator >> accumulatorShifter_);
         q.g = CLAMP_UNSIGNED_BYTE(gAccumulator >> accumulatorShifter_);
@@ -197,6 +220,7 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y) {
         q.g = CLAMP_SIGNED_BYTE(gAccumulator >> accumulatorShifter_);
         q.b = CLAMP_SIGNED_BYTE(bAccumulator >> accumulatorShifter_);
     }
+#endif
     q.a = 255;
 
     costModel->registerPixelMappingCharge(1);
@@ -259,6 +283,17 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
         }
 
         q = fv[offset];
+#ifdef USE_ALPHA_CHANNEL
+        if (pixelSignMode_ == UNSIGNED_MODE) {
+            rAccumulator += (uint8_t)q.r * (uint8_t)q.a * scaler.r;
+            gAccumulator += (uint8_t)q.g * (uint8_t)q.a * scaler.g;
+            bAccumulator += (uint8_t)q.b * (uint8_t)q.a * scaler.b;
+        } else {
+            rAccumulator += (int8_t)q.r * (uint8_t)q.a * scaler.r;
+            gAccumulator += (int8_t)q.g * (uint8_t)q.a * scaler.g;
+            bAccumulator += (int8_t)q.b * (uint8_t)q.a * scaler.b;
+        }
+#else
         if (pixelSignMode_ == UNSIGNED_MODE) {
             rAccumulator += (uint8_t)q.r * scaler.r;
             gAccumulator += (uint8_t)q.g * scaler.g;
@@ -268,10 +303,22 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
             gAccumulator += (int8_t)q.g * scaler.g;
             bAccumulator += (int8_t)q.b * scaler.b;
         }
+#endif
     }
 
     // Note: This shift operation will be absolutely necessary when this is implemented
     //       in hardware to avoid the division operation.
+#ifdef USE_ALPHA_CHANNEL
+    if (pixelSignMode_ == UNSIGNED_MODE) {
+        q.r = CLAMP_UNSIGNED_BYTE(rAccumulator >> (8 + accumulatorShifter_));
+        q.g = CLAMP_UNSIGNED_BYTE(gAccumulator >> (8 + accumulatorShifter_));
+        q.b = CLAMP_UNSIGNED_BYTE(bAccumulator >> (8 + accumulatorShifter_));
+    } else {
+        q.r = CLAMP_SIGNED_BYTE(rAccumulator >> (8 + accumulatorShifter_));
+        q.g = CLAMP_SIGNED_BYTE(gAccumulator >> (8 + accumulatorShifter_));
+        q.b = CLAMP_SIGNED_BYTE(bAccumulator >> (8 + accumulatorShifter_));
+    }
+#else
     if (pixelSignMode_ == UNSIGNED_MODE) {
         q.r = CLAMP_UNSIGNED_BYTE(rAccumulator >> accumulatorShifter_);
         q.g = CLAMP_UNSIGNED_BYTE(gAccumulator >> accumulatorShifter_);
@@ -281,6 +328,7 @@ Pixel GlNddiDisplay::ComputePixel(unsigned int x, unsigned int y, int* iv, Pixel
         q.g = CLAMP_SIGNED_BYTE(gAccumulator >> accumulatorShifter_);
         q.b = CLAMP_SIGNED_BYTE(bAccumulator >> accumulatorShifter_);
     }
+#endif
     q.a = 255;
 
     return q;

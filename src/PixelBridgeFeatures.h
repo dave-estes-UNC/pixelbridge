@@ -47,6 +47,11 @@
 //#define CHECKSUM_CALCULATOR TRIVIAL
 
 /*
+ * Turns on support for alpha channel support for coefficient plane blending
+ */
+#define USE_ALPHA_CHANNEL
+
+/*
  * Use the narrowed data fields instead of 4-byte words for EVERYTHING.
  */
 #define USE_NARROW_DATA_FIELDS
