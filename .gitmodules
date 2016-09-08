@@ -1,0 +1,3 @@
+[submodule "src/nddi"]
+	path = src/nddi
+	url = /home/cdestes/Dropbox/School/Research/nddi.git
