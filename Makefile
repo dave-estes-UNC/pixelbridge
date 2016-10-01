@@ -41,7 +41,9 @@ else
 	ifeq ($(shell uname),Darwin)
 		LDFLAGS+=-framework OpenCL
 	else
-		LDFLAGS+=-lOpenCL
+		CCFLAGS+=-I/opt/AMDAPP/include/
+		CPPFLAGS+=-I/opt/AMDAPP/include/
+		LDFLAGS+=-L/opt/AMDAPP/lib/x86_64 -L/opt/AMDAPP/lib/x86 -lOpenCL
 	endif
 endif
 
@@ -66,54 +68,54 @@ else
 endif
 
 _DEPS = \
-	BaseNddiDisplay.h \
-	BlendingGlNddiDisplay.h \
 	CachedTiler.h \
-	ClCoefficientPlanes.h \
-	ClFrameVolume.h \
-	ClInputVector.h \
-	ClNddiDisplay.h \
-	CoefficientMatrix.h \
-	CoefficientPlanes.h \
 	Configuration.h \
-	CostModel.h \
 	DctTiler.h \
 	FfmpegPlayer.h \
 	FlatTiler.h \
-	FrameVolume.h \
-	GlNddiDisplay.h \
-	InputVector.h \
 	ItTiler.h \
 	MultiDctTiler.h \
-	NDimensionalDisplayInterface.h \
-	NDimensionalDisplayInterfaceExtended.h \
 	PixelBridgeFeatures.h \
 	Player.h \
 	Rewinder.h \
 	ScaledDctTiler.h \
 	RandomPlayer.h \
-	Tiler.h
+	Tiler.h \
+	nddi/BaseNddiDisplay.h \
+	nddi/BlendingGlNddiDisplay.h \
+	nddi/ClCoefficientPlanes.h \
+	nddi/ClFrameVolume.h \
+	nddi/ClInputVector.h \
+	nddi/ClNddiDisplay.h \
+	nddi/CoefficientMatrix.h \
+	nddi/CoefficientPlanes.h \
+	nddi/CostModel.h \
+	nddi/FrameVolume.h \
+	nddi/GlNddiDisplay.h \
+	nddi/InputVector.h \
+	nddi/NDimensionalDisplayInterface.h \
+	nddi/NDimensionalDisplayInterfaceExtended.h
 
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 _OBJ = \
-	BaseNddiDisplay.o \
-	BlendingGlNddiDisplay.o \
 	CachedTiler.o \
 	DctTiler.o \
 	FfmpegPlayer.o \
 	FlatTiler.o \
-	GlNddiDisplay.o \
 	ItTiler.o \
 	MultiDctTiler.o \
 	PixelBridgeMain.o \
 	RandomPlayer.o \
 	Rewinder.o \
-	ScaledDctTiler.o
+	ScaledDctTiler.o \
+	nddi/BaseNddiDisplay.o \
+	nddi/BlendingGlNddiDisplay.o \
+	nddi/GlNddiDisplay.o
 
 ifneq ($(NO_CL), 1)
 _OBJ += \
-	ClNddiDisplay.o
+	nddi/ClNddiDisplay.o
 endif
 
 OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))

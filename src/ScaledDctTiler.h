@@ -10,7 +10,7 @@
  */
 
 #include "DctTiler.h"
-#include "BaseNddiDisplay.h"
+#include "nddi/BaseNddiDisplay.h"
 
 using namespace nddi;
 using namespace std;

@@ -4,8 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "GlNddiDisplay.h"
-#include "ClNddiDisplay.h"
+#include "nddi/GlNddiDisplay.h"
+#include "nddi/ClNddiDisplay.h"
 
 /*
  *  Tiler.h

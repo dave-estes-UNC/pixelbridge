@@ -10,8 +10,8 @@
  */
 
 #include "Tiler.h"
-#include "GlNddiDisplay.h"
-#include "ClNddiDisplay.h"
+#include "nddi/GlNddiDisplay.h"
+#include "nddi/ClNddiDisplay.h"
 
 using namespace nddi;
 using namespace std;
@@ -22,7 +22,7 @@ using namespace std;
  * is updated in the frame volume.
  */
 class FlatTiler : public Tiler {
-	
+
 public:
 	/**
 	 * The FlatTiler is created based on the dimensions of the NDDI display that's passed in. If those
@@ -37,16 +37,16 @@ public:
 	FlatTiler(size_t display_width, size_t display_height,
 			  size_t tile_width, size_t tile_height,
 			  size_t bits);
-	
+
 	~FlatTiler() {
 		tile_map_.clear();
 	}
-	
+
     /**
      * Returns the Display created and initialized by the tiler.
      */
     virtual GlNddiDisplay* GetDisplay();
-    
+
 	/**
 	 * Update the tile_map, tilecache, and then the NDDI display based on the frame that's passed in.
 	 *
@@ -55,19 +55,19 @@ public:
 	 * @param height The height of that frame buffer
 	 */
 	void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
-	
+
 private:
     void InitializeCoefficientPlanes();
 #ifndef USE_COPY_PIXEL_TILES
 	void UpdateFrameVolume(Pixel* pixels, int i_map, int j_map);
 #endif
-	
+
 	GlNddiDisplay*    display_;
 	size_t            tile_width_, tile_height_;
 	size_t            tile_map_width_, tile_map_height_;
 	size_t            bits_;
 	bool              quiet_;
-	
+
 	vector< vector<unsigned long> > tile_map_;
 
 	int unchanged_tiles_, tile_updates_;

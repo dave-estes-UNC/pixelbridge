@@ -14,8 +14,8 @@
 #include "PixelBridgeFeatures.h"
 #include "Configuration.h"
 #include "Tiler.h"
-#include "GlNddiDisplay.h"
-#include "ClNddiDisplay.h"
+#include "nddi/GlNddiDisplay.h"
+#include "nddi/ClNddiDisplay.h"
 
 
 using namespace std;

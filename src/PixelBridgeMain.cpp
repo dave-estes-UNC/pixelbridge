@@ -11,14 +11,16 @@
 #include <GL/glut.h>
 #endif
 
-#include <opencv/cv.hpp>
+#include <opencv/cv.h>
 
 #include "PixelBridgeFeatures.h"
 #include "Configuration.h"
-#include "CostModel.h"
-#include "GlNddiDisplay.h"
-#include "ClNddiDisplay.h"
-#include "BlendingGlNddiDisplay.h"
+
+#include "nddi/CostModel.h"
+#include "nddi/GlNddiDisplay.h"
+#include "nddi/ClNddiDisplay.h"
+#include "nddi/BlendingGlNddiDisplay.h"
+
 #include "CachedTiler.h"
 #include "DctTiler.h"
 #include "ScaledDctTiler.h"
