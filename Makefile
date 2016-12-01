@@ -4,8 +4,8 @@ IDIR=./src
 CC=gcc
 CPP=g++
 
-CCFLAGS=-I$(IDIR)
-CPPFLAGS=-I$(IDIR)
+CCFLAGS=-std=c++11 -I$(IDIR)
+CPPFLAGS=-std=c++11 -I$(IDIR)
 #LDFLAGS=--static
 LDFLAGS=
 
