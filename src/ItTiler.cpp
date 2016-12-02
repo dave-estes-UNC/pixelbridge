@@ -64,12 +64,14 @@ ItTiler::ItTiler(size_t display_width, size_t display_height,
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
-                                 3);                            // input vector size (x, y, 1)
+                                 3,                             // input vector size (x, y, 1)
+                                 globalConfiguration.headless);
 #else
     display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
-                                 3);                            // input vector size (x, y, 1)
+                                 3,                             // input vector size (x, y, 1)
+                                 globalConfiguration.headless);
 #endif
 
 

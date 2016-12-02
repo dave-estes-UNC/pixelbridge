@@ -8,6 +8,8 @@
 #ifndef PIXELBRIDGEFEATURES_H_
 #define PIXELBRIDGEFEATURES_H_
 
+#include "nddi/Features.h"
+
 /*
  * Sets the checksum calculating mode.
  */

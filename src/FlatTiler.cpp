@@ -37,12 +37,14 @@ FlatTiler::FlatTiler (size_t display_width, size_t display_height,
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  1,                             // number of coefficient planes in display
-                                 2);                            // input vector size (x and y only)
+                                 2,                            // input vector size (x and y only)
+                                 globalConfiguration.headless);
 #else
     display_ = new GlNddiDisplay(fvDimensions,                   // framevolume dimensional sizes
                                  display_width, display_height,  // display size
                                  1,                              // number of coefficient planes in display
-                                 2);                             // input vector size (x and y only)
+                                 2,                              // input vector size (x and y only)
+                                 globalConfiguration.headless);
 #endif
 
     // Compute tile_map width

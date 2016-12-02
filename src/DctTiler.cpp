@@ -88,12 +88,14 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
-                                 3);                            // Input vector size (x, y, 1)
+                                 3,                             // Input vector size (x, y, 1)
+                                 globalConfiguration.headless);
 #else
     display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
-                                 3);                            // Input vector size (x, y, 1)
+                                 3,                             // Input vector size (x, y, 1)
+                                 globalConfiguration.headless);
 #endif
 
     /* Set the full scaler value and the sign mode */

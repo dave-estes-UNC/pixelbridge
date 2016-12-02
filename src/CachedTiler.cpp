@@ -37,12 +37,14 @@ CachedTiler::CachedTiler (size_t display_width, size_t display_height,
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  1,                             // number of coefficient planes in display
-                                 3);                             // input vector size (x, y, and z)
+                                 3,                             // input vector size (x, y, and z)
+                                 globalConfiguration.headless);
 #else
     display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
-                                 1 ,                            // number of coefficient planes in display
-                                 3);                             // input vector size (x, y, and z)
+                                 1,                             // number of coefficient planes in display
+                                 3,                             // input vector size (x, y, and z)
+                                 globalConfiguration.headless);
 #endif
 
     // Compute tile_map width

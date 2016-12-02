@@ -135,7 +135,8 @@ void setupDisplay() {
         myBlendingDisplay = new BlendingGlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                                       displayWidth, displayHeight, // display size
                                                       1,                           // number of coefficient planes
-                                                      3);                            // input vector size (x, y, 1)
+                                                      3,                           // input vector size (x, y, 1)
+                                                      globalConfiguration.headless);
 #endif
         myDisplay = myBlendingDisplay;
 
@@ -190,12 +191,14 @@ void setupDisplay() {
         myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       1,                           // number of coefficient planes on the display
-                                      3);                          // input vector size (x, y, t)
+                                      3,                           // input vector size (x, y, t)
+                                      globalConfiguration.headless);
 #else
         myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       1,                           // number of coefficient planes on the display
-                                      3);                          // input vector size (x, y, t)
+                                      3,                           // input vector size (x, y, t)
+                                      globalConfiguration.headless);
 #endif
 
         // Grab the cost model
@@ -249,12 +252,14 @@ void setupDisplay() {
         myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       2,                           // number of coefficient planes on the display
-                                      3);                          // input vector size (x, y, 1)
+                                      3,                           // input vector size (x, y, 1)
+                                      globalConfiguration.headless);
 #else
         myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       2,                           // number of coefficient planes on the display
-                                      3);                          // input vector size (x, y, 1)
+                                      3,                           // input vector size (x, y, 1)
+                                      globalConfiguration.headless);
 #endif
 
         // Grab the cost model
@@ -327,12 +332,14 @@ void setupDisplay() {
         myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       1,                           // number of coefficient planes on the display
-                                      2);                          // input vector size (x and y only)
+                                      2,                           // input vector size (x and y only)
+                                      globalConfiguration.headless);
 #else
         myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       1,                           // number of coefficient planes on the display
-                                      2);                          // input vector size (x and y only)
+                                      2,                           // input vector size (x and y only)
+                                      globalConfiguration.headless);
 #endif
         // Grab the cost model
         costModel = myDisplay->GetCostModel();
@@ -1471,7 +1478,7 @@ int main(int argc, char *argv[]) {
         // Setup the GlNddiDisplay and Tiler if required
         setupDisplay();
     } else {
-        costModel = new CostModel();
+        costModel = new CostModel(globalConfiguration.headless);
     }
 
     // Take the start time stamp
