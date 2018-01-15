@@ -90,6 +90,7 @@ _DEPS = \
 	nddi/CoefficientMatrix.h \
 	nddi/CoefficientPlanes.h \
 	nddi/CostModel.h \
+	nddi/Features.h \
 	nddi/FrameVolume.h \
 	nddi/GlNddiDisplay.h \
 	nddi/InputVector.h \

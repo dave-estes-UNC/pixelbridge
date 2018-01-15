@@ -153,6 +153,27 @@ x 7. Write
   - May have to drop the 32 bit pixel values from the frame volume and make it pure byte memory.
 
 
++---------------------------------+
+| NDDI Extensions to Mimimize RAM |
++---------------------------------+
++ Make use of Boost RTrees to track regions of CoefficientMatrices and Scalers
+  * Convert Scaler and Pixel unions to be proper C++ types. This will allow Scalers
+    to be used in STL and Boost containers more readily.
+  + Work out scheme for inserting BoxedScalers and BoxedCoefficientMatrices. This will likely be a set of utility functions.
+    - When inserting, remove any volume that's already covered.
+    - When inserting, don't insert the volume if it already has the appropriate values.
+    * Figure out what do do about inserting when
+      * A) the new volume partly covers another volume.
+        * So far I think we keep both volumes, only cleaning when one completely covers another.
+      * B) the new volume is partly has its value defined by a partially covering volume. 
+        * So far I think we keep both volumes, only cleaning when one completely covers another.
+  - Work out an efficient scheme for fetching Scalers and CoefficientMatrices
+    - Do a query for intersects and use the last results as the minimum bounding volume.
+    - Cache the last BoxedScaler / BoxedCoefficientMatrix. Locality might mean that many subsequent request
+      will be withing the same volume and therefore won't need to be fetched from the rtree.
+- Use C++ atomics for the CostModel counters.
+
+
 +-------------+
 | Future Work |
 +-------------+
