@@ -89,12 +89,14 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
                                  3,                             // Input vector size (x, y, 1)
+                                 false,                         // DO NOT "yet" use fixed 8x8 macroblocks
                                  globalConfiguration.headless);
 #else
     display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
                                  3,                             // Input vector size (x, y, 1)
+                                 true,                          // Use fixed 8x8 macroblocks
                                  globalConfiguration.headless);
 #endif
 

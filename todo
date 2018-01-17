@@ -172,12 +172,12 @@ x Make use of Boost RTrees to track regions of CoefficientMatrices and Scalers
     - Cache the last BoxedScaler / BoxedCoefficientMatrix. Locality might mean that many subsequent request
       will be withing the same volume and therefore won't need to be fetched from the rtree.
 x Use C++ atomics for the CostModel counters.
-+ Add a tile-based renderer that computes the pixels for a tile at a time...saving valuable fetches for
+* Add a tile-based renderer that computes the pixels for a tile at a time...saving valuable fetches for
   Scalers and Coefficient Matrices. Note: this only works of each tile has identical Scalers and Coefficient Matrices.
   * Add NDDI extension to construct NDDI Display with fixed macroblocks
   * Update CoefficientPlanes to only store the common coefficient matrix and scaler for the fixed macroblock
   * Change DCT tiler to use fixed macroblocks
-  - Change GlNddiDisplay to use new ComputeMacroblockPixels().
+  * Change GlNddiDisplay to use new ComputePixels().
 * Change all NDDI asserts to NOPs when building release.
 
 
