@@ -89,15 +89,15 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
                                  3,                             // Input vector size (x, y, 1)
-                                 false,                         // DO NOT "yet" use fixed 8x8 macroblocks
                                  globalConfiguration.headless);
 #else
     display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
                                  3,                             // Input vector size (x, y, 1)
+                                 globalConfiguration.headless,
                                  true,                          // Use fixed 8x8 macroblocks
-                                 globalConfiguration.headless);
+                                 true);                         // Use single coefficient plane for all of the planes (coefficients only)
 #endif
 
     /* Set the full scaler value and the sign mode */
@@ -239,13 +239,22 @@ void DctTiler::InitializeCoefficientPlanes() {
         for (int i = 0; i < displayTilesWide_; i++) {
             coeffs[2][0] = -i * BLOCK_WIDTH;
             coeffs[2][1] = -j * BLOCK_HEIGHT;
+#ifdef NO_CL
+            coeffs[2][2] = COEFFICIENT_MATRIX_P;
+#endif
             start[0] = i * BLOCK_WIDTH; start[1] = j * BLOCK_HEIGHT; start[2] = 0;
-            end[0] = (i + 1) * BLOCK_WIDTH - 1; end[1] = (j + 1) * BLOCK_HEIGHT - 1; end[2] = FRAMEVOLUME_DEPTH - 1;
+            end[0] = (i + 1) * BLOCK_WIDTH - 1; end[1] = (j + 1) * BLOCK_HEIGHT - 1;
+#ifndef NO_CL
+            end[2] = FRAMEVOLUME_DEPTH - 1;
+#else
+            end[2] = 0;
+#endif
             if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
             if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
             display_->FillCoefficientMatrix(coeffs, start, end);
         }
     }
+#ifndef NO_CL
     // Finish up by setting the proper k for every plane
     start[0] = 0; start[1] = 0;
     end[0] = display_->DisplayWidth() - 1; end[1] = display_->DisplayHeight() - 1;
@@ -253,6 +262,21 @@ void DctTiler::InitializeCoefficientPlanes() {
         start[2] = k; end[2] = k;
         display_->FillCoefficient(k, 2, 2, start, end);
     }
+#else
+    // Register the cost for the other planes that weren't fill.
+    display_->GetCostModel()->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
+            display_->DisplayWidth() * display_->DisplayHeight() * (FRAMEVOLUME_DEPTH - 1) * (3 * 3),
+            WRITE_ACCESS,
+            NULL,
+            display_->DisplayWidth() * display_->DisplayHeight() * (FRAMEVOLUME_DEPTH - 1) * (3 * 3) * BYTES_PER_COEFF,
+            0);
+    display_->GetCostModel()->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
+            display_->DisplayWidth() * display_->DisplayHeight() * FRAMEVOLUME_DEPTH,
+            WRITE_ACCESS,
+            NULL,
+            display_->DisplayWidth() * display_->DisplayHeight() * FRAMEVOLUME_DEPTH * BYTES_PER_SCALER,
+            0);
+#endif
 
     // Fill each scaler in every plane with 0
     start[0] = 0; start[1] = 0; start[2] = 0;

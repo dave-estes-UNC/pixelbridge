@@ -39,7 +39,7 @@ typedef enum {
 } rewind_play_t;
 
 // General Globals
-size_t displayWidth = 40, displayHeight = 32;
+unsigned int displayWidth = 40, displayHeight = 32;
 const char* fileName = NULL;
 Configuration globalConfiguration = Configuration();
 
@@ -196,8 +196,8 @@ void setupDisplay() {
 #else
         myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
-                                      1,                           // number of coefficient planes on the display
-                                      3,                           // input vector size (x, y, t)
+                                      (unsigned int)1,             // number of coefficient planes on the display
+                                      (unsigned int)3,             // input vector size (x, y, t)
                                       globalConfiguration.headless);
 #endif
 
@@ -257,8 +257,8 @@ void setupDisplay() {
 #else
         myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
-                                      2,                           // number of coefficient planes on the display
-                                      3,                           // input vector size (x, y, 1)
+                                      (unsigned int)2,             // number of coefficient planes on the display
+                                      (unsigned int)3,             // input vector size (x, y, 1)
                                       globalConfiguration.headless);
 #endif
 
@@ -337,8 +337,8 @@ void setupDisplay() {
 #else
         myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
-                                      1,                           // number of coefficient planes on the display
-                                      2,                           // input vector size (x and y only)
+                                      (unsigned int)1,             // number of coefficient planes on the display
+                                      (unsigned int)2,             // input vector size (x and y only)
                                       globalConfiguration.headless);
 #endif
         // Grab the cost model

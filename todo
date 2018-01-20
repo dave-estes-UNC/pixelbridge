@@ -179,6 +179,7 @@ x Use C++ atomics for the CostModel counters.
   * Change DCT tiler to use fixed macroblocks
   * Change GlNddiDisplay to use new ComputePixels().
 * Change all NDDI asserts to NOPs when building release.
+- Add support for Coefficient Matrices with wildcard for plane.
 
 
 +-------------+

@@ -84,10 +84,10 @@ ScaledDctTiler::ScaledDctTiler(size_t display_width, size_t display_height, size
                                  3,                             // Input vector size (x, y, 1)
                                  globalConfiguration.headless);
 #else
-    display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
-                                 display_width, display_height, // display size
-                                 FRAMEVOLUME_DEPTH,             // Number of coefficient planes
-                                 3,                             // Input vector size (x, y, 1)
+    display_ = new GlNddiDisplay(fvDimensions,                    // framevolume dimensional sizes
+                                 display_width, display_height,   // display size
+                                 (unsigned int)FRAMEVOLUME_DEPTH, // Number of coefficient planes
+                                 (unsigned int)3,                 // Input vector size (x, y, 1)
                                  globalConfiguration.headless);
 #endif
 
