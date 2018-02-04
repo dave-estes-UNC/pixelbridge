@@ -5,7 +5,7 @@ CC=gcc
 CPP=g++
 
 CCFLAGS=-std=c++11 -I$(IDIR)
-CPPFLAGS=-std=c++11 -I$(IDIR)
+CPPFLAGS=-std=c++11 -I$(IDIR) -I$(IDIR)/cereal/include
 #LDFLAGS=--static
 LDFLAGS=
 
