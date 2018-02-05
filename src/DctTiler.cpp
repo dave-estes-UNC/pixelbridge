@@ -69,6 +69,15 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
 {
     quiet_ = globalConfiguration.headless || !globalConfiguration.verbose;
 
+#ifdef USE_RAM_SAVING_COEFFICIENT_PLANE_FEATURES
+    #ifndef NO_CL
+    #error "OpenCL implementation doesn't support the RAM saving features."
+    #endif
+    saveRam_ = true;
+#else
+    saveRam_ = false;
+#endif
+
     /* 3 dimensional matching the Macroblock Width x Height x 64 */
     vector<unsigned int> fvDimensions;
     fvDimensions.push_back(BLOCK_WIDTH);
@@ -96,8 +105,8 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
                                  3,                             // Input vector size (x, y, 1)
                                  globalConfiguration.headless,
-                                 true,                          // Use fixed 8x8 macroblocks
-                                 true);                         // Use single coefficient plane for all of the planes (coefficients only)
+                                 saveRam_,                      // Use fixed 8x8 macroblocks
+                                 saveRam_);                     // Use single coefficient plane for all of the planes (coefficients only)
 #endif
 
     /* Set the full scaler value and the sign mode */
@@ -239,44 +248,55 @@ void DctTiler::InitializeCoefficientPlanes() {
         for (int i = 0; i < displayTilesWide_; i++) {
             coeffs[2][0] = -i * BLOCK_WIDTH;
             coeffs[2][1] = -j * BLOCK_HEIGHT;
-#ifdef NO_CL
-            coeffs[2][2] = COEFFICIENT_MATRIX_P;
-#endif
+            if (saveRam_) {
+                coeffs[2][2] = COEFFICIENT_MATRIX_P;
+            }
             start[0] = i * BLOCK_WIDTH; start[1] = j * BLOCK_HEIGHT; start[2] = 0;
             end[0] = (i + 1) * BLOCK_WIDTH - 1; end[1] = (j + 1) * BLOCK_HEIGHT - 1;
-#ifndef NO_CL
-            end[2] = FRAMEVOLUME_DEPTH - 1;
-#else
-            end[2] = 0;
-#endif
+            if (saveRam_) {
+                end[2] = 0;
+            } else {
+                end[2] = FRAMEVOLUME_DEPTH - 1;
+            }
             if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
             if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
             display_->FillCoefficientMatrix(coeffs, start, end);
+            if (saveRam_) {
+                // Register the cost model memory charges for the unset planes planes
+                int matricesFilled = (end[0] - start[0] + 1) * (end[1] - start[1] + 1) * (FRAMEVOLUME_DEPTH - 1);
+                display_->GetCostModel()->registerBulkMemoryCharge(
+                        COEFFICIENT_PLANE_COMPONENT,
+                        matricesFilled * 3 * 3,
+                        WRITE_ACCESS,
+                        NULL,
+                        matricesFilled * 3 * 3 * BYTES_PER_COEFF,
+                        0);
+            }
         }
     }
-#ifndef NO_CL
+
     // Finish up by setting the proper k for every plane
     start[0] = 0; start[1] = 0;
     end[0] = display_->DisplayWidth() - 1; end[1] = display_->DisplayHeight() - 1;
     for (int k = 0; k < FRAMEVOLUME_DEPTH; k++) {
         start[2] = k; end[2] = k;
-        display_->FillCoefficient(k, 2, 2, start, end);
+        if (!saveRam_) {
+            display_->FillCoefficient(k, 2, 2, start, end);
+        } else {
+            display_->GetCostModel()->registerTransmissionCharge(
+                    BYTES_PER_COEFF * 1 +                // One coefficient
+                    CALC_BYTES_FOR_CM_COORD_DOUBLES(1) + // One Coefficient Matrix Coordinate double
+                    CALC_BYTES_FOR_CP_COORD_TRIPLES(2),  // Two Coefficient Plane Coordinate triples
+                    0);
+            display_->GetCostModel()->registerBulkMemoryCharge(
+                    COEFFICIENT_PLANE_COMPONENT,
+                    display_->DisplayWidth() * display_->DisplayHeight(),
+                    WRITE_ACCESS,
+                    NULL,
+                    display_->DisplayWidth() * display_->DisplayHeight() * BYTES_PER_COEFF,
+                    0);
+        }
     }
-#else
-    // Register the cost for the other planes that weren't fill.
-    display_->GetCostModel()->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
-            display_->DisplayWidth() * display_->DisplayHeight() * (FRAMEVOLUME_DEPTH - 1) * (3 * 3),
-            WRITE_ACCESS,
-            NULL,
-            display_->DisplayWidth() * display_->DisplayHeight() * (FRAMEVOLUME_DEPTH - 1) * (3 * 3) * BYTES_PER_COEFF,
-            0);
-    display_->GetCostModel()->registerBulkMemoryCharge(COEFFICIENT_PLANE_COMPONENT,
-            display_->DisplayWidth() * display_->DisplayHeight() * FRAMEVOLUME_DEPTH,
-            WRITE_ACCESS,
-            NULL,
-            display_->DisplayWidth() * display_->DisplayHeight() * FRAMEVOLUME_DEPTH * BYTES_PER_SCALER,
-            0);
-#endif
 
     // Fill each scaler in every plane with 0
     start[0] = 0; start[1] = 0; start[2] = 0;

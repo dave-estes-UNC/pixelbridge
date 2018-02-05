@@ -85,5 +85,7 @@ protected:
     uint8_t              quantizationMatrix_[BLOCK_WIDTH * BLOCK_HEIGHT];
     Pixel               *basisFunctions_;
 
+    bool                 saveRam_;
+
 };
 #endif // DCT_TILER_H

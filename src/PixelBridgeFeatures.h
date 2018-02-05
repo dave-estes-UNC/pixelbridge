@@ -49,6 +49,13 @@
 //#define USE_SMALLER_WINDOW
 
 /*
+ * When defined, then the RAM saving features for the coefficient planes are used by
+ * any tiler that supports them.
+ */
+
+#define USE_RAM_SAVING_COEFFICIENT_PLANE_FEATURES
+
+/*
  * Divides the average optical flow by the diagonal.
  */
 #define NORMALIZE_FLOW_FOR_RESOLUTION
