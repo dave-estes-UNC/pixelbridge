@@ -176,11 +176,11 @@ void CachedTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
             if (!tile_pixels_sig_bits)
                 tile_pixels_sig_bits = (Pixel*)malloc(tile_width_ * tile_height_ * sizeof(Pixel));
 
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp parallel for ordered
 #endif
             for (size_t j_tile = 0; j_tile < tile_height_; j_tile++) {
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp ordered
 #endif
                 {
@@ -519,7 +519,7 @@ void CachedTiler::PushTile(tile_t* tile, Pixel* pixels) {
     vector<unsigned int> start;
     start.push_back(0); start.push_back(0); start.push_back(tile->zIndex);
 
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp critical
 #endif
     {
@@ -545,7 +545,7 @@ void CachedTiler::PushTile(tile_t* tile, size_t i, size_t j) {
     vector<unsigned int> start;
     start.push_back(i * tile_width_); start.push_back(j * tile_height_); start.push_back(0);
 
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp critical
 #endif
     {

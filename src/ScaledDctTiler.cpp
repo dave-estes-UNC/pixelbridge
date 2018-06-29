@@ -146,7 +146,7 @@ void ScaledDctTiler::InitializeCoefficientPlanes() {
             size_t scaledTilesWide = CEIL(display_->DisplayWidth(), scaledBlockWidth);
             size_t scaledTilesHigh = CEIL(display_->DisplayHeight(), scaledBlockHeight);
 
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp parallel for
 #endif
             // Break up the display into supermacroblocks at this current scale
@@ -222,7 +222,7 @@ int16_t* ScaledDctTiler::ConvertToSignedPixels(uint8_t* buffer, size_t width, si
 
     int16_t* signedBuf = (int16_t*)calloc(width * height * 3, sizeof(int16_t));
 
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp parallel for
 #endif
     for (size_t i = 0; i < (width * height * 3); i++) {
@@ -251,7 +251,7 @@ int16_t* ScaledDctTiler::DownSample(size_t factor, int16_t* buffer, size_t width
 
     int16_t* downBuf = (int16_t*)calloc(scaledWidth * scaledHeight * 3, sizeof(int16_t));
 
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp parallel for
 #endif
    for (size_t j = 0; j < scaledHeight; j++) {
@@ -300,7 +300,7 @@ int16_t* ScaledDctTiler::UpSample(size_t factor, int16_t* buffer, size_t width, 
 
     int16_t* upBuf = (int16_t*)calloc(width * height * 3, sizeof(int16_t));
 
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp parallel for
 #endif
     for (size_t j = 0; j < scaledHeight; j++) {
@@ -353,7 +353,7 @@ vector<uint64_t> ScaledDctTiler::BuildCoefficients(size_t i, size_t j, int16_t* 
     vector<uint64_t> coefficients(BLOCK_SIZE, 0);
 
     for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp parallel for ordered
 #endif
         for (size_t u = 0; u < BLOCK_WIDTH; u++) {
@@ -948,7 +948,7 @@ void ScaledDctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_
 
     scale_config_t config = globalConfiguration.dctScales[c];
 
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp parallel for
 #endif
     for (size_t y = 0; y < BLOCK_HEIGHT; y++) {
@@ -1025,7 +1025,7 @@ void ScaledDctTiler::PrerenderCoefficients(vector<uint64_t> &coefficients, size_
  * @param height The height of both buffers
  */
 void ScaledDctTiler::AdjustFrame(int16_t* buffer, int16_t* renderedBuffer, size_t width, size_t height) {
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp parallel for
 #endif
     for (size_t i = 0; i < (width * height * 3); i++) {

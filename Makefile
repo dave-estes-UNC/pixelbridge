@@ -14,12 +14,9 @@ ifneq ($(NO_HACKS), 1)
 	CPPFLAGS+=-DSUPRESS_EXCESS_RENDERING -DSKIP_COMPUTE_WHEN_SCALER_ZERO
 endif
 
-ifeq ($(NO_OMP), 1)
-	CCFLAGS+=-DNO_OMP
-	CPPFLAGS+=-DNO_OMP
-else
-	CCFLAGS+=-fopenmp
-	CPPFLAGS+=-fopenmp
+ifneq ($(NO_OMP), 1)
+	CCFLAGS+=-fopenmp -DUSE_OMP
+	CPPFLAGS+=-fopenmp -DUSE_OMP
 endif
 
 ifeq ($(NO_GL), 1)

@@ -324,7 +324,7 @@ void DctTiler::InitializeFrameVolume() {
     basisFunctions_ = (Pixel *)calloc(BLOCK_SIZE * FRAMEVOLUME_DEPTH, sizeof(Pixel));
 
     // Pre-render each basis function
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp parallel for
 #endif
     for (int j = 0; j < BASIS_BLOCKS_TALL; j++) {
@@ -433,7 +433,7 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
             vector<uint64_t> coefficients(BLOCK_SIZE, 0);
 
             for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp parallel for ordered
 #endif
                 for (size_t u = 0; u < BLOCK_WIDTH; u++) {

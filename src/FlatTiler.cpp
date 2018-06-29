@@ -159,9 +159,9 @@ void FlatTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 
             // Build the tile's pixel array while computing the checksum in an alternative tile which only
             // holds the significant bits
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp parallel for ordered
-#endif // !NO_OMP
+#endif
             for (int j_tile = 0; j_tile < th; j_tile++) {
                 // Compute the offset into the RGB buffer for this row in this tile
                 int bufferOffset = 3 * ((j_tile_map * tile_height_ + j_tile) * width + (i_tile_map * tile_width_));

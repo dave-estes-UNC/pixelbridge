@@ -337,7 +337,7 @@ void ItTiler::InitializeFrameVolume() {
     memset(pixels, 0x00, pixels_size);
 
     // Pre-render each basis function
-#ifndef NO_OMP
+#ifdef USE_OMP
 #pragma omp parallel for
 #endif
     for (int j = 0; j < BASIS_BLOCKS_TALL; j++) {
