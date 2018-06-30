@@ -18,7 +18,9 @@
 
 #include "nddi/CostModel.h"
 #include "nddi/GlNddiDisplay.h"
+#ifdef USE_CL
 #include "nddi/ClNddiDisplay.h"
+#endif
 #include "nddi/BlendingGlNddiDisplay.h"
 
 #include "CachedTiler.h"
@@ -129,7 +131,7 @@ void setupDisplay() {
         fvDimensions.push_back(displayHeight);
         fvDimensions.push_back(3);
 
-#ifndef NO_CL
+#ifdef USE_CL
         assert(0 && "FrameVolume blending mode not supported in the OpenCL version of NDDI display.");
 #else
         myBlendingDisplay = new BlendingGlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
@@ -187,7 +189,7 @@ void setupDisplay() {
         fvDimensions.push_back(displayHeight);
         fvDimensions.push_back(2);
 
-#ifndef NO_CL
+#ifdef USE_CL
         myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       1,                           // number of coefficient planes on the display
@@ -248,7 +250,7 @@ void setupDisplay() {
         fvDimensions.push_back(displayHeight);
         fvDimensions.push_back(2);
 
-#ifndef NO_CL
+#ifdef USE_CL
         myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       2,                           // number of coefficient planes on the display
@@ -328,7 +330,7 @@ void setupDisplay() {
         fvDimensions.push_back(displayWidth);
         fvDimensions.push_back(displayHeight);
 
-#ifndef NO_CL
+#ifdef USE_CL
         myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       1,                           // number of coefficient planes on the display
@@ -513,7 +515,7 @@ void draw( void ) {
 
 // TODO(CDE): Temporarily putting this here until GlNddiDisplay and ClNddiDisplay
 //            are using the exact same kind of GL textures
-#ifndef NO_CL
+#ifdef USE_CL
             glClearColor(0.0f, 0.0f, 1.0f, 1.0f );
             glClear( GL_COLOR_BUFFER_BIT );
 
@@ -699,7 +701,7 @@ void outputStats(bool exitNow) {
     cerr << endl;
 
     // Warnings about Configuration
-#if defined(SUPRESS_EXCESS_RENDERING) || defined(SKIP_COMPUTE_WHEN_SCALER_ZERO) || defined(NO_CL) || defined(NO_GL) || defined(CLEAR_COST_MODEL_AFTER_SETUP)
+#if defined(SUPRESS_EXCESS_RENDERING) || defined(SKIP_COMPUTE_WHEN_SCALER_ZERO) || !defined(USE_CL) || !defined(USE_GL) || defined(CLEAR_COST_MODEL_AFTER_SETUP)
     cerr << endl << "CONFIGURATION WARNINGS:" << endl;
 #ifdef SUPRESS_EXCESS_RENDERING
     cerr << "  - Was compiled with SUPRESS_EXCESS_RENDERING, and so the numbers may be off. Recompile with \"make NO_HACKS=1\"." << endl;
@@ -709,10 +711,10 @@ void outputStats(bool exitNow) {
             "    When using OpenMP, the number will be fine regardless because they're register in bulk later. Recompile" << endl <<
             "    with \"make NO_HACKS=1\"." << endl;
 #endif
-#ifdef NO_CL
+#ifndef USE_CL
     cerr << "  - Was compiled without OpenCL." << endl;
 #endif
-#ifdef NO_GL
+#ifndef USE_GL
     cerr << "  - Was compiled without OpenGL." << endl;
 #endif
 #ifdef CLEAR_COST_MODEL_AFTER_SETUP

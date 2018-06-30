@@ -77,7 +77,7 @@ ScaledDctTiler::ScaledDctTiler(size_t display_width, size_t display_height, size
     displayTilesHigh_ = CEIL(display_height, BLOCK_HEIGHT);
     tileStackHeights_ = NULL;
 
-#ifndef NO_CL
+#ifdef USE_CL
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes

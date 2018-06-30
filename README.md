@@ -12,3 +12,11 @@ application called pixelbridge. Pixelbridge represents the backward comaptible
 use case of simply "bridging" pixels from a traditional framebuffer application
 to an NDDI display using unique configurations of the display to achieve a cost
 savings for pixel transmission.
+
+Building
+========
+
+The project does still build, though OpenCL isn't working lately. To build
+
+    $ make NO_CL=1
+    $ make NO_CL=1 debug

@@ -15,7 +15,9 @@
 #include "Configuration.h"
 #include "Tiler.h"
 #include "nddi/GlNddiDisplay.h"
+#ifdef USE_CL
 #include "nddi/ClNddiDisplay.h"
+#endif
 
 
 using namespace std;

@@ -5,7 +5,9 @@
 #include <stdint.h>
 
 #include "nddi/GlNddiDisplay.h"
+#ifdef USE_CL
 #include "nddi/ClNddiDisplay.h"
+#endif
 
 /*
  *  Tiler.h

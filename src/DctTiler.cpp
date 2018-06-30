@@ -70,7 +70,7 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
     quiet_ = globalConfiguration.headless || !globalConfiguration.verbose;
 
 #ifdef USE_RAM_SAVING_COEFFICIENT_PLANE_FEATURES
-    #ifndef NO_CL
+    #ifdef USE_CL
     #error "OpenCL implementation doesn't support the RAM saving features."
     #endif
     saveRam_ = true;
@@ -93,7 +93,7 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
     displayTilesHigh_ = CEIL(display_height, BLOCK_HEIGHT);
     tileStackHeights_ = (uint8_t*)calloc(displayTilesWide_ * displayTilesHigh_, sizeof(uint8_t));
 
-#ifndef NO_CL
+#ifdef USE_CL
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes

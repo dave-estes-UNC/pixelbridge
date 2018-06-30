@@ -85,7 +85,7 @@ MultiDctTiler::MultiDctTiler(size_t display_width, size_t display_height, size_t
     displayTilesHigh_ = CEIL(display_height, UNSCALED_BASIC_BLOCK_HEIGHT);
     tileStackHeights_ = NULL;
 
-#ifndef NO_CL
+#ifdef USE_CL
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes

@@ -19,10 +19,9 @@ ifneq ($(NO_OMP), 1)
 	CPPFLAGS+=-fopenmp -DUSE_OMP
 endif
 
-ifeq ($(NO_GL), 1)
-	CCFLAGS+=-DNO_GL
-	CPPFLAGS+=-DNO_GL
-else
+ifneq ($(NO_GL), 1)
+	CCFLAGS+=-DUSE_GL
+	CPPFLAGS+=-DUSE_GL
 	ifeq ($(shell uname),Darwin)
 		LDFLAGS+=-framework Carbon -framework OpenGL -framework GLUT
 	else
@@ -31,10 +30,9 @@ else
 	endif
 endif
 
-ifeq ($(NO_CL), 1)
-	CCFLAGS+=-DNO_CL
-	CPPFLAGS+=-DNO_CL
-else
+ifneq ($(NO_CL), 1)
+	CCFLAGS+=-DUSE_CL
+	CPPFLAGS+=-DUSE_CL
 	ifeq ($(shell uname),Darwin)
 		LDFLAGS+=-framework OpenCL
 	else

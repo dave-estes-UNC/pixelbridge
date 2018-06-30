@@ -33,7 +33,7 @@ FlatTiler::FlatTiler (size_t display_width, size_t display_height,
     fvDimensions.push_back(display_width);
     fvDimensions.push_back(display_height);
 
-#ifndef NO_CL
+#ifdef USE_CL
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  1,                             // number of coefficient planes in display
