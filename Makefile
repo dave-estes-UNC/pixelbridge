@@ -90,7 +90,8 @@ _DEPS = \
 	nddi/GlNddiDisplay.h \
 	nddi/InputVector.h \
 	nddi/NDimensionalDisplayInterface.h \
-	nddi/NDimensionalDisplayInterfaceExtended.h
+	nddi/NDimensionalDisplayInterfaceExtended.h \
+	nddi/SimpleNddiDisplay.h
 
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
@@ -107,7 +108,8 @@ _OBJ = \
 	ScaledDctTiler.o \
 	nddi/BaseNddiDisplay.o \
 	nddi/BlendingGlNddiDisplay.o \
-	nddi/GlNddiDisplay.o
+	nddi/GlNddiDisplay.o \
+	nddi/SimpleNddiDisplay.o
 
 ifneq ($(NO_CL), 1)
 _OBJ += \
