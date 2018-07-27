@@ -98,13 +98,15 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
                                  3,                             // Input vector size (x, y, 1)
-                                 globalConfiguration.headless);
+                                 globalConfiguration.headless,
+                                 globalConfiguration.logcosts);
 #else
     display_ = new GlNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
                                  3,                             // Input vector size (x, y, 1)
                                  globalConfiguration.headless,
+                                 globalConfiguration.logcosts,
                                  saveRam_,                      // Use fixed 8x8 macroblocks
                                  saveRam_);                     // Use single coefficient plane for all of the planes (coefficients only)
 #endif
@@ -253,24 +255,17 @@ void DctTiler::InitializeCoefficientPlanes() {
             }
             start[0] = i * BLOCK_WIDTH; start[1] = j * BLOCK_HEIGHT; start[2] = 0;
             end[0] = (i + 1) * BLOCK_WIDTH - 1; end[1] = (j + 1) * BLOCK_HEIGHT - 1;
-            if (saveRam_) {
-                end[2] = 0;
-            } else {
-                end[2] = FRAMEVOLUME_DEPTH - 1;
-            }
             if (end[0] >= display_->DisplayWidth()) { end[0] = display_->DisplayWidth() - 1; }
             if (end[1] >= display_->DisplayHeight()) { end[1] = display_->DisplayHeight() - 1; }
-            display_->FillCoefficientMatrix(coeffs, start, end);
             if (saveRam_) {
-                // Register the cost model memory charges for the unset planes planes
-                int matricesFilled = (end[0] - start[0] + 1) * (end[1] - start[1] + 1) * (FRAMEVOLUME_DEPTH - 1);
-                display_->GetCostModel()->registerBulkMemoryCharge(
-                        COEFFICIENT_PLANE_COMPONENT,
-                        matricesFilled * 3 * 3,
-                        WRITE_ACCESS,
-                        NULL,
-                        matricesFilled * 3 * 3 * BYTES_PER_COEFF,
-                        0);
+                end[2] = 0;
+                display_->FillCoefficientMatrix(coeffs, start, end);
+                // Register the cost for the planes that would have been set if we weren't using saveRam_ features
+                end[2] = FRAMEVOLUME_DEPTH - 1;
+                display_->GetCostModel()->registerCoefficientMatrixMemoryCharge(WRITE_ACCESS, start, end, coeffs);
+            } else {
+                end[2] = FRAMEVOLUME_DEPTH - 1;
+                display_->FillCoefficientMatrix(coeffs, start, end);
             }
         }
     }
@@ -288,13 +283,7 @@ void DctTiler::InitializeCoefficientPlanes() {
                     CALC_BYTES_FOR_CM_COORD_DOUBLES(1) + // One Coefficient Matrix Coordinate double
                     CALC_BYTES_FOR_CP_COORD_TRIPLES(2),  // Two Coefficient Plane Coordinate triples
                     0);
-            display_->GetCostModel()->registerBulkMemoryCharge(
-                    COEFFICIENT_PLANE_COMPONENT,
-                    display_->DisplayWidth() * display_->DisplayHeight(),
-                    WRITE_ACCESS,
-                    NULL,
-                    display_->DisplayWidth() * display_->DisplayHeight() * BYTES_PER_COEFF,
-                    0);
+            display_->GetCostModel()->registerCoefficientMemoryCharge(WRITE_ACCESS, start, end, 2, 2);
         }
     }
 

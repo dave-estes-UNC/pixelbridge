@@ -138,7 +138,8 @@ void setupDisplay() {
                                                       displayWidth, displayHeight, // display size
                                                       1,                           // number of coefficient planes
                                                       3,                           // input vector size (x, y, 1)
-                                                      globalConfiguration.headless);
+                                                      globalConfiguration.headless,
+                                                      globalConfiguration.logcosts);
 #endif
         myDisplay = myBlendingDisplay;
 
@@ -194,13 +195,15 @@ void setupDisplay() {
                                       displayWidth, displayHeight, // display size
                                       1,                           // number of coefficient planes on the display
                                       3,                           // input vector size (x, y, t)
-                                      globalConfiguration.headless);
+                                      globalConfiguration.headless,
+                                      globalConfiguration.logcosts);
 #else
         myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       (unsigned int)1,             // number of coefficient planes on the display
                                       (unsigned int)3,             // input vector size (x, y, t)
-                                      globalConfiguration.headless);
+                                      globalConfiguration.headless,
+                                      globalConfiguration.logcosts);
 #endif
 
         // Grab the cost model
@@ -255,13 +258,15 @@ void setupDisplay() {
                                       displayWidth, displayHeight, // display size
                                       2,                           // number of coefficient planes on the display
                                       3,                           // input vector size (x, y, 1)
-                                      globalConfiguration.headless);
+                                      globalConfiguration.headless,
+                                      globalConfiguration.logcosts);
 #else
         myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       (unsigned int)2,             // number of coefficient planes on the display
                                       (unsigned int)3,             // input vector size (x, y, 1)
-                                      globalConfiguration.headless);
+                                      globalConfiguration.headless,
+                                      globalConfiguration.logcosts);
 #endif
 
         // Grab the cost model
@@ -335,13 +340,15 @@ void setupDisplay() {
                                       displayWidth, displayHeight, // display size
                                       1,                           // number of coefficient planes on the display
                                       2,                           // input vector size (x and y only)
-                                      globalConfiguration.headless);
+                                      globalConfiguration.headless,
+                                      globalConfiguration.logcosts);
 #else
         myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
                                       displayWidth, displayHeight, // display size
                                       (unsigned int)1,             // number of coefficient planes on the display
                                       (unsigned int)2,             // input vector size (x and y only)
-                                      globalConfiguration.headless);
+                                      globalConfiguration.headless,
+                                      globalConfiguration.logcosts);
 #endif
         // Grab the cost model
         costModel = myDisplay->GetCostModel();
@@ -627,8 +634,8 @@ void outputStats(bool exitNow) {
         cout << "    - Num Reads: " << costModel->getReadAccessCount(INPUT_VECTOR_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << endl;
         cout << "    - Num Writes: " << costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << endl;
         cout << "  Coefficient Plane" << endl;
-        cout << "    - Num Reads: " << costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << endl;
-        cout << "    - Num Writes: " << costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << endl;
+        cout << "    - Num Reads: " << costModel->getReadAccessCount(COEFFICIENT_MATRIX_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(COEFFICIENT_MATRIX_COMPONENT) << endl;
+        cout << "    - Num Writes: " << costModel->getWriteAccessCount(COEFFICIENT_MATRIX_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(COEFFICIENT_MATRIX_COMPONENT) << endl;
         cout << "  Frame Volume" << endl;
         cout << "    - Num Reads: " << costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) <<  " - Bytes Read: " << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << endl;
         cout << "    - Num Writes: " << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << " - Bytes Written: " << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << endl;
@@ -669,10 +676,10 @@ void outputStats(bool exitNow) {
         // Pretty print a heading to stdout, but for headless just spit it to stderr for reference
         if (!globalConfiguration.headless) {
             cout << "CSV Headings:" << endl;
-            cout << "Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name" << endl;
+            cout << "Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes WrittenPixels Mapped,Pixels Blended,PSNR,File Name" << endl;
         } else {
             cerr << "CSV Headings:" << endl;
-            cerr << "Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name" << endl;
+            cerr << "Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,Pixels Mapped,Pixels Blended,PSNR,File Name" << endl;
         }
 
         cout
@@ -683,19 +690,25 @@ void outputStats(bool exitNow) {
         << costModel->getBytesRead(INPUT_VECTOR_COMPONENT) << " , "
         << costModel->getWriteAccessCount(INPUT_VECTOR_COMPONENT) << " , "
         << costModel->getBytesWritten(INPUT_VECTOR_COMPONENT) << " , "
-        << costModel->getReadAccessCount(COEFFICIENT_PLANE_COMPONENT) << " , "
-        << costModel->getBytesRead(COEFFICIENT_PLANE_COMPONENT) << " , "
-        << costModel->getWriteAccessCount(COEFFICIENT_PLANE_COMPONENT) << " , "
-        << costModel->getBytesWritten(COEFFICIENT_PLANE_COMPONENT) << " , "
+        << costModel->getReadAccessCount(COEFFICIENT_MATRIX_COMPONENT) << " , "
+        << costModel->getBytesRead(COEFFICIENT_MATRIX_COMPONENT) << " , "
+        << costModel->getWriteAccessCount(COEFFICIENT_MATRIX_COMPONENT) << " , "
+        << costModel->getBytesWritten(COEFFICIENT_MATRIX_COMPONENT) << " , "
         << costModel->getReadAccessCount(FRAME_VOLUME_COMPONENT) << " , "
         << costModel->getBytesRead(FRAME_VOLUME_COMPONENT) << " , "
         << costModel->getWriteAccessCount(FRAME_VOLUME_COMPONENT) << " , "
         << costModel->getBytesWritten(FRAME_VOLUME_COMPONENT) << " , "
-        << costModel->getTime(FRAME_VOLUME_COMPONENT) << " , "
         << costModel->getPixelsMapped() << " , "
         << costModel->getPixelsBlended() << " , "
         << PSNR << ","
         << fileName << endl;
+    }
+
+    // logcosts
+    //
+    if (globalConfiguration.logcosts) {
+        cout << "Detailed Cost Model Logging:" << endl;
+        costModel->printCharges();
     }
 
     cerr << endl;
@@ -708,8 +721,9 @@ void outputStats(bool exitNow) {
 #endif
 #ifdef SKIP_COMPUTE_WHEN_SCALER_ZERO
     cerr << "  - Was compiled with SKIP_COMPUTE_WHEN_SCALER_ZERO, and so the numbers may be off when running with NO_OMP." << endl <<
-            "    When using OpenMP, the number will be fine regardless because they're register in bulk later. Recompile" << endl <<
-            "    with \"make NO_HACKS=1\"." << endl;
+            "    When using OpenMP, the number will be fine regardless because they're register in bulk later. Furthermore, this" << endl <<
+            "    will definitely affect stats collected with logcosts, though this is a reasonable optimization for hardware, and" << endl <<
+            "    so make note when reporting on those stats whether or not this was used. Recompile with \"make NO_HACKS=1\"." << endl;
 #endif
 #ifndef USE_CL
     cerr << "  - Was compiled without OpenCL." << endl;
@@ -1141,7 +1155,7 @@ void motion( int x, int y ) {
 void showUsage() {
     cout << "pixelbridge [--mode <fb|flat|cache|dct|count|flow>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>]" << endl <<
             "            [--dctscales x:y[,x:y...]] [--dctdelta <n>] [--dctplanes <n>] [--dctbudget <n>] [--dctsnap] [--dcttrim] [--quality <0/1-100>]" << endl <<
-            "            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--csv] [--headless] <filename>" << endl;
+            "            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--csv] [--logcosts] [--headless] <filename>" << endl;
     cout << endl;
     cout << "  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).\n" <<
             "          Optional the mode can be set to count the number of pixels changed (count) or determine optical flow (flow)." << endl;
@@ -1165,7 +1179,8 @@ void showUsage() {
     cout << "  --psnr  Calculates and outputs PSNR. Cannot use with headless." << endl;
     cout << "  --verbose  Outputs frame-by-frame statistics." << endl;
     cout << "  --csv  Outputs CSV data." << endl;
-    cout << "  --headless  Removes rendering and excessive data output. Overrides --verbose. Cannot use with psnr." << endl;
+    cout << "  --logcosts  Outputs CSV data specifically for all of the memory accesses. Cannot be used with USE_OMP." << endl;
+    cout << "  --headless  Removes rendering and excessive data output. Overrides --verbose. Cannot use with psnr or logcosts." << endl;
 }
 
 
@@ -1192,6 +1207,7 @@ bool parseArgs(int argc, char *argv[]) {
             } else if (strcmp(*argv, "flow") == 0) {
                 globalConfiguration.tiler = FLOW;
             } else {
+                cerr << endl << "ERROR: Invalid --mode. Must be fb, flat, cache, dct, it, count, or flow." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1199,6 +1215,7 @@ bool parseArgs(int argc, char *argv[]) {
             argv++;
         } else if (strcmp(*argv, "--dctscales") == 0) {
             if (globalConfiguration.tiler != DCT) {
+                cerr << endl << "ERROR: Can only use --dctscales when the mode is dct." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1214,6 +1231,7 @@ bool parseArgs(int argc, char *argv[]) {
                 int scale, edge;
                 sscanf(p, "%d:%d", &scale, &edge);
                 if (edge < 0 || edge > 8) {
+                    cerr << endl << "ERROR: The edges for --dctscales must be a value between 0 and 8." << endl << endl;
                     showUsage();
                     return false;
                 }
@@ -1229,6 +1247,7 @@ bool parseArgs(int argc, char *argv[]) {
             argc--;
             argv++;
             if (globalConfiguration.tiler != DCT) {
+                cerr << endl << "ERROR: Can only use --dctdelta when the mode is dct." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1239,6 +1258,7 @@ bool parseArgs(int argc, char *argv[]) {
             argc--;
             argv++;
             if (globalConfiguration.tiler != DCT) {
+                cerr << endl << "ERROR: Can only use --dctplanes when the mode is dct." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1249,6 +1269,7 @@ bool parseArgs(int argc, char *argv[]) {
             argc--;
             argv++;
             if (globalConfiguration.tiler != DCT) {
+                cerr << endl << "ERROR: Can only use --dctbudget when the mode is dct." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1259,6 +1280,7 @@ bool parseArgs(int argc, char *argv[]) {
             argc--;
             argv++;
             if (globalConfiguration.tiler != DCT) {
+                cerr << endl << "ERROR: Can only use --dctsnap when the mode is dct." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1267,12 +1289,14 @@ bool parseArgs(int argc, char *argv[]) {
             argc--;
             argv++;
             if (globalConfiguration.tiler != DCT) {
+                cerr << endl << "ERROR: Can only use --dcttrim when the mode is dct." << endl << endl;
                 showUsage();
                 return false;
             }
             globalConfiguration.dctTrim = true;
         } else if (strcmp(*argv, "--blend") == 0) {
             if (globalConfiguration.tiler != SIMPLE) {
+                cerr << endl << "ERROR: Mode must be fb when using --blend." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1285,6 +1309,7 @@ bool parseArgs(int argc, char *argv[]) {
             } else if (strcmp(*argv, "cp") == 0) {
                 globalConfiguration.blend = COEFFICIENT_PLANE;
             } else {
+                cerr << endl << "ERROR: Unknown blend type for --blend. Must be fv, t, or cp." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1294,6 +1319,7 @@ bool parseArgs(int argc, char *argv[]) {
             globalConfiguration.tileWidth = atoi(argv[1]);
             globalConfiguration.tileHeight = atoi(argv[2]);
             if ((globalConfiguration.tileWidth == 0) || (globalConfiguration.tileHeight == 0)) {
+                cerr << endl << "ERROR: Can't use zero for tile width or height with --ts." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1302,6 +1328,7 @@ bool parseArgs(int argc, char *argv[]) {
         } else if (strcmp(*argv, "--tc") == 0) {
             globalConfiguration.maxTiles = atoi(argv[1]);
             if (globalConfiguration.maxTiles == 0) {
+                cerr << endl << "ERROR: Can't use zero for tile count with --tc." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1310,6 +1337,7 @@ bool parseArgs(int argc, char *argv[]) {
         } else if (strcmp(*argv, "--bits") == 0) {
             globalConfiguration.sigBits = atoi(argv[1]);
             if ( (globalConfiguration.sigBits == 0) || (globalConfiguration.sigBits > 8) ) {
+                cerr << endl << "ERROR: Must use value between 1 and 8 for --bits." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1318,6 +1346,7 @@ bool parseArgs(int argc, char *argv[]) {
         } else if (strcmp(*argv, "--quality") == 0) {
             globalConfiguration.quality = atoi(argv[1]);
             if ( (globalConfiguration.quality == 0) || (globalConfiguration.quality > 100) ) {
+                cerr << endl << "ERROR: Must use value between 0 and 100 for --quality." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1326,6 +1355,7 @@ bool parseArgs(int argc, char *argv[]) {
         } else if (strcmp(*argv, "--start") == 0) {
             globalConfiguration.startFrame = atoi(argv[1]);
             if (globalConfiguration.startFrame == 0) {
+                cerr << endl << "ERROR: Start frame cannot be zero." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1334,6 +1364,7 @@ bool parseArgs(int argc, char *argv[]) {
         } else if (strcmp(*argv, "--frames") == 0) {
             globalConfiguration.maxFrames = atoi(argv[1]);
             if (globalConfiguration.maxFrames == 0) {
+                cerr << endl << "ERROR: Can't set --frames to zero." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1343,6 +1374,7 @@ bool parseArgs(int argc, char *argv[]) {
             globalConfiguration.rewindStartFrame = atoi(argv[1]);
             globalConfiguration.rewindFrames = atoi(argv[2]);
             if ((globalConfiguration.rewindStartFrame == 0) || (globalConfiguration.rewindFrames == 0) || (globalConfiguration.rewindFrames > globalConfiguration.rewindStartFrame)) {
+                cerr << endl << "ERROR: Invalid --rewind start frame and/or number of frames." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1350,6 +1382,7 @@ bool parseArgs(int argc, char *argv[]) {
             argv += 3;
         } else if (strcmp(*argv, "--psnr") == 0) {
             if (globalConfiguration.headless) {
+                cerr << endl << "ERROR: Cannot use --psnr with --headless." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1364,8 +1397,23 @@ bool parseArgs(int argc, char *argv[]) {
             globalConfiguration.csv = true;
             argc--;
             argv++;
+        } else if (strcmp(*argv, "--logcosts") == 0) {
+            if (globalConfiguration.headless) {
+                cerr << endl << "ERROR: Cannot use --logcosts with --headless." << endl << endl;
+                showUsage();
+                return false;
+            }
+#ifdef USE_OMP
+            cerr << endl << "ERROR: Cannot use --logcosts when built with USE_OMP." << endl << endl;
+            showUsage();
+            return false;
+#endif
+            globalConfiguration.logcosts = true;
+            argc--;
+            argv++;
         } else if (strcmp(*argv, "--headless") == 0) {
-            if (globalConfiguration.PSNR) {
+            if (globalConfiguration.PSNR || globalConfiguration.logcosts) {
+                cerr << endl << "ERROR: Cannot use --headless with --psnr or --logcosts." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1480,7 +1528,7 @@ int main(int argc, char *argv[]) {
         // Setup the GlNddiDisplay and Tiler if required
         setupDisplay();
     } else {
-        costModel = new CostModel(globalConfiguration.headless);
+        costModel = new CostModel(globalConfiguration.headless, globalConfiguration.logcosts);
     }
 
     // Take the start time stamp

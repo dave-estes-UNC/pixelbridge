@@ -69,6 +69,7 @@ public:
     bool PSNR;
     bool verbose;
     bool csv;
+    bool logcosts;
     bool headless;
     vector<scale_config_t> dctScales;
     int dctDelta;
@@ -94,6 +95,8 @@ public:
         temporalFlipCountPerFrame = 4;
         PSNR = false;
         verbose = false;
+        csv = false;
+        logcosts = false;
         headless = false;
 
         scale_config_t simple = {1, 8, 0, 63};

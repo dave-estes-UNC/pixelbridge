@@ -65,13 +65,15 @@ ItTiler::ItTiler(size_t display_width, size_t display_height,
                                  display_width, display_height, // display size
                                  FRAMEVOLUME_DEPTH,             // Number of coefficient planes
                                  3,                             // input vector size (x, y, 1)
-                                 globalConfiguration.headless);
+                                 globalConfiguration.headless,
+                                 globalConfiguration.logcosts);
 #else
     display_ = new GlNddiDisplay(fvDimensions,                    // framevolume dimensional sizes
                                  display_width, display_height,   // display size
                                  (unsigned int)FRAMEVOLUME_DEPTH, // Number of coefficient planes
                                  (unsigned int)3,                 // input vector size (x, y, 1)
-                                 globalConfiguration.headless);
+                                 globalConfiguration.headless,
+                                 globalConfiguration.logcosts);
 #endif
 
 
