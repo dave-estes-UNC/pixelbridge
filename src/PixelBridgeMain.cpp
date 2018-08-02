@@ -11,7 +11,8 @@
 #include <GL/glut.h>
 #endif
 
-#include <opencv/cv.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/video/tracking.hpp>
 
 #include "PixelBridgeFeatures.h"
 #include "Configuration.h"

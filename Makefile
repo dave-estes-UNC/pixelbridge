@@ -50,7 +50,7 @@ endif
 
 CPPFLAGS+=-D__STDC_CONSTANT_MACROS
 
-LDFLAGS+=-lz -lavutil -lavformat -lavcodec -lswscale `pkg-config --libs opencv`
+LDFLAGS+=-lz -lavutil -lavformat -lavcodec -lswscale -lopencv_core -lopencv_imgproc -lopencv_video
 
 ifeq ($(DEBUG), 1)
 	CCFLAGS+=-g -DDEBUG
