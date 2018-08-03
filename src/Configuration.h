@@ -69,7 +69,7 @@ public:
     bool PSNR;
     bool verbose;
     bool csv;
-    bool logcosts;
+    unsigned char logcosts;
     bool headless;
     vector<scale_config_t> dctScales;
     int dctDelta;

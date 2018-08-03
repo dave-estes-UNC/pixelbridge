@@ -388,15 +388,15 @@ void setupDisplay() {
     if (globalConfiguration.verbose)
         myDisplay->Unmute();
 
-#ifdef CLEAR_COST_MODEL_AFTER_SETUP
-    costModel->clearCosts();
-#endif
-
     // Renders the initial display
     if (!globalConfiguration.headless)
         myDisplay->GetFrameBufferTex();
     else
         myDisplay->SimulateRender();
+
+#ifdef CLEAR_COST_MODEL_AFTER_SETUP
+    costModel->clearCosts();
+#endif
 }
 
 
@@ -709,7 +709,7 @@ void outputStats(bool exitNow) {
     //
     if (globalConfiguration.logcosts) {
         cout << "Detailed Cost Model Logging:" << endl;
-        costModel->printCharges();
+        cout << "  less "; costModel->printCharges(); cout << endl;
     }
 
     cerr << endl;
@@ -1156,7 +1156,7 @@ void motion( int x, int y ) {
 void showUsage() {
     cout << "pixelbridge [--mode <fb|flat|cache|dct|count|flow>] [--blend <fv|t|cp|>] [--ts <n> <n>] [--tc <n>] [--bits <1-8>]" << endl <<
             "            [--dctscales x:y[,x:y...]] [--dctdelta <n>] [--dctplanes <n>] [--dctbudget <n>] [--dctsnap] [--dcttrim] [--quality <0/1-100>]" << endl <<
-            "            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--csv] [--logcosts] [--headless] <filename>" << endl;
+            "            [--start <n>] [--frames <n>] [--rewind <n> <n>] [--psnr] [--verbose] [--csv] [--logcosts <all|iv|cm|sc|fv>[,<all|iv|cm|sc|fv>...]] [--headless] <filename>" << endl;
     cout << endl;
     cout << "  --mode  Configure NDDI as a framebuffer (fb), as a flat tile array (flat), as a cached tile (cache), using DCT (dct), or using IT (it).\n" <<
             "          Optional the mode can be set to count the number of pixels changed (count) or determine optical flow (flow)." << endl;
@@ -1180,7 +1180,9 @@ void showUsage() {
     cout << "  --psnr  Calculates and outputs PSNR. Cannot use with headless." << endl;
     cout << "  --verbose  Outputs frame-by-frame statistics." << endl;
     cout << "  --csv  Outputs CSV data." << endl;
-    cout << "  --logcosts  Outputs CSV data specifically for all of the memory accesses. Cannot be used with USE_OMP." << endl;
+    cout << "  --logcosts  Outputs CSV data specifically for all of the memory accesses. <all> will log input vector, coefficient" << endl;
+    cout << "              matrix, scaler, and frame volume data. <iv|cm|sc|fv> (comma separated) can be used for any combinations of those." << endl;
+    cout << "              Cannot be used with USE_OMP. Must use a mode that renders (i.e. not count or flow)." << endl;
     cout << "  --headless  Removes rendering and excessive data output. Overrides --verbose. Cannot use with psnr or logcosts." << endl;
 }
 
@@ -1209,6 +1211,11 @@ bool parseArgs(int argc, char *argv[]) {
                 globalConfiguration.tiler = FLOW;
             } else {
                 cerr << endl << "ERROR: Invalid --mode. Must be fb, flat, cache, dct, it, count, or flow." << endl << endl;
+                showUsage();
+                return false;
+            }
+            if (globalConfiguration.tiler <= COUNT && globalConfiguration.logcosts) {
+                cerr << endl << "ERROR: Cannot use --logcosts when counting or computing flow." << endl << endl;
                 showUsage();
                 return false;
             }
@@ -1404,12 +1411,46 @@ bool parseArgs(int argc, char *argv[]) {
                 showUsage();
                 return false;
             }
+            if (globalConfiguration.tiler <= COUNT) {
+                cerr << endl << "ERROR: Cannot use --logcosts when counting or computing flow." << endl << endl;
+                showUsage();
+                return false;
+            }
 #ifdef USE_OMP
             cerr << endl << "ERROR: Cannot use --logcosts when built with USE_OMP." << endl << endl;
             showUsage();
             return false;
 #endif
-            globalConfiguration.logcosts = true;
+            argc--;
+            argv++;
+            globalConfiguration.logcosts = 0;
+            // Then pull out each comma separated cost charge
+            char *p = strtok(*argv, ",");
+            size_t first = 0;
+            while (p != NULL) {
+                if (strcmp(p, "all") == 0) {
+                    globalConfiguration.logcosts = ALL_CHARGES;
+                } else if (strcmp(p, "iv") == 0) {
+                    globalConfiguration.logcosts = IV_CHARGES;
+                } else if (strcmp(p, "cm") == 0) {
+                    globalConfiguration.logcosts = CM_CHARGES;
+                } else if (strcmp(p, "sc") == 0) {
+                    globalConfiguration.logcosts = SC_CHARGES;
+                } else if (strcmp(p, "fv") == 0) {
+                    globalConfiguration.logcosts = FV_CHARGES;
+                } else {
+                    cerr << endl << "ERROR: Unrecognized charge type used with --logcosts." << endl << endl;
+                    showUsage();
+                    return false;
+                }
+                // Move to next tuple
+                p = strtok(NULL, ",");
+            }
+            if (!globalConfiguration.logcosts) {
+                cerr << endl << "ERROR: Must specify one or more charges types with --logcosts." << endl << endl;
+                showUsage();
+                return false;
+            }
             argc--;
             argv++;
         } else if (strcmp(*argv, "--headless") == 0) {
