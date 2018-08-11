@@ -55,5 +55,12 @@ experiment results.
     was used when trying to find the candidate configurations for
     the experiments run from runall.sh.
 
+dissertation
+------------
 
+The dissertation used all of the results to date. It also leveraged
+pixelbridge for the memory analysis. The following script(s) were
+created for that purpose.
 
+*   *runcachesimulation.sh*
+    Runs the original ...
