@@ -47,6 +47,11 @@ public:
      */
     void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 
+    /**
+     * Calculates the costs for rendering without actually rendering.
+     */
+    void SimulateRenderCosts(bool force = false);
+
 private:
     void initQuantizationMatrix(size_t quality);
     void InitializeCoefficientPlanes();

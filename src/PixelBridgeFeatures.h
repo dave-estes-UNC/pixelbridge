@@ -60,4 +60,14 @@
  */
 #define NORMALIZE_FLOW_FOR_RESOLUTION
 
+/*
+ * Chooses which DCT tiler to use when running with --dctscales.
+ * The ScaledDctTiler is the original implementation which always used
+ * 8x8 macroblocks for the DCT transform. The results were then scaled.
+ * The MultiDctTiler is a variation that actually uses macroblocks of each
+ * size and then prerenders all of those basis functions into the frame volume.
+ */
+//#define USE_SCALED_DCT
+#define USE_MULTI_DCT
+
 #endif /* PIXELBRIDGEFEATURES_H_ */

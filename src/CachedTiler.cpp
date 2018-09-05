@@ -559,3 +559,43 @@ void CachedTiler::PushTile(tile_t* tile, size_t i, size_t j) {
 }
 
 #endif
+
+/**
+ * Calculates the costs for rendering without actually rendering.
+ */
+void CachedTiler::SimulateRenderCosts(bool force) {
+    if (!force && !display_->CheckAndClearDirty()) { return; }
+
+    auto costModel = display_->GetCostModel();
+    auto w = display_->DisplayWidth();
+    auto h = display_->DisplayHeight();
+    auto p = display_->NumCoefficientPlanes();
+    auto cmw = display_->CMWidth();
+    auto cmh = display_->CMHeight();
+
+    costModel->registerInputVectorMemoryCharge(READ_ACCESS, 2, cmw - 1, w * h * p * cmh);
+
+    vector<unsigned int> start = {0, 0, 0};
+    vector<unsigned int> end = {w-1, h-1, p-1};
+    vector< vector<int> > cm (3, vector<int>(3,0));
+    costModel->registerCoefficientMatrixMemoryCharge(READ_ACCESS, start, end, cm);
+    costModel->registerScalerMemoryCharge(READ_ACCESS, start, end);
+
+    for (int j = 0; j < tile_map_height_; j++) {
+        for (int i = 0; i < tile_map_width_; i++) {
+            tile_t *t = display_map_[i][j];
+            unsigned int z = t ? (unsigned int)t->zIndex : 0;
+            start = {0, 0, z};
+            end = {(unsigned int)tile_width_-1, (unsigned int)tile_height_-1, z};
+            if (((i+1) * tile_width_) > w) {
+                end[0] = tile_width_ - 1 - (((i+1) * tile_width_) - w);
+            }
+            if (((j+1) * tile_height_) > h) {
+                end[1] = tile_height_-1 - (((j+1) * tile_height_) - h);
+            }
+
+            costModel->registerFrameVolumeMemoryCharge(READ_ACCESS, start, end);
+        }
+    }
+    costModel->registerPixelMappingCharge(w * h);
+}

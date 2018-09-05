@@ -94,19 +94,23 @@ void setupDisplay() {
     } else if (globalConfiguration.tiler == DCT) {
 
         // Setup DCT Tiler and initializes Coefficient Plane and Frame Volume
+        if (globalConfiguration.dctScales.size() > 1) {
 #if (defined USE_SCALED_DCT) && (defined USE_MULTI_DCT)
-#error Cannot use both USE_SCALED_DCT and USE_MULTI_DCT. Pick one or the other.
+#error "Cannot use both USE_SCALED_DCT and USE_MULTI_DCT. Pick one or the other."
 #endif
 #if defined USE_SCALED_DCT
-        myTiler = new ScaledDctTiler(displayWidth, displayHeight,
+            myTiler = new ScaledDctTiler(displayWidth, displayHeight,
                                          globalConfiguration.quality);
 #elif (defined USE_MULTI_DCT)
-        myTiler = new MultiDctTiler(displayWidth, displayHeight,
+            myTiler = new MultiDctTiler(displayWidth, displayHeight,
                                          globalConfiguration.quality);
 #else
-        myTiler = new DctTiler(displayWidth, displayHeight,
-                               globalConfiguration.quality);
+#error "Must use either USE_SCALED_DCT or USE_MULTI_DCT."
 #endif
+        } else {
+            myTiler = new DctTiler(displayWidth, displayHeight,
+                                   globalConfiguration.quality);
+        }
 
         // Grab the display and cost model
         myDisplay = myTiler->GetDisplay();
@@ -331,68 +335,31 @@ void setupDisplay() {
     // Simple Framebuffer
     } else {
 
-        // 2 dimensional matching the Video Width x Height
-        vector<unsigned int> fvDimensions;
-        fvDimensions.push_back(displayWidth);
-        fvDimensions.push_back(displayHeight);
+        // Set up Flat Tiler with ONLY ONE TILE and initialize Coefficient Planes
+        myTiler = new FlatTiler(displayWidth, displayHeight,
+                                displayWidth,
+                                displayHeight,
+                                8);
 
-#ifdef USE_CL
-        myDisplay = new ClNddiDisplay(fvDimensions,                // framevolume dimensional sizes
-                                      displayWidth, displayHeight, // display size
-                                      1,                           // number of coefficient planes on the display
-                                      2,                           // input vector size (x and y only)
-                                      globalConfiguration.headless,
-                                      globalConfiguration.logcosts);
-#else
-        myDisplay = new GlNddiDisplay(fvDimensions,                // framevolume dimensional sizes
-                                      displayWidth, displayHeight, // display size
-                                      (unsigned int)1,             // number of coefficient planes on the display
-                                      (unsigned int)2,             // input vector size (x and y only)
-                                      globalConfiguration.headless,
-                                      globalConfiguration.logcosts);
-#endif
-        // Grab the cost model
+        // Grab the display and cost model
+        myDisplay = myTiler->GetDisplay();
         costModel = myDisplay->GetCostModel();
 
-        // Initialize Frame Volume
-        nddi::Pixel p;
-        p.r = p.g = p.b = p.a = 0xff;
-        vector<unsigned int> start, end;
-        start.push_back(0); start.push_back(0);
-        end.push_back(displayWidth - 1); end.push_back(displayHeight - 1);
-        myDisplay->FillPixel(p, start, end);
-
-        // Initialize Coefficient Plane
-        vector< vector<int> > coeffs;
-        coeffs.resize(2);
-        coeffs[0].push_back(1); coeffs[0].push_back(0);
-        coeffs[1].push_back(0); coeffs[1].push_back(1);
-
-        start.clear(); end.clear();
-
-        start.push_back(0); start.push_back(0); start.push_back(0);
-        end.push_back(displayWidth - 1); end.push_back(displayHeight - 1); end.push_back(0);
-
-        myDisplay->FillCoefficientMatrix(coeffs, start, end);
-
-        // Turn off all planes and then set the 0 plane to full on.
-        end[2] = myDisplay->NumCoefficientPlanes() - 1;
-        s.packed = 0;
-        myDisplay->FillScaler(s, start, end);
-        end[2] = 0;
-        s.r = s.g = s.b = myDisplay->GetFullScaler();
-        myDisplay->FillScaler(s, start, end);
-
-    }
+   }
 
     if (globalConfiguration.verbose)
         myDisplay->Unmute();
 
     // Renders the initial display
-    if (!globalConfiguration.headless)
+    if (!globalConfiguration.headless) {
         myDisplay->GetFrameBufferTex();
-    else
-        myDisplay->SimulateRender();
+#ifdef USE_OMP
+        // Simulate the render costs now since they're not calculated when OMP is used.
+        myTiler->SimulateRenderCosts(true);
+#endif
+    } else {
+        myTiler->SimulateRenderCosts();
+    }
 
 #ifdef CLEAR_COST_MODEL_AFTER_SETUP
     costModel->clearCosts();
@@ -514,12 +481,16 @@ void draw( void ) {
 
         if (globalConfiguration.headless) {
 
-            myDisplay->SimulateRender();
+            myTiler->SimulateRenderCosts();
 
         } else {
 
             // Grab the frame buffer from the NDDI display
             GLuint texture = myDisplay->GetFrameBufferTex();
+#ifdef USE_OMP
+            // Simulate the render costs now since they're not calculated when OMP is used.
+            myTiler->SimulateRenderCosts(true);
+#endif
 
 // TODO(CDE): Temporarily putting this here until GlNddiDisplay and ClNddiDisplay
 //            are using the exact same kind of GL textures
@@ -1406,21 +1377,11 @@ bool parseArgs(int argc, char *argv[]) {
             argc--;
             argv++;
         } else if (strcmp(*argv, "--logcosts") == 0) {
-            if (globalConfiguration.headless) {
-                cerr << endl << "ERROR: Cannot use --logcosts with --headless." << endl << endl;
-                showUsage();
-                return false;
-            }
             if (globalConfiguration.tiler <= COUNT) {
                 cerr << endl << "ERROR: Cannot use --logcosts when counting or computing flow." << endl << endl;
                 showUsage();
                 return false;
             }
-#ifdef USE_OMP
-            cerr << endl << "ERROR: Cannot use --logcosts when built with USE_OMP." << endl << endl;
-            showUsage();
-            return false;
-#endif
             argc--;
             argv++;
             globalConfiguration.logcosts = 0;
@@ -1454,8 +1415,8 @@ bool parseArgs(int argc, char *argv[]) {
             argc--;
             argv++;
         } else if (strcmp(*argv, "--headless") == 0) {
-            if (globalConfiguration.PSNR || globalConfiguration.logcosts) {
-                cerr << endl << "ERROR: Cannot use --headless with --psnr or --logcosts." << endl << endl;
+            if (globalConfiguration.PSNR) {
+                cerr << endl << "ERROR: Cannot use --headless with --psnr." << endl << endl;
                 showUsage();
                 return false;
             }

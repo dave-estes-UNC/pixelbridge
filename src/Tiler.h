@@ -32,10 +32,14 @@ public:
      */
     virtual GlNddiDisplay* GetDisplay() = 0;
 
-	/**
-	 * Update the tile_map, tilecache, and then the NDDI display based on the frame that's passed in.
-	 */
-	virtual void UpdateDisplay(uint8_t* buffer, size_t width, size_t height) = 0;
+    /**
+     * Update the tile_map, tilecache, and then the NDDI display based on the frame that's passed in.
+     */
+    virtual void UpdateDisplay(uint8_t* buffer, size_t width, size_t height) = 0;
 
+    /**
+     * Used to update the cost model when simulating a render.
+     */
+    virtual void SimulateRenderCosts(bool force = false) = 0;
 };
 #endif // TILER_H

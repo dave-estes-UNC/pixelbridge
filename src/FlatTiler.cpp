@@ -273,3 +273,29 @@ void FlatTiler::UpdateFrameVolume(Pixel* pixels, int i_map, int j_map) {
     display_->CopyPixels(pixels, start, end);
 }
 #endif
+
+/**
+ * Calculates the costs for rendering without actually rendering.
+ */
+void FlatTiler::SimulateRenderCosts(bool force) {
+
+    if (!force && !display_->CheckAndClearDirty()) { return; }
+
+    auto costModel = display_->GetCostModel();
+    auto w = display_->DisplayWidth();
+    auto h = display_->DisplayHeight();
+    auto p = display_->NumCoefficientPlanes();
+    auto cmw = display_->CMWidth();
+    auto cmh = display_->CMHeight();
+
+    vector<unsigned int> start = {0, 0, 0};
+    vector<unsigned int> end = {w-1, h-1, p-1};
+    vector< vector<int> > cm (2, vector<int>(2,0));
+    costModel->registerCoefficientMatrixMemoryCharge(READ_ACCESS, start, end, cm);
+    costModel->registerScalerMemoryCharge(READ_ACCESS, start, end);
+
+    start = {0, 0, 0};
+    end = {w-1, h-1, 0};
+    costModel->registerFrameVolumeMemoryCharge(READ_ACCESS, start, end);
+    costModel->registerPixelMappingCharge(w * h);
+}

@@ -91,8 +91,7 @@ DctTiler::DctTiler (size_t display_width, size_t display_height,
      */
     displayTilesWide_ = CEIL(display_width, BLOCK_WIDTH);
     displayTilesHigh_ = CEIL(display_height, BLOCK_HEIGHT);
-    tileStackHeights_ = (uint8_t*)calloc(displayTilesWide_ * displayTilesHigh_, sizeof(uint8_t));
-
+    tileCoefficientMasks = vector<vector<bitset<BLOCK_SIZE> > > (displayTilesWide_, vector<bitset<BLOCK_SIZE> > (displayTilesHigh_, bitset<BLOCK_SIZE> (1L<<63)));
 #ifdef USE_CL
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
                                  display_width, display_height, // display size
@@ -420,6 +419,7 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 
             /* The coefficients are stored in this array in zig-zag order */
             vector<uint64_t> coefficients(BLOCK_SIZE, 0);
+            bitset<BLOCK_SIZE> coefficientsMask(1L<<63);
 
             for (size_t v = 0; v < BLOCK_HEIGHT; v++) {
 #ifdef USE_OMP
@@ -477,6 +477,7 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
                     s.g = g_g;
                     s.b = g_b;
                     coefficients[p] = s.packed;
+                    if (s.packed) { coefficientsMask.set(p, 1); }
                 }
             }
 
@@ -489,13 +490,10 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
              * and the current stack height.
              */
             size_t h = BLOCK_SIZE - 2;
-            while (h >= 0 && coefficients[h] == 0)
+            while (h >= 0 && !coefficientsMask.test(h) && !tileCoefficientMasks[i][j].test(h))
                  h--;
-            if (h < tileStackHeights_[j * displayTilesWide_ + i])
-                coefficients.resize(tileStackHeights_[j * displayTilesWide_ + i] + 1);
-            else
-                coefficients.resize(h + 1);
-            tileStackHeights_[j * displayTilesWide_ + i] = h;
+            coefficients.resize(h + 1);
+            tileCoefficientMasks[i][j] = coefficientsMask;
 
             /* Send the NDDI command to update this macroblock's coefficients, one plane at a time. */
             start[0] = i * BLOCK_WIDTH;
@@ -503,4 +501,123 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
             display_->FillScalerTileStack(coefficients, start, size);
         }
     }
+}
+
+/**
+ * Calculates the costs for rendering without actually rendering.
+ */
+void DctTiler::SimulateRenderCosts(bool force) {
+    if (!force && !display_->CheckAndClearDirty()) { return; }
+
+    auto costModel = display_->GetCostModel();
+    auto w = display_->DisplayWidth();
+    auto h = display_->DisplayHeight();
+    auto p = display_->NumCoefficientPlanes();
+    auto cmw = display_->CMWidth();
+    auto cmh = display_->CMHeight();
+    vector< vector<int> > cm (3, vector<int>(3,0));
+
+#ifndef SKIP_COMPUTE_WHEN_SCALER_ZERO
+    // Input Vector Charge
+    costModel->registerInputVectorMemoryCharge(READ_ACCESS, 2, cmw - 1, w * h * p * cmh);
+
+    // Scaler Charge
+    vector<unsigned int> start = {0, 0, 0};
+    vector<unsigned int> end = {w-1, h-1, p-1};
+    costModel->registerScalerMemoryCharge(READ_ACCESS, start, end);
+
+    // Coefficient Matrix Charge
+    costModel->registerCoefficientMatrixMemoryCharge(READ_ACCESS, start, end, cm);
+
+    // Frame Volume Charge (repeated for each basic block
+    for (int j = 0; j < displayTilesHigh_; j++) {
+        for (int i = 0; i < displayTilesWide_; i++) {
+            start = {0, 0, 0};
+            end = {BLOCK_WIDTH-1, BLOCK_HEIGHT-1, BLOCK_WIDTH*BLOCK_HEIGHT-1};
+            if (((i+1) * BLOCK_WIDTH) > w) {
+                end[0] = BLOCK_WIDTH - 1 - (((i+1) * BLOCK_WIDTH) - w);
+            }
+            if (((j+1) * BLOCK_HEIGHT) > h) {
+                end[1] = BLOCK_HEIGHT - 1 - (((j+1) * BLOCK_HEIGHT) - h);
+            }
+            costModel->registerFrameVolumeMemoryCharge(READ_ACCESS, start, end);
+        }
+    }
+
+    // Pixel Mapping Charge
+    costModel->registerPixelMappingCharge(w * h);
+
+#else
+    /*
+     *  We'll read every scaler in every plane for each pixel location. Then for
+     *  stack of tiles (blocks), we'll look at the coefficient (scaler) and determine
+     *  whether or not the input vector, coefficient matrix, and frame volume will be
+     *  read...when using SKIP_COMPUTE_WHEN_SCALER_ZERO.
+     */
+
+    // Scaler Charge
+    vector<unsigned int> start = {0, 0, 0};
+    vector<unsigned int> end = {w-1, h-1, p-1};
+    costModel->registerScalerMemoryCharge(READ_ACCESS, start, end);
+
+    for (unsigned int j = 0; j < displayTilesHigh_; j++) {
+        for (unsigned int i = 0; i < displayTilesWide_; i++) {
+            bool isZero = true;
+            unsigned int startp, endp;
+
+            auto updateRegions = [&]() {
+                assert(startp >= 0 && startp < BLOCK_SIZE);
+                assert(endp >= 0 && endp < BLOCK_SIZE);
+                // Setup regions to update
+                start = {i * (unsigned int)BLOCK_WIDTH, j * (unsigned int)BLOCK_WIDTH, startp};
+                end = {(i+1) * (unsigned int)BLOCK_WIDTH - 1, (j+1) * (unsigned int)BLOCK_HEIGHT - 1, endp};
+                vector<unsigned int> fvstart = {0, 0, startp};
+                vector<unsigned int> fvend = {(unsigned int)BLOCK_WIDTH-1, (unsigned int)BLOCK_HEIGHT-1, endp};
+                if (end[0] >= w) {
+                    end[0] = w - 1;
+                    fvend[0] = (unsigned int)BLOCK_WIDTH - 1 - (((i+1) * (unsigned int)BLOCK_WIDTH) - w);
+                }
+                if (end[1] >= h) {
+                    end[1] = h - 1;
+                    fvend[1] = (unsigned int)BLOCK_HEIGHT - 1 - (((j+1) * (unsigned int)BLOCK_HEIGHT) - h);
+                }
+
+                // Input Vector Charge
+                costModel->registerInputVectorMemoryCharge(READ_ACCESS, 2, cmw - 1,
+                        (end[0]-start[0]+1) * (end[1]-start[1]+1) * (end[2]-start[2]+1) * cmh);
+
+                // Coefficient Matrix Charge
+                costModel->registerCoefficientMatrixMemoryCharge(READ_ACCESS, start, end, cm);
+
+                // Register Frame Volume Charge
+                costModel->registerFrameVolumeMemoryCharge(READ_ACCESS, fvstart, fvend);
+            };
+
+            for (int p = 0; p < BLOCK_SIZE; p++) {
+                if (isZero) {
+                    if (tileCoefficientMasks[i][j].test(p)) {
+                        startp = p;
+                        isZero = false;
+                    }
+                } else {
+                    if (!tileCoefficientMasks[i][j].test(p)) {
+                        endp = p-1;
+                        isZero = true;
+                        updateRegions();
+                    }
+                } // if (isZero) {
+            } // for (int p = 0; p < BLOCK_SIZE; p++) {
+
+            // If the final plane is not zero, then we'll need to go ahead and
+            // update that region too.
+            if (!isZero) {
+                endp = BLOCK_SIZE-1;
+                updateRegions();
+            }
+        } //for (int i = 0; i < displayTilesWide_; i++) {
+    } // for (int j = 0; j < displayTilesHigh_; j++) {
+    // Pixel Mapping Charge
+    costModel->registerPixelMappingCharge(w * h);
+#endif
+
 }

@@ -78,12 +78,10 @@ MultiDctTiler::MultiDctTiler(size_t display_width, size_t display_height, size_t
     fvDimensions.push_back(FRAMEVOLUME_DEPTH);
 
     /*
-     * Pre-calculate the maximum number of unscaled tiles used for the display. tileStackHeights_
-     * aren't used for the multi dct tiler.
+     * Pre-calculate the maximum number of unscaled tiles used for the display.
      */
     displayTilesWide_ = CEIL(display_width, UNSCALED_BASIC_BLOCK_WIDTH);
     displayTilesHigh_ = CEIL(display_height, UNSCALED_BASIC_BLOCK_HEIGHT);
-    tileStackHeights_ = NULL;
 
 #ifdef USE_CL
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
@@ -767,4 +765,11 @@ void MultiDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) 
 
     // Finally clean the signedBuf that we've been using throughout
     free(signedBuf);
+}
+
+/**
+ * Calculates the costs for rendering without actually rendering.
+ */
+void MultiDctTiler::SimulateRenderCosts(bool force) {
+#warning ("SimulateRenderCosts not implemented for Multi DCT Tiler.")
 }

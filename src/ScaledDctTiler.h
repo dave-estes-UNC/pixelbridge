@@ -49,6 +49,11 @@ public:
      */
     void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 
+    /**
+     * Calculates the costs for rendering without actually rendering.
+     */
+    void SimulateRenderCosts(bool force = false);
+
 private:
     int16_t* DownSample(size_t factor, int16_t* buffer, size_t width, size_t height);
     int16_t* UpSample(size_t factor, int16_t* buffer, size_t width, size_t height);

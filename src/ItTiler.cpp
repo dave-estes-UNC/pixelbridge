@@ -474,3 +474,10 @@ void ItTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height) {
         }
     }
 }
+
+/**
+ * Calculates the costs for rendering without actually rendering.
+ */
+void ItTiler::SimulateRenderCosts(bool force) {
+#warning ("SimulateRenderCosts not implemented for IT Tiler.")
+}

@@ -70,12 +70,10 @@ ScaledDctTiler::ScaledDctTiler(size_t display_width, size_t display_height, size
     fvDimensions.push_back(FRAMEVOLUME_DEPTH);
 
     /*
-     * Pre-calculate the number of tiles used for the display. tileStackHeights_
-     * aren't used for the scaled dct tiler.
+     * Pre-calculate the number of tiles used for the display.
      */
     displayTilesWide_ = CEIL(display_width, BLOCK_WIDTH);
     displayTilesHigh_ = CEIL(display_height, BLOCK_HEIGHT);
-    tileStackHeights_ = NULL;
 
 #ifdef USE_CL
     display_ = new ClNddiDisplay(fvDimensions,                  // framevolume dimensional sizes
@@ -1206,4 +1204,11 @@ void ScaledDctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
 
     // Finally clean the signedBuf that we've been using throughout
     free(signedBuf);
+}
+
+/**
+ * Calculates the costs for rendering without actually rendering.
+ */
+void ScaledDctTiler::SimulateRenderCosts(bool force) {
+#warning ("SimulateRenderCosts not implemented for Scaled DCT Tiler.")
 }

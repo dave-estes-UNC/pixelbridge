@@ -9,6 +9,8 @@
  *
  */
 
+#include <bitset>
+
 #include "Tiler.h"
 #include "nddi/BaseNddiDisplay.h"
 
@@ -40,8 +42,6 @@ public:
     DctTiler(size_t display_width, size_t display_height, size_t quality);
 
     ~DctTiler() {
-        if (tileStackHeights_)
-            free(tileStackHeights_);
         if (basisFunctions_)
             free(basisFunctions_);
     }
@@ -60,6 +60,11 @@ public:
      */
     void UpdateDisplay(uint8_t* buffer, size_t width, size_t height);
 
+    /**
+     * Calculates the costs for rendering without actually rendering.
+     */
+    void SimulateRenderCosts(bool force = false);
+
 protected:
     void InitializeCoefficientPlanes();
     void InitializeFrameVolume();
@@ -72,7 +77,6 @@ protected:
     GlNddiDisplay       *display_;
     bool                 quiet_;
     uint32_t             displayTilesWide_, displayTilesHigh_;
-    uint8_t             *tileStackHeights_;
 
     static const size_t  BLOCK_WIDTH = UNSCALED_BASIC_BLOCK_WIDTH;
     static const size_t  BLOCK_HEIGHT = UNSCALED_BASIC_BLOCK_HEIGHT;
@@ -84,6 +88,8 @@ protected:
     int                  zigZag_[BLOCK_WIDTH * BLOCK_HEIGHT];
     uint8_t              quantizationMatrix_[BLOCK_WIDTH * BLOCK_HEIGHT];
     Pixel               *basisFunctions_;
+
+    vector<vector<bitset<BLOCK_SIZE> > > tileCoefficientMasks;
 
     bool                 saveRam_;
 
