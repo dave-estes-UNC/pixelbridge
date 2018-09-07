@@ -186,6 +186,12 @@ Aborted this work ^^^^
 * Make sure CostModel calculations aren't affected.
 
 
++------------------+
+| Memory Modelling |
++------------------+
+- Fix CostModel errors when using OMP after adopting the new simulated rendering cost logging.
+
+
 +-------------+
 | Future Work |
 +-------------+
