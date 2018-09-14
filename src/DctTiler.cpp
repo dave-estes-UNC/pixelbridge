@@ -489,7 +489,7 @@ void DctTiler::UpdateDisplay(uint8_t* buffer, size_t width, size_t height)
              * the last update. So the stack height is the largest of the old stack height
              * and the current stack height.
              */
-            size_t h = BLOCK_SIZE - 2;
+            int h = BLOCK_SIZE - 2;
             while (h >= 0 && !coefficientsMask.test(h) && !tileCoefficientMasks[i][j].test(h))
                  h--;
             coefficients.resize(h + 1);

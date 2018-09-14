@@ -708,13 +708,7 @@ void outputStats(bool exitNow) {
 #endif
 #endif
 
-    // Clean up
     if (exitNow) {
-        delete myDisplay;
-        // TODO(CDE): Commenting out ot avoid a warning. Figure out the warning.
-        // if (myPlayer) { delete(myPlayer); }
-        if (lastBuffer) { free(lastBuffer); }
-
         exit(0);
     }
 }
