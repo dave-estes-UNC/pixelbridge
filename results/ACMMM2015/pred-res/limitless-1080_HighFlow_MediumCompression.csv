@@ -1,4 +1,4 @@
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1:8,783360,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,1:8,783360,Snap,Delta
 RenderCSV,1,716322,41.7486
 RenderCSV,2,745582,41.3938
 RenderCSV,3,732874,42.452
@@ -278,7 +278,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5412848 , 202068848 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 1578030592 , 9468183552 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 38.5231,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1:8,783360,Trim,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,1:8,783360,Trim,Delta
 RenderCSV,1,716322,41.7486
 RenderCSV,2,745582,41.3938
 RenderCSV,3,732874,42.452
@@ -558,7 +558,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 4677896 , 172677404 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 1342916736 , 8057500416 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 37.4827,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1:8,783360,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,1:8,783360,Snap,Planes
 RenderCSV,1,716322,41.7486
 RenderCSV,2,745582,41.3938
 RenderCSV,3,732874,42.452
@@ -838,7 +838,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5426104 , 195135670 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 1502662720 , 9015976320 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 38.3789,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1:8,783360,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,1:8,783360,Trim,Planes
 RenderCSV,1,716322,41.7486
 RenderCSV,2,745582,41.3938
 RenderCSV,3,732874,42.452
@@ -1118,7 +1118,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5424581 , 151930634 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 1041971456 , 6251828736 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 33.8192,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,16:1 1:8,783360,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,16:1 1:8,783360,Snap,Delta
 RenderCSV,1,717456,40.7759
 RenderCSV,2,768598,40.4693
 RenderCSV,3,762648,41.2703
@@ -1398,7 +1398,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5495739 , 206954352 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 1962016768 , 11772100608 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 38.1999,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,16:1 1:8,783360,Trim,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,16:1 1:8,783360,Trim,Delta
 RenderCSV,1,717474,40.7014
 RenderCSV,2,768610,40.4693
 RenderCSV,3,762648,41.2703
@@ -1678,7 +1678,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 4721099 , 170061518 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 1651121472 , 9906728832 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 37.0827,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,16:1 1:8,783360,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,16:1 1:8,783360,Snap,Planes
 RenderCSV,1,717456,40.7759
 RenderCSV,2,768598,40.4693
 RenderCSV,3,762648,41.2703
@@ -1958,7 +1958,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5680480 , 195766000 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 1822968640 , 10937811840 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 37.9513,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,16:1 1:8,783360,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,16:1 1:8,783360,Trim,Planes
 RenderCSV,1,717456,40.7759
 RenderCSV,2,768598,40.4693
 RenderCSV,3,762648,41.2703
@@ -2238,7 +2238,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5679939 , 151693968 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 1352924672 , 8117548032 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 33.6789,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,2:2 1:8,783360,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,2:2 1:8,783360,Snap,Delta
 RenderCSV,1,801932,40.7105
 RenderCSV,2,830304,40.4363
 RenderCSV,3,876252,41.1369
@@ -2518,7 +2518,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5773422 , 213716178 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 1962630784 , 11775784704 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 37.773,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,2:2 1:8,783360,Trim,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,2:2 1:8,783360,Trim,Delta
 RenderCSV,1,733894,35.2462
 RenderCSV,2,684660,36.8358
 RenderCSV,3,684338,37.6735
@@ -2798,7 +2798,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 4027152 , 172061466 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 1583527232 , 9501163392 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 29.348,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,2:2 1:8,783360,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,2:2 1:8,783360,Snap,Planes
 RenderCSV,1,802386,40.8728
 RenderCSV,2,827844,40.5881
 RenderCSV,3,819102,41.4573
@@ -3078,7 +3078,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 6779119 , 204991612 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 1726071680 , 10356430080 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 37.7497,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,2:2 1:8,783360,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,2:2 1:8,783360,Trim,Planes
 RenderCSV,1,773354,28.8904
 RenderCSV,2,725382,28.921
 RenderCSV,3,729316,29.0185
@@ -3358,7 +3358,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 6784333 , 162932866 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 1279463040 , 7676778240 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 27.0203,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,4:3 1:8,783360,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,4:3 1:8,783360,Snap,Delta
 RenderCSV,1,692410,39.9271
 RenderCSV,2,753746,39.6956
 RenderCSV,3,749416,40.3977
@@ -3638,7 +3638,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 4506634 , 192710254 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 3404083136 , 20424498816 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 37.3059,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,4:3 1:8,783360,Trim,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,4:3 1:8,783360,Trim,Delta
 RenderCSV,1,692410,40.0375
 RenderCSV,2,638916,39.7099
 RenderCSV,3,656094,40.3987
@@ -3918,7 +3918,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 3799197 , 160030194 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 3130955776 , 18785734656 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 36.2073,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,4:3 1:8,783360,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,4:3 1:8,783360,Snap,Planes
 RenderCSV,1,714636,39.4094
 RenderCSV,2,732742,39.105
 RenderCSV,3,740904,39.9405
@@ -4198,7 +4198,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5990854 , 180803044 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 3118756096 , 18712536576 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 35.9717,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,4:3 1:8,783360,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,4:3 1:8,783360,Trim,Planes
 RenderCSV,1,599830,38.4988
 RenderCSV,2,592010,38.1494
 RenderCSV,3,597444,39.1685
@@ -4478,7 +4478,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5992044 , 131522136 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 2592966144 , 15557796864 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 33.8531,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,8:2 4:2 1:8,783360,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,8:2 4:2 1:8,783360,Snap,Delta
 RenderCSV,1,716686,39.6772
 RenderCSV,2,776828,39.3976
 RenderCSV,3,766230,40.102
@@ -4758,7 +4758,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5090828 , 207270302 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 3800448640 , 22802691840 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 37.4816,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,8:2 4:2 1:8,783360,Trim,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,8:2 4:2 1:8,783360,Trim,Delta
 RenderCSV,1,716686,39.793
 RenderCSV,2,712672,39.5468
 RenderCSV,3,712940,40.1713
@@ -5038,7 +5038,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 4233339 , 161017716 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 3398553216 , 20391319296 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 36.4344,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,8:2 4:2 1:8,783360,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,8:2 4:2 1:8,783360,Snap,Planes
 RenderCSV,1,730634,39.6369
 RenderCSV,2,751676,39.3315
 RenderCSV,3,748740,40.1268
@@ -5318,7 +5318,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 6131247 , 179751270 , 72495267840 , 289981071360 , 0 , 0 , 241650892800 , 1014933749760 , 3395934272 , 20375605632 , 24165089280 , 72495267840 , 0 , 0 , 0 , 377579520 , 0 , 36.3299,../recordings/acmmm2011/video/limitless-1080.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,8:2 4:2 1:8,783360,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/limitless-1080.mov,1400,240,8:2 4:2 1:8,783360,Trim,Planes
 RenderCSV,1,608948,38.7141
 RenderCSV,2,597756,38.3532
 RenderCSV,3,604828,39.4058

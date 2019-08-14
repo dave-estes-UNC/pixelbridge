@@ -1,4 +1,4 @@
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,1:8,2073600,Snap,Delta
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,1:8,2073600,Snap,Delta
 RenderCSV,1,2085366,42.0774
 RenderCSV,2,1073168,43.0691
 RenderCSV,3,1133056,44.0981
@@ -278,7 +278,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5464231 , 93397702 , 377428377600 , 1509713510400 , 0 , 0 , 1258094592000 , 5283997286400 , 413390848 , 2480345088 , 125809459200 , 377428377600 , 0 , 0 , 0 , 1965772800 , 0 , 40.2928,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,1:8,2073600,Trim,Delta
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,1:8,2073600,Trim,Delta
 RenderCSV,1,2085366,42.3766
 RenderCSV,2,1327308,44.8426
 RenderCSV,3,1311388,45.3207
@@ -558,7 +558,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5456997 , 119332752 , 377428377600 , 1509713510400 , 0 , 0 , 1258094592000 , 5283997286400 , 690803008 , 4144818048 , 125809459200 , 377428377600 , 0 , 0 , 0 , 1965772800 , 0 , 46.6012,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,1:8,2073600,Snap,Planes
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,1:8,2073600,Snap,Planes
 RenderCSV,1,2073600,37.725
 RenderCSV,2,1073168,38.0633
 RenderCSV,3,1133056,38.3627
@@ -838,7 +838,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5518614 , 88297824 , 377428377600 , 1509713510400 , 0 , 0 , 1258094592000 , 5283997286400 , 353191296 , 2119147776 , 125809459200 , 377428377600 , 0 , 0 , 0 , 1965772800 , 0 , 31.9921,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,1:8,2073600,Trim,Planes
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,1:8,2073600,Trim,Planes
 RenderCSV,1,2073600,37.725
 RenderCSV,2,1327308,38.4228
 RenderCSV,3,1311388,38.5273
@@ -1118,7 +1118,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5554874 , 115511654 , 377428377600 , 1509713510400 , 0 , 0 , 1258094592000 , 5283997286400 , 639604416 , 3837626496 , 125809459200 , 377428377600 , 0 , 0 , 0 , 1965772800 , 0 , 37.3637,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,16:1 1:8,2073600,Snap,Delta
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,16:1 1:8,2073600,Snap,Delta
 RenderCSV,1,1347742,45.3075
 RenderCSV,2,1840196,45.3072
 RenderCSV,3,1459006,45.7971
@@ -1398,7 +1398,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5809179 , 123904278 , 374243328000 , 1496973312000 , 0 , 0 , 1247477760000 , 5239406592000 , 1131527680 , 6789166080 , 124747776000 , 374243328000 , 0 , 0 , 0 , 1949184000 , 0 , 46.9185,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,16:1 1:8,2073600,Trim,Delta
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,16:1 1:8,2073600,Trim,Delta
 RenderCSV,1,1347742,45.3075
 RenderCSV,2,1576394,45.41
 RenderCSV,3,1458990,45.8457
@@ -1678,7 +1678,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5854876 , 126134122 , 379020902400 , 1516083609600 , 0 , 0 , 1263403008000 , 5306292633600 , 1150438336 , 6902630016 , 126340300800 , 379020902400 , 0 , 0 , 0 , 1974067200 , 0 , 46.5841,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,16:1 1:8,2073600,Snap,Planes
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,16:1 1:8,2073600,Snap,Planes
 RenderCSV,1,2048224,44.4611
 RenderCSV,2,1619868,45.3072
 RenderCSV,3,1458990,45.7971
@@ -1958,7 +1958,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 6406432 , 107378884 , 379020902400 , 1516083609600 , 0 , 0 , 1263403008000 , 5306292633600 , 891549824 , 5349298944 , 126340300800 , 379020902400 , 0 , 0 , 0 , 1974067200 , 0 , 33.5156,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,16:1 1:8,2073600,Trim,Planes
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,16:1 1:8,2073600,Trim,Planes
 RenderCSV,1,1997470,42.3562
 RenderCSV,2,1576394,42.5313
 RenderCSV,3,1458990,42.7869
@@ -2238,7 +2238,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 6420601 , 122509108 , 379020902400 , 1516083609600 , 0 , 0 , 1263403008000 , 5306292633600 , 1051427520 , 6308565120 , 126340300800 , 379020902400 , 0 , 0 , 0 , 1974067200 , 0 , 40.0891,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2:2 1:8,2073600,Snap,Delta
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,2:2 1:8,2073600,Snap,Delta
 RenderCSV,1,1091630,46.0536
 RenderCSV,2,906836,46.597
 RenderCSV,3,816142,47.4469
@@ -2518,7 +2518,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 4623643 , 112423060 , 375835852800 , 1503343411200 , 0 , 0 , 1252786176000 , 5261701939200 , 990207360 , 5941244160 , 125278617600 , 375835852800 , 0 , 0 , 0 , 1957478400 , 0 , 47.3429,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2:2 1:8,2073600,Trim,Delta
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,2:2 1:8,2073600,Trim,Delta
 RenderCSV,1,1012438,42.4693
 RenderCSV,2,980028,44.8337
 RenderCSV,3,882104,46.2857
@@ -2798,7 +2798,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 4228037 , 105433082 , 379020902400 , 1516083609600 , 0 , 0 , 1263403008000 , 5306292633600 , 844111296 , 5064667776 , 126340300800 , 379020902400 , 0 , 0 , 0 , 1974067200 , 0 , 27.3315,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2:2 1:8,2073600,Snap,Planes
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,2:2 1:8,2073600,Snap,Planes
 RenderCSV,1,2409936,37.5014
 RenderCSV,2,947878,38.5173
 RenderCSV,3,959924,38.7082
@@ -3078,7 +3078,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5532941 , 90064982 , 379020902400 , 1516083609600 , 0 , 0 , 1263403008000 , 5306292633600 , 643146048 , 3858876288 , 126340300800 , 379020902400 , 0 , 0 , 0 , 1974067200 , 0 , 31.9896,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2:2 1:8,2073600,Trim,Planes
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,2:2 1:8,2073600,Trim,Planes
 RenderCSV,1,2413568,36.198
 RenderCSV,2,1125048,36.8223
 RenderCSV,3,1056662,37.05
@@ -3358,7 +3358,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5591022 , 120189204 , 379020902400 , 1516083609600 , 0 , 0 , 1263403008000 , 5306292633600 , 997258112 , 5983548672 , 126340300800 , 379020902400 , 0 , 0 , 0 , 1974067200 , 0 , 35.9045,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,4:3 1:8,2073600,Snap,Delta
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,4:3 1:8,2073600,Snap,Delta
 RenderCSV,1,919326,45.5169
 RenderCSV,2,915386,45.9723
 RenderCSV,3,781402,46.8263
@@ -3638,7 +3638,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 3641778 , 107400744 , 375835852800 , 1503343411200 , 0 , 0 , 1252786176000 , 5261701939200 , 1882753472 , 11296520832 , 125278617600 , 375835852800 , 0 , 0 , 0 , 1957478400 , 0 , 46.9552,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,4:3 1:8,2073600,Trim,Delta
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,4:3 1:8,2073600,Trim,Delta
 RenderCSV,1,919326,45.5169
 RenderCSV,2,1226432,45.8265
 RenderCSV,3,1115794,46.3192
@@ -3918,7 +3918,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 4056256 , 113381080 , 380613427200 , 1522453708800 , 0 , 0 , 1268711424000 , 5328587980800 , 1902332736 , 11413996416 , 126871142400 , 380613427200 , 0 , 0 , 0 , 1982361600 , 0 , 46.4778,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,4:3 1:8,2073600,Snap,Planes
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,4:3 1:8,2073600,Snap,Planes
 RenderCSV,1,2024632,37.7596
 RenderCSV,2,935448,38.0392
 RenderCSV,3,918936,38.2663
@@ -4198,7 +4198,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5204431 , 88017418 , 379020902400 , 1516083609600 , 0 , 0 , 1263403008000 , 5306292633600 , 1509315008 , 9055890048 , 126340300800 , 379020902400 , 0 , 0 , 0 , 1974067200 , 0 , 32.3245,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,4:3 1:8,2073600,Trim,Planes
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,4:3 1:8,2073600,Trim,Planes
 RenderCSV,1,2047656,37.7825
 RenderCSV,2,1226432,38.3093
 RenderCSV,3,1115794,38.3852
@@ -4478,7 +4478,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5321882 , 115308932 , 379020902400 , 1516083609600 , 0 , 0 , 1263403008000 , 5306292633600 , 1787896384 , 10727378304 , 126340300800 , 379020902400 , 0 , 0 , 0 , 1974067200 , 0 , 40.0455,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,8:2 4:2 1:8,2073600,Snap,Delta
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,8:2 4:2 1:8,2073600,Snap,Delta
 RenderCSV,1,911638,44.8928
 RenderCSV,2,942466,44.8969
 RenderCSV,3,762502,45.4024
@@ -4758,7 +4758,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 4136949 , 108897918 , 374243328000 , 1496973312000 , 0 , 0 , 1247477760000 , 5239406592000 , 2427529792 , 14565178752 , 124747776000 , 374243328000 , 0 , 0 , 0 , 1949184000 , 0 , 46.6381,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,8:2 4:2 1:8,2073600,Trim,Delta
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,8:2 4:2 1:8,2073600,Trim,Delta
 RenderCSV,1,907040,44.9107
 RenderCSV,2,1346368,44.9313
 RenderCSV,3,1249744,45.224
@@ -5038,7 +5038,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 4689118 , 116785630 , 379020902400 , 1516083609600 , 0 , 0 , 1263403008000 , 5306292633600 , 2307936000 , 13847616000 , 126340300800 , 379020902400 , 0 , 0 , 0 , 1974067200 , 0 , 45.5868,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,8:2 4:2 1:8,2073600,Snap,Planes
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,8:2 4:2 1:8,2073600,Snap,Planes
 RenderCSV,1,1929550,37.1919
 RenderCSV,2,1123902,38.2103
 RenderCSV,3,1107404,38.5305
@@ -5318,7 +5318,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 5862338 , 95229068 , 379020902400 , 1516083609600 , 0 , 0 , 1263403008000 , 5306292633600 , 1782995392 , 10697972352 , 126340300800 , 379020902400 , 0 , 0 , 0 , 1974067200 , 0 , 31.967,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv
-GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,8:2 4:2 1:8,2073600,Trim,Planes
+GroupCSV,../recordings/2015/Elysium_trailer_3840x2160_3176f_24fps_RMN_QP24.mkv,2930,240,8:2 4:2 1:8,2073600,Trim,Planes
 RenderCSV,1,1946258,36.9757
 RenderCSV,2,1346368,37.6547
 RenderCSV,3,1249744,37.8425

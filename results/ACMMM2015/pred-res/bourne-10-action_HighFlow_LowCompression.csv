@@ -1,4 +1,4 @@
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,1:8,260640,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,1:8,260640,Snap,Delta
 RenderCSV,1,102936,45.5891
 RenderCSV,2,105288,45.2044
 RenderCSV,3,112740,45.1174
@@ -278,7 +278,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 935049 , 29022702 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 193777520 , 1162665120 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 43.6026,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,1:8,260640,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,1:8,260640,Tim,Delta
 RenderCSV,1,102936,45.5891
 RenderCSV,2,105288,45.2044
 RenderCSV,3,112740,45.1174
@@ -558,7 +558,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 935049 , 29022648 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 193776944 , 1162661664 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 43.6025,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,1:8,260640,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,1:8,260640,Snap,Planes
 RenderCSV,1,102936,45.5891
 RenderCSV,2,105288,45.2044
 RenderCSV,3,112740,45.1174
@@ -838,7 +838,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 935049 , 29022546 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 193775856 , 1162655136 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 43.6025,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,1:8,260640,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,1:8,260640,Trim,Planes
 RenderCSV,1,102936,45.5891
 RenderCSV,2,105288,45.2044
 RenderCSV,3,112740,45.1174
@@ -1118,7 +1118,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 935049 , 29022378 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 193774064 , 1162644384 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 43.6026,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,16:1 1:8,260640,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,16:1 1:8,260640,Snap,Delta
 RenderCSV,1,93788,42.7831
 RenderCSV,2,107000,42.7358
 RenderCSV,3,115168,42.5025
@@ -1398,7 +1398,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 975217 , 29410210 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 254042528 , 1524255168 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 41.7671,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,16:1 1:8,260640,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,16:1 1:8,260640,Tim,Delta
 RenderCSV,1,93788,42.7831
 RenderCSV,2,107000,42.7358
 RenderCSV,3,115168,42.5025
@@ -1678,7 +1678,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 975217 , 29410210 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 254042528 , 1524255168 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 41.7671,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,16:1 1:8,260640,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,16:1 1:8,260640,Snap,Planes
 RenderCSV,1,93788,42.7831
 RenderCSV,2,107000,42.7358
 RenderCSV,3,115168,42.5025
@@ -1958,7 +1958,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 975217 , 29410468 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 254045280 , 1524271680 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 41.7671,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,16:1 1:8,260640,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,16:1 1:8,260640,Trim,Planes
 RenderCSV,1,93788,42.7831
 RenderCSV,2,107000,42.7358
 RenderCSV,3,115168,42.5025
@@ -2238,7 +2238,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 975217 , 29410210 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 254042528 , 1524255168 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 41.7671,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,2:2 1:8,260640,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,2:2 1:8,260640,Snap,Delta
 RenderCSV,1,118576,42.4893
 RenderCSV,2,118570,42.2586
 RenderCSV,3,127292,42.2407
@@ -2518,7 +2518,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1148037 , 33454164 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 267162976 , 1602977856 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 41.4096,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,2:2 1:8,260640,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,2:2 1:8,260640,Tim,Delta
 RenderCSV,1,112330,38.4752
 RenderCSV,2,110512,40.5937
 RenderCSV,3,118262,39.9506
@@ -2798,7 +2798,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1088232 , 32347128 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 275108896 , 1650653376 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 38.082,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,2:2 1:8,260640,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,2:2 1:8,260640,Snap,Planes
 RenderCSV,1,114760,42.9656
 RenderCSV,2,115364,42.6551
 RenderCSV,3,124912,42.6334
@@ -3078,7 +3078,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1147160 , 31828646 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 248976864 , 1493861184 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 41.791,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,2:2 1:8,260640,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,2:2 1:8,260640,Trim,Planes
 RenderCSV,1,111778,31.4404
 RenderCSV,2,110856,31.027
 RenderCSV,3,119272,30.6358
@@ -3358,7 +3358,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1141397 , 32356148 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 253637920 , 1521827520 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 31.7998,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,4:3 1:8,260640,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,4:3 1:8,260640,Snap,Delta
 RenderCSV,1,123136,42.1206
 RenderCSV,2,118312,41.895
 RenderCSV,3,124250,41.9507
@@ -3638,7 +3638,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1014393 , 34145124 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 497393504 , 2984361024 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 40.9992,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,4:3 1:8,260640,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,4:3 1:8,260640,Tim,Delta
 RenderCSV,1,123136,42.1206
 RenderCSV,2,118312,41.895
 RenderCSV,3,124250,41.9507
@@ -3918,7 +3918,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1014097 , 34125598 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 497220256 , 2983321536 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 40.9958,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,4:3 1:8,260640,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,4:3 1:8,260640,Snap,Planes
 RenderCSV,1,123136,42.1206
 RenderCSV,2,118312,41.895
 RenderCSV,3,124250,41.9507
@@ -4198,7 +4198,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1014393 , 34145682 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 497399456 , 2984396736 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 40.9992,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,4:3 1:8,260640,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,4:3 1:8,260640,Trim,Planes
 RenderCSV,1,123136,42.1206
 RenderCSV,2,118312,41.895
 RenderCSV,3,124250,41.9507
@@ -4478,7 +4478,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1014393 , 34060926 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 496621824 , 2979730944 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 40.686,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,8:2 4:2 1:8,260640,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,8:2 4:2 1:8,260640,Snap,Delta
 RenderCSV,1,110950,41.2996
 RenderCSV,2,119360,41.1269
 RenderCSV,3,130074,41.3162
@@ -4758,7 +4758,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1042054 , 33551722 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 569230976 , 3415385856 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 40.5345,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,8:2 4:2 1:8,260640,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,8:2 4:2 1:8,260640,Tim,Delta
 RenderCSV,1,110950,41.2996
 RenderCSV,2,119360,41.1269
 RenderCSV,3,130074,41.3162
@@ -5038,7 +5038,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1042054 , 33551722 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 569230976 , 3415385856 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 40.5345,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,8:2 4:2 1:8,260640,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,8:2 4:2 1:8,260640,Snap,Planes
 RenderCSV,1,110950,41.2996
 RenderCSV,2,119360,41.1269
 RenderCSV,3,130074,41.3162
@@ -5318,7 +5318,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1042056 , 33552216 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 569232480 , 3415394880 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 40.5345,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,8:2 4:2 1:8,260640,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,785,240,8:2 4:2 1:8,260640,Trim,Planes
 RenderCSV,1,110950,41.2996
 RenderCSV,2,119360,41.1269
 RenderCSV,3,130074,41.3162

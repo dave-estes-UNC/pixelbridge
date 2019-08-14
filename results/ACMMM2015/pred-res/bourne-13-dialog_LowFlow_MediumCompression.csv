@@ -1,4 +1,4 @@
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,1:8,130320,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,1:8,130320,Snap,Delta
 RenderCSV,1,128802,32.4874
 RenderCSV,2,108428,32.5983
 RenderCSV,3,91250,32.3996
@@ -278,7 +278,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 856562 , 23643668 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 155085664 , 930513984 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 32.8229,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,1:8,130320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,1:8,130320,Tim,Delta
 RenderCSV,1,128802,33.1752
 RenderCSV,2,109488,33.8261
 RenderCSV,3,103912,33.944
@@ -558,7 +558,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 502779 , 28520742 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 246769440 , 1480616640 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 33.7408,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,1:8,130320,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,1:8,130320,Snap,Planes
 RenderCSV,1,128730,30.5262
 RenderCSV,2,112156,30.6084
 RenderCSV,3,97318,30.4258
@@ -838,7 +838,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 900851 , 24306488 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 160712288 , 964273728 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 29.8599,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,1:8,130320,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,1:8,130320,Trim,Planes
 RenderCSV,1,88440,27.5776
 RenderCSV,2,83560,27.7084
 RenderCSV,3,76860,27.6898
@@ -1118,7 +1118,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 913466 , 18361142 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 97063888 , 582383328 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 27.5424,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,16:1 1:8,130320,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,16:1 1:8,130320,Snap,Delta
 RenderCSV,1,122678,32.462
 RenderCSV,2,109956,32.5365
 RenderCSV,3,97104,32.3657
@@ -1398,7 +1398,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 871059 , 25614210 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 218803456 , 1312820736 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 32.801,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,16:1 1:8,130320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,16:1 1:8,130320,Tim,Delta
 RenderCSV,1,122678,33.0323
 RenderCSV,2,111228,33.6578
 RenderCSV,3,105410,33.7164
@@ -1678,7 +1678,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 493984 , 27866308 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 284960640 , 1709763840 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 33.2813,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,16:1 1:8,130320,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,16:1 1:8,130320,Snap,Planes
 RenderCSV,1,114476,29.8634
 RenderCSV,2,119426,30.5521
 RenderCSV,3,103598,30.378
@@ -1958,7 +1958,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 944759 , 25349054 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 210744144 , 1264464864 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 29.7777,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,16:1 1:8,130320,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,16:1 1:8,130320,Trim,Planes
 RenderCSV,1,88712,28.1505
 RenderCSV,2,65328,28.1488
 RenderCSV,3,81576,28.0895
@@ -2238,7 +2238,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 951435 , 17558670 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 128335344 , 770012064 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 27.318,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,2:2 1:8,130320,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,2:2 1:8,130320,Snap,Delta
 RenderCSV,1,120748,32.6141
 RenderCSV,2,106746,32.6845
 RenderCSV,3,88800,32.5201
@@ -2518,7 +2518,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 732530 , 25418810 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 228480480 , 1370882880 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 32.7813,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,2:2 1:8,130320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,2:2 1:8,130320,Tim,Delta
 RenderCSV,1,131112,29.5138
 RenderCSV,2,109974,30.0296
 RenderCSV,3,105998,30.453
@@ -2798,7 +2798,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 514734 , 27368574 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 258724896 , 1552349376 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 31.3926,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,2:2 1:8,130320,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,2:2 1:8,130320,Snap,Planes
 RenderCSV,1,129144,29.8687
 RenderCSV,2,115908,29.9614
 RenderCSV,3,103452,29.8004
@@ -3078,7 +3078,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1118886 , 25692138 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 191274368 , 1147646208 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 29.3358,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,2:2 1:8,130320,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,2:2 1:8,130320,Trim,Planes
 RenderCSV,1,103578,25.0132
 RenderCSV,2,80720,25.0533
 RenderCSV,3,76784,25.0142
@@ -3358,7 +3358,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1159838 , 19995944 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 130873696 , 785242176 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 25.2234,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,4:3 1:8,130320,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,4:3 1:8,130320,Snap,Delta
 RenderCSV,1,116292,32.4001
 RenderCSV,2,105548,32.4781
 RenderCSV,3,89948,32.2913
@@ -3638,7 +3638,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 598635 , 24365064 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 434516544 , 2607099264 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 32.5025,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,4:3 1:8,130320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,4:3 1:8,130320,Tim,Delta
 RenderCSV,1,116292,32.9124
 RenderCSV,2,112028,33.1861
 RenderCSV,3,93474,33.1049
@@ -3918,7 +3918,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 477457 , 26195788 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 472900512 , 2837403072 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 32.3574,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,4:3 1:8,130320,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,4:3 1:8,130320,Snap,Planes
 RenderCSV,1,117554,29.2918
 RenderCSV,2,109564,29.3468
 RenderCSV,3,102404,29.1674
@@ -4198,7 +4198,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1025330 , 25155980 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 403712496 , 2422274976 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 28.715,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,4:3 1:8,130320,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,4:3 1:8,130320,Trim,Planes
 RenderCSV,1,79722,26.5108
 RenderCSV,2,76382,26.5844
 RenderCSV,3,74420,26.5094
@@ -4478,7 +4478,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1031947 , 17819458 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 325899232 , 1955395392 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 26.2567,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,8:2 4:2 1:8,130320,Snap,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,8:2 4:2 1:8,130320,Snap,Delta
 RenderCSV,1,116542,32.4348
 RenderCSV,2,106896,32.5212
 RenderCSV,3,92296,32.3672
@@ -4758,7 +4758,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 703282 , 24761002 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 458807264 , 2752843584 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 32.5402,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,8:2 4:2 1:8,130320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,8:2 4:2 1:8,130320,Tim,Delta
 RenderCSV,1,116458,32.9321
 RenderCSV,2,111678,33.2909
 RenderCSV,3,106364,33.2991
@@ -5038,7 +5038,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 509976 , 26375916 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 499331088 , 2995986528 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 32.4106,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,8:2 4:2 1:8,130320,Snap,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,8:2 4:2 1:8,130320,Snap,Planes
 RenderCSV,1,113900,29.4012
 RenderCSV,2,105030,29.4582
 RenderCSV,3,100434,29.2765
@@ -5318,7 +5318,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 1051500 , 25381164 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 430961360 , 2585768160 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 28.8658,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,8:2 4:2 1:8,130320,Trim,Planes
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,8:2 4:2 1:8,130320,Trim,Planes
 RenderCSV,1,75804,25.95
 RenderCSV,2,74632,26.1889
 RenderCSV,3,73652,26.1947
