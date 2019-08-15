@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Usage: python pred-res-grapher.py <clip-name> <result.csv> <flow.csv>
+# Usage: python pred-res-grapher.py <clip-name> <result.csv> <flow.csv> <image-dir>
 #
 # Will output a separate graph and latex snippet for every result in the file.
 # The graph will plot psnr for all 240 frames as a line and then the flow
@@ -12,16 +12,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-if len(sys.argv) != 4:
+if len(sys.argv) != 5:
     sys.exit("Wrong number of arguments. See usage in header comment.")
 
 clipname = sys.argv[1]
+imagedir = sys.argv[4]
 
 
 #
 # plotdata
 #
-def plotdata(title, config, flow, psnr, filename):
+def plotdata(title, config, flow, psnr, filename, dir):
     frames = np.arange(len(flow))
     if len(flow) != len(psnr):
         sys.exit("flow and psnr data not equal length.")
@@ -41,7 +42,7 @@ def plotdata(title, config, flow, psnr, filename):
     ax2.tick_params(axis='y', labelcolor='blue')
 
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
-    plt.savefig('images/' + filename)
+    plt.savefig(dir + '/' + filename)
     #plt.show()
 
 #
@@ -56,12 +57,13 @@ def printlatex(title, config, filename, newfig, lastfig, lf):
         print("\\begin{minipage}{.5\\textwidth}")
         print("\\centering")
         print("\\epsfig{file=images/" + filename + ", width=3.0in}")
-        print("\\caption{PSNR vs. optical flow of the " + title + "clip using the configuration " + config + ".}")
+        print("\\caption{PSNR vs. optical flow of the " + title + " clip using the configuration " + config + ".}")
         print("\\label{fig:chart" + filename.replace('.eps', '') + "}")
         print("\\end{minipage}" + ('' if lf else '%'))
     
     if lastfig:
         print("\\end{figure}")
+        print("\\clearpage")
 
 
 
@@ -89,7 +91,14 @@ fignum = 0;
 resultfile = open(sys.argv[2])
 for line in resultfile:
     cells = line.rstrip().split(',')
+    
     if cells[0] == 'GroupCSV':
+        # Parse the details for this group
+        filename = cells[1]
+        config = cells[4] + ',' + cells[6] + ',' + cells[7]
+        start = int(cells[2]) - 2
+        last = start + int(cells[3])
+    elif cells[0] == 'General Information':
         # If we have psnrdata, then plot it.
         if len(psnrdata) > 0:
             subflowdata = flowdata[start:last]
@@ -97,7 +106,7 @@ for line in resultfile:
             filename = filename.replace(' ', '')
             filename = filename.replace(':', '-')
             filename = filename.replace(',', '_')
-            plotdata(clipname, config, subflowdata, psnrdata, filename)
+            plotdata(clipname, config, subflowdata, psnrdata, filename, imagedir)
             printlatex(clipname, config, filename,
                            True if fignum % 6 == 0 else False,
                            True if fignum % 6 == 5 else False,
@@ -105,13 +114,11 @@ for line in resultfile:
             fignum = fignum + 1
 
         psnrdata = []
-        filename = cells[1]
-        config = cells[4] + ',' + cells[6] + ',' + cells[7]
-        start = int(cells[2]) - 2
-        last = start + int(cells[3])
     elif cells[0] == 'RenderCSV':
+        # Add this psnr
         psnrdata.append(float(cells[3]))
 
+# Do any cleanup, like closing the latex figure if necessary
 if fignum % 6 != 0:
     printlatex('', '', '', False, True, False);
 resultfile.close()
