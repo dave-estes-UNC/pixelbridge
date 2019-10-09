@@ -278,7 +278,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 767801 , 28295300 , 28209315840 , 112837263360 , 0 , 0 , 94031052800 , 394930421760 , 219917760 , 1319506560 , 9403105280 , 28209315840 , 0 , 0 , 0 , 146923520 , 0 , 38.4069,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,2,240,1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,2,240,1:8,696320,Trim,Delta
 RenderCSV,1,419726,36.3257
 RenderCSV,2,2872,36.3261
 RenderCSV,3,2590,36.3263
@@ -1398,7 +1398,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 799260 , 28837320 , 28476702720 , 113906810880 , 0 , 0 , 94922342400 , 398673838080 , 271647936 , 1629887616 , 9492234240 , 28476702720 , 0 , 0 , 0 , 148316160 , 0 , 38.0361,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,2,240,16:1 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,2,240,16:1 1:8,696320,Trim,Delta
 RenderCSV,1,420442,36.1114
 RenderCSV,2,2860,36.1116
 RenderCSV,3,2572,36.112
@@ -2518,7 +2518,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 865623 , 30898494 , 28209315840 , 112837263360 , 0 , 0 , 94031052800 , 394930421760 , 278726848 , 1672361088 , 9403105280 , 28209315840 , 0 , 0 , 0 , 146923520 , 0 , 37.9236,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,2,240,2:2 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,2,240,2:2 1:8,696320,Trim,Delta
 RenderCSV,1,491754,34.8443
 RenderCSV,2,4932,34.8603
 RenderCSV,3,3626,34.8699
@@ -3638,7 +3638,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 802693 , 32427862 , 28209315840 , 112837263360 , 0 , 0 , 94031052800 , 394930421760 , 458295808 , 2749774848 , 9403105280 , 28209315840 , 0 , 0 , 0 , 146923520 , 0 , 37.8073,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,2,240,4:3 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,2,240,4:3 1:8,696320,Trim,Delta
 RenderCSV,1,474264,35.9143
 RenderCSV,2,3624,35.9143
 RenderCSV,3,3940,35.9141
@@ -4758,7 +4758,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 840068 , 31865972 , 28209315840 , 112837263360 , 0 , 0 , 94031052800 , 394930421760 , 493622144 , 2961732864 , 9403105280 , 28209315840 , 0 , 0 , 0 , 146923520 , 0 , 37.4138,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,2,240,8:2 4:2 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,2,240,8:2 4:2 1:8,696320,Trim,Delta
 RenderCSV,1,488980,35.4924
 RenderCSV,2,6206,35.4926
 RenderCSV,3,6142,35.4923

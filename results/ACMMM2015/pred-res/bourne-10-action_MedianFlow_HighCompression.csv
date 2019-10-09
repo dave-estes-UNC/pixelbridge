@@ -278,7 +278,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 963186 , 19377636 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 92373984 , 554243904 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 31.6146,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,5258,240,1:8,81450,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,5258,240,1:8,81450,Trim,Delta
 RenderCSV,1,89534,26.7905
 RenderCSV,2,76308,28.9669
 RenderCSV,3,74104,29.058
@@ -1398,7 +1398,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 937248 , 21748074 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 185519088 , 1113114528 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 32.3952,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,5258,240,16:1 1:8,81450,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,5258,240,16:1 1:8,81450,Trim,Delta
 RenderCSV,1,80124,27.0237
 RenderCSV,2,76502,28.814
 RenderCSV,3,74262,28.7395
@@ -2518,7 +2518,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 914295 , 26201274 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 222691136 , 1336146816 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 33.1498,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,5258,240,2:2 1:8,81450,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,5258,240,2:2 1:8,81450,Trim,Delta
 RenderCSV,1,93276,27.8494
 RenderCSV,2,81126,28.5446
 RenderCSV,3,79846,28.0742
@@ -3638,7 +3638,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 701172 , 23631660 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 464575152 , 2787450912 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 32.7863,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,5258,240,4:3 1:8,81450,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,5258,240,4:3 1:8,81450,Trim,Delta
 RenderCSV,1,80680,28.6192
 RenderCSV,2,71082,29.1868
 RenderCSV,3,77230,28.7931
@@ -4758,7 +4758,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 809107 , 23368282 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 463995056 , 2783970336 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 32.6519,../recordings/acmmm2011/video/bourne-10-action.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,5258,240,8:2 4:2 1:8,81450,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-10-action.m4v,5258,240,8:2 4:2 1:8,81450,Trim,Delta
 RenderCSV,1,77166,28.2482
 RenderCSV,2,69062,28.9659
 RenderCSV,3,73904,28.5434

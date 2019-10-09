@@ -23,9 +23,9 @@
 /*
  * Frame Volume
  *
- * Dimensions are 8 x 8 x 193 and holds the 64 basis function for the red, green, and then blue channels and then
- * one extra plane for medium gray. The pre-rendered basis functions are arranged in the frame volume
- * using zig-zag ordering, with the colors interleaved.
+ * Dimensions are largest scale block width x height x 64 and holds the 63 basis function for the red,
+ * green, and then blue channels and then one extra plane for medium gray. The pre-rendered basis
+ * functions are arranged in the frame volume using zig-zag ordering, with the colors interleaved.
  *
  *      0      1      2      3      4      5      6      7      8      9     10     11
  * R(0,0) G(0,0) B(0,0) R(1,0) G(1,0) B(1,0) R(0,1) G(0,1) B(0,1) R(0,2) G(0,2) B(0,2)
@@ -38,8 +38,8 @@
  *
  * Coefficient Plane
  *
- * The Coefficient Planes are then arranged to match, where each coefficient matrix in planes 0 - 191 correspond
- * to the same plane in the Frame Volume with the proper translation values. The last plane (192) picks the
+ * The Coefficient Planes are then arranged to match, where each coefficient matrix in planes 0 - 62 correspond
+ * to the same plane in the Frame Volume with the proper translation values. The last plane (63) picks the
  * extra medium medium gray plane from the frame volume.
  *
  * The scalers for each 8x8 block of coefficient matrices are set per macro block using the DCT coefficients
@@ -70,7 +70,7 @@ MultiDctTiler::MultiDctTiler(size_t display_width, size_t display_height, size_t
     size_t  block_height = globalConfiguration.dctScales[0].scale_multiplier * UNSCALED_BASIC_BLOCK_HEIGHT;
     size_t  block_size = block_width * block_height;
 
-    /* 3 dimensional matching the Macroblock Width x Height x 64 */
+    /* 3 dimensional matching the largest Macroblock Width x Height x 64 */
     vector<unsigned int> fvDimensions;
     fvWidth_ = block_width; fvHeight_ = block_height;
     fvDimensions.push_back(fvWidth_);
@@ -245,9 +245,9 @@ void MultiDctTiler::InitializeCoefficientPlanes() {
 
 /**
  * Initializes the Frame Volume for this tiler by pre-rendering each
- * of the 16 basis functions into 4x4 planes in the Frame Volume. They're
- * rendered for each color channel and stored in those groups of three in
- * zig-zag order.
+ * of the scaled macroblock basis functions into macroblock-sized planes in
+ * the Frame Volume. They're rendered for each color channel and stored in
+ * those groups of three in zig-zag order.
  */
 void MultiDctTiler::InitializeFrameVolume() {
 

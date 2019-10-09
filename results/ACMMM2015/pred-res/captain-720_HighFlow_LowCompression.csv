@@ -278,7 +278,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2297979 , 111427152 , 31819038720 , 127276154880 , 0 , 0 , 106063462400 , 445466542080 , 943438528 , 5660631168 , 10606346240 , 31819038720 , 0 , 0 , 0 , 165724160 , 0 , 39.2759,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,3075,240,1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,3075,240,1:8,696320,Trim,Delta
 RenderCSV,1,239252,42.9969
 RenderCSV,2,290788,42.4771
 RenderCSV,3,330656,41.5234
@@ -1398,7 +1398,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2399138 , 113190506 , 31819038720 , 127276154880 , 0 , 0 , 106063462400 , 445466542080 , 1099107840 , 6594647040 , 10606346240 , 31819038720 , 0 , 0 , 0 , 165724160 , 0 , 38.6523,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,3075,240,16:1 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,3075,240,16:1 1:8,696320,Trim,Delta
 RenderCSV,1,239002,42.7974
 RenderCSV,2,291272,41.3264
 RenderCSV,3,331220,40.2119
@@ -2518,7 +2518,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2762382 , 122670612 , 31819038720 , 127276154880 , 0 , 0 , 106063462400 , 445466542080 , 1137643264 , 6825859584 , 10606346240 , 31819038720 , 0 , 0 , 0 , 165724160 , 0 , 38.6013,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,3075,240,2:2 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,3075,240,2:2 1:8,696320,Trim,Delta
 RenderCSV,1,249312,40.1345
 RenderCSV,2,313318,38.9201
 RenderCSV,3,354426,36.6234
@@ -3638,7 +3638,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2420646 , 121714146 , 31819038720 , 127276154880 , 0 , 0 , 106063462400 , 445466542080 , 1738372544 , 10430235264 , 10606346240 , 31819038720 , 0 , 0 , 0 , 165724160 , 0 , 38.2998,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,3075,240,4:3 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,3075,240,4:3 1:8,696320,Trim,Delta
 RenderCSV,1,254158,42.5404
 RenderCSV,2,324772,41.0784
 RenderCSV,3,369422,40.0421
@@ -4758,7 +4758,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2502916 , 119594908 , 31819038720 , 127276154880 , 0 , 0 , 106063462400 , 445466542080 , 1830398272 , 10982389632 , 10606346240 , 31819038720 , 0 , 0 , 0 , 165724160 , 0 , 37.9752,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,3075,240,8:2 4:2 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,3075,240,8:2 4:2 1:8,696320,Trim,Delta
 RenderCSV,1,246506,41.9718
 RenderCSV,2,328110,40.3193
 RenderCSV,3,372600,39.3944

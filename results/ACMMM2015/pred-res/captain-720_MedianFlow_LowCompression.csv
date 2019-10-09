@@ -278,7 +278,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2297896 , 120203770 , 30214717440 , 120858869760 , 0 , 0 , 100715724800 , 423006044160 , 1037064640 , 6222387840 , 10071572480 , 30214717440 , 0 , 0 , 0 , 157368320 , 0 , 37.4872,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,1178,240,1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,1178,240,1:8,696320,Trim,Delta
 RenderCSV,1,526190,37.642
 RenderCSV,2,497102,37.2348
 RenderCSV,3,490682,37.6726
@@ -1398,7 +1398,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2335737 , 120901920 , 30214717440 , 120858869760 , 0 , 0 , 100715724800 , 423006044160 , 1181134400 , 7086806400 , 10071572480 , 30214717440 , 0 , 0 , 0 , 157368320 , 0 , 37.069,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,1178,240,16:1 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,1178,240,16:1 1:8,696320,Trim,Delta
 RenderCSV,1,526640,37.0278
 RenderCSV,2,502624,36.6789
 RenderCSV,3,495530,37.0594
@@ -2518,7 +2518,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2690809 , 129833974 , 30214717440 , 120858869760 , 0 , 0 , 100715724800 , 423006044160 , 1231830848 , 7390985088 , 10071572480 , 30214717440 , 0 , 0 , 0 , 157368320 , 0 , 36.7902,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,1178,240,2:2 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,1178,240,2:2 1:8,696320,Trim,Delta
 RenderCSV,1,603850,31.5003
 RenderCSV,2,569312,33.1271
 RenderCSV,3,559208,33.9337
@@ -3638,7 +3638,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2315320 , 131746414 , 30214717440 , 120858869760 , 0 , 0 , 100715724800 , 423006044160 , 1925173696 , 11551042176 , 10071572480 , 30214717440 , 0 , 0 , 0 , 157368320 , 0 , 36.459,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,1178,240,4:3 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,1178,240,4:3 1:8,696320,Trim,Delta
 RenderCSV,1,629432,36.498
 RenderCSV,2,593530,36.1942
 RenderCSV,3,583684,36.5282
@@ -4758,7 +4758,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2422926 , 127452654 , 30214717440 , 120858869760 , 0 , 0 , 100715724800 , 423006044160 , 1944396992 , 11666381952 , 10071572480 , 30214717440 , 0 , 0 , 0 , 157368320 , 0 , 36.476,../recordings/acmmm2011/video/captain-720.mov
-GroupCSV,../recordings/acmmm2011/video/captain-720.mov,1178,240,8:2 4:2 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/captain-720.mov,1178,240,8:2 4:2 1:8,696320,Trim,Delta
 RenderCSV,1,600258,36.4869
 RenderCSV,2,562540,36.1762
 RenderCSV,3,556692,36.5127

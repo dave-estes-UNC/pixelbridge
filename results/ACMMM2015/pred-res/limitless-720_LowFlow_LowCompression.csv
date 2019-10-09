@@ -278,7 +278,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2152589 , 96962654 , 32220119040 , 128880476160 , 0 , 0 , 107400396800 , 451081666560 , 804658816 , 4827952896 , 10740039680 , 32220119040 , 0 , 0 , 0 , 167813120 , 0 , 39.3563,../recordings/acmmm2011/video/limitless-720.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-720.mov,1109,240,1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-720.mov,1109,240,1:8,696320,Trim,Delta
 RenderCSV,1,444530,39.0913
 RenderCSV,2,423794,39.5857
 RenderCSV,3,416614,39.2719
@@ -1398,7 +1398,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2383536 , 100773906 , 32220119040 , 128880476160 , 0 , 0 , 107400396800 , 451081666560 , 956664896 , 5739989376 , 10740039680 , 32220119040 , 0 , 0 , 0 , 167813120 , 0 , 38.8637,../recordings/acmmm2011/video/limitless-720.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-720.mov,1109,240,16:1 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-720.mov,1109,240,16:1 1:8,696320,Trim,Delta
 RenderCSV,1,445082,38.7999
 RenderCSV,2,435156,39.1793
 RenderCSV,3,430712,39.0296
@@ -2518,7 +2518,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2686055 , 113094614 , 32220119040 , 128880476160 , 0 , 0 , 107400396800 , 451081666560 , 1046855680 , 6281134080 , 10740039680 , 32220119040 , 0 , 0 , 0 , 167813120 , 0 , 38.694,../recordings/acmmm2011/video/limitless-720.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-720.mov,1109,240,2:2 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-720.mov,1109,240,2:2 1:8,696320,Trim,Delta
 RenderCSV,1,526548,32.9793
 RenderCSV,2,503640,36.9472
 RenderCSV,3,501096,37.4703
@@ -3638,7 +3638,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2518286 , 120567782 , 32220119040 , 128880476160 , 0 , 0 , 107400396800 , 451081666560 , 1715529088 , 10293174528 , 10740039680 , 32220119040 , 0 , 0 , 0 , 167813120 , 0 , 38.3177,../recordings/acmmm2011/video/limitless-720.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-720.mov,1109,240,4:3 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-720.mov,1109,240,4:3 1:8,696320,Trim,Delta
 RenderCSV,1,547894,38.2009
 RenderCSV,2,522244,38.5509
 RenderCSV,3,522710,38.3173
@@ -4758,7 +4758,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 2618334 , 115183974 , 32220119040 , 128880476160 , 0 , 0 , 107400396800 , 451081666560 , 1772619392 , 10635716352 , 10740039680 , 32220119040 , 0 , 0 , 0 , 167813120 , 0 , 38.1917,../recordings/acmmm2011/video/limitless-720.mov
-GroupCSV,../recordings/acmmm2011/video/limitless-720.mov,1109,240,8:2 4:2 1:8,696320,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/limitless-720.mov,1109,240,8:2 4:2 1:8,696320,Trim,Delta
 RenderCSV,1,517374,38.1132
 RenderCSV,2,495346,38.4778
 RenderCSV,3,490962,38.2541

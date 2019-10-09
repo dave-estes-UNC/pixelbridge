@@ -278,7 +278,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 892495 , 47502556 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 402991456 , 2417948736 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 34.9426,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,1:8,260640,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,1:8,260640,Trim,Delta
 RenderCSV,1,253164,35.2954
 RenderCSV,2,246004,35.5696
 RenderCSV,3,200586,35.3759
@@ -1398,7 +1398,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 938172 , 49828176 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 467011040 , 2802066240 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 34.7476,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,16:1 1:8,260640,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,16:1 1:8,260640,Trim,Delta
 RenderCSV,1,242910,34.9132
 RenderCSV,2,248508,35.1548
 RenderCSV,3,207756,34.9917
@@ -2518,7 +2518,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 964059 , 49473852 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 458465856 , 2750795136 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 34.538,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,2:2 1:8,260640,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,2:2 1:8,260640,Trim,Delta
 RenderCSV,1,254908,30.2129
 RenderCSV,2,247158,31.6937
 RenderCSV,3,228272,32.0996
@@ -3638,7 +3638,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 812522 , 45218192 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 633122592 , 3798735552 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 33.8706,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,4:3 1:8,260640,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,4:3 1:8,260640,Trim,Delta
 RenderCSV,1,217738,34.087
 RenderCSV,2,222212,34.5111
 RenderCSV,3,221530,34.5826
@@ -4758,7 +4758,7 @@ Quality Statistics:
 CSV Headings:
 Frames,Commands Sent,Bytes Transmitted,IV Num Reads,IV Bytes Read,IV Num Writes,IV Bytes Written,CP Num Reads,CP Bytes Read,CP Num Writes,CP Bytes Written,FV Num Reads,FV Bytes Read,FV Num Writes,FV Bytes Written,FV Time,Pixels Mapped,Pixels Blended,PSNR,File Name
 240 , 901742 , 45947252 , 12060334080 , 48241336320 , 0 , 0 , 40201113600 , 168844677120 , 660297312 , 3961783872 , 4020111360 , 12060334080 , 0 , 0 , 0 , 62814240 , 0 , 34.048,../recordings/acmmm2011/video/bourne-13-dialog.m4v
-GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,8:2 4:2 1:8,260640,Tim,Delta
+GroupCSV,../recordings/acmmm2011/video/bourne-13-dialog.m4v,5131,240,8:2 4:2 1:8,260640,Trim,Delta
 RenderCSV,1,237052,34.4477
 RenderCSV,2,234310,34.7529
 RenderCSV,3,229946,34.7326
